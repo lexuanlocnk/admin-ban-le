@@ -4,7 +4,11 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
-// Base
+// TAB QUẢN TRỊ
+
+const AdminInfo = React.lazy(() => import('./views/admin/AdminInfo'))
+const AdminGroup = React.lazy(() => import('./views/admin/AdminGroup'))
+
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -52,10 +56,16 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
+
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
+
+  { path: '/admin', name: 'Admin', element: AdminInfo, exact: true },
+  { path: '/admin/information', name: 'AdminInfo', element: AdminInfo },
+  { path: '/admin/groups', name: 'AdminGroup', element: AdminGroup },
+
   { path: '/base', name: 'Base', element: Cards, exact: true },
   { path: '/base/accordion', name: 'Accordion', element: Accordion },
   { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },

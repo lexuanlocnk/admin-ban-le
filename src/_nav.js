@@ -12,40 +12,66 @@ import {
   cilPuzzle,
   cilSpeedometer,
   cilStar,
+  cilUser,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = [
   {
     component: CNavItem,
-    name: 'Dashboard',
+    name: 'Bảng điều khiển',
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-    badge: {
-      color: 'info',
-      text: 'NEW',
-    },
   },
+  // {
+  //   component: CNavTitle,
+  //   name: 'Theme',
+  // },
+  // {
+  //   component: CNavItem,
+  //   name: 'Colors',
+  //   to: '/theme/colors',
+  //   icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
+  // },
+  // {
+  //   component: CNavItem,
+  //   name: 'Typography',
+  //   to: '/theme/typography',
+  //   icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+  // },
   {
     component: CNavTitle,
-    name: 'Theme',
+    name: 'Tab Quản trị',
   },
   {
-    component: CNavItem,
-    name: 'Colors',
-    to: '/theme/colors',
-    icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
+    component: CNavGroup,
+    name: 'Thông tin quản trị',
+    to: '/admin',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Thông tin admin',
+        to: '/admin/information',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý nhóm admin',
+        to: '/admin/groups',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý tài khoản admin',
+        to: '/',
+      },
+      {
+        component: CNavItem,
+        name: 'Lịch sử hoạt động admin',
+        to: '/buttons/dropdowns',
+      },
+    ],
   },
-  {
-    component: CNavItem,
-    name: 'Typography',
-    to: '/theme/typography',
-    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavTitle,
-    name: 'Components',
-  },
+
   {
     component: CNavGroup,
     name: 'Base',

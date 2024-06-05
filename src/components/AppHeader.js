@@ -54,14 +54,8 @@ const AppHeader = () => {
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to="/dashboard" as={NavLink}>
-              Dashboard
+              Công ty TNHH Công Nghệ Chính Nhân
             </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">Users</CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">Settings</CNavLink>
           </CNavItem>
         </CHeaderNav>
         <CHeaderNav className="ms-auto">
@@ -131,9 +125,9 @@ const AppHeader = () => {
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
-      <CContainer className="px-4" fluid>
+      {/* <CContainer className="px-4" fluid>
         <AppBreadcrumb />
-      </CContainer>
+      </CContainer> */}
     </CHeader>
   )
 }

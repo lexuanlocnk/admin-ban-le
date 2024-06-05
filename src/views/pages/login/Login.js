@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   CButton,
   CCard,
@@ -9,6 +9,7 @@ import {
   CContainer,
   CForm,
   CFormInput,
+  CImage,
   CInputGroup,
   CInputGroupText,
   CRow,
@@ -16,23 +17,58 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 
+import Logo from '../../../assets/images/logo/logo CN.png'
+
+import { axiosClient } from '../../../axiosConfig'
+
 const Login = () => {
+  const [username, setUserName] = useState('')
+  const [password, setPassWord] = useState('')
+  const navigate = useNavigate()
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleLogin()
+    }
+  }
+
+  const handleLogin = async () => {
+    try {
+      const res = await axios.post('/login-admin', { username, password })
+      if (res.data.status == true) {
+        localStorage.setItem('adminCN', res.data.token)
+        // window.location.reload()
+        navigate('/')
+      } else {
+        if (res.data.mess == 'username') {
+          alert('Sai tên đăng nhập')
+        } else if (res.data.mess == 'pass') {
+          alert('Sai mật khẩu')
+        }
+        alert('đăng nhập thất bại !!!')
+      }
+    } catch (error) {
+      console.error('login error', error)
+    }
+  }
+
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={8}>
+          <CCol md={4}>
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
                   <CForm>
-                    <h1>Login</h1>
-                    <p className="text-body-secondary">Sign In to your account</p>
+                    <div style={{ width: '100%', marginBottom: 10 }}>
+                      <CImage align="center" rounded src={Logo} width={200} />
+                    </div>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Username" autoComplete="username" />
+                      <CFormInput placeholder="Tên đăng nhập" autoComplete="username" />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -40,39 +76,23 @@ const Login = () => {
                       </CInputGroupText>
                       <CFormInput
                         type="password"
-                        placeholder="Password"
+                        placeholder="Mật khẩu"
                         autoComplete="current-password"
                       />
                     </CInputGroup>
-                    <CRow>
-                      <CCol xs={6}>
-                        <CButton color="primary" className="px-4">
-                          Login
+                    <CRow className="justify-content-md-center">
+                      <CCol xs={12}>
+                        <CButton color="primary" className="px-4 w-100">
+                          Đăng nhập
                         </CButton>
                       </CCol>
-                      <CCol xs={6} className="text-right">
+                      <CCol xs={12} className="text-right mt-2">
                         <CButton color="link" className="px-0">
-                          Forgot password?
+                          Quên mật khẩu?
                         </CButton>
                       </CCol>
                     </CRow>
                   </CForm>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
-                  <div>
-                    <h2>Sign up</h2>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
-                      </CButton>
-                    </Link>
-                  </div>
                 </CCardBody>
               </CCard>
             </CCardGroup>
