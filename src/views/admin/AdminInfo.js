@@ -36,7 +36,7 @@ function AdminInfo() {
             </CCol>
 
             <CCol xs={12}>
-              <CButton color="primary" type="submit">
+              <CButton color="primary" type="submit" size="sm">
                 Cập nhật
               </CButton>
             </CCol>

@@ -43,3 +43,10 @@
 .tim-kiem button:hover {
   background-color: #0056b3;
 }
+
+.button-action {
+  border: none;
+  padding: 8px 10px;
+  margin-right: 4px;
+  border: 1px solid #ccc;
+}
