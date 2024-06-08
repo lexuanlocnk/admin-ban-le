@@ -62,7 +62,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Quản lý tài khoản admin',
-        to: '/',
+        to: '/admin/list',
       },
       {
         component: CNavItem,

@@ -2,7 +2,7 @@
   padding: 10px 12px;
 }
 
-.bo-loc-tim-kiem {
+/* .bo-loc-tim-kiem {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -42,11 +42,4 @@
 
 .tim-kiem button:hover {
   background-color: #0056b3;
-}
-
-.button-action {
-  border: none;
-  padding: 8px 10px;
-  margin-right: 4px;
-  border: 1px solid #ccc;
-}
+} */

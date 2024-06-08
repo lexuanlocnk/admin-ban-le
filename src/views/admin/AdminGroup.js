@@ -54,11 +54,11 @@ function AdminGroup() {
       permission: <Link>Cập nhật quyền [administrator]</Link>,
       actions: (
         <div>
-          <button className="button-action mr-2">
-            <CIcon icon={cilColorBorder} className="text-info" />
+          <button className="button-action mr-2 bg-info">
+            <CIcon icon={cilColorBorder} className="text-white" />
           </button>
-          <button className="button-action">
-            <CIcon icon={cilTrash} className="text-danger" />
+          <button className="button-action bg-danger">
+            <CIcon icon={cilTrash} className="text-white" />
           </button>
         </div>
       ),
@@ -71,11 +71,11 @@ function AdminGroup() {
       permission: <Link>Cập nhật quyền [editor]</Link>,
       actions: (
         <div>
-          <button className="button-action mr-2">
-            <CIcon icon={cilColorBorder} className="text-info" />
+          <button className="button-action mr-2 bg-info">
+            <CIcon icon={cilColorBorder} className="text-white" />
           </button>
-          <button className="button-action">
-            <CIcon icon={cilTrash} className="text-danger" />
+          <button className="button-action bg-danger">
+            <CIcon icon={cilTrash} className="text-white" />
           </button>
         </div>
       ),
@@ -88,11 +88,11 @@ function AdminGroup() {
       permission: <Link>Cập nhật quyền [hire]</Link>,
       actions: (
         <div>
-          <button className="button-action mr-2">
-            <CIcon icon={cilColorBorder} className="text-info" />
+          <button className="button-action mr-2 bg-info">
+            <CIcon icon={cilColorBorder} className="text-white" />
           </button>
-          <button className="button-action">
-            <CIcon icon={cilTrash} className="text-danger" />
+          <button className="button-action bg-danger">
+            <CIcon icon={cilTrash} className="text-white" />
           </button>
         </div>
       ),
@@ -105,11 +105,11 @@ function AdminGroup() {
       permission: <Link>Cập nhật quyền [sale]</Link>,
       actions: (
         <div>
-          <button className="button-action mr-2">
-            <CIcon icon={cilColorBorder} className="text-info" />
+          <button className="button-action mr-2 bg-info">
+            <CIcon icon={cilColorBorder} className="text-white" />
           </button>
-          <button className="button-action">
-            <CIcon icon={cilTrash} className="text-danger" />
+          <button className="button-action bg-danger">
+            <CIcon icon={cilTrash} className="text-white" />
           </button>
         </div>
       ),
@@ -122,11 +122,11 @@ function AdminGroup() {
       permission: <Link>Cập nhật quyền [content]</Link>,
       actions: (
         <div>
-          <button className="button-action mr-2">
-            <CIcon icon={cilColorBorder} className="text-info" />
+          <button className="button-action mr-2 bg-info">
+            <CIcon icon={cilColorBorder} className="text-white" />
           </button>
-          <button className="button-action">
-            <CIcon icon={cilTrash} className="text-danger" />
+          <button className="button-action bg-danger">
+            <CIcon icon={cilTrash} className="text-white" />
           </button>
         </div>
       ),
@@ -136,10 +136,21 @@ function AdminGroup() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol md={6}>
-          <h4>QUẢN LÝ NHÓM ADMIN</h4>
-        </CCol>
-        <CCol md={6}></CCol>
+        <CRow>
+          <CCol>
+            <h4>QUẢN LÝ NHÓM ADMIN</h4>
+          </CCol>
+          <CCol md={{ span: 4, offset: 4 }}>
+            <div className="d-flex justify-content-end">
+              <CButton color="primary" type="submit" size="sm" className="button-add">
+                Thêm mới
+              </CButton>
+              <CButton color="primary" type="submit" size="sm">
+                Danh sách
+              </CButton>
+            </div>
+          </CCol>
+        </CRow>
       </CRow>
 
       <CRow>
