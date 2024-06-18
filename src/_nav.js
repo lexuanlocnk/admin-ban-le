@@ -67,7 +67,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Lịch sử hoạt động admin',
-        to: '/buttons/dropdowns',
+        to: '/admin/log',
       },
     ],
   },

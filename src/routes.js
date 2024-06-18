@@ -9,6 +9,7 @@ const Typography = React.lazy(() => import('./views/theme/typography/Typography'
 const AdminInfo = React.lazy(() => import('./views/admin/AdminInfo'))
 const AdminGroup = React.lazy(() => import('./views/admin/AdminGroup'))
 const AdminList = React.lazy(() => import('./views/admin/AdminList'))
+const AdminLog = React.lazy(() => import('./views/admin/AdminLog'))
 
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
@@ -67,6 +68,7 @@ const routes = [
   { path: '/admin/information', name: 'AdminInfo', element: AdminInfo },
   { path: '/admin/groups', name: 'AdminGroup', element: AdminGroup },
   { path: '/admin/list', name: 'AdminList', element: AdminList },
+  { path: '/admin/log', name: 'AdminLog', element: AdminLog },
 
   { path: '/base', name: 'Base', element: Cards, exact: true },
   { path: '/base/accordion', name: 'Accordion', element: Accordion },

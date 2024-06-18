@@ -11,6 +11,7 @@ import {
   CTable,
   CPagination,
   CPaginationItem,
+  CFormCheck,
 } from '@coreui/react'
 import './css/adminList.css'
 import CIcon from '@coreui/icons-react'
@@ -51,6 +52,62 @@ function AdminList() {
     }
   }
 
+  const items = [
+    {
+      id: <CFormCheck id="flexCheckDefault" />,
+      username: 'quocnguyen',
+      role: 'administrator',
+      visited: '10:51, 20/04/2024',
+      actions: (
+        <div>
+          <button className="button-action mr-2 bg-info">
+            <CIcon icon={cilColorBorder} className="text-white" />
+          </button>
+          <button className="button-action bg-danger">
+            <CIcon icon={cilTrash} className="text-white" />
+          </button>
+        </div>
+      ),
+      _cellProps: { id: { scope: 'row' } },
+    },
+
+    {
+      id: <CFormCheck id="flexCheckDefault" />,
+      username: 'longhoang',
+      role: 'administrator',
+      visited: '10:51, 20/04/2024',
+      actions: (
+        <div>
+          <button className="button-action mr-2 bg-info">
+            <CIcon icon={cilColorBorder} className="text-white" />
+          </button>
+          <button className="button-action bg-danger">
+            <CIcon icon={cilTrash} className="text-white" />
+          </button>
+        </div>
+      ),
+      _cellProps: { id: { scope: 'row' } },
+    },
+
+    {
+      id: <CFormCheck id="flexCheckDefault" />,
+      username: 'andev',
+      role: 'administrator',
+      visited: '10:51, 20/04/2024',
+      actions: (
+        <div>
+          <button className="button-action mr-2 bg-info">
+            <CIcon icon={cilColorBorder} className="text-white" />
+          </button>
+          <button className="button-action bg-danger">
+            <CIcon icon={cilTrash} className="text-white" />
+          </button>
+        </div>
+      ),
+      _cellProps: { id: { scope: 'row' } },
+    },
+  ]
+
   const columns = [
     {
       key: 'id',
@@ -76,62 +133,6 @@ function AdminList() {
       key: 'actions',
       label: 'Tác vụ',
       _props: { scope: 'col' },
-    },
-  ]
-
-  const items = [
-    {
-      id: 1,
-      username: 'quocnguyen',
-      role: 'administrator',
-      visited: '10:51, 20/04/2024',
-      actions: (
-        <div>
-          <button className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-
-    {
-      id: 2,
-      username: 'longhoang',
-      role: 'administrator',
-      visited: '10:51, 20/04/2024',
-      actions: (
-        <div>
-          <button className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-
-    {
-      id: 3,
-      username: 'andev',
-      role: 'administrator',
-      visited: '10:51, 20/04/2024',
-      actions: (
-        <div>
-          <button className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
     },
   ]
 
@@ -298,6 +299,13 @@ function AdminList() {
                 </tbody>
               )}
             </table>
+          </CRow>
+          <CRow>
+            <CCol className="my-2" md={4}>
+              <CButton color="primary" size="sm">
+                Xóa vĩnh viễn
+              </CButton>
+            </CCol>
           </CRow>
           <CRow>
             <CTable className="mt-2" columns={columns} items={items} />
