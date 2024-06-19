@@ -1,12 +1,22 @@
 import { CButton, CCol, CContainer, CForm, CFormInput, CRow } from '@coreui/react'
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 function AdminInfo() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <h4>THÔNG TIN ADMIN</h4>
-        <h6>Thông tin tài khoản</h6>
+        <CCol>
+          <h4>THÔNG TIN ADMIN</h4>
+          <h6>Thông tin tài khoản</h6>
+        </CCol>
+        <CCol md={{ span: 4, offset: 4 }}>
+          <Link to={'/admin/list'}>
+            <CButton color="primary" size="sm">
+              Thêm mới
+            </CButton>
+          </Link>
+        </CCol>
       </CRow>
       <CRow>
         <CCol md={6}>

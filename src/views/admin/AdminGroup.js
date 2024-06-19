@@ -9,16 +9,66 @@ import {
   CRow,
   CTable,
 } from '@coreui/react'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 
 import './css/adminGroup.css'
 import Search from '../../components/search/Search'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 function AdminGroup() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const [formData, setFormData] = useState({ title: '', role: '' })
+
+  const [isEditing, setIsEditing] = useState(false)
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const id = params.get('id')
+    const sub = params.get('sub')
+
+    if (sub === 'add') {
+      setIsEditing(false)
+      setFormData({ title: '', role: '' })
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    } else if (sub === 'edit' && id) {
+      setIsEditing(true)
+      fetchDataById(id)
+    }
+  }, [location.search])
+
+  const fetchDataById = async (id) => {}
+
+  const handleInputChange = async (e) => {
+    const { name, value } = e.target
+    setFormData(...formData, { [name]: value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (isEditing) {
+      //call api update data
+    } else {
+      //call api post new data
+    }
+  }
+
+  const handleAddNewClick = () => {
+    navigate('/admin/groups?sub=add')
+  }
+
+  const handleEditClick = (id) => {
+    navigate(`/admin/groups?id=${id}&sub=edit`)
+  }
+
+  // table data
   const columns = [
     {
       key: 'id',
@@ -54,75 +104,7 @@ function AdminGroup() {
       permission: <Link>Cập nhật quyền [administrator]</Link>,
       actions: (
         <div>
-          <button className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: 2,
-      title: 'Biên tập viên',
-      role: 'editor',
-      permission: <Link>Cập nhật quyền [editor]</Link>,
-      actions: (
-        <div>
-          <button className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: 3,
-      title: 'Tuyển dụng',
-      role: 'hire',
-      permission: <Link>Cập nhật quyền [hire]</Link>,
-      actions: (
-        <div>
-          <button className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: 4,
-      title: 'Sales',
-      role: 'sale',
-      permission: <Link>Cập nhật quyền [sale]</Link>,
-      actions: (
-        <div>
-          <button className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: 5,
-      title: 'PM',
-      role: 'content',
-      permission: <Link>Cập nhật quyền [content]</Link>,
-      actions: (
-        <div>
-          <button className="button-action mr-2 bg-info">
+          <button onClick={handleEditClick(5)} className="button-action mr-2 bg-info">
             <CIcon icon={cilColorBorder} className="text-white" />
           </button>
           <button className="button-action bg-danger">
@@ -133,6 +115,7 @@ function AdminGroup() {
       _cellProps: { id: { scope: 'row' } },
     },
   ]
+
   return (
     <CContainer>
       <CRow className="mb-3">
@@ -142,7 +125,13 @@ function AdminGroup() {
           </CCol>
           <CCol md={{ span: 4, offset: 4 }}>
             <div className="d-flex justify-content-end">
-              <CButton color="primary" type="submit" size="sm" className="button-add">
+              <CButton
+                onClick={handleAddNewClick}
+                color="primary"
+                type="submit"
+                size="sm"
+                className="button-add"
+              >
                 Thêm mới
               </CButton>
               <CButton color="primary" type="submit" size="sm">
@@ -158,11 +147,11 @@ function AdminGroup() {
           <h6>Thêm nhóm admin mới</h6>
           <CForm className="row gy-3">
             <CCol md={12}>
-              <CFormInput id="inputEmail4" label="Tiêu đề" />
+              <CFormInput ref={inputRef} id="inputTitle" label="Tiêu đề" value={formData.title} />
             </CCol>
 
             <CCol md={12}>
-              <CFormInput id="inputPassword4" label="Role" />
+              <CFormInput id="inputPassword" label="Role" value={formData.role} />
             </CCol>
 
             <CCol xs={12}>
