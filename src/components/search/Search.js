@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../css/search.css'
-function Search() {
+
+function Search({ onSearchData }) {
+  const [keyword, setKeyword] = useState('')
   return (
     <table className="filter-table">
       <thead>
@@ -16,8 +18,15 @@ function Search() {
         <tr>
           <td>Tìm kiếm</td>
           <td>
-            <input type="text" className="search-input" />
-            <button className="submit-btn">Submit</button>
+            <input
+              type="text"
+              className="search-input"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+            <button onClick={() => onSearchData(keyword)} className="submit-btn">
+              Submit
+            </button>
           </td>
         </tr>
       </tbody>
