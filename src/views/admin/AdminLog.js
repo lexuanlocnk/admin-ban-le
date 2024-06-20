@@ -12,14 +12,24 @@ import {
   CRow,
   CTable,
 } from '@coreui/react'
+import ReactPaginate from 'react-paginate'
 // import './css/adminLog.css'
 
 function AdminLog() {
   const [isCollapse, setIsCollapse] = useState(false)
 
+  const [selectedCheckbox, setSelectedCheckbox] = useState([])
+
+  // search input
+  const [dataSearch, setDataSearch] = useState('')
+
+  //pagination state
+  const [pageNumber, setPageNumber] = useState(1)
+
   // date picker
   const [startDate, setStartDate] = useState(new Date())
   const [endDate, setEndDate] = useState(new Date())
+  const [errors, setErrors] = useState({ startDate: '', endDate: '' })
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
@@ -70,6 +80,43 @@ function AdminLog() {
     },
   ]
 
+  // validate for date start - date end
+  const validateDates = (start, end) => {
+    const newErrors = { startDate: '', endDate: '' }
+    if (start && end && start > end) {
+      newErrors.startDate = 'Ngày bắt đầu không được sau ngày kết thúc'
+      newErrors.endDate = 'Ngày kết thúc không được trước ngày bắt đầu'
+    }
+    setErrors(newErrors)
+  }
+
+  const handleStartDateChange = (date) => {
+    setStartDate(date)
+    validateDates(date, endDate)
+  }
+
+  const handleEndDateChange = (date) => {
+    setEndDate(date)
+    validateDates(startDate, date)
+  }
+
+  // pagination data
+  const handlePageChange = ({ selected }) => {
+    const newPage = selected + 1
+    if (newPage < 2) {
+      setPageNumber(newPage)
+      window.scrollTo(0, 0)
+      return
+    }
+    window.scrollTo(0, 0)
+    setPageNumber(newPage)
+  }
+
+  // search Data
+  const handleSearch = (keyword) => {
+    fetchDataById(keyword)
+  }
+
   return (
     <CContainer>
       <CRow>
@@ -111,14 +158,24 @@ function AdminLog() {
               <tr>
                 <td>Theo ngày</td>
                 <td>
-                  <div className="d-flex align-items-center">
-                    <DatePicker
-                      showIcon
-                      selected={startDate}
-                      onChange={(date) => setStartDate(date)}
-                    />
-                    <p className="m-2">{'đến ngày'}</p>
-                    <DatePicker showIcon selected={endDate} onChange={(date) => setEndDate(date)} />
+                  <div>
+                    <div className="d-flex align-items-center">
+                      <DatePicker
+                        dateFormat={'dd-MM-yyyy'}
+                        showIcon
+                        selected={startDate}
+                        onChange={handleStartDateChange}
+                      />
+                      <p className="m-2">{'đến ngày'}</p>
+                      <DatePicker
+                        dateFormat={'dd-MM-yyyy'}
+                        showIcon
+                        selected={endDate}
+                        onChange={handleEndDateChange}
+                      />
+                    </div>
+                    {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                    {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
                   </div>
                 </td>
               </tr>
@@ -135,8 +192,15 @@ function AdminLog() {
                     ]}
                   />
                   <div className="mt-2">
-                    <input type="text" className="search-input" />
-                    <button className="submit-btn">Submit</button>
+                    <input
+                      type="text"
+                      className="search-input"
+                      value={dataSearch}
+                      onChange={(e) => setDataSearch(e.target.value)}
+                    />
+                    <button onClick={handleSearch} className="submit-btn">
+                      Submit
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -155,17 +219,27 @@ function AdminLog() {
 
       <CRow>
         <CTable className="mt-2" columns={columns} items={items} />
-        <CPagination align="end" aria-label="Page navigation example" size="sm">
-          <CPaginationItem aria-label="Previous" disabled>
-            <span aria-hidden="true">&laquo;</span>
-          </CPaginationItem>
-          <CPaginationItem active>1</CPaginationItem>
-          <CPaginationItem>2</CPaginationItem>
-          <CPaginationItem>3</CPaginationItem>
-          <CPaginationItem aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </CPaginationItem>
-        </CPagination>
+        <div className="d-flex justify-content-end">
+          <ReactPaginate
+            pageCount={Math.round(20 / 10)}
+            pageRangeDisplayed={3}
+            marginPagesDisplayed={1}
+            pageClassName="page-item"
+            pageLinkClassName="page-link"
+            previousClassName="page-item"
+            previousLinkClassName="page-link"
+            nextClassName="page-item"
+            nextLinkClassName="page-link"
+            breakLabel="..."
+            breakClassName="page-item"
+            breakLinkClassName="page-link"
+            onPageChange={handlePageChange}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+            previousLabel={'<<'}
+            nextLabel={'>>'}
+          />
+        </div>
       </CRow>
     </CContainer>
   )

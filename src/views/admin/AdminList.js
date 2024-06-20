@@ -23,6 +23,21 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 
+const fakeData = [
+  {
+    id: 1,
+    username: 'quocnguyen',
+    role: 'administrator',
+    visited: '10:51, 20/04/2024',
+  },
+  {
+    id: 2,
+    username: 'quocnguyen1',
+    role: 'administrator',
+    visited: '10:51, 20/04/2024',
+  },
+]
+
 function AdminList() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -30,8 +45,12 @@ function AdminList() {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
+  // selected checkbox
+  const [selectedCheckbox, setSelectedCheckbox] = useState([])
+
   // image upload
   const [selectedImage, setSelectedImage] = useState(null)
+
   const [isCollapse, setIsCollapse] = useState(false)
 
   // search input
@@ -50,7 +69,6 @@ function AdminList() {
     email: '',
     phone: '',
     displayName: '',
-    avatar: null,
     role: '',
   }
 
@@ -60,7 +78,6 @@ function AdminList() {
     email: Yup.string().email('Địa chỉ email không hợp lệ.').required('Email là bắt buộc.'),
     phone: Yup.string().required('Số điện thoại là bắt buộc.'),
     displayName: Yup.string().required('Tên hiển thị là bắt buộc.'),
-    avatar: Yup.mixed().required('Ảnh đại diện là bắt buộc.'),
     role: Yup.string().required('Vai trò là bắt buộc.'),
   })
 
@@ -84,7 +101,7 @@ function AdminList() {
     //api?search={dataSearch}
   }
 
-  const handleSubmit = async (e, values) => {
+  const handleSubmit = async (values) => {
     console.log(values)
     // if (isEditing) {
     //   //call api update data
@@ -119,7 +136,6 @@ function AdminList() {
   }
 
   // pagination data
-
   const handlePageChange = ({ selected }) => {
     const newPage = selected + 1
     if (newPage < 2) {
@@ -154,25 +170,38 @@ function AdminList() {
   //   }
   // }
 
-  const items = [
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      username: 'quocnguyen',
-      role: 'administrator',
-      visited: '10:51, 20/04/2024',
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-  ]
+  const items = fakeData.map((item) => ({
+    id: (
+      <CFormCheck
+        id={item.id}
+        checked={selectedCheckbox.includes(item.id)}
+        value={item.id}
+        onChange={(e) => {
+          const idx = item.id
+          const isChecked = e.target.checked
+          if (isChecked) {
+            setSelectedCheckbox([...selectedCheckbox, idx])
+          } else {
+            setSelectedCheckbox(selectedCheckbox.filter((id) => id !== idx))
+          }
+        }}
+      />
+    ),
+    username: item.username,
+    role: item.role,
+    visited: item.visited,
+    actions: (
+      <div>
+        <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
+          <CIcon icon={cilColorBorder} className="text-white" />
+        </button>
+        <button onClick={() => handleDelete(1)} className="button-action bg-danger">
+          <CIcon icon={cilTrash} className="text-white" />
+        </button>
+      </div>
+    ),
+    _cellProps: { id: { scope: 'row' } },
+  }))
 
   const columns = [
     {
@@ -231,100 +260,6 @@ function AdminList() {
         {/* Form add/ edit */}
         <CCol md={4}>
           <h6>{!isEditing ? 'Thêm admin mới' : 'Cập nhật tài khoản admin'}</h6>
-          {/* <CForm className="row gy-3">
-            <CCol md={12}>
-              <CFormInput
-                id="username-input"
-                label="Tên đăng nhập"
-                text="Tên đăng nhập hệ thống (bắt buộc)."
-              />
-            </CCol>
-
-            <CCol md={12}>
-              <CFormInput
-                type="password"
-                id="password-input"
-                label="Mật khẩu"
-                aria-label="Nhập mật khẩu"
-              />
-            </CCol>
-
-            <CCol md={12}>
-              <CFormInput
-                id="email-input"
-                type="email"
-                label="Thư điện tử"
-                text="Thư điện tử (bắt buộc)."
-                aria-label="Nhập địa chỉ email"
-              />
-            </CCol>
-
-            <CCol md={12}>
-              <CFormInput
-                id="phone-input"
-                label="Số điện thoại"
-                text="Số điện thoại (bắt buộc)."
-                aria-label="Nhập số điện thoại"
-              />
-            </CCol>
-
-            <CCol md={12}>
-              <CFormInput
-                id="display-name-input"
-                label="Tên hiển thị"
-                text="Tên hiển thị (bắt buộc)."
-                aria-label="Nhập tên hiển thị"
-              />
-            </CCol>
-
-            <CCol md={12}>
-              <div>
-                <CFormInput
-                  type="file"
-                  size="sm"
-                  id="avatar-input"
-                  label="Ảnh đại diện"
-                  onChange={handleImageUpload}
-                  aria-label="Tải lên ảnh đại diện"
-                />
-                {selectedImage && (
-                  <div>
-                    <div>
-                      <CImage
-                        className="mt-2"
-                        src={URL.createObjectURL(selectedImage)}
-                        alt="Ảnh đã upload"
-                        width={300}
-                      />
-                    </div>
-                    <CButton className="mt-2" color="danger" size="sm" onClick={handleImageRemove}>
-                      Xóa
-                    </CButton>
-                  </div>
-                )}
-              </div>
-            </CCol>
-
-            <CCol md={12}>
-              <CFormSelect
-                className="component-size"
-                label="Vai trò"
-                aria-label="Chọn vai trò"
-                options={[
-                  { label: 'Biên tập viên', value: '1' },
-                  { label: 'Quản trị web', value: '2' },
-                  { label: 'Marketing', value: '3' },
-                ]}
-              />
-            </CCol>
-
-            <CCol xs={12}>
-              <CButton color="primary" type="submit" size="sm">
-                {isEditing ? 'Cập nhật' : 'Thêm mới'}
-              </CButton>
-            </CCol>
-          </CForm> */}
-
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
@@ -332,50 +267,56 @@ function AdminList() {
           >
             {({ setFieldValue }) => (
               <Form>
-                <CForm className="row gy-3">
-                  <CCol md={12}>
-                    <label htmlFor="username-input">Tên đăng nhập</label>
-                    <Field name="username" type="text" as={CFormInput} id="username-input" />
-                    <ErrorMessage name="username" component="div" className="text-danger" />
-                  </CCol>
+                <CCol md={12}>
+                  <label htmlFor="username-input">Tên đăng nhập</label>
+                  <label htmlFor="username-input">Tên đăng nhập</label>
+                  <Field name="username">
+                    {({ field }) => (
+                      <CFormInput {...field} type="text" id="username-input" ref={inputRef} />
+                    )}
+                  </Field>
+                  <ErrorMessage name="username" component="div" className="text-danger" />
+                </CCol>
+                <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="password-input">Mật khẩu</label>
-                    <Field name="password" type="password" as={CFormInput} id="password-input" />
-                    <ErrorMessage name="password" component="div" className="text-danger" />
-                  </CCol>
+                <CCol md={12}>
+                  <label htmlFor="password-input">Mật khẩu</label>
+                  <Field name="password" type="password" as={CFormInput} id="password-input" />
+                  <ErrorMessage name="password" component="div" className="text-danger" />
+                </CCol>
+                <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="email-input">Thư điện tử</label>
-                    <Field name="email" type="email" as={CFormInput} id="email-input" />
-                    <ErrorMessage name="email" component="div" className="text-danger" />
-                  </CCol>
+                <CCol md={12}>
+                  <label htmlFor="email-input">Thư điện tử</label>
+                  <Field name="email" type="email" as={CFormInput} id="email-input" />
+                  <ErrorMessage name="email" component="div" className="text-danger" />
+                </CCol>
+                <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="phone-input">Số điện thoại</label>
-                    <Field name="phone" type="text" as={CFormInput} id="phone-input" />
-                    <ErrorMessage name="phone" component="div" className="text-danger" />
-                  </CCol>
+                <CCol md={12}>
+                  <label htmlFor="phone-input">Số điện thoại</label>
+                  <Field name="phone" type="text" as={CFormInput} id="phone-input" />
+                  <ErrorMessage name="phone" component="div" className="text-danger" />
+                </CCol>
+                <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="display-name-input">Tên hiển thị</label>
-                    <Field name="displayName" type="text" as={CFormInput} id="display-name-input" />
-                    <ErrorMessage name="displayName" component="div" className="text-danger" />
-                  </CCol>
+                <CCol md={12}>
+                  <label htmlFor="display-name-input">Tên hiển thị</label>
+                  <Field name="displayName" type="text" as={CFormInput} id="display-name-input" />
+                  <ErrorMessage name="displayName" component="div" className="text-danger" />
+                </CCol>
+                <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="avatar-input">Ảnh đại diện</label>
-                    <input
-                      id="avatar-input"
-                      name="avatar"
+                <CCol md={12}>
+                  <label htmlFor="avatar-input">Ảnh đại diện</label>
+                  <div>
+                    <CFormInput
                       type="file"
-                      onChange={(event) => {
-                        setFieldValue('avatar', event.target.files[0])
-                        handleImageUpload(event)
-                      }}
+                      id="avatar-input"
+                      size="sm"
+                      onChange={handleImageUpload}
                     />
                     <ErrorMessage name="avatar" component="div" className="text-danger" />
-
                     {selectedImage && (
                       <div>
                         <CImage
@@ -394,29 +335,31 @@ function AdminList() {
                         </CButton>
                       </div>
                     )}
-                  </CCol>
+                  </div>
+                </CCol>
+                <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="role-select">Vai trò</label>
-                    <Field
-                      name="role"
-                      as={CFormSelect}
-                      id="role-select"
-                      options={[
-                        { label: 'Biên tập viên', value: '1' },
-                        { label: 'Quản trị web', value: '2' },
-                        { label: 'Marketing', value: '3' },
-                      ]}
-                    />
-                    <ErrorMessage name="role" component="div" className="text-danger" />
-                  </CCol>
+                <CCol md={12}>
+                  <label htmlFor="role-select">Vai trò</label>
+                  <Field
+                    name="role"
+                    as={CFormSelect}
+                    id="role-select"
+                    options={[
+                      { label: 'Biên tập viên', value: '1' },
+                      { label: 'Quản trị web', value: '2' },
+                      { label: 'Marketing', value: '3' },
+                    ]}
+                  />
+                  <ErrorMessage name="role" component="div" className="text-danger" />
+                </CCol>
+                <br />
 
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                    </CButton>
-                  </CCol>
-                </CForm>
+                <CCol xs={12}>
+                  <CButton color="primary" type="submit" size="sm">
+                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                  </CButton>
+                </CCol>
               </Form>
             )}
           </Formik>
