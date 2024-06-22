@@ -11,6 +11,9 @@ const AdminGroup = React.lazy(() => import('./views/admin/AdminGroup'))
 const AdminList = React.lazy(() => import('./views/admin/AdminList'))
 const AdminLog = React.lazy(() => import('./views/admin/AdminLog'))
 
+const ProductBrand = React.lazy(() => import('./views/product/productBrand'))
+const ProductCategory = React.lazy(() => import('./views/product/category/productCategory'))
+
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -69,6 +72,10 @@ const routes = [
   { path: '/admin/groups', name: 'AdminGroup', element: AdminGroup },
   { path: '/admin/list', name: 'AdminList', element: AdminList },
   { path: '/admin/log', name: 'AdminLog', element: AdminLog },
+  { path: '/admin', name: 'Admin', element: AdminInfo, exact: true },
+
+  { path: '/product/brand', name: 'ProductBrand', element: ProductBrand, exact: true },
+  { path: '/product/category', name: 'ProductCategory', element: ProductCategory, exact: true },
 
   { path: '/base', name: 'Base', element: Cards, exact: true },
   { path: '/base/accordion', name: 'Accordion', element: Accordion },

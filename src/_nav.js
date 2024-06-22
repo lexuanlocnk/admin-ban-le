@@ -13,6 +13,7 @@ import {
   cilSpeedometer,
   cilStar,
   cilUser,
+  cilDevices,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -45,7 +46,7 @@ const _nav = [
   },
   {
     component: CNavGroup,
-    name: 'Thông tin quản trị',
+    name: 'THÔNG TIN QUẢN TRỊ',
     to: '/admin',
     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
     items: [
@@ -68,6 +69,35 @@ const _nav = [
         component: CNavItem,
         name: 'Lịch sử hoạt động admin',
         to: '/admin/log',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ SẢN PHẨM',
+    to: '/product',
+    icon: <CIcon icon={cilDevices} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Thương hiệu sản phẩm',
+        to: '/product/brand',
+      },
+      {
+        component: CNavItem,
+        name: 'Danh mục sản phẩm',
+        to: '/product/category',
+      },
+      {
+        component: CNavItem,
+        name: 'Thuộc tính sản phẩm',
+        to: '/product/2',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý sản phẩm',
+        to: '/product/3',
       },
     ],
   },

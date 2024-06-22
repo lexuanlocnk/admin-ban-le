@@ -269,7 +269,6 @@ function AdminList() {
               <Form>
                 <CCol md={12}>
                   <label htmlFor="username-input">Tên đăng nhập</label>
-                  <label htmlFor="username-input">Tên đăng nhập</label>
                   <Field name="username">
                     {({ field }) => (
                       <CFormInput {...field} type="text" id="username-input" ref={inputRef} />
