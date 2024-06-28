@@ -13,6 +13,7 @@ const AdminLog = React.lazy(() => import('./views/admin/AdminLog'))
 
 const ProductBrand = React.lazy(() => import('./views/product/productBrand'))
 const ProductCategory = React.lazy(() => import('./views/product/category/productCategory'))
+const AddProductCategory = React.lazy(() => import('./views/product/category/AddProductCategory'))
 
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
@@ -76,6 +77,12 @@ const routes = [
 
   { path: '/product/brand', name: 'ProductBrand', element: ProductBrand, exact: true },
   { path: '/product/category', name: 'ProductCategory', element: ProductCategory, exact: true },
+  {
+    path: '/product/category/add',
+    name: 'AddProductCategory',
+    element: AddProductCategory,
+    exact: true,
+  },
 
   { path: '/base', name: 'Base', element: Cards, exact: true },
   { path: '/base/accordion', name: 'Accordion', element: Accordion },

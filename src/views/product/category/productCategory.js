@@ -131,16 +131,10 @@ function ProductCategory() {
                         </td>
                         <td scope="row">
                           <div>
-                            <button
-                              // onClick={() => handleEditClick(1)}
-                              className="button-action mr-2 bg-info"
-                            >
+                            <button className="button-action mr-2 bg-info">
                               <CIcon icon={cilColorBorder} className="text-white" />
                             </button>
-                            <button
-                              // onClick={() => handleDelete(1)}
-                              className="button-action bg-danger"
-                            >
+                            <button className="button-action bg-danger">
                               <CIcon icon={cilTrash} className="text-white" />
                             </button>
                           </div>
@@ -148,35 +142,31 @@ function ProductCategory() {
                       </tr>
                       {cate.subcategories &&
                         cate.subcategories.map((subCate) => (
-                          <tr key={subCate.id}>
-                            <td scope="row">
-                              <CFormCheck id="flexCheckDefault" />
-                            </td>
-                            <td>
-                              <img
-                                src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
-                                alt="Subcategory"
-                                className="mr-2"
-                              />
-                              {subCate.name}
-                            </td>
-                            <td scope="row">
-                              <div>
-                                <button
-                                  // onClick={() => handleEditClick(1)}
-                                  className="button-action mr-2 bg-info"
-                                >
-                                  <CIcon icon={cilColorBorder} className="text-white" />
-                                </button>
-                                <button
-                                  // onClick={() => handleDelete(1)}
-                                  className="button-action bg-danger"
-                                >
-                                  <CIcon icon={cilTrash} className="text-white" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
+                          <React.Fragment key={subCate.id}>
+                            <tr>
+                              <td scope="row">
+                                <CFormCheck id="flexCheckDefault" />
+                              </td>
+                              <td>
+                                <img
+                                  src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
+                                  alt="Subcategory"
+                                  className="mr-2"
+                                />
+                                {subCate.name}
+                              </td>
+                              <td scope="row">
+                                <div>
+                                  <button className="button-action mr-2 bg-info">
+                                    <CIcon icon={cilColorBorder} className="text-white" />
+                                  </button>
+                                  <button className="button-action bg-danger">
+                                    <CIcon icon={cilTrash} className="text-white" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          </React.Fragment>
                         ))}
                     </React.Fragment>
                   )),
