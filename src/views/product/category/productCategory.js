@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import Search from '../../../components/search/Search'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import DeletedModal from '../../../components/deletedModal/DeletedModal'
 
 const fakeData = [
   {
@@ -75,31 +76,42 @@ const fakeData = [
 ]
 
 function ProductCategory() {
+  const navigate = useNavigate()
+  const [visible, setVisible] = useState(false)
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
+  const handleAddNewClick = () => {
+    navigate('/product/category/add')
+  }
+
+  const handleUpdateClick = (id) => {
+    navigate(`/product/category/edit?id=${id}`)
+  }
+
   return (
     <CContainer>
+      <DeletedModal visible={visible} setVisible={setVisible} />
       <CRow className="mb-3">
         <CCol>
           <h3>DANH MỤC SẢN PHẨM</h3>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
-            <Link>
-              <CButton
-                // onClick={handleAddNewClick}
-                color="primary"
-                type="submit"
-                size="sm"
-                className="button-add"
-              >
-                Thêm mới
+            <CButton
+              onClick={handleAddNewClick}
+              color="primary"
+              type="submit"
+              size="sm"
+              className="button-add"
+            >
+              Thêm mới
+            </CButton>
+            <Link to={`/product/category`}>
+              <CButton color="primary" type="submit" size="sm">
+                Danh sách
               </CButton>
             </Link>
-            <CButton color="primary" type="submit" size="sm">
-              Danh sách
-            </CButton>
           </div>
         </CCol>
       </CRow>
@@ -131,7 +143,10 @@ function ProductCategory() {
                         </td>
                         <td scope="row">
                           <div>
-                            <button className="button-action mr-2 bg-info">
+                            <button
+                              onClick={() => handleUpdateClick(cate.id)}
+                              className="button-action mr-2 bg-info"
+                            >
                               <CIcon icon={cilColorBorder} className="text-white" />
                             </button>
                             <button className="button-action bg-danger">
@@ -157,7 +172,10 @@ function ProductCategory() {
                               </td>
                               <td scope="row">
                                 <div>
-                                  <button className="button-action mr-2 bg-info">
+                                  <button
+                                    onClick={() => handleUpdateClick(subCate.id)}
+                                    className="button-action mr-2 bg-info"
+                                  >
                                     <CIcon icon={cilColorBorder} className="text-white" />
                                   </button>
                                   <button className="button-action bg-danger">

@@ -16,6 +16,11 @@ const ProductCategory = React.lazy(() => import('./views/product/category/produc
 const AddProductCategory = React.lazy(() => import('./views/product/category/AddProductCategory'))
 const EditProductCategory = React.lazy(() => import('./views/product/category/EditProductCategory'))
 
+const ProductProperties = React.lazy(() => import('./views/product/properties/productProperties'))
+const AddProductProperties = React.lazy(
+  () => import('./views/product/properties/AddProductProperties'),
+)
+
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -76,7 +81,10 @@ const routes = [
   { path: '/admin/log', name: 'AdminLog', element: AdminLog },
   { path: '/admin', name: 'Admin', element: AdminInfo, exact: true },
 
+  //product brand
   { path: '/product/brand', name: 'ProductBrand', element: ProductBrand, exact: true },
+
+  //product categories
   { path: '/product/category', name: 'ProductCategory', element: ProductCategory, exact: true },
   {
     path: '/product/category/add',
@@ -88,6 +96,21 @@ const routes = [
     path: '/product/category/edit',
     name: 'EditProductCategory',
     element: EditProductCategory,
+    exact: true,
+  },
+
+  // product properties
+  {
+    path: '/product/properties',
+    name: 'ProductProperties',
+    element: ProductProperties,
+    exact: true,
+  },
+
+  {
+    path: '/product/properties/add',
+    name: 'AddProductProperties',
+    element: AddProductProperties,
     exact: true,
   },
 

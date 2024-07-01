@@ -92,7 +92,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Thuộc tính sản phẩm',
-        to: '/product/2',
+        to: '/product/properties',
       },
       {
         component: CNavItem,
