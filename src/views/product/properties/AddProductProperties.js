@@ -8,6 +8,8 @@ import {
   CFormSelect,
   CRow,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilX } from '@coreui/icons'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -52,18 +54,20 @@ function AddProductProperties() {
 
   //add value properties
   const [arr, setArr] = useState([])
-  const [inputFields, setInputFields] = useState([{ fullName: '' }])
+  const [inputFields, setInputFields] = useState([{ title: '' }])
   const addInputField = () => {
     setInputFields([
       ...inputFields,
       {
-        fullName: '',
+        title: '',
       },
     ])
   }
   const removeInputFields = (index) => {
-    let arrNew = Object.values(arr)
+    let arrNew = [...arr]
+    console.log('>>> check arrNew', arrNew)
     arrNew.splice(index, 1)
+    console.log('>>>> check a1', arrNew)
     setArr(arrNew)
 
     const rows = [...inputFields]
@@ -71,12 +75,15 @@ function AddProductProperties() {
     setInputFields(rows)
   }
 
-  const handleChange = (index, evnt) => {
-    const { name, value } = evnt.target
-
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target
     const list = [...inputFields]
     list[index][name] = value
     setInputFields(list)
+
+    const arrNew = [...arr]
+    arrNew[index] = value
+    setArr(arrNew)
   }
 
   return (
@@ -109,98 +116,89 @@ function AddProductProperties() {
               />
             </CCol>
 
-            <h6>Lựa chọn nghành hàng hoặc nghành hàng con cho thuộc tính:</h6>
-            <div>
-              {fakeData &&
-                fakeData.length > 0 &&
-                fakeData.map((item) => (
-                  <React.Fragment key={item.cate_id}>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <CFormCheck
-                        className="mb-4"
-                        id={item.cate_id}
-                        label={item.cate_name}
-                        value={item.cate_id}
-                        checked={category.includes(item.cate_id)}
-                        onChange={(e) => {
-                          const idDe = item.cate_id
-                          const isChecked = e.target.checked
-                          if (isChecked) {
-                            setCategory([...category, idDe])
-                          } else {
-                            setCategory(category.filter((id) => id !== idDe))
+            <CCol md={12}>
+              <h6>Lựa chọn nghành hàng hoặc nghành hàng con cho thuộc tính:</h6>
+              <div>
+                {fakeData &&
+                  fakeData.length > 0 &&
+                  fakeData.map((item) => (
+                    <React.Fragment key={item.cate_id}>
+                      <div className="d-flex align-items-center justify-content-between">
+                        <CFormCheck
+                          className="mb-4"
+                          id={item.cate_id}
+                          label={item.cate_name}
+                          value={item.cate_id}
+                          checked={category.includes(item.cate_id)}
+                          onChange={(e) => {
+                            const idDe = item.cate_id
+                            const isChecked = e.target.checked
+                            if (isChecked) {
+                              setCategory([...category, idDe])
+                            } else {
+                              setCategory(category.filter((id) => id !== idDe))
+                            }
+                          }}
+                        />
+                        <CFormSelect
+                          className="component-size"
+                          style={{ maxWidth: 300 }}
+                          aria-label="Chọn danh mục con"
+                          options={
+                            item.sub_cate &&
+                            item.sub_cate.length > 0 &&
+                            item.sub_cate.map((subCate) => ({
+                              label: subCate.sub_name,
+                              value: subCate.sub_id,
+                            }))
                           }
-                        }}
-                      />
-                      <CFormSelect
-                        className="component-size"
-                        style={{ maxWidth: 300 }}
-                        aria-label="Chọn danh mục con"
-                        options={
-                          item.sub_cate &&
-                          item.sub_cate.length > 0 &&
-                          item.sub_cate.map((subCate) => ({
-                            label: subCate.sub_name,
-                            value: subCate.sub_id,
-                          }))
-                        }
-                      />
-                    </div>
-                  </React.Fragment>
-                ))}
-            </div>
-
-            <div className="row">
-              <div className="col-sm-12">
-                {inputFields.map((item, index) => {
-                  return (
-                    <div className="row my-3" key={index}>
-                      <div className="col">
-                        <div className="form-group">
-                          <CFormInput
-                            type="text"
-                            id={index}
-                            label="Dữ liệu thuộc tính"
-                            placeholder=""
-                            name={`title-${index}`}
-                            aria-describedby="exampleFormControlInputHelpInline"
-                            value={arr[index]}
-                            onChange={(e) => handleChangeInput(e, index)}
-                          />
-                        </div>
+                        />
                       </div>
-                      <div className="col-1">
+                    </React.Fragment>
+                  ))}
+              </div>
+            </CCol>
+
+            <CCol md={12}>
+              <div>
+                <CButton color="success" size="sm" onClick={addInputField}>
+                  Thêm dữ liệu thuộc tính
+                </CButton>
+              </div>
+              {inputFields.map((item, index) => {
+                return (
+                  <div className="my-3 " key={index}>
+                    <div className="form-group">
+                      <label>Dữ liệu thuộc tính</label>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <CFormInput
+                          className="flex-grow-1"
+                          type="text"
+                          id={index}
+                          // label="Dữ liệu thuộc tính"
+                          placeholder=""
+                          name={`title-${index}`}
+                          aria-describedby="exampleFormControlInputHelpInline"
+                          value={arr[index]}
+                          onChange={(e) => handleInputChange(e, index)}
+                        />
                         {inputFields.length !== 1 ? (
-                          <button
-                            className="btn btn-outline-danger"
+                          <CButton
+                            className="mx-3"
+                            color="danger"
+                            variant="outline"
                             onClick={(e) => removeInputFields(index)}
                           >
-                            x
-                          </button>
+                            <CIcon icon={cilX} />
+                          </CButton>
                         ) : (
                           ''
                         )}
                       </div>
                     </div>
-                  )
-                })}
-                <div className="row">
-                  <div className="col-sm-12">
-                    <a className="btn btn-outline-success" onClick={addInputField}>
-                      Thêm dữ liệu thuộc tính
-                    </a>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            <CCol md={12}>
-              <CFormInput
-                id="inputProperties"
-                label="Dữ liệu thuộc tính"
-                value={propertiesName}
-                onChange={(e) => setPropertiesName(e.target.value)}
-              />
+                )
+              })}
             </CCol>
 
             <CCol xs={12}>
