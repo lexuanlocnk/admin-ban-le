@@ -1,7 +1,7 @@
 import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow } from '@coreui/react'
 import React, { useState } from 'react'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
@@ -33,9 +33,47 @@ const fakeData = [
   },
 ]
 
+const categories = [
+  {
+    id: 1,
+    category_desc: {
+      cat_id: 1,
+      cat_name: 'Laptop',
+    },
+    sub_categories: [
+      {
+        cat_id: 179,
+        category_desc: {
+          cat_id: 179,
+          cat_name: 'Laptop HP',
+        },
+      },
+    ],
+  },
+
+  {
+    id: 2,
+    category_desc: {
+      cat_id: 2,
+      cat_name: 'Máy tính để bàn',
+    },
+    sub_categories: [
+      {
+        cat_id: 180,
+        category_desc: {
+          cat_id: 180,
+          cat_name: 'Laptop HP',
+        },
+      },
+    ],
+  },
+]
+
 function ProductProperties() {
   const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
+
+  const [searchParams, setSearchParams] = useSearchParams()
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -51,7 +89,8 @@ function ProductProperties() {
   }
 
   const handleAddNewClick = () => {
-    navigate('/product/properties/add')
+    const catId = searchParams.get('cat_id') || '1' // Default to 179 if cat_id is not set
+    navigate(`/product/properties?cat_id=${catId}&sub=add`)
   }
 
   const handleUpdateClick = (slug) => {
@@ -82,6 +121,12 @@ function ProductProperties() {
   // search Data
   const handleSearch = (keyword) => {
     fetchDataById(keyword)
+  }
+
+  const handleChange = (event) => {
+    const catId = event.target.value
+    searchParams.set('cat_id', catId)
+    setSearchParams(searchParams)
   }
 
   return (
@@ -138,12 +183,24 @@ function ProductProperties() {
                     <CFormSelect
                       className="component-size w-50"
                       aria-label="Chọn yêu cầu lọc"
-                      options={[
-                        { label: 'Laptop', value: '1' },
-                        { label: 'Máy tính để bàn', value: '2' },
-                        { label: 'Linh phụ kiện laptop', value: '3' },
-                      ]}
-                    />
+                      onChange={handleChange}
+                    >
+                      <option>Chọn nghành hàng</option>
+                      {categories &&
+                        categories.map((item) => (
+                          <optgroup key={item.category_desc.cat_id}>
+                            <option value={item.category_desc.cat_id}>
+                              {item.category_desc.cat_name} ({item.category_desc.cat_id})
+                            </option>
+                            {item.sub_categories &&
+                              item.sub_categories.map((subItem) => (
+                                <option key={subItem.cat_id} value={subItem.cat_id}>
+                                  + {subItem.category_desc.cat_name} ({subItem.cat_id})
+                                </option>
+                              ))}
+                          </optgroup>
+                        ))}
+                    </CFormSelect>
                   </td>
                 </tr>
                 <tr>

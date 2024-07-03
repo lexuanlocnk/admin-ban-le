@@ -20,6 +20,9 @@ const ProductProperties = React.lazy(() => import('./views/product/properties/pr
 const AddProductProperties = React.lazy(
   () => import('./views/product/properties/AddProductProperties'),
 )
+const EditProductProperties = React.lazy(
+  () => import('./views/product/properties/EditProductProperties'),
+)
 
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
@@ -111,6 +114,13 @@ const routes = [
     path: '/product/properties/add',
     name: 'AddProductProperties',
     element: AddProductProperties,
+    exact: true,
+  },
+
+  {
+    path: '/product/properties/edit',
+    name: 'EditProductProperties',
+    element: EditProductProperties,
     exact: true,
   },
 

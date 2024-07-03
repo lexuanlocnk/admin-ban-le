@@ -44,7 +44,7 @@ const fakeData = [
   },
 ]
 
-function AddProductProperties() {
+function EditProductProperties() {
   const [propertiesName, setPropertiesName] = useState('')
   const [category, setCategory] = useState([])
 
@@ -213,4 +213,4 @@ function AddProductProperties() {
   )
 }
 
-export default AddProductProperties
+export default EditProductProperties
