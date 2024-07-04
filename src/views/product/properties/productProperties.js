@@ -73,6 +73,8 @@ function ProductProperties() {
   const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
 
+  const [selectedCategory, setSelectedCategory] = useState(null)
+
   const [searchParams, setSearchParams] = useSearchParams()
 
   // search input
@@ -84,13 +86,13 @@ function ProductProperties() {
   // show deleted Modal
   const [visible, setVisible] = useState(false)
 
-  const fetchDataById = async (id, dataSearch) => {
+  const fetchDataById = async (id, dataSearch, searchParams) => {
     //api?search={dataSearch}
   }
 
   const handleAddNewClick = () => {
-    const catId = searchParams.get('cat_id') || '1' // Default to 179 if cat_id is not set
-    navigate(`/product/properties?cat_id=${catId}&sub=add`)
+    const catId = searchParams.get('cat_id') || '1'
+    navigate(`/product/properties/add?cat_id=${catId}`)
   }
 
   const handleUpdateClick = (slug) => {
@@ -127,6 +129,7 @@ function ProductProperties() {
     const catId = event.target.value
     searchParams.set('cat_id', catId)
     setSearchParams(searchParams)
+    setSelectedCategory(event.target.options[event.target.selectedIndex].label)
   }
 
   return (
@@ -134,9 +137,13 @@ function ProductProperties() {
       <DeletedModal visible={visible} setVisible={setVisible} />
       <CRow className="mb-3">
         <CCol>
-          <h3>THUỘC TÍNH SẢN PHẨM</h3>
+          <h3>
+            {selectedCategory !== null
+              ? `THUỘC TÍNH ${selectedCategory.toUpperCase()}`
+              : `THUỘC TÍNH SẢN PHẨM`}
+          </h3>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={{ span: 6, offset: 6 }}>
           <div className="d-flex justify-content-end">
             <CButton
               onClick={handleAddNewClick}
@@ -147,7 +154,7 @@ function ProductProperties() {
             >
               Thêm mới
             </CButton>
-            <Link to={`/product/category`}>
+            <Link to={`/product/properties`}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
               </CButton>
@@ -185,17 +192,17 @@ function ProductProperties() {
                       aria-label="Chọn yêu cầu lọc"
                       onChange={handleChange}
                     >
-                      <option>Chọn nghành hàng</option>
+                      <option value={0}>Chọn nghành hàng</option>
                       {categories &&
                         categories.map((item) => (
                           <optgroup key={item.category_desc.cat_id}>
                             <option value={item.category_desc.cat_id}>
-                              {item.category_desc.cat_name} ({item.category_desc.cat_id})
+                              {item.category_desc.cat_name}
                             </option>
                             {item.sub_categories &&
                               item.sub_categories.map((subItem) => (
                                 <option key={subItem.cat_id} value={subItem.cat_id}>
-                                  + {subItem.category_desc.cat_name} ({subItem.cat_id})
+                                  + {subItem.category_desc.cat_name}
                                 </option>
                               ))}
                           </optgroup>

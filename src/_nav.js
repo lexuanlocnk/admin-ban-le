@@ -14,6 +14,7 @@ import {
   cilStar,
   cilUser,
   cilDevices,
+  cilTags,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -98,6 +99,25 @@ const _nav = [
         component: CNavItem,
         name: 'Quản lý sản phẩm',
         to: '/product/3',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ COUPON',
+    to: '/coupon',
+    icon: <CIcon icon={cilTags} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý Coupon',
+        to: '/coupon',
+      },
+      {
+        component: CNavItem,
+        name: 'Thêm mới Coupon',
+        to: '/coupon/add',
       },
     ],
   },

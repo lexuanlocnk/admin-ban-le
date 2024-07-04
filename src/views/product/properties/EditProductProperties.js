@@ -6,83 +6,51 @@ import {
   CFormCheck,
   CFormInput,
   CFormSelect,
+  CFormTextarea,
   CRow,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilX } from '@coreui/icons'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ErrorMessage, Field, Form, Formik } from 'formik'
+import * as Yup from 'yup'
+import axios from 'axios'
 
-const fakeData = [
+const fakeParentData = [
   {
     cate_id: 1,
-    cate_name: 'Laptop',
-    sub_cate: [
-      {
-        sub_id: 1,
-        sub_name: 'Laptop-HP',
-      },
-      {
-        sub_id: 2,
-        sub_name: 'Laptop-Dell',
-      },
-    ],
+    cate_name: 'Màu sắc',
   },
   {
     cate_id: 2,
-    cate_name: 'Máy tính để bàn',
-    sub_cate: [
-      {
-        sub_id: 1,
-        sub_name: 'Máy tính all in one',
-      },
-      {
-        sub_id: 2,
-        sub_name: 'Máy tính mini/nuc',
-      },
-    ],
+    cate_name: 'Hệ điều hành',
+  },
+  {
+    cate_id: 3,
+    cate_name: 'CPU',
   },
 ]
-
 function EditProductProperties() {
   const [propertiesName, setPropertiesName] = useState('')
   const [category, setCategory] = useState([])
 
-  //add value properties
-  const [arr, setArr] = useState([])
-  const [inputFields, setInputFields] = useState([{ title: '' }])
-  const addInputField = () => {
-    setInputFields([
-      ...inputFields,
-      {
-        title: '',
-      },
-    ])
-  }
-  const removeInputFields = (index) => {
-    let arrNew = [...arr]
-    console.log('>>> check arrNew', arrNew)
-    arrNew.splice(index, 1)
-    console.log('>>>> check a1', arrNew)
-    setArr(arrNew)
-
-    const rows = [...inputFields]
-    rows.splice(index, 1)
-    setInputFields(rows)
+  const initialValues = {
+    title: '',
+    friendlyUrl: '',
+    parentId: '',
+    desc: '',
+    visible: '',
   }
 
-  const handleInputChange = (e, index) => {
-    const { name, value } = e.target
-    const list = [...inputFields]
-    list[index][name] = value
-    setInputFields(list)
+  const validationSchema = Yup.object({
+    title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc .'),
+    // childOf: Yup.string().required('Chọn thuộc tính cha là bắt buộc.'),
+    // desc: Yup.string().required('Mô tả thuộc tính là bắt buộc.'),
+    visible: Yup.string().required('Hiển thị là bắt buộc.'),
+  })
 
-    const arrNew = [...arr]
-    arrNew[index] = value
-    setArr(arrNew)
-  }
-
-  const handleSubmit = () => {
+  const handleSubmit = (values) => {
+    console.log('>>>> cehck values', values)
     // api for submit
   }
 
@@ -90,7 +58,7 @@ function EditProductProperties() {
     <CContainer>
       <CRow className="mb-3">
         <CCol>
-          <h3>THÊM MỚI THUỘC TÍNH</h3>
+          <h3>TÍNH NĂNG THUỘC TÍNH</h3>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
@@ -105,108 +73,122 @@ function EditProductProperties() {
 
       <CRow>
         <CCol md={8}>
-          <h6></h6>
-          <CForm className="row gy-3">
-            <CCol md={12}>
-              <CFormInput
-                id="inputName"
-                label="Tên thuộc tính"
-                value={propertiesName}
-                onChange={(e) => setPropertiesName(e.target.value)}
-              />
-            </CCol>
+          <h6>Sửa thuộc tính</h6>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ setFieldValue, values, setValues }) => {
+              useEffect(() => {
+                const fetchData = async () => {
+                  try {
+                    const response = await axios.get('/endpoint')
+                    const data = response.data
 
-            <CCol md={12}>
-              <h6>Lựa chọn nghành hàng hoặc nghành hàng con cho thuộc tính:</h6>
-              <div>
-                {fakeData &&
-                  fakeData.length > 0 &&
-                  fakeData.map((item) => (
-                    <React.Fragment key={item.cate_id}>
-                      <div className="d-flex align-items-center justify-content-between">
-                        <CFormCheck
-                          className="mb-4"
-                          id={item.cate_id}
-                          label={item.cate_name}
-                          value={item.cate_id}
-                          checked={category.includes(item.cate_id)}
-                          onChange={(e) => {
-                            const idDe = item.cate_id
-                            const isChecked = e.target.checked
-                            if (isChecked) {
-                              setCategory([...category, idDe])
-                            } else {
-                              setCategory(category.filter((id) => id !== idDe))
-                            }
-                          }}
-                        />
-                        <CFormSelect
-                          className="component-size"
-                          style={{ maxWidth: 300 }}
-                          aria-label="Chọn danh mục con"
-                          options={
-                            item.sub_cate &&
-                            item.sub_cate.length > 0 &&
-                            item.sub_cate.map((subCate) => ({
-                              label: subCate.sub_name,
-                              value: subCate.sub_id,
-                            }))
-                          }
-                        />
-                      </div>
-                    </React.Fragment>
-                  ))}
-              </div>
-            </CCol>
+                    setValues({
+                      title: data.title,
+                      //...
+                    })
+                  } catch (error) {
+                    console.error('Error fetching data:', error)
+                  }
+                }
 
-            <CCol md={12}>
-              <div>
-                <CButton color="success" size="sm" onClick={addInputField}>
-                  Thêm dữ liệu thuộc tính
-                </CButton>
-              </div>
-              {inputFields.map((item, index) => {
-                return (
-                  <div className="my-3 " key={index}>
-                    <div className="form-group">
-                      <label>Dữ liệu thuộc tính</label>
-                      <div className="d-flex justify-content-between align-items-center">
+                fetchData()
+              }, [setValues])
+              return (
+                <Form>
+                  <CCol md={12}>
+                    <label htmlFor="title-input">Tiêu đề</label>
+                    <Field name="title">
+                      {({ field }) => (
                         <CFormInput
-                          className="flex-grow-1"
+                          {...field}
                           type="text"
-                          id={index}
-                          // label="Dữ liệu thuộc tính"
-                          placeholder=""
-                          name={`title-${index}`}
-                          aria-describedby="exampleFormControlInputHelpInline"
-                          value={arr[index]}
-                          onChange={(e) => handleInputChange(e, index)}
+                          id="title-input"
+                          text="Tên riêng sẽ hiển thị lên trang web của bạn."
                         />
-                        {inputFields.length !== 1 ? (
-                          <CButton
-                            className="mx-3"
-                            color="danger"
-                            variant="outline"
-                            onClick={(e) => removeInputFields(index)}
-                          >
-                            <CIcon icon={cilX} />
-                          </CButton>
-                        ) : (
-                          ''
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </CCol>
+                      )}
+                    </Field>
+                    <ErrorMessage name="title" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-            <CCol xs={12}>
-              <CButton onClick={handleSubmit} color="primary" type="submit" size="sm">
-                Thêm mới
-              </CButton>
-            </CCol>
-          </CForm>
+                  <CCol md={12}>
+                    <label htmlFor="url-input">Chuỗi đường dẫn</label>
+                    <Field
+                      name="friendlyUrl"
+                      type="text"
+                      as={CFormInput}
+                      id="url-input"
+                      text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
+                    />
+                    <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="input-selectParent">Là con của</label>
+                    <Field
+                      name="parentId"
+                      as={CFormSelect}
+                      id="input-selectParent"
+                      onChange={(e) => setFieldValue('parentId', e.target.value)}
+                      className="select-input"
+                      options={[
+                        { label: 'Trống', value: '' },
+                        ...(fakeParentData && fakeParentData.length > 0
+                          ? fakeParentData.map((item) => ({
+                              label: item.cate_name,
+                              value: item.cate_id,
+                            }))
+                          : []),
+                      ]}
+                    />
+                    <ErrorMessage name="parentId" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="desc-input">Mô tả</label>
+                    <Field
+                      style={{ height: '100px' }}
+                      name="desc"
+                      type="text"
+                      as={CFormTextarea}
+                      id="desc-input"
+                      text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
+                    />
+                    <ErrorMessage name="desc" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="visible-select">Hiển thị</label>
+                    <Field
+                      name="visible"
+                      as={CFormSelect}
+                      id="visible-select"
+                      className="select-input"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="visible" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol xs={12}>
+                    <CButton color="primary" type="submit" size="sm">
+                      Thêm mới
+                    </CButton>
+                  </CCol>
+                </Form>
+              )
+            }}
+          </Formik>
         </CCol>
       </CRow>
     </CContainer>
