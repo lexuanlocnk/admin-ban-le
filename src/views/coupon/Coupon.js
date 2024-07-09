@@ -16,12 +16,13 @@ import React, { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 
 function Coupon() {
+  const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
 
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
@@ -41,7 +42,9 @@ function Coupon() {
     setIsCollapse((prevState) => !prevState)
   }
 
-  const handleAddNewClick = () => {}
+  const handleAddNewClick = () => {
+    navigate('/coupon/add')
+  }
 
   // validate for date start - date end
   const validateDates = (start, end) => {
@@ -80,7 +83,9 @@ function Coupon() {
     fetchDataById(keyword)
   }
 
-  const handleEditClick = () => {}
+  const handleEditClick = (id) => {
+    navigate(`/coupon/edit?id=${id}`)
+  }
 
   const handleDelete = () => {}
 

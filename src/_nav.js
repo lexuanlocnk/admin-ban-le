@@ -97,6 +97,16 @@ const _nav = [
       },
       {
         component: CNavItem,
+        name: 'Trạng thái sản phẩm',
+        to: '/product/status',
+      },
+      {
+        component: CNavItem,
+        name: 'Banner sản phẩm',
+        to: '/product/banner',
+      },
+      {
+        component: CNavItem,
         name: 'Quản lý sản phẩm',
         to: '/product/3',
       },

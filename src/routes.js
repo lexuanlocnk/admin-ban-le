@@ -11,6 +11,8 @@ const AdminGroup = React.lazy(() => import('./views/admin/AdminGroup'))
 const AdminList = React.lazy(() => import('./views/admin/AdminList'))
 const AdminLog = React.lazy(() => import('./views/admin/AdminLog'))
 
+// PRODUCT
+
 const ProductBrand = React.lazy(() => import('./views/product/productBrand'))
 const ProductCategory = React.lazy(() => import('./views/product/category/productCategory'))
 const AddProductCategory = React.lazy(() => import('./views/product/category/AddProductCategory'))
@@ -23,6 +25,8 @@ const AddProductProperties = React.lazy(
 const EditProductProperties = React.lazy(
   () => import('./views/product/properties/EditProductProperties'),
 )
+
+const ProductBanner = React.lazy(() => import('./views/product/banner/productBanner'))
 
 const Coupon = React.lazy(() => import('./views/coupon/Coupon'))
 const AddCoupon = React.lazy(() => import('./views/coupon/AddCoupon'))
@@ -125,6 +129,14 @@ const routes = [
     path: '/product/properties/edit',
     name: 'EditProductProperties',
     element: EditProductProperties,
+    exact: true,
+  },
+
+  // product banner
+  {
+    path: '/product/banner',
+    name: 'ProductBanner',
+    element: ProductBanner,
     exact: true,
   },
 
