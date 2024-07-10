@@ -23,8 +23,11 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
-import Search from '../../../components/search/Search'
-import DeletedModal from '../../../components/deletedModal/DeletedModal'
+
+import Search from '../../components/search/Search'
+import DeletedModal from '../../components/deletedModal/DeletedModal'
+import { color } from 'chart.js/helpers'
+import { isCancel } from 'axios'
 
 const categories = [
   'Laptop',
@@ -49,7 +52,7 @@ const categories = [
 
 const modules = ['Main', 'Product']
 
-function ProductStatus() {
+function OrderStatus() {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -76,25 +79,21 @@ function ProductStatus() {
   // form formik value
   const initialValues = {
     title: '',
-    name: '',
-    url: '',
-    destination: '',
-    width: '',
-    height: '',
-    desc: '',
-    friendlyUrl: '',
-    pageTitle: '',
-    metaKeyword: '',
-    metaDesc: '',
+    color: '',
+    isDefault: '',
+    isPayment: '',
+    isComplete: '',
+    isCancel: '',
+    isCustomer: '',
     visible: '',
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    destination: Yup.string().required('Chọn vị trí liên kết!'),
-    width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    // url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
+    // destination: Yup.string().required('Chọn vị trí liên kết!'),
+    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
+    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -127,11 +126,11 @@ function ProductStatus() {
   }
 
   const handleAddNewClick = () => {
-    navigate('/product/status?sub=add')
+    navigate('/order/status?sub=add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/product/status?id=${id}&sub=edit`)
+    navigate(`/order/status?id=${id}&sub=edit`)
   }
 
   // delete row
@@ -141,14 +140,6 @@ function ProductStatus() {
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
-  }
-
-  const handleImageUpload = (event) => {
-    setSelectedImage(event.target.files[0])
-  }
-
-  const handleImageRemove = () => {
-    setSelectedImage(null)
   }
 
   // pagination data
@@ -181,19 +172,24 @@ function ProductStatus() {
   const columns = [
     { key: 'id', label: '#' },
     { key: 'title', label: 'Tiêu đề' },
-    { key: 'images', label: 'Hình ảnh' },
-    { key: 'name', label: 'Name' },
+    { key: 'default', label: 'Default' },
+    { key: 'payment', label: 'Payment' },
+    { key: 'complete', label: 'Complete' },
+    { key: 'cancel', label: 'Cancel' },
+    { key: 'customer', label: 'Customer' },
     { key: 'actions', label: 'Tác vụ' },
   ]
 
   const items = [
     {
       id: <CFormCheck id="flexCheckDefault" />,
-      title: 'Bán chạy',
-      images: (
-        <CImage fluid src="https://vitinhnguyenkim.vn/uploads/product/status/giam-gia-10.png" />
-      ),
-      name: 'sale',
+      title: 'Đang chờ xử lý',
+      default: 'Yes',
+      payment: 'No',
+      complete: 'No',
+      cancel: 'No',
+      customer: 'No',
+
       actions: (
         <div>
           <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
@@ -208,11 +204,13 @@ function ProductStatus() {
     },
     {
       id: <CFormCheck id="flexCheckDefault" />,
-      title: 'Khuyễn mãi',
-      images: (
-        <CImage fluid src="https://vitinhnguyenkim.vn/uploads/product/status/khuyen-mai.png" />
-      ),
-      name: 'promotion',
+      title: 'Chờ khách phản hồi',
+      default: 'No',
+      payment: 'No',
+      complete: 'No',
+      cancel: 'No',
+      customer: 'Yes',
+
       actions: (
         <div>
           <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
@@ -249,7 +247,7 @@ function ProductStatus() {
 
       <CRow className="mb-3">
         <CCol>
-          <h3>TRẠNG THÁI SẢN PHẨM</h3>
+          <h3>TRẠNG THÁI ĐƠN HÀNG</h3>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
@@ -300,137 +298,94 @@ function ProductStatus() {
                 <br />
 
                 <CCol md={12}>
-                  <label htmlFor="name-input">Name</label>
+                  <label htmlFor="color-input">Màu sắc</label>
                   <Field
-                    name="name"
+                    name="color"
                     type="text"
                     as={CFormInput}
-                    id="name-input"
-                    text="Name là bắt buộc và duy nhất."
+                    id="color-input"
+                    text="Hệ màu cho phép là RGB. vd: #000000"
                   />
-                  <ErrorMessage name="name" component="div" className="text-danger" />
+                  <ErrorMessage name="color" component="div" className="text-danger" />
                 </CCol>
                 <br />
 
                 <CCol md={12}>
-                  <label htmlFor="avatar-input">Hình ảnh</label>
-                  <div>
-                    <CFormInput
-                      type="file"
-                      id="avatar-input"
-                      size="sm"
-                      onChange={handleImageUpload}
-                    />
-                    <ErrorMessage name="avatar" component="div" className="text-danger" />
-                    {selectedImage && (
-                      <div>
-                        <CImage
-                          className="mt-2"
-                          src={URL.createObjectURL(selectedImage)}
-                          alt="Ảnh đã upload"
-                          width={300}
-                        />
-                        <CButton
-                          className="mt-2"
-                          color="danger"
-                          size="sm"
-                          onClick={handleImageRemove}
-                        >
-                          Xóa
-                        </CButton>
-                      </div>
-                    )}
-                  </div>
+                  <label htmlFor="isDefault-select">isDefault</label>
+                  <Field
+                    className="component-size w-50"
+                    name="isDefault"
+                    as={CFormSelect}
+                    id="isDefault-select"
+                    options={[
+                      { label: 'Không', value: '0' },
+                      { label: 'Có', value: '1' },
+                    ]}
+                  />
+                  <ErrorMessage name="isDefault" component="div" className="text-danger" />
+                </CCol>
+                <br />
+                <CCol md={12}>
+                  <label htmlFor="isPayment-select">isPayment</label>
+                  <Field
+                    className="component-size w-50"
+                    name="isPayment"
+                    as={CFormSelect}
+                    id="isPayment-select"
+                    options={[
+                      { label: 'Không', value: '0' },
+                      { label: 'Có', value: '1' },
+                    ]}
+                  />
+                  <ErrorMessage name="isPayment" component="div" className="text-danger" />
+                </CCol>
+                <br />
+                <CCol md={12}>
+                  <label htmlFor="isComplete-select">isComplete</label>
+                  <Field
+                    className="component-size w-50"
+                    name="isComplete"
+                    as={CFormSelect}
+                    id="isComplete-select"
+                    options={[
+                      { label: 'Không', value: '0' },
+                      { label: 'Có', value: '1' },
+                    ]}
+                  />
+                  <ErrorMessage name="isComplete" component="div" className="text-danger" />
+                </CCol>
+                <br />
+                <CCol md={12}>
+                  <label htmlFor="isCancle-select">isCancle</label>
+                  <Field
+                    className="component-size w-50"
+                    name="isCancle"
+                    as={CFormSelect}
+                    id="isCancle-select"
+                    options={[
+                      { label: 'Không', value: '0' },
+                      { label: 'Có', value: '1' },
+                    ]}
+                  />
+                  <ErrorMessage name="isCancle" component="div" className="text-danger" />
+                </CCol>
+                <br />
+                <CCol md={12}>
+                  <label htmlFor="isCustomer-select">isCustomer</label>
+                  <Field
+                    className="component-size w-50"
+                    name="isCustomer"
+                    as={CFormSelect}
+                    id="isCustomer-select"
+                    options={[
+                      { label: 'Không', value: '0' },
+                      { label: 'Có', value: '1' },
+                    ]}
+                  />
+                  <ErrorMessage name="isCustomer" component="div" className="text-danger" />
                 </CCol>
                 <br />
 
-                <CCol md={12}>
-                  <label htmlFor="width-input">Chiều rộng</label>
-                  <Field
-                    name="width"
-                    type="width"
-                    as={CFormInput}
-                    id="width-input"
-                    text="Đơn vị chiều rộng được sử dụng đơn vị pixel."
-                  />
-                  <ErrorMessage name="width" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="height-input">Chiều cao</label>
-                  <Field
-                    name="height"
-                    type="text"
-                    as={CFormInput}
-                    id="height-input"
-                    text="Đơn vị chiều cao được sử dụng đơn vị pixel."
-                  />
-                  <ErrorMessage name="height" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="desc-input">Mô tả</label>
-                  <Field
-                    name="desc"
-                    type="text"
-                    as={CFormTextarea}
-                    id="desc-input"
-                    text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
-                  />
-                  <ErrorMessage name="desc" component="div" className="text-danger" />
-                </CCol>
-                <br />
-
-                <h6>Search Engine Optimization</h6>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="url-input">Chuỗi đường dẫn</label>
-                  <Field
-                    name="friendlyUrl"
-                    type="text"
-                    as={CFormInput}
-                    id="url-input"
-                    text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
-                  />
-                  <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="pageTitle-input">Tiêu đề trang</label>
-                  <Field
-                    name="pageTitle"
-                    type="text"
-                    as={CFormInput}
-                    id="pageTitle-input"
-                    text="Độ dài của tiêu đề trang tối đa 60 ký tự."
-                  />
-                  <ErrorMessage name="pageTitle" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="metaKeyword-input">Meta keywords</label>
-                  <Field
-                    name="metaKeyword"
-                    type="text"
-                    as={CFormInput}
-                    id="metaKeyword-input"
-                    text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
-                  />
-                  <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="metaDesc-input">Meta description</label>
-                  <Field
-                    name="metaDesc"
-                    type="text"
-                    as={CFormInput}
-                    id="metaDesc-input"
-                    text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
-                  />
-                  <ErrorMessage name="metaDesc" component="div" className="text-danger" />
-                </CCol>
-                <br />
                 <CCol md={12}>
                   <label htmlFor="visible-select">Hiển thị</label>
                   <Field
@@ -459,7 +414,7 @@ function ProductStatus() {
         <CCol md={8}>
           <Search />
           <CCol className="mt-4">
-            <CTable hover>
+            <CTable hover={true}>
               <thead>
                 <tr>
                   {columns.map((column) => (
@@ -518,4 +473,4 @@ function ProductStatus() {
   )
 }
 
-export default ProductStatus
+export default OrderStatus

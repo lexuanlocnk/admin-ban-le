@@ -143,6 +143,7 @@ function Coupon() {
   //   },
   // ]
 
+  // sorting columns
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
 
   const handleSort = (columnKey) => {

@@ -27,7 +27,15 @@ const EditProductProperties = React.lazy(
 )
 
 const ProductBanner = React.lazy(() => import('./views/product/banner/productBanner'))
+const ProductStatus = React.lazy(() => import('./views/product/status/productStatus'))
 
+//  ORDER
+const OrderList = React.lazy(() => import('./views/order/orderInfo/orderList'))
+const OrderStatus = React.lazy(() => import('./views/order/orderStatus'))
+const PaymentMethod = React.lazy(() => import('./views/order/paymentMethod'))
+const ShippingMethod = React.lazy(() => import('./views/order/shippingMethod'))
+
+// COUPON
 const Coupon = React.lazy(() => import('./views/coupon/Coupon'))
 const AddCoupon = React.lazy(() => import('./views/coupon/AddCoupon'))
 const EditCoupon = React.lazy(() => import('./views/coupon/EditCoupon'))
@@ -140,6 +148,14 @@ const routes = [
     exact: true,
   },
 
+  // product status
+  {
+    path: '/product/status',
+    name: 'ProductStatus',
+    element: ProductStatus,
+    exact: true,
+  },
+
   // coupon
   { path: '/coupon', name: 'Coupon', element: Coupon, exact: true },
   {
@@ -152,6 +168,52 @@ const routes = [
     path: 'coupon/edit',
     name: 'EditCoupon',
     element: EditCoupon,
+    exact: true,
+  },
+
+  //order
+  {
+    path: '/order',
+    name: 'OrderList',
+    element: OrderList,
+    exact: true,
+  },
+
+  // {
+  //   path: '/order/add/',
+  //   name: 'AddProductProperties',
+  //   element: AddProductProperties,
+  //   exact: true,
+  // },
+
+  // {
+  //   path: '/order/edit',
+  //   name: 'EditProductProperties',
+  //   element: EditProductProperties,
+  //   exact: true,
+  // },
+
+  // order status
+  {
+    path: '/order/status',
+    name: 'OrderStatus',
+    element: OrderStatus,
+    exact: true,
+  },
+
+  // payment-method
+  {
+    path: '/order/payment-method',
+    name: 'PaymentMethod',
+    element: PaymentMethod,
+    exact: true,
+  },
+
+  // shipping-method
+  {
+    path: '/order/shipping-method',
+    name: 'ShippingMethod',
+    element: ShippingMethod,
     exact: true,
   },
 

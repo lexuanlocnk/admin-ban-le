@@ -15,6 +15,7 @@ import {
   cilUser,
   cilDevices,
   cilTags,
+  cilMoney,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -108,7 +109,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Quản lý sản phẩm',
-        to: '/product/3',
+        to: '/product',
       },
     ],
   },
@@ -128,6 +129,35 @@ const _nav = [
         component: CNavItem,
         name: 'Thêm mới Coupon',
         to: '/coupon/add',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ ĐƠN HÀNG',
+    to: '/order',
+    icon: <CIcon icon={cilMoney} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Trạng thái đơn hàng',
+        to: '/order/status',
+      },
+      {
+        component: CNavItem,
+        name: 'Phương thức vận chuyển',
+        to: '/order/shipping-method',
+      },
+      {
+        component: CNavItem,
+        name: 'Phương thức thanh toán',
+        to: '/order/payment-method',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý đơn hàng',
+        to: '/order',
       },
     ],
   },
