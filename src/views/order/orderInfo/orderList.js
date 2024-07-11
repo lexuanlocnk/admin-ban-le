@@ -21,7 +21,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 
-import '../css/orderList.css'
+import '../css/orderList.scss'
 
 function OrderList() {
   const navigate = useNavigate()
@@ -42,10 +42,6 @@ function OrderList() {
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
-  }
-
-  const handleAddNewClick = () => {
-    navigate('/order/add')
   }
 
   const handleEditClick = (id) => {
@@ -116,26 +112,26 @@ function OrderList() {
   const items = [
     {
       id: <CFormCheck id="flexCheckDefault" />,
-      orderCode: '1348-20240704',
+      orderCode: <span className="order-code">1348-20240704</span>,
       customerInfo: (
         <React.Fragment>
           <div>
             <span>Họ tên: </span>
-            <span>Ngọc </span>
-            <span>(Khách vãng lai)</span>
+            <span className="customer-name">Ngọc </span>
+            <span className="customer-type">(Khách vãng lai)</span>
           </div>
           <div>
             <span>Điện thoại: </span>
-            <span>0843332929 </span>
+            <span className="customer-phone">0843332929 </span>
           </div>
           <div>
             <span>Email: </span>
-            <span>nhquoc99@gmail.com </span>
+            <span className="customer-email">nhquoc99@gmail.com </span>
           </div>
         </React.Fragment>
       ),
       orderDate: '23:36, 04/07/2024',
-      total: '1.407.000đ',
+      total: <span className="total">1.407.000đ</span>,
       status: 'Đang chờ xử lý',
       actions: (
         <div>
@@ -175,15 +171,6 @@ function OrderList() {
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
             <Link to={`/order`}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
@@ -299,7 +286,7 @@ function OrderList() {
         </table>
       </CRow>
 
-      <CRow>
+      <CRow className="mt-3">
         <CTable>
           <thead>
             <tr>

@@ -31,6 +31,8 @@ const ProductStatus = React.lazy(() => import('./views/product/status/productSta
 
 //  ORDER
 const OrderList = React.lazy(() => import('./views/order/orderInfo/orderList'))
+const EditOrder = React.lazy(() => import('./views/order/orderInfo/EditOrder'))
+
 const OrderStatus = React.lazy(() => import('./views/order/orderStatus'))
 const PaymentMethod = React.lazy(() => import('./views/order/paymentMethod'))
 const ShippingMethod = React.lazy(() => import('./views/order/shippingMethod'))
@@ -176,6 +178,12 @@ const routes = [
     path: '/order',
     name: 'OrderList',
     element: OrderList,
+    exact: true,
+  },
+  {
+    path: '/order/edit',
+    name: 'EditOrder',
+    element: EditOrder,
     exact: true,
   },
 
