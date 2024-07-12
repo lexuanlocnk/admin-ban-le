@@ -468,7 +468,7 @@ function ProductBanner() {
             )}
           </table>
 
-          <CCol>
+          <CCol className="mt-4">
             <CTable>
               <thead>
                 <tr>

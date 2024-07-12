@@ -330,7 +330,7 @@ function Coupon() {
           </table>
         </CCol>
 
-        <CCol className="my-2" md={4}>
+        <CCol className="my-2" md={12}>
           <CButton color="primary" size="sm">
             Xóa vĩnh viễn
           </CButton>

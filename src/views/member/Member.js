@@ -1,12 +1,8 @@
-import React, { useState } from 'react'
-
 import {
   CButton,
   CCol,
   CContainer,
   CFormCheck,
-  CFormSelect,
-  CImage,
   CRow,
   CTable,
   CTableBody,
@@ -14,69 +10,56 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
-import DatePicker from 'react-datepicker'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import 'react-datepicker/dist/react-datepicker.css'
+
+import './css/member.scss'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
+import DeletedModal from '../../components/deletedModal/DeletedModal'
 
-import '../css/orderList.scss'
+const fakeData = [
+  {
+    username: 'dntcamera',
+    memberInfo: {
+      fullName: 'Mr Nhựt',
+      pointsAccumulated: 0,
+      pointsUsed: 0,
+    },
+    orderStatus: 'Chưa có',
+    registrationDate: '17:28, 18/05/2024',
+    lastLogin: '00:29, 19/05/2024',
+    accountStatus: 'Đang hoạt động',
+  },
+  {
+    username: 'a123011',
+    memberInfo: {
+      fullName: 'wangfu wangfugui',
+      pointsAccumulated: 0,
+      pointsUsed: 0,
+    },
+    orderStatus: 'Chưa có',
+    registrationDate: '01:39, 20/04/2024',
+    lastLogin: '08:39, 20/04/2024',
+    accountStatus: 'Đang hoạt động',
+  },
+]
 
-function OrderList() {
+function Member() {
   const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
-
-  const [selectedCheckbox, setSelectedCheckbox] = useState([])
-  // show deleted Modal
-  const [visible, setVisible] = useState(false)
-
   // search input
   const [dataSearch, setDataSearch] = useState('')
 
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
 
-  // date picker
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date())
-  const [errors, setErrors] = useState({ startDate: '', endDate: '' })
+  // show deleted Modal
+  const [visible, setVisible] = useState(false)
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
-  }
-
-  const handleEditClick = (id) => {
-    navigate(`/order/edit?id=${id}`)
-  }
-
-  const handleUpdateClick = (id) => {
-    navigate(`/order/edit?id=${id}`)
-  }
-
-  // delete row
-  const handleDelete = (id) => {
-    setVisible(true)
-  }
-
-  // validate for date start - date end
-  const validateDates = (start, end) => {
-    const newErrors = { startDate: '', endDate: '' }
-    if (start && end && start > end) {
-      newErrors.startDate = 'Ngày bắt đầu không được sau ngày kết thúc'
-      newErrors.endDate = 'Ngày kết thúc không được trước ngày bắt đầu'
-    }
-    setErrors(newErrors)
-  }
-
-  const handleStartDateChange = (date) => {
-    setStartDate(date)
-    validateDates(date, endDate)
-  }
-
-  const handleEndDateChange = (date) => {
-    setEndDate(date)
-    validateDates(startDate, date)
   }
 
   // pagination data
@@ -96,6 +79,15 @@ function OrderList() {
     fetchDataById(keyword)
   }
 
+  const handleEditClick = (id) => {
+    navigate(`/member/edit?id=${id}`)
+  }
+
+  // delete row
+  const handleDelete = (id) => {
+    setVisible(true)
+  }
+
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
 
   const handleSort = (columnKey) => {
@@ -108,38 +100,48 @@ function OrderList() {
 
   const columns = [
     { key: 'id', label: '#' },
-    { key: 'orderCode', label: 'Mã đơn hàng' },
+    { key: 'username', label: 'Username' },
     { key: 'customerInfo', label: 'Thông tin khách hàng' },
-    { key: 'orderDate', label: 'Ngày đặt hàng' },
-    { key: 'total', label: 'Tổng tiền' },
-    { key: 'status', label: 'Trạng thái' },
+    { key: 'orderYet', label: 'Đơn hàng' },
+    { key: 'createDate', label: 'Ngày đăng ký' },
+    { key: 'login', label: 'Đăng nhập gần đây' },
+    { key: 'status', label: 'Trạng thái tài khoản' },
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = [
-    {
+  const items =
+    fakeData &&
+    fakeData.length > 0 &&
+    fakeData.map((customer) => ({
       id: <CFormCheck id="flexCheckDefault" />,
-      orderCode: <span className="order-code">1348-20240704</span>,
+      username: (
+        <>
+          <div className="customer-username">{customer.username}</div>
+          <div className="customer-userid">{`#KH-2010`}</div>
+        </>
+      ),
       customerInfo: (
         <React.Fragment>
           <div>
             <span>Họ tên: </span>
-            <span className="customer-name">Ngọc </span>
-            <span className="customer-type">(Khách vãng lai)</span>
+            <span className="customer-name">{customer?.memberInfo.fullName}</span>
           </div>
           <div>
-            <span>Điện thoại: </span>
-            <span className="customer-phone">0843332929 </span>
+            <span>Điểm tích lũy: </span>
+            <span className="customer-pointsAccumulated">
+              {customer?.memberInfo.pointsAccumulated}
+            </span>
           </div>
           <div>
-            <span>Email: </span>
-            <span className="customer-email">nhquoc99@gmail.com </span>
+            <span>Điểm đã sử dụng: </span>
+            <span className="customer-pointsUsed">{customer?.memberInfo.pointsUsed}</span>
           </div>
         </React.Fragment>
       ),
-      orderDate: '23:36, 04/07/2024',
-      total: <span className="total">1.407.000đ</span>,
-      status: 'Đang chờ xử lý',
+      orderYet: <span className="customer-order">{customer.orderStatus}</span>,
+      createDate: <span className="customer-registrationDate">{customer?.registrationDate}</span>,
+      login: customer?.lastLogin,
+      status: <span className="customer-status">{`[${customer?.accountStatus}]`}</span>,
       actions: (
         <div>
           <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
@@ -151,8 +153,7 @@ function OrderList() {
         </div>
       ),
       _cellProps: { id: { scope: 'row' } },
-    },
-  ]
+    }))
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -172,13 +173,15 @@ function OrderList() {
 
   return (
     <CContainer>
+      <DeletedModal visible={visible} setVisible={setVisible} />
+
       <CRow className="mb-3">
         <CCol>
-          <h3>QUẢN LÝ ĐƠN HÀNG</h3>
+          <h3>QUẢN LÝ THÀNH VIÊN</h3>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
-            <Link to={`/order`}>
+            <Link to={`/member`}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
               </CButton>
@@ -208,73 +211,8 @@ function OrderList() {
                 <td className="total-count">6</td>
               </tr>
               <tr>
-                <td>Lọc</td>
-                <td>
-                  <div className="d-flex">
-                    <CFormSelect
-                      className="component-size w-25"
-                      aria-label="Chọn yêu cầu lọc"
-                      options={[
-                        'Chọn trạng thái',
-                        { label: 'Đang chờ xử lý', value: 'pending' },
-                        { label: 'Chờ khách phản hồi', value: 'customer-response' },
-                        { label: 'Đã thanh toán', value: 'paid' },
-                        { label: 'Đã giao hàng', value: 'delivered' },
-                        { label: 'Đã hoàn tất', value: 'finished' },
-                        { label: 'Không thành công', value: 'fail' },
-                        { label: 'Khách hàng hủy bỏ', value: 'customer-cancels' },
-                      ]}
-                    />
-                    <CFormSelect
-                      className="component-size w-25 ms-2"
-                      aria-label="Chọn yêu cầu lọc"
-                      options={[
-                        'Loại khách hàng ',
-                        { label: 'Thành viên (Member)', value: 'member' },
-                        { label: 'Khách vãng lai (Guest)', value: 'guest' },
-                      ]}
-                    />
-                  </div>
-                </td>
-              </tr>
-
-              <tr>
-                <td>Theo ngày</td>
-                <td>
-                  <div className="custom-datepicker-wrapper">
-                    <DatePicker
-                      className="custom-datepicker"
-                      showIcon
-                      dateFormat={'dd-MM-yyyy'}
-                      selected={startDate}
-                      onChange={handleStartDateChange}
-                    />
-                    <p className="datepicker-label">{'đến ngày'}</p>
-                    <DatePicker
-                      className="custom-datepicker"
-                      showIcon
-                      dateFormat={'dd-MM-yyyy'}
-                      selected={endDate}
-                      onChange={handleEndDateChange}
-                    />
-                  </div>
-                  {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                  {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
-                </td>
-              </tr>
-              <tr>
                 <td>Tìm kiếm</td>
                 <td>
-                  <CFormSelect
-                    className="component-size w-25"
-                    aria-label="Chọn yêu cầu lọc"
-                    options={[
-                      { label: 'Mã đơn hàng', value: '1' },
-                      { label: 'ID Thành viên', value: '2' },
-                      { label: 'Họ tên Khách hàng', value: '3' },
-                      { label: 'Số điện thoại', value: '4' },
-                    ]}
-                  />
                   <div className="mt-2">
                     <input
                       type="text"
@@ -328,4 +266,4 @@ function OrderList() {
   )
 }
 
-export default OrderList
+export default Member

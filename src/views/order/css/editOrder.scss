@@ -7,3 +7,81 @@
 .horizontal-line {
   border-bottom: 1px solid #ddd;
 }
+
+.order-code {
+  color: red;
+  font-size: 18px;
+}
+
+.order-status {
+  padding: 4px;
+  font-size: 18px;
+}
+
+.customer-info {
+  &-name {
+    font-weight: 600;
+  }
+
+  &-phone {
+    color: $blue-color;
+  }
+
+  &-type {
+    color: $orange-color;
+  }
+}
+
+.cart {
+  // margin: 20px;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      vertical-align: middle;
+    }
+    th {
+      background-color: #f2f2f2;
+      white-space: nowrap;
+    }
+
+    img {
+      width: 50px; /* Điều chỉnh chiều rộng */
+      height: auto;
+      display: block;
+      margin: 0 auto; /* Canh giữa hình ảnh trong ô */
+    }
+  }
+}
+
+img {
+  width: 100px;
+  height: auto;
+}
+
+a {
+  color: blue;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.total {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: right;
+
+  span {
+    color: $orange-color;
+  }
+}

@@ -42,6 +42,10 @@ const Coupon = React.lazy(() => import('./views/coupon/Coupon'))
 const AddCoupon = React.lazy(() => import('./views/coupon/AddCoupon'))
 const EditCoupon = React.lazy(() => import('./views/coupon/EditCoupon'))
 
+// MEMBER
+const Member = React.lazy(() => import('./views/member/Member'))
+const EditMember = React.lazy(() => import('./views/member/EditMember'))
+
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -222,6 +226,21 @@ const routes = [
     path: '/order/shipping-method',
     name: 'ShippingMethod',
     element: ShippingMethod,
+    exact: true,
+  },
+
+  // member
+  {
+    path: '/member',
+    name: 'Member',
+    element: Member,
+    exact: true,
+  },
+
+  {
+    path: '/member/edit',
+    name: 'EditMember',
+    element: EditMember,
     exact: true,
   },
 
