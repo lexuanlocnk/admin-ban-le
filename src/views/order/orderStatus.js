@@ -26,31 +26,6 @@ import ReactPaginate from 'react-paginate'
 
 import Search from '../../components/search/Search'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
-import { color } from 'chart.js/helpers'
-import { isCancel } from 'axios'
-
-const categories = [
-  'Laptop',
-  'Máy tính để bàn',
-  'Workstation',
-  'Server',
-  'Máy in',
-  'Linh kiện PC',
-  'Phụ kiện',
-  'Phần mềm',
-  'Smart Home',
-  'Thiết bị mạng',
-  'Thiết bị văn phòng',
-  'Smart phone-Tablet',
-  'Thiết bị dân dụng',
-  'Mực in chính hãng',
-  'Màn hình máy tính',
-  'Thiết bị thông minh',
-  'Linh Kiện Server',
-  'Dịch vụ bảo hành mở rộng',
-]
-
-const modules = ['Main', 'Product']
 
 function OrderStatus() {
   const location = useLocation()
