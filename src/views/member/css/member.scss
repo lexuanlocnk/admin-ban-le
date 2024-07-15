@@ -3,15 +3,18 @@
 .customer {
   &-username {
     color: $blue-color;
-
   }
 
-  &-userid, &-order,&-status {
+  &-userid,
+  &-order,
+  &-status {
     color: $orange-color;
     font-weight: 600;
   }
 
-  &-username, &-userid, &-name {
+  &-username,
+  &-userid,
+  &-name {
     font-weight: 600;
   }
 }

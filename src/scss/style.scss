@@ -1,26 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 // If you want to override variables do it here
-@import "variables";
+@import 'variables';
 
 // Import styles
-@import "@coreui/coreui/scss/coreui";
-@import "@coreui/chartjs/scss/coreui-chartjs";
+@import '@coreui/coreui/scss/coreui';
+@import '@coreui/chartjs/scss/coreui-chartjs';
 
 // Vendors
-@import "vendors/simplebar";
+@import 'vendors/simplebar';
 
 // Custom styles for this theme
-@import "theme";
+@import 'theme';
 
 // If you want to add custom CSS you can put it here
-@import "custom";
+@import 'custom';
+
+// text-color
+
+.blue-txt {
+  color: $blue-color;
+  font-weight: 600;
+}
+
+.orange-txt {
+  color: $orange-color;
+  font-weight: 600;
+}
 
 .button-add {
   margin-right: 8px;
 }
 
-.component-size{
+.component-size {
   font-size: 14px;
 }
 
@@ -46,7 +58,6 @@
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
 }
-
 
 // tabel filter
 .button-add {
@@ -106,9 +117,8 @@
   font-size: 14px;
 }
 
-
 // pagination react css
 .page-link {
   font-size: 12px;
-   padding: 5px 10px;
+  padding: 5px 10px;
 }

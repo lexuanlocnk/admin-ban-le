@@ -33,24 +33,19 @@
   font-size: 0.875rem;
 }
 
-
 .order-code,
 .customer-name,
-.total
-{
+.total {
   font-weight: 600;
 }
 
-.order-code,.customer-phone,.customer-email{
+.order-code,
+.customer-phone,
+.customer-email {
   color: $blue-color;
 }
 
-.customer-type, .total {
+.customer-type,
+.total {
   color: $orange-color;
 }
-
-
-
-
-
-

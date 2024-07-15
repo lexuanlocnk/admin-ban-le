@@ -5,6 +5,7 @@ import {
   CFormCheck,
   CFormInput,
   CFormSelect,
+  CFormText,
   CFormTextarea,
   CImage,
   CRow,
@@ -30,21 +31,51 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { CKEditor } from 'ckeditor4-react'
 
+const paymentMethods = [
+  {
+    title: 'Trả tiền mặt khi nhận hàng',
+    name: 'cash',
+    config: '',
+  },
+  {
+    title: 'Thẻ ATM nội địa/ Internet banking',
+    name: 'bank_transfer',
+    config: '',
+  },
+  {
+    title: 'Trực tiếp tại cửa hàng, văn phòng công ty',
+    name: 'company',
+    config: '',
+  },
+  {
+    title: 'Thanh toán bằng thẻ tín dụng (Visa, MasterCard, JCB)',
+    name: 'visa_transfer',
+    config: '',
+  },
+  {
+    title: 'Trả góp (Nhà tài chính, thẻ tín dụng)',
+    name: 'installment',
+    config: '',
+  },
+  {
+    title: 'Thanh toán chuyển khoản rồi nhận hàng',
+    name: 'bank_transfer',
+    config: '',
+  },
+]
+
 function PaymentMethod() {
   const location = useLocation()
   const navigate = useNavigate()
 
   // editor
-  const [editorData, setEditorData] = useState('<p>Initial content</p>')
+  const [editorData, setEditorData] = useState('')
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
-
-  // image upload
-  const [selectedImage, setSelectedImage] = useState(null)
 
   const [isCollapse, setIsCollapse] = useState(false)
 
@@ -61,12 +92,13 @@ function PaymentMethod() {
   const initialValues = {
     title: '',
     name: '',
-    config: null,
-    visible: '',
+    config: '0',
+    visible: '0',
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
+    name: Yup.string().required('Name là bắt buộc!'),
   })
 
   useEffect(() => {
@@ -99,11 +131,11 @@ function PaymentMethod() {
   }
 
   const handleAddNewClick = () => {
-    navigate('/order/status?sub=add')
+    navigate('/order/payment-method?sub=add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/order/status?id=${id}&sub=edit`)
+    navigate(`/order/payment-method?id=${id}&sub=edit`)
   }
 
   // delete row
@@ -149,24 +181,27 @@ function PaymentMethod() {
   const columns = [
     { key: 'id', label: '#' },
     { key: 'title', label: 'Tiêu đề' },
-    { key: 'default', label: 'Default' },
-    { key: 'payment', label: 'Payment' },
-    { key: 'complete', label: 'Complete' },
-    { key: 'cancel', label: 'Cancel' },
-    { key: 'customer', label: 'Customer' },
+    { key: 'name', label: 'Name' },
+    { key: 'config', label: 'Cấu hình' },
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = [
-    {
+  const items =
+    paymentMethods &&
+    paymentMethods.length > 0 &&
+    paymentMethods.map((method) => ({
       id: <CFormCheck id="flexCheckDefault" />,
-      title: 'Đang chờ xử lý',
-      default: 'Yes',
-      payment: 'No',
-      complete: 'No',
-      cancel: 'No',
-      customer: 'No',
-
+      title: <span className="blue-txt">{method.title}</span>,
+      name: (
+        <span
+          style={{
+            fontWeight: 600,
+          }}
+        >
+          {method.name}
+        </span>
+      ),
+      config: method.config,
       actions: (
         <div>
           <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
@@ -178,29 +213,7 @@ function PaymentMethod() {
         </div>
       ),
       _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      title: 'Chờ khách phản hồi',
-      default: 'No',
-      payment: 'No',
-      complete: 'No',
-      cancel: 'No',
-      customer: 'Yes',
-
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-  ]
+    }))
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -274,34 +287,40 @@ function PaymentMethod() {
                 </CCol>
                 <br />
                 <CCol md={12}>
-                  <lable htmlFor="nakme-input">Name</lable>
+                  <lable htmlFor="name-input">Name</lable>
                   <Field
-                    name="nakme"
+                    name="name"
                     type="text"
                     as={CFormInput}
-                    id="nakme-input"
+                    id="name-input"
                     text="Name là bắt buộc và duy nhất."
                   />
-                  <ErrorMessage name="nakme" component="div" className="text-danger" />
+                  <ErrorMessage name="name" component="div" className="text-danger" />
                 </CCol>
                 <br />
                 <CCol md={12}>
-                  <label htmlFor="visible-select">Cấu hình</label>
+                  <label htmlFor="config-select">Cấu hình</label>
                   <Field
                     className="component-size w-50"
-                    name="visible"
+                    name="config"
                     as={CFormSelect}
-                    id="visible-select"
+                    id="config-select"
                     options={[
                       { label: 'Không', value: '0' },
                       { label: 'Có', value: '1' },
                     ]}
                   />
-                  <ErrorMessage name="visible" component="div" className="text-danger" />
+                  <ErrorMessage name="config" component="div" className="text-danger" />
                 </CCol>
                 <br />
+
                 <CCol md={12}>
                   <label htmlFor="visible-select">Mô tả</label>
+                  <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                  <CFormText>
+                    Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện
+                    hiện thị mô tả này.
+                  </CFormText>
                 </CCol>
                 <br />
 
@@ -320,6 +339,7 @@ function PaymentMethod() {
                   <ErrorMessage name="visible" component="div" className="text-danger" />
                 </CCol>
                 <br />
+
                 <CCol xs={12}>
                   <CButton color="primary" type="submit" size="sm">
                     {isEditing ? 'Cập nhật' : 'Thêm mới'}

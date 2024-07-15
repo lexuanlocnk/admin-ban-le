@@ -8,7 +8,6 @@ function CKedtiorCustom({ data, onChangeData }) {
         versionCheck: false,
         extraPlugins: 'justify',
       }}
-      initData="testing"
       value={data}
       onChange={(event) => {
         const data = event.editor.getData()
