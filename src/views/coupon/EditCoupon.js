@@ -1,8 +1,9 @@
 import { CButton, CCol, CContainer, CRow, CTable } from '@coreui/react'
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 import './css/editCoupon.css'
+import axios from 'axios'
 
 const fakeData = [
   {
@@ -20,14 +21,38 @@ const fakeData = [
 ]
 
 function EditCoupon() {
-  const items = fakeData.map((item, index) => ({
-    id: index + 1,
-    couponId: item.couponCode,
-    used: item.used,
-    remain: item.remaining,
-    detail: <Link to={item.url}>Xem chi tiết</Link>,
-    _cellProps: { id: { scope: 'row' } },
-  }))
+  const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
+  const id = searchParams.get('id')
+
+  const [dataCoupon, setDataCoupon] = useState([])
+  const [dataCouponDetail, setDataCouponDetail] = useState([])
+
+  const fetchCouponDetailData = async () => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/coupon/${id}/edit`)
+      setDataCoupon(response.data.listCoupon)
+      setDataCouponDetail(response.data.listCoupon.coupon_desc)
+    } catch (error) {
+      console.error('Fetch coupon data error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCouponDetailData()
+  }, [])
+
+  const items =
+    dataCouponDetail &&
+    dataCouponDetail.length > 0 &&
+    dataCouponDetail.map((item, index) => ({
+      id: index + 1,
+      couponId: item.MaCouponDes,
+      used: item.SoLanSuDungDes,
+      remain: item.SoLanConLaiDes,
+      detail: <Link to={item.idCouponDes}>Xem chi tiết</Link>,
+      _cellProps: { id: { scope: 'row' } },
+    }))
 
   const columns = [
     {
@@ -57,6 +82,8 @@ function EditCoupon() {
     },
   ]
 
+  console.log('>>>. check dataCoupon', dataCoupon)
+
   return (
     <CContainer>
       <CRow className="mb-3">
@@ -85,7 +112,7 @@ function EditCoupon() {
                   color: 'red',
                 }}
               >
-                101022_tongdonhang_500K
+                {dataCoupon?.MaPhatHanh}
               </strong>
             </strong>
           </div>
@@ -95,16 +122,16 @@ function EditCoupon() {
             <span
               style={{
                 fontSize: 18,
-                color: 'red',
+                color: dataCoupon?.status_id === 2 ? 'red' : 'green',
               }}
             >
-              Ngừng Phát Hành
+              {dataCoupon?.status_id === 2 ? 'Ngừng Phát Hành' : 'Đang Phát Hành'}
             </span>
           </div>
 
           <div>
-            <strong>Ngày tạo:</strong>
-            <span> 17:11, 10/10/2022</span>
+            <strong>Ngày tạo: {dataCoupon.DateCreateCoupon}</strong>
+            <span></span>
           </div>
         </CCol>
 
@@ -119,37 +146,52 @@ function EditCoupon() {
                     fontWeight: 600,
                   }}
                 >
-                  101022_tongdonhang_500K
+                  {dataCoupon?.MaPhatHanh}
                 </span>
               </p>
               <p>
-                Tên đợt phát hành: <span>101022_tongdonhang_500K</span>
+                Tên đợt phát hành: <span>{dataCoupon?.TenCoupon}</span>
               </p>
               <p>
                 Loại mã giảm: <span>Tổng đơn hàng</span>
               </p>
               <p>
-                Số lượng mã: <span className="orange-txt">1</span>
+                Số lượng mã: <span className="orange-txt">{dataCoupon?.SoLuongMa}</span>
               </p>
               <p>
-                Ngành hàng áp dụng: <span className="orange-txt">All</span>
+                Ngành hàng áp dụng:{' '}
+                {dataCoupon?.DanhMucSpChoPhep &&
+                  dataCoupon?.DanhMucSpChoPhep.length > 0 &&
+                  dataCoupon?.DanhMucSpChoPhep.map((item) => (
+                    <span key={item.cat_name} className="orange-txt">
+                      {item.cat_name},{' '}
+                    </span>
+                  ))}
               </p>
             </div>
             <div className="col-md-6">
               <p>
-                Giá trị khuyến mại: <span className="orange-txt">500,000</span>
+                Giá trị khuyến mại:{' '}
+                <span className="orange-txt">
+                  {Number(dataCoupon?.GiaTriCoupon).toLocaleString('vi-VN')}đ
+                </span>
               </p>
               <p>
-                Đơn hàng chấp nhận sử dụng từ: <span>500,000</span>
+                Đơn hàng chấp nhận sử dụng từ:{' '}
+                <span>{Number(dataCoupon?.DonHangChapNhanTu).toLocaleString('vi-VN')}đ</span>
               </p>
               <p>
-                Loại Khách Hàng Áp Dụng: <span>Khách sỉ - Member</span>
+                Thương hiệu áp dụng:{' '}
+                {dataCoupon?.ThuongHieuSPApDung &&
+                  dataCoupon?.ThuongHieuSPApDung.length > 0 &&
+                  dataCoupon?.ThuongHieuSPApDung.map((item) => (
+                    <span key={item.title} className="orange-txt">
+                      {item.title},{' '}
+                    </span>
+                  ))}
               </p>
               <p>
-                Thương hiệu áp dụng: <span className="orange-txt">All</span>
-              </p>
-              <p>
-                Mã hàng áp dụng: <span></span>
+                Mã hàng áp dụng: <span className="orange-txt">{dataCoupon?.MaKhoSPApdung}</span>
               </p>
             </div>
           </div>

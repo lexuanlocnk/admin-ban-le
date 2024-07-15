@@ -12,7 +12,7 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -21,9 +21,16 @@ import { Link, useNavigate } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 
+import './css/coupon.css'
+import axios from 'axios'
+import moment from 'moment/moment'
+
 function Coupon() {
   const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
+
+  const [dataCoupon, setDataCoupon] = useState([])
+  const [countCoupon, setCountCoupon] = useState(null)
 
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
@@ -34,8 +41,8 @@ function Coupon() {
   const [pageNumber, setPageNumber] = useState(1)
 
   // date picker
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date())
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [errors, setErrors] = useState({ startDate: '', endDate: '' })
 
   const handleToggleCollapse = () => {
@@ -87,62 +94,6 @@ function Coupon() {
     navigate(`/coupon/edit?id=${id}`)
   }
 
-  const handleDelete = () => {}
-
-  // const columns = [
-  //   {
-  //     key: 'id',
-  //     label: '#',
-  //     _props: { scope: 'col' },
-  //   },
-  //   {
-  //     key: 'releaseCode',
-  //     label: 'Mã đợt phát hành',
-  //     _props: { scope: 'col' },
-  //   },
-  //   {
-  //     key: 'release',
-  //     label: 'Đợt phát hành',
-  //     _props: { scope: 'col' },
-  //   },
-  //   {
-  //     key: 'createAt',
-  //     label: 'Ngày tạo',
-  //     _props: { scope: 'col' },
-  //   },
-  //   {
-  //     key: 'startDate',
-  //     label: 'Ngày bắt đầu',
-  //     _props: { scope: 'col' },
-  //   },
-  //   {
-  //     key: 'expire',
-  //     label: 'Hết hạn',
-  //     _props: { scope: 'col' },
-  //   },
-  //   {
-  //     key: 'sumOfCoupon',
-  //     label: 'Tổng số ',
-  //     _props: { scope: 'col' },
-  //   },
-  //   {
-  //     key: 'used',
-  //     label: 'Đã dùng',
-  //     _props: { scope: 'col' },
-  //   },
-  //   {
-  //     key: 'status',
-  //     label: 'Trạng thái',
-  //     _props: { scope: 'col' },
-  //   },
-
-  //   {
-  //     key: 'actions',
-  //     label: 'Tác vụ',
-  //     _props: { scope: 'col' },
-  //   },
-  // ]
-
   // sorting columns
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
 
@@ -154,67 +105,52 @@ function Coupon() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const fetchDataCoupon = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/coupon?data=${dataSearch}&StartCouponDate=${startDate}&EndCouponDate=${endDate}`,
+      )
+      setDataCoupon(response.data.listCoupon)
+      setCountCoupon(response.data.countCoupon)
+    } catch (error) {
+      console.error('Fetch coupon data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataCoupon()
+  }, [dataSearch, startDate, endDate])
+
   const columns = [
-    { key: 'id', label: '#' },
     { key: 'releaseCode', label: 'Mã đợt phát hành' },
     { key: 'release', label: 'Đợt phát hành' },
     { key: 'createAt', label: 'Ngày tạo' },
     { key: 'startDate', label: 'Ngày bắt đầu' },
     { key: 'expire', label: 'Hết hạn' },
     { key: 'sumOfCoupon', label: 'Tổng số ' },
-    { key: 'used', label: 'Đã dùng' },
+    // { key: 'used', label: 'Đã dùng' },
     { key: 'status', label: 'Trạng thái' },
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = [
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      releaseCode: '101022_tongdonhang_500K',
-      release:
-        'Tổng giá trị đơn hàng từ 5,000,000 đến dưới 10 triệu trong chương trình Mua tận gốc - ưu đãi tận nóc',
-      createAt: '17:11, 10/10/2022',
-      startDate: '17:08, 10/10/2022',
-      expire: '17:08, 30/10/2022',
-      sumOfCoupon: '1',
-      used: '4',
-      status: 'Ngừng phát hành',
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      releaseCode: '101023_tongdonhang_600K',
-      release:
-        'Tổng giá trị đơn hàng từ 5,000,000 đến dưới 10 triệu trong chương trình Mua tận gốc - ưu đãi tận nóc',
-      createAt: '17:11, 11/10/2022',
-      startDate: '17:08, 11/10/2022',
-      expire: '17:08, 30/11/2022',
-      sumOfCoupon: '1',
-      used: '5',
-      status: 'Đang phát hành',
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-  ]
+  const items = dataCoupon?.map((item) => ({
+    releaseCode: item.MaPhatHanh,
+    release: item.couponName,
+    createAt: item.DateCreateCoupon,
+    startDate: moment.unix(Number(item.StartCouponDate)).format('DD-MM-YYYY'),
+    expire: moment.unix(Number(item.EndCouponDate)).format('DD-MM-YYYY'),
+    sumOfCoupon: item.SoLuongMa,
+    // used: '4',
+    status: 'Ngừng phát hành',
+    actions: (
+      <div>
+        <button onClick={() => handleEditClick(item.id)} className="button-action mr-2 bg-info">
+          <CIcon icon={cilColorBorder} className="text-white" />
+        </button>
+      </div>
+    ),
+    _cellProps: { id: { scope: 'row' } },
+  }))
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -277,31 +213,31 @@ function Coupon() {
               <tbody>
                 <tr>
                   <td>Tổng cộng</td>
-                  <td className="total-count">6</td>
+                  <td className="total-count">{countCoupon}</td>
                 </tr>
 
                 <tr>
                   <td>Tạo từ ngày</td>
                   <td>
-                    <div>
-                      <div className="d-flex align-items-center">
-                        <DatePicker
-                          dateFormat={'dd-MM-yyyy'}
-                          showIcon
-                          selected={startDate}
-                          onChange={handleStartDateChange}
-                        />
-                        <p className="m-2">{'đến ngày'}</p>
-                        <DatePicker
-                          dateFormat={'dd-MM-yyyy'}
-                          showIcon
-                          selected={endDate}
-                          onChange={handleEndDateChange}
-                        />
-                      </div>
-                      {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                      {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                    <div className="custom-datepicker-wrapper">
+                      <DatePicker
+                        className="custom-datepicker"
+                        showIcon
+                        dateFormat={'dd-MM-yyyy'}
+                        selected={startDate}
+                        onChange={handleStartDateChange}
+                      />
+                      <p className="datepicker-label">{'đến ngày'}</p>
+                      <DatePicker
+                        className="custom-datepicker"
+                        showIcon
+                        dateFormat={'dd-MM-yyyy'}
+                        selected={endDate}
+                        onChange={handleEndDateChange}
+                      />
                     </div>
+                    {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                    {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
                   </td>
                 </tr>
                 <tr>
@@ -330,16 +266,8 @@ function Coupon() {
           </table>
         </CCol>
 
-        <CCol className="my-2" md={12}>
-          <CButton color="primary" size="sm">
-            Xóa vĩnh viễn
-          </CButton>
-        </CCol>
-
         <CCol>
-          {/* <CTable className="mt-2" columns={columns} items={items} /> */}
-
-          <CTable>
+          <CTable hover className="mt-3 border">
             <thead>
               <tr>
                 {columns.map((column) => (

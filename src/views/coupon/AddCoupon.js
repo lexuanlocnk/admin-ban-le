@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -16,41 +16,9 @@ import {
   CRow,
 } from '@coreui/react'
 import { Link } from 'react-router-dom'
+import './css/addCoupon.css'
 
-const categories = [
-  {
-    label: 'Laptop Intel',
-    value: 'laptop-intel',
-    children: [
-      {
-        label: 'Nuc Serial',
-        value: 'nuc-serial',
-      },
-    ],
-  },
-  {
-    label: 'Macbook',
-    value: 'macbook',
-  },
-  {
-    label: 'Laptop HP',
-    value: 'laptop-hp',
-    children: [
-      {
-        label: 'Victus',
-        value: 'victus',
-      },
-      {
-        label: '240/340S',
-        value: '240-340s',
-      },
-      {
-        label: '14S / 15S',
-        value: '14s-15s',
-      },
-    ],
-  },
-]
+import axios from 'axios'
 
 const brands = [
   {
@@ -72,13 +40,16 @@ const brands = [
 ]
 
 function AddCoupon() {
+  const [categories, setCategories] = useState([])
+  const [brands, setBrands] = useState([])
+
   const initialValues = {
     title: '',
     releaseCode: '',
     startDate: new Date(),
     endDate: new Date(),
     desc: '',
-    applyCodeType: null,
+    applyCodeType: '0',
     ordersHaveProductCode: '',
     promotionValue: '',
     maximumUsed: '',
@@ -87,12 +58,11 @@ function AddCoupon() {
     industry: '',
     applyToProductCategories: [],
     applytoProductBrand: [],
-    // applyGuests: null,
     numberOfCodes: '1',
     prefixCode: 'NK',
     suffixCode: 'CP',
     characterCode: '4',
-    visible: '',
+    visible: 1,
   }
 
   const validationSchema = Yup.object({
@@ -107,9 +77,59 @@ function AddCoupon() {
       }),
   })
 
-  const handleSubmit = (values) => {
-    console.log('>>>> cehck values', values)
-    // api for submit
+  const fetchCategoriesData = async () => {
+    try {
+      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      setCategories(response.data)
+    } catch (error) {
+      console.error('Fetch categories data error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategoriesData()
+  }, [])
+
+  const fetchBrandData = async () => {
+    try {
+      const response = await axios.get('http://192.168.245.190:8000/api/brand')
+      if ((response.data.status = true)) {
+        setBrands(response.data.list)
+      }
+    } catch (error) {
+      console.error('Fetch brands data error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchBrandData()
+  }, [])
+
+  const handleSubmit = async (values) => {
+    try {
+      const response = await axios.post('http://192.168.245.190:8000/api/coupon', {
+        TenCoupon: values.title,
+        MaPhatHanh: values.releaseCode,
+        StartCouponDate: values.startDate,
+        EndCouponDate: values.endDate,
+        DesCoupon: values.desc,
+        type: values.applyCodeType,
+        MaKhoSPApdung: values.ordersHaveProductCode,
+        GiaTriCoupon: values.promotionValue,
+        SoLanSuDung: values.maximumUsed,
+        KHSuDungToiDa: values.usedPerCustomer,
+        DonHangChapNhanTu: values.termsOfOders,
+        DanhMucSpChoPhep: values.applyToProductCategories,
+        ThuongHieuSPApDung: values.applytoProductBrand,
+        SoLuongMa: values.numberOfCodes,
+        number: values.characterCode,
+        prefix: values.prefixCode,
+        suffixes: values.suffixCode,
+        status_id: values.visible,
+      })
+    } catch (error) {
+      console.error('Add coupon data is error', error)
+    }
   }
 
   return (
@@ -304,38 +324,43 @@ function AddCoupon() {
                     <ErrorMessage name="industry" component="div" className="text-danger" />
                   </CCol>
                   <br />
-                  <CCol md={12} className="overflow-scroll" style={{ height: '100px' }}>
+                  <CCol md={12} className="overflow-scroll" style={{ height: '400px' }}>
                     {categories.map((category) => (
-                      <div key={category.value}>
+                      <div key={category.cat_id}>
                         <CFormCheck
-                          id={category.value}
-                          label={category.label}
-                          value={category.value}
-                          checked={values.applyToProductCategories.includes(category.value)}
+                          id={category.cat_id}
+                          label={category?.category_desc?.cat_name}
+                          value={category.cat_id}
+                          checked={values.applyToProductCategories.includes(category.cat_id)}
                           onChange={() => {
                             const set = new Set(values.applyToProductCategories)
-                            if (set.has(category.value)) {
-                              set.delete(category.value)
+                            if (set.has(category.cat_id)) {
+                              set.delete(category.cat_id)
                             } else {
-                              set.add(category.value)
+                              set.add(category.cat_id)
                             }
                             setFieldValue('applyToProductCategories', Array.from(set))
                           }}
                         />
-                        {category.children &&
-                          category.children.map((child) => (
-                            <div key={child.value} className="ml-3">
+                        {category.sub_categories &&
+                          category.sub_categories.map((child) => (
+                            <div key={child.cat_id} className="ms-3 d-flex">
+                              <img
+                                src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
+                                alt="Subcategory"
+                                className="mr-2"
+                              />
                               <CFormCheck
-                                id={child.value}
-                                label={child.label}
-                                value={child.value}
-                                checked={values.applyToProductCategories.includes(child.value)}
+                                id={child.cat_id}
+                                label={child?.category_desc?.cat_name}
+                                value={child.cat_id}
+                                checked={values.applyToProductCategories.includes(child.cat_id)}
                                 onChange={() => {
                                   const set = new Set(values.applyToProductCategories)
-                                  if (set.has(child.value)) {
-                                    set.delete(child.value)
+                                  if (set.has(child.cat_id)) {
+                                    set.delete(child.cat_id)
                                   } else {
-                                    set.add(child.value)
+                                    set.add(child.cat_id)
                                   }
                                   setFieldValue('applyToProductCategories', Array.from(set))
                                 }}
@@ -354,20 +379,20 @@ function AddCoupon() {
                 <br />
 
                 <CFormLabel>Đơn hàng có thương hiệu sản phẩm</CFormLabel>
-                <CCol md={12} className="overflow-scroll" style={{ height: '100px' }}>
-                  {brands.map((brands) => (
-                    <div key={brands.value}>
+                <CCol md={12} className="overflow-scroll" style={{ height: '300px' }}>
+                  {brands.map((brand) => (
+                    <div key={brand.brandId}>
                       <CFormCheck
-                        id={brands.value}
-                        label={brands.label}
-                        value={brands.value}
-                        checked={values.applyToProductCategories.includes(brands.value)}
+                        id={brand.brandId}
+                        label={brand?.title}
+                        value={brand.brandId}
+                        checked={values.applytoProductBrand.includes(brand.brandId)}
                         onChange={() => {
-                          const set = new Set(values.applyToProductCategories)
-                          if (set.has(brands.value)) {
-                            set.delete(brands.value)
+                          const set = new Set(values.applytoProductBrand)
+                          if (set.has(brand.brandId)) {
+                            set.delete(brand.brandId)
                           } else {
-                            set.add(brands.value)
+                            set.add(brand.brandId)
                           }
                           setFieldValue('applytoProductBrand', Array.from(set))
                         }}
@@ -441,8 +466,8 @@ function AddCoupon() {
                     id="visible-select"
                     className="select-input"
                     options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
+                      { label: 'Không', value: 1 },
+                      { label: 'Có', value: 2 },
                     ]}
                   />
                   <ErrorMessage name="visible" component="div" className="text-danger" />
