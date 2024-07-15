@@ -27,9 +27,15 @@ import ReactPaginate from 'react-paginate'
 import Search from '../../components/search/Search'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 
+import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
+import { CKEditor } from 'ckeditor4-react'
+
 function PaymentMethod() {
   const location = useLocation()
   const navigate = useNavigate()
+
+  // editor
+  const [editorData, setEditorData] = useState('<p>Initial content</p>')
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
@@ -54,21 +60,13 @@ function PaymentMethod() {
   // form formik value
   const initialValues = {
     title: '',
-    color: '',
-    isDefault: '',
-    isPayment: '',
-    isComplete: '',
-    isCancel: '',
-    isCustomer: '',
+    name: '',
+    config: null,
     visible: '',
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    // url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    // destination: Yup.string().required('Chọn vị trí liên kết!'),
-    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -111,6 +109,10 @@ function PaymentMethod() {
   // delete row
   const handleDelete = (id) => {
     setVisible(true)
+  }
+
+  const handleEditorChange = (data) => {
+    setEditorData(data)
   }
 
   const handleToggleCollapse = () => {
@@ -271,93 +273,35 @@ function PaymentMethod() {
                   <ErrorMessage name="title" component="div" className="text-danger" />
                 </CCol>
                 <br />
-
                 <CCol md={12}>
-                  <label htmlFor="color-input">Màu sắc</label>
+                  <lable htmlFor="nakme-input">Name</lable>
                   <Field
-                    name="color"
+                    name="nakme"
                     type="text"
                     as={CFormInput}
-                    id="color-input"
-                    text="Hệ màu cho phép là RGB. vd: #000000"
+                    id="nakme-input"
+                    text="Name là bắt buộc và duy nhất."
                   />
-                  <ErrorMessage name="color" component="div" className="text-danger" />
+                  <ErrorMessage name="nakme" component="div" className="text-danger" />
                 </CCol>
                 <br />
-
                 <CCol md={12}>
-                  <label htmlFor="isDefault-select">isDefault</label>
+                  <label htmlFor="visible-select">Cấu hình</label>
                   <Field
                     className="component-size w-50"
-                    name="isDefault"
+                    name="visible"
                     as={CFormSelect}
-                    id="isDefault-select"
+                    id="visible-select"
                     options={[
                       { label: 'Không', value: '0' },
                       { label: 'Có', value: '1' },
                     ]}
                   />
-                  <ErrorMessage name="isDefault" component="div" className="text-danger" />
+                  <ErrorMessage name="visible" component="div" className="text-danger" />
                 </CCol>
                 <br />
                 <CCol md={12}>
-                  <label htmlFor="isPayment-select">isPayment</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isPayment"
-                    as={CFormSelect}
-                    id="isPayment-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isPayment" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="isComplete-select">isComplete</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isComplete"
-                    as={CFormSelect}
-                    id="isComplete-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isComplete" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="isCancle-select">isCancle</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isCancle"
-                    as={CFormSelect}
-                    id="isCancle-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isCancle" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="isCustomer-select">isCustomer</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isCustomer"
-                    as={CFormSelect}
-                    id="isCustomer-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isCustomer" component="div" className="text-danger" />
+                  <label htmlFor="visible-select">Mô tả</label>
                 </CCol>
                 <br />
 
@@ -376,7 +320,6 @@ function PaymentMethod() {
                   <ErrorMessage name="visible" component="div" className="text-danger" />
                 </CCol>
                 <br />
-
                 <CCol xs={12}>
                   <CButton color="primary" type="submit" size="sm">
                     {isEditing ? 'Cập nhật' : 'Thêm mới'}
@@ -389,7 +332,7 @@ function PaymentMethod() {
         <CCol md={8}>
           <Search />
           <CCol className="mt-4">
-            <CTable hover={true}>
+            <CTable hover={true} className="border">
               <thead>
                 <tr>
                   {columns.map((column) => (
