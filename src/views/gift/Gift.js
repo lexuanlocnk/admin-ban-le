@@ -21,16 +21,27 @@ import { Link, useNavigate } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 
-import './css/coupon.css'
 import axios from 'axios'
 import moment from 'moment/moment'
 
-function Coupon() {
+const dataCoupon = [
+  {
+    id: 1,
+    releaseCode: '160724_quatang_latop',
+    name: 'Quà tặng Laptop trên 15 triệu',
+    rangePrice: '10000000 đ - 15000000 đ',
+    giftType: 'Áp dụng cho nghành hàng',
+    startDate: '27-06-2024',
+    endDate: '17-07-2024',
+  },
+]
+
+function Gift() {
   const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
 
-  const [dataCoupon, setDataCoupon] = useState([])
-  const [countCoupon, setCountCoupon] = useState(null)
+  const [dataGift, setDataGift] = useState([])
+  const [countGift, setCountGift] = useState(null)
 
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
@@ -50,7 +61,7 @@ function Coupon() {
   }
 
   const handleAddNewClick = () => {
-    navigate('/coupon/add')
+    navigate('/gift/add')
   }
 
   // validate for date start - date end
@@ -91,7 +102,7 @@ function Coupon() {
   }
 
   const handleEditClick = (id) => {
-    navigate(`/coupon/edit?id=${id}`)
+    navigate(`/gift/edit?id=${id}`)
   }
 
   // sorting columns
@@ -105,51 +116,44 @@ function Coupon() {
     setSortConfig({ key: columnKey, direction })
   }
 
-  const fetchDataCoupon = async () => {
+  const fetchGiftCoupon = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.245.190:8000/api/coupon?data=${dataSearch}&StartCouponDate=${startDate}&EndCouponDate=${endDate}`,
+        `http://192.168.245.190:8000/api/present?data=${dataSearch}&StartDate=${startDate}&EndDate=${endDate}`,
       )
-      setDataCoupon(response.data.listCoupon)
-      setCountCoupon(response.data.countCoupon)
+      if (response.data.status === true) {
+        setDataGift(response.data.data)
+        setCountGift(response.data.data.length)
+      }
     } catch (error) {
       console.error('Fetch coupon data is error', error)
     }
   }
 
   useEffect(() => {
-    fetchDataCoupon()
+    fetchGiftCoupon()
   }, [dataSearch, startDate, endDate])
 
   const columns = [
+    { key: 'id', label: '#' },
     { key: 'releaseCode', label: 'Mã đợt phát hành' },
-    { key: 'release', label: 'Đợt phát hành' },
-    { key: 'createAt', label: 'Ngày tạo' },
+    { key: 'name', label: 'Đợt phát hành' },
+    { key: 'rangePrice', label: 'Phân khúc giá' },
+    { key: 'giftType', label: 'Áp dụng' },
     { key: 'startDate', label: 'Ngày bắt đầu' },
     { key: 'expire', label: 'Hết hạn' },
-    { key: 'sumOfCoupon', label: 'Tổng số ' },
-    // { key: 'used', label: 'Đã dùng' },
-    { key: 'status', label: 'Trạng thái' },
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = dataCoupon?.map((item) => ({
-    releaseCode: <span className="blue-txt">{item.MaPhatHanh}</span>,
-    release: item.couponName,
-    createAt: item.DateCreateCoupon,
-    startDate: moment.unix(Number(item.StartCouponDate)).format('DD-MM-YYYY'),
-    expire: moment.unix(Number(item.EndCouponDate)).format('DD-MM-YYYY'),
-    sumOfCoupon: <span className="orange-txt">{item.SoLuongMa}</span>,
-    // used: '4',
-    status: (
-      <span
-        style={{
-          color: item.status === 2 ? 'red' : 'green',
-        }}
-      >
-        {item.status === 2 ? 'Ngừng phát hành' : 'Đang phát hành'}
-      </span>
-    ),
+  const items = dataGift?.map((item) => ({
+    id: <CFormCheck id="flexCheckDefault" />,
+    releaseCode: <span className="blue-txt">{item.code}</span>,
+    name: item.title,
+    rangePrice: `${Number(item.priceMin).toLocaleString('vi-VN')}đ - ${Number(item.priceMax).toLocaleString('vi-VN')}đ`,
+
+    giftType: item.type === 0 ? 'Áp dụng cho nghành hàng' : 'Áp dụng cho Mã SP chỉ định',
+    startDate: moment.unix(Number(item.StartDate)).format('DD-MM-YYYY'),
+    expire: moment.unix(Number(item.EndDate)).format('DD-MM-YYYY'),
     actions: (
       <div>
         <button onClick={() => handleEditClick(item.id)} className="button-action mr-2 bg-info">
@@ -180,7 +184,7 @@ function Coupon() {
     <CContainer>
       <CRow className="mb-3">
         <CCol>
-          <h3>QUẢN LÝ COUPON</h3>
+          <h3>QUẢN LÝ QUÀ TẶNG</h3>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
@@ -221,7 +225,7 @@ function Coupon() {
               <tbody>
                 <tr>
                   <td>Tổng cộng</td>
-                  <td className="total-count">{countCoupon}</td>
+                  <td className="total-count">{countGift}</td>
                 </tr>
 
                 <tr>
@@ -310,4 +314,4 @@ function Coupon() {
   )
 }
 
-export default Coupon
+export default Gift

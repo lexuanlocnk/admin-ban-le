@@ -42,6 +42,11 @@ const Coupon = React.lazy(() => import('./views/coupon/Coupon'))
 const AddCoupon = React.lazy(() => import('./views/coupon/AddCoupon'))
 const EditCoupon = React.lazy(() => import('./views/coupon/EditCoupon'))
 
+// GIFT
+const Gift = React.lazy(() => import('./views/gift/Gift'))
+const AddGift = React.lazy(() => import('./views/gift/AddGift'))
+const EditGift = React.lazy(() => import('./views/gift/EditGift'))
+
 // MEMBER
 const Member = React.lazy(() => import('./views/member/Member'))
 const EditMember = React.lazy(() => import('./views/member/EditMember'))
@@ -177,6 +182,21 @@ const routes = [
     exact: true,
   },
 
+  // gift
+  { path: '/gift', name: 'Gift', element: Gift, exact: true },
+  {
+    path: 'gift/add',
+    name: 'AddGift',
+    element: AddGift,
+    exact: true,
+  },
+  {
+    path: 'gift/edit',
+    name: 'EditGift',
+    element: EditGift,
+    exact: true,
+  },
+
   //order
   {
     path: '/order',
@@ -190,20 +210,6 @@ const routes = [
     element: EditOrder,
     exact: true,
   },
-
-  // {
-  //   path: '/order/add/',
-  //   name: 'AddProductProperties',
-  //   element: AddProductProperties,
-  //   exact: true,
-  // },
-
-  // {
-  //   path: '/order/edit',
-  //   name: 'EditProductProperties',
-  //   element: EditProductProperties,
-  //   exact: true,
-  // },
 
   // order status
   {

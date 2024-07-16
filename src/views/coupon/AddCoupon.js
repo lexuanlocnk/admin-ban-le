@@ -20,25 +20,6 @@ import './css/addCoupon.css'
 
 import axios from 'axios'
 
-const brands = [
-  {
-    label: 'AEROCOOL',
-    value: 'aerocool',
-  },
-  {
-    label: 'ACBEL',
-    value: 'acbel',
-  },
-  {
-    label: 'Acer',
-    value: 'acer',
-  },
-  {
-    label: 'ADATA',
-    value: 'adata',
-  },
-]
-
 function AddCoupon() {
   const [categories, setCategories] = useState([])
   const [brands, setBrands] = useState([])
@@ -55,7 +36,7 @@ function AddCoupon() {
     maximumUsed: '',
     usedPerCustomer: '',
     termsOfOders: '',
-    industry: '',
+    industry: '1',
     applyToProductCategories: [],
     applytoProductBrand: [],
     numberOfCodes: '1',
@@ -126,6 +107,7 @@ function AddCoupon() {
         prefix: values.prefixCode,
         suffixes: values.suffixCode,
         status_id: values.visible,
+        cat_parent_id: [values.industry],
       })
     } catch (error) {
       console.error('Add coupon data is error', error)
@@ -243,6 +225,7 @@ function AddCoupon() {
                     as={CFormInput}
                     id="productCode-input"
                     text={`Nhập Mã Kho SP Cách nhau dấu "," VD: MBDE_3080SFF,MBDE_3456SSS`}
+                    disabled={values.applyCodeType == '0' ? true : false}
                   />
                   <ErrorMessage
                     name="ordersHaveProductCode"
@@ -316,59 +299,48 @@ function AddCoupon() {
                       as={CFormSelect}
                       id="industry-select"
                       options={[
-                        { label: 'Tất cả', value: '1' },
-                        { label: 'Laptop', value: '2' },
-                        { label: 'Máy tính để bàn', value: '3' },
+                        { label: 'Tất cả', value: 'all' },
+                        ...categories?.map((item) => ({
+                          label: item.category_desc?.cat_name,
+                          value: item.cat_id,
+                        })),
                       ]}
                     />
                     <ErrorMessage name="industry" component="div" className="text-danger" />
                   </CCol>
                   <br />
-                  <CCol md={12} className="overflow-scroll" style={{ height: '400px' }}>
-                    {categories.map((category) => (
-                      <div key={category.cat_id}>
-                        <CFormCheck
-                          id={category.cat_id}
-                          label={category?.category_desc?.cat_name}
-                          value={category.cat_id}
-                          checked={values.applyToProductCategories.includes(category.cat_id)}
-                          onChange={() => {
-                            const set = new Set(values.applyToProductCategories)
-                            if (set.has(category.cat_id)) {
-                              set.delete(category.cat_id)
-                            } else {
-                              set.add(category.cat_id)
-                            }
-                            setFieldValue('applyToProductCategories', Array.from(set))
-                          }}
-                        />
-                        {category.sub_categories &&
-                          category.sub_categories.map((child) => (
-                            <div key={child.cat_id} className="ms-3 d-flex">
-                              <img
-                                src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
-                                alt="Subcategory"
-                                className="mr-2"
-                              />
-                              <CFormCheck
-                                id={child.cat_id}
-                                label={child?.category_desc?.cat_name}
-                                value={child.cat_id}
-                                checked={values.applyToProductCategories.includes(child.cat_id)}
-                                onChange={() => {
-                                  const set = new Set(values.applyToProductCategories)
-                                  if (set.has(child.cat_id)) {
-                                    set.delete(child.cat_id)
-                                  } else {
-                                    set.add(child.cat_id)
-                                  }
-                                  setFieldValue('applyToProductCategories', Array.from(set))
-                                }}
-                              />
-                            </div>
-                          ))}
-                      </div>
-                    ))}
+                  <CCol md={12} className="overflow-scroll" style={{ height: 'auto' }}>
+                    {categories
+                      .filter((item) => item.cat_id == values.industry)
+                      .map((category) => (
+                        <div key={category?.cat_id}>
+                          {category?.sub_categories &&
+                            category?.sub_categories.map((child) => (
+                              <div key={child.cat_id} className="ms-3 d-flex">
+                                <img
+                                  src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
+                                  alt="Subcategory"
+                                  className="mr-2"
+                                />
+                                <CFormCheck
+                                  id={child.cat_id}
+                                  label={child?.category_desc?.cat_name}
+                                  value={child.cat_id}
+                                  checked={values.applyToProductCategories.includes(child.cat_id)}
+                                  onChange={() => {
+                                    const set = new Set(values.applyToProductCategories)
+                                    if (set.has(child.cat_id)) {
+                                      set.delete(child.cat_id)
+                                    } else {
+                                      set.add(child.cat_id)
+                                    }
+                                    setFieldValue('applyToProductCategories', Array.from(set))
+                                  }}
+                                />
+                              </div>
+                            ))}
+                        </div>
+                      ))}
                     <ErrorMessage
                       name="applyToProductCategories"
                       component="div"
