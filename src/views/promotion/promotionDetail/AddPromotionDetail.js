@@ -19,13 +19,13 @@ import {
 import { Link } from 'react-router-dom'
 
 import axios from 'axios'
-import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
-import { formatNumber } from 'chart.js/helpers'
-import { unformatNumber } from '../../helper/utils'
+import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
+// import { formatNumber } from 'chart.js/helpers'
+import { unformatNumber, formatNumber } from '../../../helper/utils'
 
 import { toast } from 'react-toastify'
 
-function AddGift() {
+function AddPromotionDe() {
   const [categories, setCategories] = useState([])
   const [editorData, setEditorData] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -80,34 +80,35 @@ function AddGift() {
   }, [])
 
   const handleSubmit = async (values) => {
-    setIsLoading(true)
-    try {
-      const response = await axios.post('http://192.168.245.190:8000/api/present', {
-        title: values.title,
-        code: values.releaseCode,
-        cat_parent_id: [values.industry],
-        list_cat: values.applyToProductCategories,
-        list_product: values.ordersHaveProductCode,
-        content: editorData,
-        type: values.applyGiftType,
-        display: values.visible,
-        priceMin: values.minPrice,
-        priceMax: values.maxPrice,
-        StartDate: values.startDate,
-        EndDate: values.endDate,
-      })
+    console.log('>>> check promotion values,', values)
+    // setIsLoading(true)
+    // try {
+    //   const response = await axios.post('http://192.168.245.190:8000/api/present', {
+    //     title: values.title,
+    //     code: values.releaseCode,
+    //     cat_parent_id: [values.industry],
+    //     list_cat: values.applyToProductCategories,
+    //     list_product: values.ordersHaveProductCode,
+    //     content: editorData,
+    //     type: values.applyGiftType,
+    //     display: values.visible,
+    //     priceMin: values.minPrice,
+    //     priceMax: values.maxPrice,
+    //     StartDate: values.startDate,
+    //     EndDate: values.endDate,
+    //   })
 
-      if (response.data.status === true) {
-        toast.success('Thêm mới quà tặng thành công!')
-      } else {
-        toast.error('Thêm mới quà tặng thất bại! Vui lòng thử lại!')
-      }
-    } catch (error) {
-      console.error('Post gift data is error', error)
-      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    } finally {
-      setIsLoading(false)
-    }
+    //   if (response.data.status === true) {
+    //     toast.success('Thêm mới quà tặng thành công!')
+    //   } else {
+    //     toast.error('Thêm mới quà tặng thất bại! Vui lòng thử lại!')
+    //   }
+    // } catch (error) {
+    //   console.error('Post gift data is error', error)
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // } finally {
+    //   setIsLoading(false)
+    // }
   }
 
   const handleEditorChange = (data) => {
@@ -118,11 +119,11 @@ function AddGift() {
     <CContainer>
       <CRow className="mb-3">
         <CCol>
-          <h3>THÊM QÙA TẶNG</h3>
+          <h3>THÊM MỚI KHUYẾN MÃI</h3>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
-            <Link to={`/gift`}>
+            <Link to={`/promotion-detail`}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
               </CButton>
@@ -189,7 +190,7 @@ function AddGift() {
                 <br />
 
                 <CCol md={12}>
-                  <label htmlFor="desc-input">Nội dung quà tặng</label>
+                  <label htmlFor="desc-input">Nội dung khuyến mãi liên quan:</label>
                   <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
                 </CCol>
                 <br />
@@ -237,7 +238,7 @@ function AddGift() {
                       <CCol md={12}>
                         <label htmlFor="industry-select">Áp dụng cho danh mục sản phẩm</label>
                         <p>
-                          Ngành hàng (Nếu dùng chung chọn [Tất cả] !, Nếu không chọn nghành hàng con
+                          Ngành hàng (Nếu dùng chung chọn [tất cả] !, Nếu không chọn nghành hàng con
                           mặc định lấy theo nghành hàng cha)
                         </p>
                         <Field
@@ -380,4 +381,4 @@ function AddGift() {
   )
 }
 
-export default AddGift
+export default AddPromotionDe

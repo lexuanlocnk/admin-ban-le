@@ -51,6 +51,18 @@ const EditGift = React.lazy(() => import('./views/gift/EditGift'))
 const Member = React.lazy(() => import('./views/member/Member'))
 const EditMember = React.lazy(() => import('./views/member/EditMember'))
 
+// PROMOTION
+const PromotionDetail = React.lazy(
+  () => import('./views/promotion/promotionDetail/promotionDetail'),
+)
+
+const AddPromotionDetail = React.lazy(
+  () => import('./views/promotion/promotionDetail/AddPromotionDetail'),
+)
+const EditPromotionDetail = React.lazy(
+  () => import('./views/promotion/promotionDetail/EditPromotionDetail'),
+)
+
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -247,6 +259,21 @@ const routes = [
     path: '/member/edit',
     name: 'EditMember',
     element: EditMember,
+    exact: true,
+  },
+
+  //promotion
+  { path: '/promotion-detail', name: 'Promotion', element: PromotionDetail, exact: true },
+  {
+    path: 'promotion-detail/add',
+    name: 'AddPromotionDetail',
+    element: AddPromotionDetail,
+    exact: true,
+  },
+  {
+    path: 'promotion-detail/edit',
+    name: 'EditPromotionDetail',
+    element: EditPromotionDetail,
     exact: true,
   },
 

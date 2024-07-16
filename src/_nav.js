@@ -194,6 +194,20 @@ const _nav = [
 
   {
     component: CNavGroup,
+    name: 'QUẢN LÝ KHUYẾN MÃI',
+    to: '/promotion',
+    icon: <CIcon icon={cilGift} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý khuyến mãi',
+        to: '/promotion-detail',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
     name: 'Base',
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
