@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import '../css/search.css'
 
-function Search({ onSearchData }) {
+function Search({ onSearchData, count }) {
   const [keyword, setKeyword] = useState('')
   return (
     <table className="filter-table">
@@ -13,7 +13,7 @@ function Search({ onSearchData }) {
       <tbody>
         <tr>
           <td>Tổng cộng</td>
-          <td className="total-count">6</td>
+          <td className="total-count">{count}</td>
         </tr>
         <tr>
           <td>Tìm kiếm</td>

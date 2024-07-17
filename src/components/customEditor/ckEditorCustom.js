@@ -2,13 +2,13 @@ import React, { useEffect, useRef } from 'react'
 import { CKEditor } from 'ckeditor4-react'
 
 function CKedtiorCustom({ data, onChangeData }) {
-  const editorRef = useRef(null)
+  // const editorRef = useRef(null)
 
-  useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.setData(data)
-    }
-  }, [data])
+  // useEffect(() => {
+  //   if (editorRef.current) {
+  //     editorRef.current.setData(data)
+  //   }
+  // }, [data])
   return (
     <CKEditor
       config={{
@@ -20,10 +20,10 @@ function CKedtiorCustom({ data, onChangeData }) {
         const data = event.editor.getData()
         onChangeData(data)
       }}
-      onInstanceReady={(event) => {
-        editorRef.current = event.editor
-        event.editor.setData(data)
-      }}
+      // onInstanceReady={(event) => {
+      //   editorRef.current = event.editor
+      //   event.editor.setData(data)
+      // }}
     />
   )
 }

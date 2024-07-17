@@ -1,6 +1,7 @@
 import { CButton, CCol, CContainer, CRow, CTable } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import moment from 'moment'
 
 import './css/editCoupon.css'
 import axios from 'axios'
@@ -82,8 +83,6 @@ function EditCoupon() {
     },
   ]
 
-  console.log('>>>. check dataCoupon', dataCoupon)
-
   return (
     <CContainer>
       <CRow className="mb-3">
@@ -102,7 +101,7 @@ function EditCoupon() {
       </CRow>
 
       <CRow>
-        <CCol md={12} className="d-flex justify-content-between border p-3 mb-3">
+        <CCol md={12} className="d-flex justify-content-between border p-3 mb-3 bg-white">
           <div className="">
             <strong>
               Mã Đợt Phát Hành:{' '}
@@ -130,12 +129,15 @@ function EditCoupon() {
           </div>
 
           <div>
-            <strong>Ngày tạo: {dataCoupon.DateCreateCoupon}</strong>
+            <strong>
+              Ngày tạo:{' '}
+              {moment.unix(Number(dataCoupon?.StartCouponDate)).format('DD-MM-YYYY, hh:mm:ss A')}
+            </strong>
             <span></span>
           </div>
         </CCol>
 
-        <CCol md={12} className="border p-3">
+        <CCol md={12} className="border p-3 bg-white">
           <h6>Thông tin COUPON</h6>
           <div className="row ">
             <div className="col-md-6">
@@ -191,7 +193,8 @@ function EditCoupon() {
                   ))}
               </p>
               <p>
-                Mã hàng áp dụng: <span className="orange-txt">{dataCoupon?.MaKhoSPApdung}</span>
+                Mã hàng áp dụng:{' '}
+                <span className="orange-txt">{dataCoupon?.MaKhoSPApdung === 0}</span>
               </p>
             </div>
           </div>

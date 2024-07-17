@@ -30,6 +30,7 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber, unformatNumber } from '../../helper/utils'
+import axios from 'axios'
 
 const paymentMethods = [
   {
@@ -110,20 +111,37 @@ function ShippingMethod() {
   }
 
   const handleSubmit = async (values) => {
-    console.log(values)
-    // if (isEditing) {
-    //   //call api update data
-    // } else {
-    //   //call api post new data
-    // }
+    console.log('>>>> check values: ', values)
+    if (isEditing) {
+      //call api update data
+    } else {
+      //call api post new data
+      try {
+        const response = await axios.post('http://192.168.245.190:8000/api/shipping-method', {
+          title: values.title,
+          display: values.visible,
+          name: values.name,
+          description: editorData,
+          price: values.charge,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Thêm mới phương thức thành công!')
+          // fetchDataStatusOrder()
+        }
+      } catch (error) {
+        console.error('Post data shipping method is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
+    }
   }
 
   const handleAddNewClick = () => {
-    navigate('/order/payment-method?sub=add')
+    navigate('/order/shipping-method?sub=add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/order/payment-method?id=${id}&sub=edit`)
+    navigate(`/order/shipping-method?id=${id}&sub=edit`)
   }
 
   // delete row
@@ -222,7 +240,6 @@ function ShippingMethod() {
   return (
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} />
-
       <CRow className="mb-3">
         <CCol>
           <h3>PHƯƠNG THỨC VẬN CHUYỂN</h3>

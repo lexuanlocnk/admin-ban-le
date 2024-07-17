@@ -23,18 +23,7 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 
 import axios from 'axios'
 import moment from 'moment/moment'
-
-const dataCoupon = [
-  {
-    id: 1,
-    releaseCode: '160724_quatang_latop',
-    name: 'Quà tặng Laptop trên 15 triệu',
-    rangePrice: '10000000 đ - 15000000 đ',
-    giftType: 'Áp dụng cho nghành hàng',
-    startDate: '27-06-2024',
-    endDate: '17-07-2024',
-  },
-]
+import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 function Gift() {
   const navigate = useNavigate()
@@ -43,7 +32,12 @@ function Gift() {
   const [dataGift, setDataGift] = useState([])
   const [countGift, setCountGift] = useState(null)
 
+  const [deletedId, setDeletedId] = useState(null)
+
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
+
+  // show deleted Modal
+  const [visible, setVisible] = useState(false)
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -105,6 +99,21 @@ function Gift() {
     navigate(`/gift/edit?id=${id}`)
   }
 
+  // delete row
+  const handleDelete = async () => {
+    setVisible(true)
+    try {
+      const response = await axios.delete(`http://192.168.245.190:8000/api/present/${deletedId}`)
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchGiftCoupon()
+      }
+    } catch (error) {
+      console.error('Delete status order is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    }
+  }
+
   // sorting columns
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
 
@@ -159,6 +168,16 @@ function Gift() {
         <button onClick={() => handleEditClick(item.id)} className="button-action mr-2 bg-info">
           <CIcon icon={cilColorBorder} className="text-white" />
         </button>
+
+        <button
+          onClick={() => {
+            setVisible(true)
+            setDeletedId(item.id)
+          }}
+          className="button-action bg-danger"
+        >
+          <CIcon icon={cilTrash} className="text-white" />
+        </button>
       </div>
     ),
     _cellProps: { id: { scope: 'row' } },
@@ -182,6 +201,7 @@ function Gift() {
 
   return (
     <CContainer>
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CCol>
           <h3>QUẢN LÝ QUÀ TẶNG</h3>
@@ -280,7 +300,11 @@ function Gift() {
 
         <CCol>
           <CTable hover className="mt-3 border">
-            <thead>
+            <thead
+              style={{
+                whiteSpace: 'nowrap',
+              }}
+            >
               <tr>
                 {columns.map((column) => (
                   <CTableHeaderCell

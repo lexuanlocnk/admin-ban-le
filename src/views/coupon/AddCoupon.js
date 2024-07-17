@@ -36,7 +36,7 @@ function AddCoupon() {
     maximumUsed: '',
     usedPerCustomer: '',
     termsOfOders: '',
-    industry: '1',
+    industry: 'all',
     applyToProductCategories: [],
     applytoProductBrand: [],
     numberOfCodes: '1',
@@ -302,7 +302,7 @@ function AddCoupon() {
                         { label: 'Tất cả', value: 'all' },
                         ...categories?.map((item) => ({
                           label: item.category_desc?.cat_name,
-                          value: item.cat_id,
+                          value: item.sub_categories.map((sub) => sub.cat_id),
                         })),
                       ]}
                     />
@@ -310,12 +310,15 @@ function AddCoupon() {
                   </CCol>
                   <br />
                   <CCol md={12} className="overflow-scroll" style={{ height: 'auto' }}>
-                    {categories
-                      .filter((item) => item.cat_id == values.industry)
-                      .map((category) => (
-                        <div key={category?.cat_id}>
-                          {category?.sub_categories &&
-                            category?.sub_categories.map((child) => (
+                    {categories.map((category) => (
+                      <div key={category?.cat_id}>
+                        {category?.sub_categories &&
+                          category?.sub_categories
+                            .filter((item) => {
+                              const industryArr = values.industry.split(',')
+                              return industryArr.includes(item.cat_id.toString())
+                            })
+                            .map((child) => (
                               <div key={child.cat_id} className="ms-3 d-flex">
                                 <img
                                   src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
@@ -339,8 +342,8 @@ function AddCoupon() {
                                 />
                               </div>
                             ))}
-                        </div>
-                      ))}
+                      </div>
+                    ))}
                     <ErrorMessage
                       name="applyToProductCategories"
                       component="div"
@@ -438,8 +441,8 @@ function AddCoupon() {
                     id="visible-select"
                     className="select-input"
                     options={[
-                      { label: 'Không', value: 1 },
-                      { label: 'Có', value: 2 },
+                      { label: 'Không', value: 2 },
+                      { label: 'Có', value: 1 },
                     ]}
                   />
                   <ErrorMessage name="visible" component="div" className="text-danger" />

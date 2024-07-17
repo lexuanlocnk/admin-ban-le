@@ -24,6 +24,7 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import './css/coupon.css'
 import axios from 'axios'
 import moment from 'moment/moment'
+import ReactPaginate from 'react-paginate'
 
 function Coupon() {
   const navigate = useNavigate()
@@ -105,10 +106,19 @@ function Coupon() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const convertStringToTimeStamp = (dateString) => {
+    if (dateString == '') {
+      return ''
+    } else {
+      const dateMoment = moment(dateString, 'ddd MMM DD YYYY HH:mm:ss GMTZ')
+      return dateMoment.unix()
+    }
+  }
+
   const fetchDataCoupon = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.245.190:8000/api/coupon?data=${dataSearch}&StartCouponDate=${startDate}&EndCouponDate=${endDate}`,
+        `http://192.168.245.190:8000/api/coupon?data=${dataSearch}&StartCouponDate=${convertStringToTimeStamp(startDate)}&EndCouponDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
       )
       setDataCoupon(response.data.listCoupon)
       setCountCoupon(response.data.countCoupon)
@@ -119,7 +129,7 @@ function Coupon() {
 
   useEffect(() => {
     fetchDataCoupon()
-  }, [dataSearch, startDate, endDate])
+  }, [dataSearch, startDate, endDate, pageNumber])
 
   const columns = [
     { key: 'releaseCode', label: 'Mã đợt phát hành' },
@@ -133,32 +143,34 @@ function Coupon() {
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = dataCoupon?.map((item) => ({
-    releaseCode: <span className="blue-txt">{item.MaPhatHanh}</span>,
-    release: item.couponName,
-    createAt: item.DateCreateCoupon,
-    startDate: moment.unix(Number(item.StartCouponDate)).format('DD-MM-YYYY'),
-    expire: moment.unix(Number(item.EndCouponDate)).format('DD-MM-YYYY'),
-    sumOfCoupon: <span className="orange-txt">{item.SoLuongMa}</span>,
-    // used: '4',
-    status: (
-      <span
-        style={{
-          color: item.status === 2 ? 'red' : 'green',
-        }}
-      >
-        {item.status === 2 ? 'Ngừng phát hành' : 'Đang phát hành'}
-      </span>
-    ),
-    actions: (
-      <div>
-        <button onClick={() => handleEditClick(item.id)} className="button-action mr-2 bg-info">
-          <CIcon icon={cilColorBorder} className="text-white" />
-        </button>
-      </div>
-    ),
-    _cellProps: { id: { scope: 'row' } },
-  }))
+  const items = dataCoupon
+    ? dataCoupon?.map((item) => ({
+        releaseCode: <span className="blue-txt">{item.MaPhatHanh}</span>,
+        release: item.couponName,
+        createAt: item.DateCreateCoupon,
+        startDate: moment.unix(Number(item.StartCouponDate)).format('DD-MM-YYYY'),
+        expire: moment.unix(Number(item.EndCouponDate)).format('DD-MM-YYYY'),
+        sumOfCoupon: <span className="orange-txt">{item.SoLuongMa}</span>,
+        // used: '4',
+        status: (
+          <span
+            style={{
+              color: item.status === 2 ? 'red' : 'green',
+            }}
+          >
+            {item.status === 2 ? 'Ngừng phát hành' : 'Đang phát hành'}
+          </span>
+        ),
+        actions: (
+          <div>
+            <button onClick={() => handleEditClick(item.id)} className="button-action mr-2 bg-info">
+              <CIcon icon={cilColorBorder} className="text-white" />
+            </button>
+          </div>
+        ),
+        _cellProps: { id: { scope: 'row' } },
+      }))
+    : []
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -304,6 +316,28 @@ function Coupon() {
               ))}
             </CTableBody>
           </CTable>
+
+          <div className="d-flex justify-content-end">
+            <ReactPaginate
+              pageCount={Math.ceil(countCoupon / 10)}
+              pageRangeDisplayed={3}
+              marginPagesDisplayed={1}
+              pageClassName="page-item"
+              pageLinkClassName="page-link"
+              previousClassName="page-item"
+              previousLinkClassName="page-link"
+              nextClassName="page-item"
+              nextLinkClassName="page-link"
+              breakLabel="..."
+              breakClassName="page-item"
+              breakLinkClassName="page-link"
+              onPageChange={handlePageChange}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+              previousLabel={'<<'}
+              nextLabel={'>>'}
+            />
+          </div>
         </CCol>
       </CRow>
     </CContainer>

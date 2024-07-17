@@ -22,6 +22,7 @@ import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber } from 'chart.js/helpers'
 import { unformatNumber } from '../../helper/utils'
 import moment from 'moment'
+import { toast } from 'react-toastify'
 
 function EditGift() {
   const [categories, setCategories] = useState([])
@@ -105,7 +106,7 @@ function EditGift() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/present', {
+      const response = await axios.put(`http://192.168.245.190:8000/api/present/${id}`, {
         title: values.title,
         code: values.releaseCode,
         cat_parent_id: [values.industry],
@@ -119,8 +120,13 @@ function EditGift() {
         StartDate: values.startDate,
         EndDate: values.endDate,
       })
+
+      if (response.data.status === true) {
+        toast.success('Cập nhật quà tặng thành công')
+      }
     } catch (error) {
       console.error('Post gift data is error', error)
+      toast.error('Đã xảy ra lỗi! Vui lòng thử lại!')
     }
   }
 
@@ -255,7 +261,9 @@ function EditGift() {
 
                   <CCol md={12}>
                     <label htmlFor="desc-input">Nội dung quà tặng</label>
-                    <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                    {editorData && (
+                      <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                    )}
                   </CCol>
                   <br />
 
@@ -375,8 +383,8 @@ function EditGift() {
                       id="visible-select"
                       className="select-input"
                       options={[
-                        { label: 'Không', value: 1 },
-                        { label: 'Có', value: 2 },
+                        { label: 'Không', value: 0 },
+                        { label: 'Có', value: 1 },
                       ]}
                     />
                     <ErrorMessage name="visible" component="div" className="text-danger" />

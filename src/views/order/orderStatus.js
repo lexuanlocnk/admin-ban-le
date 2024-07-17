@@ -14,6 +14,7 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
+
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
@@ -27,18 +28,25 @@ import ReactPaginate from 'react-paginate'
 import Search from '../../components/search/Search'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 
+import { toast } from 'react-toastify'
+import axios, { isCancel } from 'axios'
+
 function OrderStatus() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  const params = new URLSearchParams(location.search)
+  const id = params.get('id')
+  const sub = params.get('sub')
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
-  // selected checkbox
-  const [selectedCheckbox, setSelectedCheckbox] = useState([])
+  const [dataStatus, setDataStatus] = useState([])
+  const [deletedId, setDeletedId] = useState(null)
 
-  // image upload
-  const [selectedImage, setSelectedImage] = useState(null)
+  // selected checkbox
+  const [selectedCheckbox, setSelectedCheckbox] = useState([]) === 0 ? 'No' : 'Yes'
 
   const [isCollapse, setIsCollapse] = useState(false)
 
@@ -55,27 +63,20 @@ function OrderStatus() {
   const initialValues = {
     title: '',
     color: '',
-    isDefault: '',
-    isPayment: '',
-    isComplete: '',
-    isCancel: '',
-    isCustomer: '',
-    visible: '',
+    isDefault: '0',
+    isPayment: '0',
+    isComplete: '0',
+    isCancel: '0',
+    isCustomer: '0',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    // url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    // destination: Yup.string().required('Chọn vị trí liên kết!'),
-    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    color: Yup.string().required('Màu sắc là bắt buộc!'),
   })
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const id = params.get('id')
-    const sub = params.get('sub')
-
     if (sub === 'add') {
       setIsEditing(false)
       if (inputRef.current) {
@@ -83,21 +84,91 @@ function OrderStatus() {
       }
     } else if (sub === 'edit' && id) {
       setIsEditing(true)
-      fetchDataById(id)
     }
   }, [location.search])
 
-  const fetchDataById = async (id, dataSearch) => {
-    //api?search={dataSearch}
+  const fetchDataStatusOrder = async (dataSearch) => {
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/order-status?data=${dataSearch}&page=${pageNumber}`,
+      )
+      if (response.data.status === true) {
+        const orderStatus = response.data.orderStatus
+        setDataStatus(orderStatus)
+      }
+    } catch (error) {
+      console.error('Fetch data order status is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataStatusOrder()
+  }, [dataSearch, pageNumber])
+
+  const fetchDataById = async (setValues) => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/order-status/${id}/edit`)
+      const data = response.data.orderStatus
+      setValues({
+        title: data.title,
+        color: data.color,
+        isDefault: data.is_default,
+        isPayment: data.is_payment,
+        isComplete: data.is_complete,
+        isCancel: data.is_cancel,
+        isCustomer: data.is_customer,
+        visible: data.display,
+      })
+    } catch (error) {
+      console.error('Fetch data id order status is error', error)
+    }
   }
 
   const handleSubmit = async (values) => {
     console.log(values)
-    // if (isEditing) {
-    //   //call api update data
-    // } else {
-    //   //call api post new data
-    // }
+    if (isEditing) {
+      try {
+        const response = await axios.put(`http://192.168.245.190:8000/api/order-status/${id}`, {
+          title: values.title,
+          display: values.visible,
+          color: values.color,
+          is_default: values.isDefault,
+          is_payment: values.isPayment,
+          is_complete: values.isComplete,
+          is_cancel: values.isCancel,
+          is_customer: values.isCustomer,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Cập nhật trạng thái thành công!')
+          fetchDataStatusOrder()
+        }
+      } catch (error) {
+        console.error('Put data order status is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
+    } else {
+      try {
+        const response = await axios.post('http://192.168.245.190:8000/api/order-status', {
+          title: values.title,
+          display: values.visible,
+          color: values.color,
+          is_default: values.isDefault,
+          is_payment: values.isPayment,
+          is_complete: values.isComplete,
+          is_cancel: values.isCancel,
+          is_customer: values.isCustomer,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Thêm mới trạng thái thành công!')
+          fetchDataStatusOrder()
+        }
+      } catch (error) {
+        console.error('Post data order status is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
+    }
   }
 
   const handleAddNewClick = () => {
@@ -109,8 +180,20 @@ function OrderStatus() {
   }
 
   // delete row
-  const handleDelete = (id) => {
+  const handleDelete = async () => {
     setVisible(true)
+    try {
+      const response = await axios.delete(
+        `http://192.168.245.190:8000/api/order-status/${deletedId}`,
+      )
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchDataStatusOrder()
+      }
+    } catch (error) {
+      console.error('Delete status order is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    }
   }
 
   const handleToggleCollapse = () => {
@@ -131,7 +214,7 @@ function OrderStatus() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchDataStatusOrder(keyword)
   }
 
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
@@ -155,50 +238,46 @@ function OrderStatus() {
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = [
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      title: 'Đang chờ xử lý',
-      default: 'Yes',
-      payment: 'No',
-      complete: 'No',
-      cancel: 'No',
-      customer: 'No',
-
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      title: 'Chờ khách phản hồi',
-      default: 'No',
-      payment: 'No',
-      complete: 'No',
-      cancel: 'No',
-      customer: 'Yes',
-
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-  ]
+  const items = dataStatus?.data
+    ? dataStatus?.data.map((status) => ({
+        id: <CFormCheck id="flexCheckDefault" />,
+        title: (
+          <span
+            style={{
+              color: status?.color,
+              fontWeight: 600,
+            }}
+          >
+            {status.title}
+          </span>
+        ),
+        default: status.is_default === 0 ? 'No' : 'Yes',
+        payment: status.is_payment === 0 ? 'No' : 'Yes',
+        complete: status.is_complete === 0 ? 'No' : 'Yes',
+        cancel: status.is_cancel === 0 ? 'No' : 'Yes',
+        customer: status.is_customer === 0 ? 'No' : 'Yes',
+        actions: (
+          <div>
+            <button
+              onClick={() => handleEditClick(status.status_id)}
+              className="button-action mr-2 bg-info"
+            >
+              <CIcon icon={cilColorBorder} className="text-white" />
+            </button>
+            <button
+              onClick={() => {
+                setVisible(true)
+                setDeletedId(status.status_id)
+              }}
+              className="button-action bg-danger"
+            >
+              <CIcon icon={cilTrash} className="text-white" />
+            </button>
+          </div>
+        ),
+        _cellProps: { id: { scope: 'row' } },
+      }))
+    : []
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -218,7 +297,7 @@ function OrderStatus() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
 
       <CRow className="mb-3">
         <CCol>
@@ -253,141 +332,147 @@ function OrderStatus() {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ setFieldValue }) => (
-              <Form>
-                <CCol md={12}>
-                  <label htmlFor="title-input">Tiêu đề</label>
-                  <Field name="title">
-                    {({ field }) => (
-                      <CFormInput
-                        {...field}
-                        type="text"
-                        id="title-input"
-                        ref={inputRef}
-                        text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
-                      />
-                    )}
-                  </Field>
-                  <ErrorMessage name="title" component="div" className="text-danger" />
-                </CCol>
-                <br />
+            {({ setFieldValue, setValues }) => {
+              useEffect(() => {
+                fetchDataById(setValues)
+              }, [setValues, id])
 
-                <CCol md={12}>
-                  <label htmlFor="color-input">Màu sắc</label>
-                  <Field
-                    name="color"
-                    type="text"
-                    as={CFormInput}
-                    id="color-input"
-                    text="Hệ màu cho phép là RGB. vd: #000000"
-                  />
-                  <ErrorMessage name="color" component="div" className="text-danger" />
-                </CCol>
-                <br />
+              return (
+                <Form>
+                  <CCol md={12}>
+                    <label htmlFor="title-input">Tiêu đề</label>
+                    <Field name="title">
+                      {({ field }) => (
+                        <CFormInput
+                          {...field}
+                          type="text"
+                          id="title-input"
+                          ref={inputRef}
+                          text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+                        />
+                      )}
+                    </Field>
+                    <ErrorMessage name="title" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol md={12}>
-                  <label htmlFor="isDefault-select">isDefault</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isDefault"
-                    as={CFormSelect}
-                    id="isDefault-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isDefault" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="isPayment-select">isPayment</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isPayment"
-                    as={CFormSelect}
-                    id="isPayment-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isPayment" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="isComplete-select">isComplete</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isComplete"
-                    as={CFormSelect}
-                    id="isComplete-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isComplete" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="isCancle-select">isCancle</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isCancle"
-                    as={CFormSelect}
-                    id="isCancle-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isCancle" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="isCustomer-select">isCustomer</label>
-                  <Field
-                    className="component-size w-50"
-                    name="isCustomer"
-                    as={CFormSelect}
-                    id="isCustomer-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="isCustomer" component="div" className="text-danger" />
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <label htmlFor="color-input">Màu sắc</label>
+                    <Field
+                      name="color"
+                      type="text"
+                      as={CFormInput}
+                      id="color-input"
+                      text="Hệ màu cho phép là RGB. vd: #000000"
+                    />
+                    <ErrorMessage name="color" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol md={12}>
-                  <label htmlFor="visible-select">Hiển thị</label>
-                  <Field
-                    className="component-size w-50"
-                    name="visible"
-                    as={CFormSelect}
-                    id="visible-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="visible" component="div" className="text-danger" />
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <label htmlFor="isDefault-select">isDefault</label>
+                    <Field
+                      className="component-size w-50"
+                      name="isDefault"
+                      as={CFormSelect}
+                      id="isDefault-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="isDefault" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="isPayment-select">isPayment</label>
+                    <Field
+                      className="component-size w-50"
+                      name="isPayment"
+                      as={CFormSelect}
+                      id="isPayment-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="isPayment" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="isComplete-select">isComplete</label>
+                    <Field
+                      className="component-size w-50"
+                      name="isComplete"
+                      as={CFormSelect}
+                      id="isComplete-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="isComplete" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="isCancle-select">isCancle</label>
+                    <Field
+                      className="component-size w-50"
+                      name="isCancel"
+                      as={CFormSelect}
+                      id="isCancle-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="isCancel" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="isCustomer-select">isCustomer</label>
+                    <Field
+                      className="component-size w-50"
+                      name="isCustomer"
+                      as={CFormSelect}
+                      id="isCustomer-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="isCustomer" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                  </CButton>
-                </CCol>
-              </Form>
-            )}
+                  <CCol md={12}>
+                    <label htmlFor="visible-select">Hiển thị</label>
+                    <Field
+                      className="component-size w-50"
+                      name="visible"
+                      as={CFormSelect}
+                      id="visible-select"
+                      options={[
+                        { label: 'Không', value: 0 },
+                        { label: 'Có', value: 1 },
+                      ]}
+                    />
+                    <ErrorMessage name="visible" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol xs={12}>
+                    <CButton color="primary" type="submit" size="sm">
+                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                    </CButton>
+                  </CCol>
+                </Form>
+              )
+            }}
           </Formik>
         </CCol>
         <CCol md={8}>
-          <Search />
+          <Search count={dataStatus?.data?.length} onSearchData={handleSearch} />
           <CCol className="mt-4">
             <CTable hover={true}>
               <thead>
@@ -422,7 +507,7 @@ function OrderStatus() {
 
             <div className="d-flex justify-content-end">
               <ReactPaginate
-                pageCount={Math.round(20 / 10)}
+                pageCount={Math.ceil(dataStatus?.total / dataStatus?.per_page)}
                 pageRangeDisplayed={3}
                 marginPagesDisplayed={1}
                 pageClassName="page-item"

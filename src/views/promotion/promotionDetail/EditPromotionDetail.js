@@ -19,9 +19,10 @@ import { Link, useLocation } from 'react-router-dom'
 
 import axios from 'axios'
 import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
-
-import { unformatNumber, formatNumber } from '../../../helper/utils'
+import { formatNumber } from 'chart.js/helpers'
+import { unformatNumber } from '../../../helper/utils'
 import moment from 'moment'
+import { toast } from 'react-toastify'
 
 function EditPromotionDetail() {
   const [categories, setCategories] = useState([])
@@ -80,9 +81,9 @@ function EditPromotionDetail() {
     fetchCategoriesData()
   }, [])
 
-  const fetchDataGift = async (setValues) => {
+  const fetchDataGiftPromotion = async (setValues) => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/present/${id}/edit`)
+      const response = await axios.get(`http://192.168.245.190:8000/api/gift-promotion/${id}/edit`)
       const data = response.data.data
       setEditorData(data.content)
       setValues({
@@ -105,7 +106,7 @@ function EditPromotionDetail() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/present', {
+      const response = await axios.put(`http://192.168.245.190:8000/api/gift-promotion/${id}`, {
         title: values.title,
         code: values.releaseCode,
         cat_parent_id: [values.industry],
@@ -119,16 +120,19 @@ function EditPromotionDetail() {
         StartDate: values.startDate,
         EndDate: values.endDate,
       })
+
+      if (response.data.status === true) {
+        toast.success('Cập nhật khuyến mãi thành công')
+      }
     } catch (error) {
       console.error('Post gift data is error', error)
+      toast.error('Đã xảy ra lỗi! Vui lòng thử lại!')
     }
   }
 
   const handleEditorChange = (data) => {
     setEditorData(data)
   }
-
-  console.log('>>>> chekc editor data, ', editorData)
 
   return (
     <CContainer>
@@ -156,7 +160,7 @@ function EditPromotionDetail() {
           >
             {({ setFieldValue, values, setValues }) => {
               useEffect(() => {
-                fetchDataGift(setValues)
+                fetchDataGiftPromotion(setValues)
               }, [setValues])
 
               return (
@@ -255,20 +259,22 @@ function EditPromotionDetail() {
 
                   <CCol md={12}>
                     <label htmlFor="desc-input">Nội dung quà tặng</label>
-                    <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                    {editorData && (
+                      <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                    )}
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="applyGiftType-select">Áp dụng cho</label>
+                    <label htmlFor="applyGiftType-select">Loại quà tặng</label>
                     <Field
                       name="applyGiftType"
                       as={CFormSelect}
                       id="applyGiftType-select"
                       className="select-input"
                       options={[
-                        { label: 'Nghành hàng', value: '0' },
-                        { label: 'Mã SP chỉ định', value: '1' },
+                        { label: 'Áp dụng cho nghành hàng', value: '0' },
+                        { label: 'Áp dụng cho Mã SP chỉ định', value: '1' },
                       ]}
                     />
                     <ErrorMessage name="applyGiftType" component="div" className="text-danger" />
@@ -375,8 +381,8 @@ function EditPromotionDetail() {
                       id="visible-select"
                       className="select-input"
                       options={[
-                        { label: 'Không', value: 1 },
-                        { label: 'Có', value: 2 },
+                        { label: 'Không', value: 0 },
+                        { label: 'Có', value: 1 },
                       ]}
                     />
                     <ErrorMessage name="visible" component="div" className="text-danger" />

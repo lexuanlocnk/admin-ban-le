@@ -20,7 +20,6 @@ import { Link } from 'react-router-dom'
 
 import axios from 'axios'
 import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
-// import { formatNumber } from 'chart.js/helpers'
 import { unformatNumber, formatNumber } from '../../../helper/utils'
 
 import { toast } from 'react-toastify'
@@ -37,8 +36,9 @@ function AddPromotionDe() {
     endDate: new Date(),
     minPrice: 0,
     maxPrice: 0,
+    desc: '',
     applyGiftType: '0',
-    industry: '1',
+    industry: 'all',
     applyToProductCategories: [],
     ordersHaveProductCode: '',
     visible: 1,
@@ -54,6 +54,7 @@ function AddPromotionDe() {
         const { startDate } = this.parent
         return value && startDate ? value > startDate : true
       }),
+    desc: Yup.string().required('Nội dung khuyến mãi là bắt buộc.'),
 
     minPrice: Yup.number()
       .required('Bắt buộc')
@@ -80,35 +81,35 @@ function AddPromotionDe() {
   }, [])
 
   const handleSubmit = async (values) => {
-    console.log('>>> check promotion values,', values)
-    // setIsLoading(true)
-    // try {
-    //   const response = await axios.post('http://192.168.245.190:8000/api/present', {
-    //     title: values.title,
-    //     code: values.releaseCode,
-    //     cat_parent_id: [values.industry],
-    //     list_cat: values.applyToProductCategories,
-    //     list_product: values.ordersHaveProductCode,
-    //     content: editorData,
-    //     type: values.applyGiftType,
-    //     display: values.visible,
-    //     priceMin: values.minPrice,
-    //     priceMax: values.maxPrice,
-    //     StartDate: values.startDate,
-    //     EndDate: values.endDate,
-    //   })
+    console.log('>>> check gift promotion values,', values)
+    setIsLoading(true)
+    try {
+      const response = await axios.post('http://192.168.245.190:8000/api/gift-promotion', {
+        title: values.title,
+        code: values.releaseCode,
+        cat_parent_id: values.industry.split(','),
+        list_cat: values.applyToProductCategories,
+        list_product: values.ordersHaveProductCode,
+        content: editorData,
+        type: values.applyGiftType,
+        display: values.visible,
+        priceMin: values.minPrice,
+        priceMax: values.maxPrice,
+        StartDate: values.startDate,
+        EndDate: values.endDate,
+      })
 
-    //   if (response.data.status === true) {
-    //     toast.success('Thêm mới quà tặng thành công!')
-    //   } else {
-    //     toast.error('Thêm mới quà tặng thất bại! Vui lòng thử lại!')
-    //   }
-    // } catch (error) {
-    //   console.error('Post gift data is error', error)
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // } finally {
-    //   setIsLoading(false)
-    // }
+      if (response.data.status === true) {
+        toast.success('Thêm mới khuyến mãi thành công!')
+      } else {
+        toast.error('Thêm mới khuyến mãi thất bại! Vui lòng thử lại!')
+      }
+    } catch (error) {
+      console.error('Post gift promotion data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleEditorChange = (data) => {
@@ -189,9 +190,16 @@ function AddPromotionDe() {
                 </div>
                 <br />
 
+                {/* <CCol md={12}>
+                  <label htmlFor="desc-input">Nội dung khuyến mãi liên quan:</label>
+                  <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                </CCol>
+                <br /> */}
+
                 <CCol md={12}>
                   <label htmlFor="desc-input">Nội dung khuyến mãi liên quan:</label>
                   <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                  <ErrorMessage name="desc" component="div" className="text-danger" />
                 </CCol>
                 <br />
 
@@ -250,7 +258,7 @@ function AddPromotionDe() {
                             { label: 'Tất cả', value: 'all' },
                             ...categories?.map((item) => ({
                               label: item.category_desc?.cat_name,
-                              value: item.cat_id,
+                              value: item.sub_categories.map((sub) => sub.cat_id),
                             })),
                           ]}
                         />
@@ -258,12 +266,15 @@ function AddPromotionDe() {
                       </CCol>
                       <br />
                       <CCol md={12} className="overflow-scroll" style={{ height: 'auto' }}>
-                        {categories
-                          .filter((item) => item.cat_id == values.industry)
-                          .map((category) => (
-                            <div key={category?.cat_id}>
-                              {category?.sub_categories &&
-                                category?.sub_categories.map((child) => (
+                        {categories.map((category) => (
+                          <div key={category?.cat_id}>
+                            {category?.sub_categories &&
+                              category?.sub_categories
+                                .filter((item) => {
+                                  const industryArr = values.industry.split(',')
+                                  return industryArr.includes(item.cat_id.toString())
+                                })
+                                .map((child) => (
                                   <div key={child.cat_id} className="ms-3 d-flex">
                                     <img
                                       src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
@@ -289,8 +300,8 @@ function AddPromotionDe() {
                                     />
                                   </div>
                                 ))}
-                            </div>
-                          ))}
+                          </div>
+                        ))}
                         <ErrorMessage
                           name="applyToProductCategories"
                           component="div"
@@ -353,8 +364,8 @@ function AddPromotionDe() {
                     id="visible-select"
                     className="select-input"
                     options={[
-                      { label: 'Không', value: 1 },
-                      { label: 'Có', value: 2 },
+                      { label: 'Không', value: 0 },
+                      { label: 'Có', value: 1 },
                     ]}
                   />
                   <ErrorMessage name="visible" component="div" className="text-danger" />
