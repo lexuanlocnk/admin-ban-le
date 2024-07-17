@@ -110,7 +110,7 @@ function Gift() {
       }
     } catch (error) {
       console.error('Delete status order is error', error)
-      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!!')
     }
   }
 
