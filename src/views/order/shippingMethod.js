@@ -31,6 +31,7 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber, unformatNumber } from '../../helper/utils'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const paymentMethods = [
   {
@@ -56,11 +57,17 @@ function ShippingMethod() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  const params = new URLSearchParams(location.search)
+  const id = params.get('id')
+  const sub = params.get('sub')
   // editor
-  const [editorData, setEditorData] = useState('')
+  const [editorData, setEditorData] = useState(null)
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
+
+  const [dataShippingMethod, setDataShippingMethod] = useState([])
+  const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
@@ -91,10 +98,6 @@ function ShippingMethod() {
   })
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const id = params.get('id')
-    const sub = params.get('sub')
-
     if (sub === 'add') {
       setIsEditing(false)
       if (inputRef.current) {
@@ -102,18 +105,68 @@ function ShippingMethod() {
       }
     } else if (sub === 'edit' && id) {
       setIsEditing(true)
-      fetchDataById(id)
     }
   }, [location.search])
 
-  const fetchDataById = async (id, dataSearch) => {
-    //api?search={dataSearch}
+  const fetchDataShippingMethod = async (dataSearch) => {
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/shipping-method?data=${dataSearch}&page=${pageNumber}`,
+      )
+      const shippingMethodData = response.data
+      if (shippingMethodData.status === true) {
+        setDataShippingMethod(shippingMethodData.data)
+      }
+    } catch (error) {
+      console.error('Fetch data shipping method is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataShippingMethod()
+  }, [dataSearch, pageNumber])
+
+  const fetchDataById = async (setValues) => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/shipping-method/${id}/edit`)
+      const shippingMethodData = response.data.data
+      if (shippingMethodData) {
+        setValues({
+          title: shippingMethodData.title,
+          name: shippingMethodData.name,
+          charge: shippingMethodData.price,
+          visible: shippingMethodData.display,
+        })
+        setEditorData(shippingMethodData.description || '')
+      } else {
+        console.error('No data found for the given ID.')
+      }
+    } catch (error) {
+      console.error('Fetch data id shipping method is error', error.message)
+    }
   }
 
   const handleSubmit = async (values) => {
     console.log('>>>> check values: ', values)
     if (isEditing) {
       //call api update data
+      try {
+        const response = await axios.put(`http://192.168.245.190:8000/api/shipping-method/${id}`, {
+          title: values.title,
+          display: values.visible,
+          name: values.name,
+          description: editorData,
+          price: values.charge,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Cập nhật phương thức thành công!')
+          fetchDataShippingMethod()
+        }
+      } catch (error) {
+        console.error('Put data shipping method is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     } else {
       //call api post new data
       try {
@@ -127,7 +180,7 @@ function ShippingMethod() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới phương thức thành công!')
-          // fetchDataStatusOrder()
+          fetchDataShippingMethod()
         }
       } catch (error) {
         console.error('Post data shipping method is error', error)
@@ -145,8 +198,20 @@ function ShippingMethod() {
   }
 
   // delete row
-  const handleDelete = (id) => {
+  const handleDelete = async () => {
     setVisible(true)
+    try {
+      const response = await axios.delete(
+        `http://192.168.245.190:8000/api/shipping-method/${deletedId}`,
+      )
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchDataShippingMethod()
+      }
+    } catch (error) {
+      console.error('Delete status order is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    }
   }
 
   const handleEditorChange = (data) => {
@@ -171,7 +236,7 @@ function ShippingMethod() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchDataShippingMethod(keyword)
   }
 
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
@@ -188,38 +253,40 @@ function ShippingMethod() {
     { key: 'id', label: '#' },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'name', label: 'Name' },
-    { key: 'config', label: 'Cấu hình' },
+    { key: 'charge', label: 'Mức phí' },
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items =
-    paymentMethods &&
-    paymentMethods.length > 0 &&
-    paymentMethods.map((method) => ({
-      id: <CFormCheck id="flexCheckDefault" />,
-      title: <span className="blue-txt">{method.title}</span>,
-      name: (
-        <span
-          style={{
-            fontWeight: 600,
-          }}
-        >
-          {method.name}
-        </span>
-      ),
-      config: `${method.charge.toLocaleString('vi-VN')} đ`,
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    }))
+  const items = dataShippingMethod?.data
+    ? dataShippingMethod?.data.map((method) => ({
+        id: <CFormCheck id="flexCheckDefault" />,
+        title: <span className="blue-txt">{method.title}</span>,
+        name: method.name,
+        charge: (
+          <span className="orange-txt">{`${Number(method.price).toLocaleString('vi-VN')} đ`}</span>
+        ),
+        actions: (
+          <div>
+            <button
+              onClick={() => handleEditClick(method.shipping_id)}
+              className="button-action mr-2 bg-info"
+            >
+              <CIcon icon={cilColorBorder} className="text-white" />
+            </button>
+            <button
+              onClick={() => {
+                setVisible(true)
+                setDeletedId(method.shipping_id)
+              }}
+              className="button-action bg-danger"
+            >
+              <CIcon icon={cilTrash} className="text-white" />
+            </button>
+          </div>
+        ),
+        _cellProps: { id: { scope: 'row' } },
+      }))
+    : []
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -239,7 +306,8 @@ function ShippingMethod() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+
       <CRow className="mb-3">
         <CCol>
           <h3>PHƯƠNG THỨC VẬN CHUYỂN</h3>
@@ -255,7 +323,7 @@ function ShippingMethod() {
             >
               Thêm mới
             </CButton>
-            <Link to={`/product/category`}>
+            <Link to={`/order/shipping-method`}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
               </CButton>
@@ -267,100 +335,105 @@ function ShippingMethod() {
       <CRow>
         {/* Form add/ edit */}
         <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm mới thanh toán' : 'Cập nhật thanh toán'}</h6>
+          <h6>{!isEditing ? 'Thêm mới phương thức' : 'Cập nhật phương thức'}</h6>
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ setFieldValue }) => (
-              <Form>
-                <CCol md={12}>
-                  <label htmlFor="title-input">Tiêu đề</label>
-                  <Field name="title">
-                    {({ field }) => (
-                      <CFormInput
-                        {...field}
-                        type="text"
-                        id="title-input"
-                        ref={inputRef}
-                        text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
-                      />
-                    )}
-                  </Field>
-                  <ErrorMessage name="title" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <lable htmlFor="name-input">Name</lable>
-                  <Field
-                    name="name"
-                    type="text"
-                    as={CFormInput}
-                    id="name-input"
-                    text="Name là bắt buộc và duy nhất."
-                  />
-                  <ErrorMessage name="name" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="charge-select">Mức phí</label>
-                  <Field name="charge">
-                    {({ field }) => (
-                      <CFormInput
-                        {...field}
-                        type="text"
-                        id="charge-input"
-                        text="Phí vận chuyển tính của phương thức."
-                        value={formatNumber(field.value)}
-                        onChange={(e) => {
-                          const rawValue = unformatNumber(e.target.value)
-                          setFieldValue(field.name, rawValue)
-                        }}
-                      />
-                    )}
-                  </Field>
-                  <ErrorMessage name="charge" component="div" className="text-danger" />
-                </CCol>
-                <br />
+            {({ setFieldValue, setValues }) => {
+              useEffect(() => {
+                fetchDataById(setValues)
+              }, [setValues, id])
+              return (
+                <Form>
+                  <CCol md={12}>
+                    <label htmlFor="title-input">Tiêu đề</label>
+                    <Field name="title">
+                      {({ field }) => (
+                        <CFormInput
+                          {...field}
+                          type="text"
+                          id="title-input"
+                          ref={inputRef}
+                          text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+                        />
+                      )}
+                    </Field>
+                    <ErrorMessage name="title" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <lable htmlFor="name-input">Name</lable>
+                    <Field
+                      name="name"
+                      type="text"
+                      as={CFormInput}
+                      id="name-input"
+                      text="Name là bắt buộc và duy nhất."
+                    />
+                    <ErrorMessage name="name" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="charge-select">Mức phí</label>
+                    <Field name="charge">
+                      {({ field }) => (
+                        <CFormInput
+                          {...field}
+                          type="text"
+                          id="charge-input"
+                          text="Phí vận chuyển tính của phương thức."
+                          value={formatNumber(field.value)}
+                          onChange={(e) => {
+                            const rawValue = unformatNumber(e.target.value)
+                            setFieldValue(field.name, rawValue)
+                          }}
+                        />
+                      )}
+                    </Field>
+                    <ErrorMessage name="charge" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol md={12}>
-                  <label htmlFor="visible-select">Mô tả</label>
-                  <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
-                  <CFormText>
-                    Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện
-                    hiện thị mô tả này.
-                  </CFormText>
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <label htmlFor="visible-select">Mô tả</label>
+                    <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                    <CFormText>
+                      Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao
+                      diện hiện thị mô tả này.
+                    </CFormText>
+                  </CCol>
+                  <br />
 
-                <CCol md={12}>
-                  <label htmlFor="visible-select">Hiển thị</label>
-                  <Field
-                    className="component-size w-50"
-                    name="visible"
-                    as={CFormSelect}
-                    id="visible-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="visible" component="div" className="text-danger" />
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <label htmlFor="visible-select">Hiển thị</label>
+                    <Field
+                      className="component-size w-50"
+                      name="visible"
+                      as={CFormSelect}
+                      id="visible-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="visible" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                  </CButton>
-                </CCol>
-              </Form>
-            )}
+                  <CCol xs={12}>
+                    <CButton color="primary" type="submit" size="sm">
+                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                    </CButton>
+                  </CCol>
+                </Form>
+              )
+            }}
           </Formik>
         </CCol>
         <CCol md={8}>
-          <Search />
+          <Search count={dataShippingMethod?.total} onSearchData={handleSearch} />
           <CCol className="mt-4">
             <CTable hover={true} className="border">
               <thead>
@@ -395,7 +468,7 @@ function ShippingMethod() {
 
             <div className="d-flex justify-content-end">
               <ReactPaginate
-                pageCount={Math.round(20 / 10)}
+                pageCount={Math.ceil(dataShippingMethod?.total / dataShippingMethod?.per_page)}
                 pageRangeDisplayed={3}
                 marginPagesDisplayed={1}
                 pageClassName="page-item"

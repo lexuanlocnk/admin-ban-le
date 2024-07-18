@@ -109,18 +109,22 @@ function OrderStatus() {
     try {
       const response = await axios.get(`http://192.168.245.190:8000/api/order-status/${id}/edit`)
       const data = response.data.orderStatus
-      setValues({
-        title: data.title,
-        color: data.color,
-        isDefault: data.is_default,
-        isPayment: data.is_payment,
-        isComplete: data.is_complete,
-        isCancel: data.is_cancel,
-        isCustomer: data.is_customer,
-        visible: data.display,
-      })
+      if (data) {
+        setValues({
+          title: data.title,
+          color: data.color,
+          isDefault: data.is_default,
+          isPayment: data.is_payment,
+          isComplete: data.is_complete,
+          isCancel: data.is_cancel,
+          isCustomer: data.is_customer,
+          visible: data.display,
+        })
+      } else {
+        console.error('No data found for the given ID.')
+      }
     } catch (error) {
-      console.error('Fetch data id order status is error', error)
+      console.error('Fetch data id order status is error', error.message)
     }
   }
 
@@ -298,7 +302,6 @@ function OrderStatus() {
   return (
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-
       <CRow className="mb-3">
         <CCol>
           <h3>TRẠNG THÁI ĐƠN HÀNG</h3>
@@ -472,7 +475,7 @@ function OrderStatus() {
           </Formik>
         </CCol>
         <CCol md={8}>
-          <Search count={dataStatus?.data?.length} onSearchData={handleSearch} />
+          <Search count={dataStatus?.total} onSearchData={handleSearch} />
           <CCol className="mt-4">
             <CTable hover={true}>
               <thead>

@@ -68,11 +68,18 @@ function PaymentMethod() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  const params = new URLSearchParams(location.search)
+  const id = params.get('id')
+  const sub = params.get('sub')
+
   // editor
   const [editorData, setEditorData] = useState('')
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
+
+  const [dataPaymentMethod, setDataPaymentMethod] = useState([])
+  const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
@@ -102,10 +109,6 @@ function PaymentMethod() {
   })
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const id = params.get('id')
-    const sub = params.get('sub')
-
     if (sub === 'add') {
       setIsEditing(false)
       if (inputRef.current) {
@@ -113,21 +116,72 @@ function PaymentMethod() {
       }
     } else if (sub === 'edit' && id) {
       setIsEditing(true)
-      fetchDataById(id)
     }
   }, [location.search])
 
-  const fetchDataById = async (id, dataSearch) => {
+  const fetchDataPaymentMethod = async (dataSearch) => {
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/payment-method?data=${dataSearch}&page=${pageNumber}`,
+      )
+      const paymentMethodData = response.data
+      if (paymentMethodData.status === true) {
+        setDataPaymentMethod(paymentMethodData.data)
+      }
+    } catch (error) {
+      console.error('Fetch data shipping method is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataPaymentMethod()
+  }, [dataSearch, pageNumber])
+
+  const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/payment-method/${id}/edit`)
+      const paymentMethodData = response.data.data
+      if (paymentMethodData) {
+        setValues({
+          title: paymentMethodData.title,
+          name: paymentMethodData.name,
+          config: paymentMethodData.config,
+          visible: paymentMethodData.display,
+        })
+        setEditorData(paymentMethodData.description || '')
+      } else {
+        console.error('No data found for the given ID.')
+      }
+    } catch (error) {
+      console.error('Fetch data id shipping method is error', error.message)
+    }
   }
 
   const handleSubmit = async (values) => {
     console.log(values)
-    // if (isEditing) {
-    //   //call api update data
-    // } else {
-    //   //call api post new data
-    // }
+    if (isEditing) {
+      //call api update data
+    } else {
+      //call api post new data
+      try {
+        const response = await axios.post('http://192.168.245.190:8000/api/payment-method ', {
+          title: values.title,
+          display: values.visible,
+          name: values.name,
+          description: editorData,
+          config: values.charge,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Thêm mới phương thức thành công!')
+          fetchDataShippingMethod()
+        }
+      } catch (error) {
+        console.error('Post data payment method is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
+    }
   }
 
   const handleAddNewClick = () => {
@@ -165,7 +219,7 @@ function PaymentMethod() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchDataPaymentMethod(keyword)
   }
 
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
@@ -186,34 +240,36 @@ function PaymentMethod() {
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items =
-    paymentMethods &&
-    paymentMethods.length > 0 &&
-    paymentMethods.map((method) => ({
-      id: <CFormCheck id="flexCheckDefault" />,
-      title: <span className="blue-txt">{method.title}</span>,
-      name: (
-        <span
-          style={{
-            fontWeight: 600,
-          }}
-        >
-          {method.name}
-        </span>
-      ),
-      config: method.config,
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    }))
+  const items = dataPaymentMethod?.data
+    ? paymentMethods?.data.map((method) => ({
+        id: <CFormCheck id="flexCheckDefault" />,
+        title: <span className="blue-txt">{method.title}</span>,
+        name: (
+          <span
+            style={{
+              fontWeight: 600,
+            }}
+          >
+            {method.name}
+          </span>
+        ),
+        config: method.config,
+        actions: (
+          <div>
+            <button
+              onClick={() => handleEditClick(method.id)}
+              className="button-action mr-2 bg-info"
+            >
+              <CIcon icon={cilColorBorder} className="text-white" />
+            </button>
+            <button onClick={() => handleDelete(method.id)} className="button-action bg-danger">
+              <CIcon icon={cilTrash} className="text-white" />
+            </button>
+          </div>
+        ),
+        _cellProps: { id: { scope: 'row' } },
+      }))
+    : []
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -268,89 +324,95 @@ function PaymentMethod() {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ setFieldValue }) => (
-              <Form>
-                <CCol md={12}>
-                  <label htmlFor="title-input">Tiêu đề</label>
-                  <Field name="title">
-                    {({ field }) => (
-                      <CFormInput
-                        {...field}
-                        type="text"
-                        id="title-input"
-                        ref={inputRef}
-                        text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
-                      />
-                    )}
-                  </Field>
-                  <ErrorMessage name="title" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <lable htmlFor="name-input">Name</lable>
-                  <Field
-                    name="name"
-                    type="text"
-                    as={CFormInput}
-                    id="name-input"
-                    text="Name là bắt buộc và duy nhất."
-                  />
-                  <ErrorMessage name="name" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="config-select">Cấu hình</label>
-                  <Field
-                    className="component-size w-50"
-                    name="config"
-                    as={CFormSelect}
-                    id="config-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="config" component="div" className="text-danger" />
-                </CCol>
-                <br />
+            {({ setFieldValue, setValues }) => {
+              useEffect(() => {
+                fetchDataById(setValues)
+              }, [setValues, id])
 
-                <CCol md={12}>
-                  <label htmlFor="visible-select">Mô tả</label>
-                  <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
-                  <CFormText>
-                    Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện
-                    hiện thị mô tả này.
-                  </CFormText>
-                </CCol>
-                <br />
+              return (
+                <Form>
+                  <CCol md={12}>
+                    <label htmlFor="title-input">Tiêu đề</label>
+                    <Field name="title">
+                      {({ field }) => (
+                        <CFormInput
+                          {...field}
+                          type="text"
+                          id="title-input"
+                          ref={inputRef}
+                          text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+                        />
+                      )}
+                    </Field>
+                    <ErrorMessage name="title" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <lable htmlFor="name-input">Name</lable>
+                    <Field
+                      name="name"
+                      type="text"
+                      as={CFormInput}
+                      id="name-input"
+                      text="Name là bắt buộc và duy nhất."
+                    />
+                    <ErrorMessage name="name" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="config-select">Cấu hình</label>
+                    <Field
+                      className="component-size w-50"
+                      name="config"
+                      as={CFormSelect}
+                      id="config-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="config" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol md={12}>
-                  <label htmlFor="visible-select">Hiển thị</label>
-                  <Field
-                    className="component-size w-50"
-                    name="visible"
-                    as={CFormSelect}
-                    id="visible-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="visible" component="div" className="text-danger" />
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <label htmlFor="visible-select">Mô tả</label>
+                    <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                    <CFormText>
+                      Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao
+                      diện hiện thị mô tả này.
+                    </CFormText>
+                  </CCol>
+                  <br />
 
-                <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                  </CButton>
-                </CCol>
-              </Form>
-            )}
+                  <CCol md={12}>
+                    <label htmlFor="visible-select">Hiển thị</label>
+                    <Field
+                      className="component-size w-50"
+                      name="visible"
+                      as={CFormSelect}
+                      id="visible-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="visible" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol xs={12}>
+                    <CButton color="primary" type="submit" size="sm">
+                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                    </CButton>
+                  </CCol>
+                </Form>
+              )
+            }}
           </Formik>
         </CCol>
         <CCol md={8}>
-          <Search />
+          <Search count={dataPaymentMethod?.total} onSearchData={handleSearch} />
           <CCol className="mt-4">
             <CTable hover={true} className="border">
               <thead>
@@ -385,7 +447,7 @@ function PaymentMethod() {
 
             <div className="d-flex justify-content-end">
               <ReactPaginate
-                pageCount={Math.round(20 / 10)}
+                pageCount={Math.ceil(dataPaymentMethod?.total / dataPaymentMethod?.per_page)}
                 pageRangeDisplayed={3}
                 marginPagesDisplayed={1}
                 pageClassName="page-item"
