@@ -36,7 +36,6 @@ function AddPromotionDe() {
     endDate: new Date(),
     minPrice: 0,
     maxPrice: 0,
-    desc: '',
     applyGiftType: '0',
     industry: 'all',
     applyToProductCategories: [],
@@ -54,7 +53,6 @@ function AddPromotionDe() {
         const { startDate } = this.parent
         return value && startDate ? value > startDate : true
       }),
-    desc: Yup.string().required('Nội dung khuyến mãi là bắt buộc.'),
 
     minPrice: Yup.number()
       .required('Bắt buộc')
@@ -190,16 +188,9 @@ function AddPromotionDe() {
                 </div>
                 <br />
 
-                {/* <CCol md={12}>
-                  <label htmlFor="desc-input">Nội dung khuyến mãi liên quan:</label>
-                  <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
-                </CCol>
-                <br /> */}
-
                 <CCol md={12}>
                   <label htmlFor="desc-input">Nội dung khuyến mãi liên quan:</label>
                   <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
-                  <ErrorMessage name="desc" component="div" className="text-danger" />
                 </CCol>
                 <br />
 

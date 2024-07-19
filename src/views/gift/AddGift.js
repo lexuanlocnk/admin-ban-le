@@ -37,7 +37,6 @@ function AddGift() {
     endDate: new Date(),
     minPrice: 0,
     maxPrice: 0,
-    desc: '',
     applyGiftType: '0',
     industry: 'all',
     applyToProductCategories: [],
@@ -49,7 +48,6 @@ function AddGift() {
     title: Yup.string().min(6, 'Tối thiểu 6 ký tự').required('Tên đợt phát hành là bắt buộc.'),
     releaseCode: Yup.string().min(6, 'Tối thiểu 6 ký tự').required('Mã đợt phát hành là bắt buộc'),
     startDate: Yup.date().required('Thời gian bắt đầu là bắt buộc.'),
-    desc: Yup.string().required('Nội dung quà tặng là bắt buộc.'),
     endDate: Yup.date()
       .required('Thời gian kết thúc là bắt buộc.')
       .test('is-greater', 'Ngày kết thúc không được nhỏ hơn ngày bắt đầu!', function (value) {
@@ -193,7 +191,6 @@ function AddGift() {
                 <CCol md={12}>
                   <label htmlFor="desc-input">Nội dung quà tặng</label>
                   <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
-                  <ErrorMessage name="desc" component="div" className="text-danger" />
                 </CCol>
                 <br />
 

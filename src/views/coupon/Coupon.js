@@ -25,6 +25,7 @@ import './css/coupon.css'
 import axios from 'axios'
 import moment from 'moment/moment'
 import ReactPaginate from 'react-paginate'
+import { convertStringToTimeStamp } from '../../helper/utils'
 
 function Coupon() {
   const navigate = useNavigate()
@@ -88,7 +89,7 @@ function Coupon() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchDataCoupon(keyword)
   }
 
   const handleEditClick = (id) => {
@@ -115,7 +116,7 @@ function Coupon() {
     }
   }
 
-  const fetchDataCoupon = async () => {
+  const fetchDataCoupon = async (dataSearch) => {
     try {
       const response = await axios.get(
         `http://192.168.245.190:8000/api/coupon?data=${dataSearch}&StartCouponDate=${convertStringToTimeStamp(startDate)}&EndCouponDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
@@ -129,7 +130,7 @@ function Coupon() {
 
   useEffect(() => {
     fetchDataCoupon()
-  }, [dataSearch, startDate, endDate, pageNumber])
+  }, [startDate, endDate, pageNumber])
 
   const columns = [
     { key: 'releaseCode', label: 'Mã đợt phát hành' },
@@ -275,7 +276,7 @@ function Coupon() {
                         value={dataSearch}
                         onChange={(e) => setDataSearch(e.target.value)}
                       />
-                      <button onClick={handleSearch} className="submit-btn">
+                      <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
                         Submit
                       </button>
                     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import {
   CButton,
@@ -22,14 +22,25 @@ import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 
 import '../css/orderList.scss'
+import axios from 'axios'
+import moment from 'moment'
+import ReactPaginate from 'react-paginate'
 
 function OrderList() {
   const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
 
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
+
+  const [dataOrderList, setDataOrderList] = useState([])
+  const [dataStatus, setDataStatus] = useState([])
+
+  const [choosenStatus, setChoosenStatus] = useState('')
+  const [typeMember, setTypeMember] = useState('')
+
   // show deleted Modal
   const [visible, setVisible] = useState(false)
+  const [deletedId, setDeletedId] = useState(null)
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -38,8 +49,8 @@ function OrderList() {
   const [pageNumber, setPageNumber] = useState(1)
 
   // date picker
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date())
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [errors, setErrors] = useState({ startDate: '', endDate: '' })
 
   const handleToggleCollapse = () => {
@@ -91,9 +102,54 @@ function OrderList() {
     setPageNumber(newPage)
   }
 
+  const fetchDataStatusOrder = async () => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/order-status`)
+      if (response.data.status === true) {
+        const orderStatus = response.data.orderStatus.data
+        setDataStatus(orderStatus)
+      }
+    } catch (error) {
+      console.error('Fetch data order status is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataStatusOrder()
+  }, [])
+
+  const convertStringToTimeStamp = (dateString) => {
+    if (dateString == '') {
+      return ''
+    } else {
+      const dateMoment = moment(dateString, 'ddd MMM DD YYYY HH:mm:ss GMTZ')
+      return dateMoment.unix()
+    }
+  }
+
+  const fetchOrderListData = async () => {
+    console.log('>>>> check date: ', { startDate, endDate })
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/order?name=${dataSearch}&status=${choosenStatus}&typeMember=${typeMember}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}`,
+      )
+
+      const orderData = response.data.data
+      if (response.data.status === true) {
+        setDataOrderList(orderData)
+      }
+    } catch (error) {
+      console.error('Fetch order data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrderListData()
+  }, [dataSearch, choosenStatus, typeMember, startDate, endDate])
+
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchOrderListData(keyword)
   }
 
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
@@ -116,43 +172,55 @@ function OrderList() {
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = [
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      orderCode: <span className="order-code">1348-20240704</span>,
-      customerInfo: (
-        <React.Fragment>
-          <div>
-            <span>Họ tên: </span>
-            <span className="customer-name">Ngọc </span>
-            <span className="customer-type">(Khách vãng lai)</span>
-          </div>
-          <div>
-            <span>Điện thoại: </span>
-            <span className="customer-phone">0843332929 </span>
-          </div>
-          <div>
-            <span>Email: </span>
-            <span className="customer-email">nhquoc99@gmail.com </span>
-          </div>
-        </React.Fragment>
-      ),
-      orderDate: '23:36, 04/07/2024',
-      total: <span className="total">1.407.000đ</span>,
-      status: 'Đang chờ xử lý',
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-  ]
+  const items =
+    dataOrderList?.data && dataOrderList?.data.length > 0
+      ? dataOrderList?.data.map((order) => ({
+          id: <CFormCheck id="flexCheckDefault" />,
+          orderCode: <span className="order-code">{order.order_code}</span>,
+          customerInfo: (
+            <React.Fragment>
+              <div>
+                <span>Họ tên: </span>
+                <span className="customer-name">{order.member?.full_name}</span>
+                <span className="customer-type">
+                  {order.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
+                </span>
+              </div>
+              <div>
+                <span>Điện thoại: </span>
+                <span className="customer-phone">{order.d_phone}</span>
+              </div>
+              <div>
+                <span>Email: </span>
+                <span className="customer-email">{order.d_email}</span>
+              </div>
+            </React.Fragment>
+          ),
+          orderDate: moment.unix(Number(order.date_order)).format('hh:mm:ss A, DD-MM-YYYY'),
+          total: <span className="total">{Number(order.total_cart).toLocaleString('vi-VN')}đ</span>,
+          status: <span style={{ fontWeight: 600 }}>{order?.order_status.title}</span>,
+          actions: (
+            <div>
+              <button
+                onClick={() => handleEditClick(order.order_id)}
+                className="button-action mr-2 bg-info"
+              >
+                <CIcon icon={cilColorBorder} className="text-white" />
+              </button>
+              <button
+                onClick={() => {
+                  setVisible(true)
+                  setDeletedId(order.order_id)
+                }}
+                className="button-action bg-danger"
+              >
+                <CIcon icon={cilTrash} className="text-white" />
+              </button>
+            </div>
+          ),
+          _cellProps: { id: { scope: 'row' } },
+        }))
+      : []
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -215,24 +283,27 @@ function OrderList() {
                       className="component-size w-25"
                       aria-label="Chọn yêu cầu lọc"
                       options={[
-                        'Chọn trạng thái',
-                        { label: 'Đang chờ xử lý', value: 'pending' },
-                        { label: 'Chờ khách phản hồi', value: 'customer-response' },
-                        { label: 'Đã thanh toán', value: 'paid' },
-                        { label: 'Đã giao hàng', value: 'delivered' },
-                        { label: 'Đã hoàn tất', value: 'finished' },
-                        { label: 'Không thành công', value: 'fail' },
-                        { label: 'Khách hàng hủy bỏ', value: 'customer-cancels' },
+                        { label: 'Chọn trạng thái', value: '' },
+                        ...(dataStatus && dataStatus.length > 0
+                          ? dataStatus.map((status) => ({
+                              label: status.title,
+                              value: status.status_id,
+                            }))
+                          : []),
                       ]}
+                      value={choosenStatus}
+                      onChange={(e) => setChoosenStatus(e.target.value)}
                     />
                     <CFormSelect
                       className="component-size w-25 ms-2"
                       aria-label="Chọn yêu cầu lọc"
                       options={[
                         'Loại khách hàng ',
-                        { label: 'Thành viên (Member)', value: 'member' },
-                        { label: 'Khách vãng lai (Guest)', value: 'guest' },
+                        { label: 'Thành viên (Member)', value: 1 },
+                        { label: 'Khách vãng lai (Guest)', value: 0 },
                       ]}
+                      value={typeMember}
+                      onChange={(e) => setTypeMember(e.target.value)}
                     />
                   </div>
                 </td>
@@ -265,16 +336,11 @@ function OrderList() {
               <tr>
                 <td>Tìm kiếm</td>
                 <td>
-                  <CFormSelect
-                    className="component-size w-25"
-                    aria-label="Chọn yêu cầu lọc"
-                    options={[
-                      { label: 'Mã đơn hàng', value: '1' },
-                      { label: 'ID Thành viên', value: '2' },
-                      { label: 'Họ tên Khách hàng', value: '3' },
-                      { label: 'Số điện thoại', value: '4' },
-                    ]}
-                  />
+                  <strong>
+                    <em>
+                      Tìm kiếm theo Mã đơn hàng, ID Thành viên, Họ Tên Khách Hàng, Số Điện Thoại
+                    </em>
+                  </strong>
                   <div className="mt-2">
                     <input
                       type="text"
@@ -323,6 +389,27 @@ function OrderList() {
             ))}
           </CTableBody>
         </CTable>
+        <div className="d-flex justify-content-end">
+          <ReactPaginate
+            pageCount={Math.ceil(dataOrderList?.total / dataOrderList?.per_page)}
+            pageRangeDisplayed={3}
+            marginPagesDisplayed={1}
+            pageClassName="page-item"
+            pageLinkClassName="page-link"
+            previousClassName="page-item"
+            previousLinkClassName="page-link"
+            nextClassName="page-item"
+            nextLinkClassName="page-link"
+            breakLabel="..."
+            breakClassName="page-item"
+            breakLinkClassName="page-link"
+            onPageChange={handlePageChange}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+            previousLabel={'<<'}
+            nextLabel={'>>'}
+          />
+        </div>
       </CRow>
     </CContainer>
   )

@@ -96,12 +96,33 @@ function ProductBrand() {
   }
 
   const handleSubmit = async (values) => {
-    console.log(values)
-    // if (isEditing) {
-    //   //call api update data
-    // } else {
-    //   //call api post new data
-    // }
+    console.log('>>>> check values:', values)
+
+    if (isEditing) {
+      //call api update data
+    } else {
+      //call api post new data
+      try {
+        const response = await axios.post('http://192.168.245.190:8000/api/brand', {
+          title: values.title,
+          description: values.visible,
+          friendly_url: values.name,
+          metakey: editorData,
+          metadesc: values.charge,
+          display: values.visible,
+          imageUpload: selectedImage,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Thêm mới thương hiệu thành công!')
+
+          fetchDataShippingMethod()
+        }
+      } catch (error) {
+        console.error('Post data product brand is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
+    }
   }
 
   const handleAddNewClick = () => {

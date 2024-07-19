@@ -8,3 +8,12 @@ export const formatNumber = (value) => {
 export const unformatNumber = (value) => {
   return value.replace(/,/g, '')
 }
+
+export const convertStringToTimeStamp = (dateString) => {
+  if (dateString == '') {
+    return ''
+  } else {
+    const dateMoment = moment(dateString, 'ddd MMM DD YYYY HH:mm:ss GMTZ')
+    return dateMoment.unix()
+  }
+}

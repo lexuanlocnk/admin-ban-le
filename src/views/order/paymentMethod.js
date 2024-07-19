@@ -9,6 +9,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -73,6 +74,8 @@ function PaymentMethod() {
   const params = new URLSearchParams(location.search)
   const id = params.get('id')
   const sub = params.get('sub')
+
+  const [isLoading, setIsLoading] = useState(false)
 
   // editor
   const [editorData, setEditorData] = useState('')
@@ -164,6 +167,28 @@ function PaymentMethod() {
     console.log(values)
     if (isEditing) {
       //call api update data
+      try {
+        setIsLoading(true)
+        const response = await axios.put(`http://192.168.245.190:8000/api/payment-method/${id}`, {
+          title: values.title,
+          display: values.visible,
+          name: values.name,
+          description: editorData,
+          is_config: values.config,
+        })
+
+        if (response.data.status === true) {
+          // toast.success('Cập nhật phương thức thành công!')
+          // fetchDataShippingMethod()
+          navigate('/order/payment-method')
+          setEditorData('')
+        }
+      } catch (error) {
+        console.error('Put data payment method is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
+      }
     } else {
       //call api post new data
       try {
@@ -195,8 +220,20 @@ function PaymentMethod() {
   }
 
   // delete row
-  const handleDelete = (id) => {
+  const handleDelete = async () => {
     setVisible(true)
+    try {
+      const response = await axios.delete(
+        `http://192.168.245.190:8000/api/payment-method/${deletedId}`,
+      )
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchDataPaymentMethod()
+      }
+    } catch (error) {
+      console.error('Delete payment method is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    }
   }
 
   const handleEditorChange = (data) => {
@@ -265,7 +302,10 @@ function PaymentMethod() {
               <CIcon icon={cilColorBorder} className="text-white" />
             </button>
             <button
-              onClick={() => handleDelete(method.payment_id)}
+              onClick={() => {
+                setVisible(true)
+                setDeletedId(method.payment_id)
+              }}
               className="button-action bg-danger"
             >
               <CIcon icon={cilTrash} className="text-white" />
@@ -293,188 +333,193 @@ function PaymentMethod() {
   }, [items, sortConfig])
 
   return (
-    <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
+    <div>
+      {isLoading ? (
+        <CSpinner size="large" />
+      ) : (
+        <CContainer>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+          <CRow className="mb-3">
+            <CCol>
+              <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+            </CCol>
+            <CCol md={{ span: 6, offset: 6 }}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={`/order/payment-method`}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow className="mb-3">
-        <CCol>
-          <h3>PHƯƠNG THỨC THANH TOÁN</h3>
-        </CCol>
-        <CCol md={{ span: 6, offset: 6 }}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <Link to={`/product/category`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
-          </div>
-        </CCol>
-      </CRow>
+          <CRow>
+            {/* Form add/ edit */}
+            <CCol md={4}>
+              <h6>{!isEditing ? 'Thêm mới thanh toán' : 'Cập nhật thanh toán'}</h6>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ setFieldValue, setValues }) => {
+                  useEffect(() => {
+                    fetchDataById(setValues)
+                  }, [setValues, id])
 
-      <CRow>
-        {/* Form add/ edit */}
-        <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm mới thanh toán' : 'Cập nhật thanh toán'}</h6>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ setFieldValue, setValues }) => {
-              useEffect(() => {
-                fetchDataById(setValues)
-              }, [setValues, id])
-
-              return (
-                <Form>
-                  <CCol md={12}>
-                    <label htmlFor="title-input">Tiêu đề</label>
-                    <Field name="title">
-                      {({ field }) => (
-                        <CFormInput
-                          {...field}
+                  return (
+                    <Form>
+                      <CCol md={12}>
+                        <label htmlFor="title-input">Tiêu đề</label>
+                        <Field name="title">
+                          {({ field }) => (
+                            <CFormInput
+                              {...field}
+                              type="text"
+                              id="title-input"
+                              ref={inputRef}
+                              text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+                            />
+                          )}
+                        </Field>
+                        <ErrorMessage name="title" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <lable htmlFor="name-input">Name</lable>
+                        <Field
+                          name="name"
                           type="text"
-                          id="title-input"
-                          ref={inputRef}
-                          text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+                          as={CFormInput}
+                          id="name-input"
+                          text="Name là bắt buộc và duy nhất."
                         />
-                      )}
-                    </Field>
-                    <ErrorMessage name="title" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <lable htmlFor="name-input">Name</lable>
-                    <Field
-                      name="name"
-                      type="text"
-                      as={CFormInput}
-                      id="name-input"
-                      text="Name là bắt buộc và duy nhất."
-                    />
-                    <ErrorMessage name="name" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="config-select">Cấu hình</label>
-                    <Field
-                      className="component-size w-50"
-                      name="config"
-                      as={CFormSelect}
-                      id="config-select"
-                      options={[
-                        { label: 'Không', value: 0 },
-                        { label: 'Có', value: 1 },
-                      ]}
-                    />
-                    <ErrorMessage name="config" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                        <ErrorMessage name="name" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="config-select">Cấu hình</label>
+                        <Field
+                          className="component-size w-50"
+                          name="config"
+                          as={CFormSelect}
+                          id="config-select"
+                          options={[
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
+                          ]}
+                        />
+                        <ErrorMessage name="config" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="visible-select">Mô tả</label>
-                    <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
-                    <CFormText>
-                      Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao
-                      diện hiện thị mô tả này.
-                    </CFormText>
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="visible-select">Mô tả</label>
+                        <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                        <CFormText>
+                          Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài
+                          giao diện hiện thị mô tả này.
+                        </CFormText>
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="visible-select">Hiển thị</label>
-                    <Field
-                      className="component-size w-50"
-                      name="visible"
-                      as={CFormSelect}
-                      id="visible-select"
-                      options={[
-                        { label: 'Không', value: 0 },
-                        { label: 'Có', value: 1 },
-                      ]}
-                    />
-                    <ErrorMessage name="visible" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="visible-select">Hiển thị</label>
+                        <Field
+                          className="component-size w-50"
+                          name="visible"
+                          as={CFormSelect}
+                          id="visible-select"
+                          options={[
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
+                          ]}
+                        />
+                        <ErrorMessage name="visible" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                    </CButton>
-                  </CCol>
-                </Form>
-              )
-            }}
-          </Formik>
-        </CCol>
-        <CCol md={8}>
-          <Search count={dataPaymentMethod?.total} onSearchData={handleSearch} />
-          <CCol className="mt-4">
-            <CTable hover={true} className="border">
-              <thead>
-                <tr>
-                  {columns.map((column) => (
-                    <CTableHeaderCell
-                      style={{ whiteSpace: 'nowrap' }}
-                      key={column.key}
-                      onClick={() => handleSort(column.key)}
-                      className="prevent-select"
-                    >
-                      {column.label}
-                      {sortConfig.key === column.key
-                        ? sortConfig.direction === 'ascending'
-                          ? ' ▼'
-                          : ' ▲'
-                        : ''}
-                    </CTableHeaderCell>
-                  ))}
-                </tr>
-              </thead>
-              <CTableBody>
-                {sortedItems.map((item, index) => (
-                  <CTableRow key={index}>
-                    {columns.map((column) => (
-                      <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                      <CCol xs={12}>
+                        <CButton color="primary" type="submit" size="sm">
+                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        </CButton>
+                      </CCol>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </CCol>
+            <CCol md={8}>
+              <Search count={dataPaymentMethod?.total} onSearchData={handleSearch} />
+              <CCol className="mt-4">
+                <CTable hover={true} className="border">
+                  <thead>
+                    <tr>
+                      {columns.map((column) => (
+                        <CTableHeaderCell
+                          style={{ whiteSpace: 'nowrap' }}
+                          key={column.key}
+                          onClick={() => handleSort(column.key)}
+                          className="prevent-select"
+                        >
+                          {column.label}
+                          {sortConfig.key === column.key
+                            ? sortConfig.direction === 'ascending'
+                              ? ' ▼'
+                              : ' ▲'
+                            : ''}
+                        </CTableHeaderCell>
+                      ))}
+                    </tr>
+                  </thead>
+                  <CTableBody>
+                    {sortedItems.map((item, index) => (
+                      <CTableRow key={index}>
+                        {columns.map((column) => (
+                          <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                        ))}
+                      </CTableRow>
                     ))}
-                  </CTableRow>
-                ))}
-              </CTableBody>
-            </CTable>
+                  </CTableBody>
+                </CTable>
 
-            <div className="d-flex justify-content-end">
-              <ReactPaginate
-                pageCount={Math.ceil(dataPaymentMethod?.total / dataPaymentMethod?.per_page)}
-                pageRangeDisplayed={3}
-                marginPagesDisplayed={1}
-                pageClassName="page-item"
-                pageLinkClassName="page-link"
-                previousClassName="page-item"
-                previousLinkClassName="page-link"
-                nextClassName="page-item"
-                nextLinkClassName="page-link"
-                breakLabel="..."
-                breakClassName="page-item"
-                breakLinkClassName="page-link"
-                onPageChange={handlePageChange}
-                containerClassName={'pagination'}
-                activeClassName={'active'}
-                previousLabel={'<<'}
-                nextLabel={'>>'}
-              />
-            </div>
-          </CCol>
-        </CCol>
-      </CRow>
-    </CContainer>
+                <div className="d-flex justify-content-end">
+                  <ReactPaginate
+                    pageCount={Math.ceil(dataPaymentMethod?.total / dataPaymentMethod?.per_page)}
+                    pageRangeDisplayed={3}
+                    marginPagesDisplayed={1}
+                    pageClassName="page-item"
+                    pageLinkClassName="page-link"
+                    previousClassName="page-item"
+                    previousLinkClassName="page-link"
+                    nextClassName="page-item"
+                    nextLinkClassName="page-link"
+                    breakLabel="..."
+                    breakClassName="page-item"
+                    breakLinkClassName="page-link"
+                    onPageChange={handlePageChange}
+                    containerClassName={'pagination'}
+                    activeClassName={'active'}
+                    previousLabel={'<<'}
+                    nextLabel={'>>'}
+                  />
+                </div>
+              </CCol>
+            </CCol>
+          </CRow>
+        </CContainer>
+      )}
+    </div>
   )
 }
 

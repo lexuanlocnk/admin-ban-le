@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom'
 import './css/addCoupon.css'
 
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 function AddCoupon() {
   const [categories, setCategories] = useState([])
@@ -109,8 +110,12 @@ function AddCoupon() {
         status_id: values.visible,
         cat_parent_id: [values.industry],
       })
+      if (response.data.status === true) {
+        toast.success('Thêm mới coupon thành công')
+      }
     } catch (error) {
       console.error('Add coupon data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
 
