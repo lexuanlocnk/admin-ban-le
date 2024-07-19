@@ -305,7 +305,7 @@ function ShippingMethod() {
   }, [items, sortConfig])
 
   return (
-    <CContainer>
+    <div>
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
 
       <CRow className="mb-3">
@@ -490,7 +490,7 @@ function ShippingMethod() {
           </CCol>
         </CCol>
       </CRow>
-    </CContainer>
+    </div>
   )
 }
 

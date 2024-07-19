@@ -30,6 +30,8 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { CKEditor } from 'ckeditor4-react'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const paymentMethods = [
   {
@@ -99,8 +101,8 @@ function PaymentMethod() {
   const initialValues = {
     title: '',
     name: '',
-    config: '0',
-    visible: '0',
+    config: 0,
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
@@ -129,7 +131,7 @@ function PaymentMethod() {
         setDataPaymentMethod(paymentMethodData.data)
       }
     } catch (error) {
-      console.error('Fetch data shipping method is error', error)
+      console.error('Fetch data payment method is error', error)
     }
   }
 
@@ -146,7 +148,7 @@ function PaymentMethod() {
         setValues({
           title: paymentMethodData.title,
           name: paymentMethodData.name,
-          config: paymentMethodData.config,
+          config: paymentMethodData.is_config,
           visible: paymentMethodData.display,
         })
         setEditorData(paymentMethodData.description || '')
@@ -170,12 +172,12 @@ function PaymentMethod() {
           display: values.visible,
           name: values.name,
           description: editorData,
-          config: values.charge,
+          is_config: values.config,
         })
 
         if (response.data.status === true) {
           toast.success('Thêm mới phương thức thành công!')
-          fetchDataShippingMethod()
+          fetchDataPaymentMethod()
         }
       } catch (error) {
         console.error('Post data payment method is error', error)
@@ -241,7 +243,7 @@ function PaymentMethod() {
   ]
 
   const items = dataPaymentMethod?.data
-    ? paymentMethods?.data.map((method) => ({
+    ? dataPaymentMethod?.data.map((method) => ({
         id: <CFormCheck id="flexCheckDefault" />,
         title: <span className="blue-txt">{method.title}</span>,
         name: (
@@ -253,16 +255,19 @@ function PaymentMethod() {
             {method.name}
           </span>
         ),
-        config: method.config,
+        config: method.is_config === 0 ? 'No' : 'Yes',
         actions: (
           <div>
             <button
-              onClick={() => handleEditClick(method.id)}
+              onClick={() => handleEditClick(method.payment_id)}
               className="button-action mr-2 bg-info"
             >
               <CIcon icon={cilColorBorder} className="text-white" />
             </button>
-            <button onClick={() => handleDelete(method.id)} className="button-action bg-danger">
+            <button
+              onClick={() => handleDelete(method.payment_id)}
+              className="button-action bg-danger"
+            >
               <CIcon icon={cilTrash} className="text-white" />
             </button>
           </div>
@@ -367,8 +372,8 @@ function PaymentMethod() {
                       as={CFormSelect}
                       id="config-select"
                       options={[
-                        { label: 'Không', value: '0' },
-                        { label: 'Có', value: '1' },
+                        { label: 'Không', value: 0 },
+                        { label: 'Có', value: 1 },
                       ]}
                     />
                     <ErrorMessage name="config" component="div" className="text-danger" />
@@ -393,8 +398,8 @@ function PaymentMethod() {
                       as={CFormSelect}
                       id="visible-select"
                       options={[
-                        { label: 'Không', value: '0' },
-                        { label: 'Có', value: '1' },
+                        { label: 'Không', value: 0 },
+                        { label: 'Có', value: 1 },
                       ]}
                     />
                     <ErrorMessage name="visible" component="div" className="text-danger" />
