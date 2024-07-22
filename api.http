@@ -1,1 +1,1 @@
-GET http://192.168.245.190:8000/api/gift-promotion/1/edit
+PUT  http://192.168.245.190:8000/api/category/1

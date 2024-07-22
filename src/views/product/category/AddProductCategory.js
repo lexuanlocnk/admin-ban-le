@@ -13,51 +13,29 @@ import {
   CRow,
 } from '@coreui/react'
 import axios from 'axios'
-
-const fakeData = [
-  {
-    id: 1,
-    category_desc: {
-      cat_id: 1,
-      cat_name: 'Laptop',
-    },
-    sub_categories: [
-      {
-        cat_id: 179,
-        category_desc: {
-          cat_id: 179,
-          cat_name: 'Laptop HP',
-        },
-      },
-    ],
-  },
-]
+import { toast } from 'react-toastify'
 
 function AddProductCategory() {
-  // image upload
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [brands, setBrands] = useState([])
   const [categories, setCategories] = useState([])
-  const [dataCustomerSupport, setDataCustomerSupport] = useState([
-    {
-      id: 1,
-      name: 'Ms.Phương',
-    },
-    {
-      id: 2,
-      name: 'Ms.Thu',
-    },
-  ])
+
+  // const [brands, setBrands] = useState([])
+  // const [dataCustomerSupport, setDataCustomerSupport] = useState([])
+
+  // upload image and show image
+  const [selectedFile, setSelectedFile] = useState('')
+  const [file, setFile] = useState([])
 
   const initialValues = {
     title: '',
     homeTitle: '',
     friendlyUrl: '',
-    parentId: '',
+    picture: [],
+    parentId: '0',
     color: '',
     visibleBrands: [],
     visibleSupport: [],
     description: '',
+    scriptCode: '',
     pageTitle: '',
     metaDesc: '',
     metaKeyword: '',
@@ -67,7 +45,7 @@ function AddProductCategory() {
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc.'),
     friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc .'),
-    parentId: Yup.string().required('Chọn danh mục cha là bắt buộc.'),
+    // parentId: Yup.string().required('Chọn danh mục cha là bắt buộc.'),
     pageTitle: Yup.string().required('Tiêu đề trang là bắt buộc.'),
     metaDesc: Yup.string().required('metaDescription là bắt buộc.'),
     metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
@@ -87,27 +65,31 @@ function AddProductCategory() {
     fetchCategoriesData()
   }, [])
 
-  // const fetchBrandData = async () => {
-  //   try {
-  //     const response = await axios.get('http://192.168.245.190:8000/api/brand')
-  //     if ((response.data.status = true)) {
-  //       setBrands(response.data.list)
-  //     }
-  //   } catch (error) {
-  //     console.error('Fetch brands data error', error)
-  //   }
-  // }
+  //set img
+  function onFileChange(e) {
+    const files = e.target.files
+    const selectedFiles = []
+    const fileUrls = []
 
-  // useEffect(() => {
-  //   fetchBrandData()
-  // }, [])
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
 
-  const handleImageUpload = (event) => {
-    setSelectedImage(event.target.files[0])
-  }
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
 
-  const handleImageRemove = () => {
-    setSelectedImage(null)
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFile(selectedFiles)
+        }
+      }
+    })
+
+    // Set file URLs for immediate preview
+    setFile(fileUrls)
   }
 
   const handleSubmit = async (values) => {
@@ -115,9 +97,27 @@ function AddProductCategory() {
     // async requets fetch
 
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/category', {})
+      const response = await axios.post('http://192.168.245.190:8000/api/category', {
+        cat_name: values.title,
+        friendly_url: values.friendlyUrl,
+        parentid: values.parentId,
+        picture: selectedFile,
+        color: values.color,
+        home_title: values.homeTitle,
+        script_code: values.scriptCode,
+        description: values.description,
+        friendly_title: values.pageTitle,
+        metakey: values.metaKeyword,
+        metadesc: values.metaDesc,
+        display: values.visible,
+      })
+
+      if (response.data.status === true) {
+        toast.success('Thêm mới danh mục thành công.')
+      }
     } catch (error) {
       console.error('Post product category data error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
   return (
@@ -181,6 +181,7 @@ function AddProductCategory() {
                     id="category-select"
                     onChange={(e) => setFieldValue('parentId', e.target.value)}
                     className="select-input"
+                    text="Chuyên mục khác với thẻ, bạn có thể sử dụng nhiều cấp chuyên mục. Ví dụ: Trong chuyên mục nhạc, bạn có chuyên mục con là nhạc Pop, nhạc Jazz. Việc này hoàn toàn là tùy theo ý bạn."
                   >
                     <option value="0">Trống (0)</option>
                     {categories &&
@@ -203,32 +204,26 @@ function AddProductCategory() {
                 <br />
 
                 <CCol md={12}>
-                  <label htmlFor="avatar-input">Hình ảnh</label>
+                  <CFormInput
+                    name="picture"
+                    type="file"
+                    id="formFile"
+                    label="Hình ảnh"
+                    onChange={(e) => onFileChange(e)}
+                  />
+                  <br />
+                  <ErrorMessage name="picture" component="div" className="text-danger" />
+
                   <div>
-                    <CFormInput
-                      type="file"
-                      id="avatar-input"
-                      size="sm"
-                      onChange={handleImageUpload}
-                    />
-                    <ErrorMessage name="avatar" component="div" className="text-danger" />
-                    {selectedImage && (
+                    {file.length == 0 ? (
                       <div>
                         <CImage
-                          className="mt-2"
-                          src={URL.createObjectURL(selectedImage)}
-                          alt="Ảnh đã upload"
-                          width={300}
+                          src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                          width={370}
                         />
-                        <CButton
-                          className="mt-2"
-                          color="danger"
-                          size="sm"
-                          onClick={handleImageRemove}
-                        >
-                          Xóa
-                        </CButton>
                       </div>
+                    ) : (
+                      file.map((item, index) => <CImage key={index} src={item} width={370} />)
                     )}
                   </div>
                 </CCol>
@@ -238,6 +233,19 @@ function AddProductCategory() {
                   <label htmlFor="color-input">Màu sắc</label>
                   <Field name="color" type="text" as={CFormInput} id="color-input" />
                   <ErrorMessage name="color" component="div" className="text-danger" />
+                </CCol>
+                <br />
+
+                <CCol md={12}>
+                  <label htmlFor="homeTitle-input">Tiêu đề trang chủ</label>
+                  <Field
+                    name="homeTitle"
+                    type="text"
+                    as={CFormInput}
+                    id="homeTitle-input"
+                    text="Áp dụng cho danh mục được hiển thị ngoài trang chủ."
+                  />
+                  <ErrorMessage name="homeTitle" component="div" className="text-danger" />
                 </CCol>
                 <br />
 
@@ -268,7 +276,7 @@ function AddProductCategory() {
                 </CCol>
                 <br /> */}
 
-                <CCol md={12}>
+                {/* <CCol md={12}>
                   <label htmlFor="visible-select">Nhân viên kinh doanh</label>
                   {dataCustomerSupport &&
                     dataCustomerSupport.length > 0 &&
@@ -292,6 +300,20 @@ function AddProductCategory() {
                       </div>
                     ))}
                   <ErrorMessage name="visibleSupport" component="div" className="text-danger" />
+                </CCol>
+                <br /> */}
+
+                <CCol md={12}>
+                  <label htmlFor="scriptCode-input">Script code</label>
+                  <Field
+                    style={{ height: '100px' }}
+                    name="scriptCode"
+                    type="text"
+                    as={CFormTextarea}
+                    id="scriptCode-input"
+                    text="Mã Script Code."
+                  />
+                  <ErrorMessage name="scriptCode" component="div" className="text-danger" />
                 </CCol>
                 <br />
 
@@ -357,8 +379,8 @@ function AddProductCategory() {
                     id="visible-select"
                     className="select-input"
                     options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
+                      { label: 'Không', value: 0 },
+                      { label: 'Có', value: 1 },
                     ]}
                   />
                   <ErrorMessage name="visible" component="div" className="text-danger" />

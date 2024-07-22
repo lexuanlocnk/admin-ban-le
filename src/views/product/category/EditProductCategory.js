@@ -13,65 +13,34 @@ import {
   CRow,
 } from '@coreui/react'
 import axios from 'axios'
-import { axiosClient } from '../../../axiosConfig'
-import { Link, useLocation } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useLocation } from 'react-router-dom'
 
-const fakeData = [
-  {
-    id: 1,
-    category_desc: {
-      cat_id: 1,
-      cat_name: 'Laptop',
-    },
-    sub_categories: [
-      {
-        cat_id: 179,
-        category_desc: {
-          cat_id: 179,
-          cat_name: 'Laptop HP',
-        },
-      },
-    ],
-  },
-]
 function EditProductCategory() {
-  // image upload
-  const [selectedImage, setSelectedImage] = useState(null)
   const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
-  const id = queryParams.get('id')
-
-  const [dataBrand, setDataBrand] = useState([
-    {
-      brand: 'Acer',
-      brand_id: 1,
-    },
-    {
-      brand: 'Dell',
-      brand_id: 2,
-    },
-  ])
-  const [dataCustomerSupport, setDataCustomerSupport] = useState([
-    {
-      id: 1,
-      name: 'Ms.Phương',
-    },
-    {
-      id: 2,
-      name: 'Ms.Thu',
-    },
-  ])
+  const searchParams = new URLSearchParams(location.search)
+  const id = searchParams.get('id')
 
   const [categories, setCategories] = useState([])
 
+  // const [brands, setBrands] = useState([])
+  // const [dataCustomerSupport, setDataCustomerSupport] = useState([])
+
+  // upload image and show image
+  const [selectedFile, setSelectedFile] = useState('')
+  const [file, setFile] = useState([])
+
   const initialValues = {
     title: '',
+    homeTitle: '',
     friendlyUrl: '',
+    picture: [],
     parentId: '',
     color: '',
     visibleBrands: [],
     visibleSupport: [],
     description: '',
+    scriptCode: '',
     pageTitle: '',
     metaDesc: '',
     metaKeyword: '',
@@ -81,17 +50,35 @@ function EditProductCategory() {
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc.'),
     friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc .'),
-    parentId: Yup.string().required('Chọn danh mục cha là bắt buộc.'),
+    // parentId: Yup.string().required('Chọn danh mục cha là bắt buộc.'),
     pageTitle: Yup.string().required('Tiêu đề trang là bắt buộc.'),
     metaDesc: Yup.string().required('metaDescription là bắt buộc.'),
     metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
     visible: Yup.string().required('Hiển thị là bắt buộc.'),
   })
 
-  const fetchCategoriesData = async () => {
+  const fetchCategoriesData = async (setValues) => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
-      setCategories(response.data)
+      const response = await axios.get(`http://192.168.245.190:8000/api/category/${id}/edit`)
+      const data = response.data.category
+      if (response.data.status === true) {
+        setValues({
+          title: data.category_desc.cat_name,
+          homeTitle: data.category_desc.home_title,
+          friendlyUrl: data.category_desc.friendly_url,
+          parentId: data.parentid,
+          color: data.color,
+          // visibleBrands: [],
+          // visibleSupport: [],
+          description: data.category_desc.description,
+          scriptCode: data.category_desc.script_code,
+          pageTitle: data.category_desc.friendly_title,
+          metaDesc: data.category_desc.metadesc,
+          metaKeyword: data.category_desc.metakey,
+          visible: data.display,
+        })
+        setSelectedFile(data.picture)
+      }
     } catch (error) {
       console.error('Fetch categories data error', error)
     }
@@ -101,19 +88,61 @@ function EditProductCategory() {
     fetchCategoriesData()
   }, [])
 
-  const handleImageUpload = (event) => {
-    setSelectedImage(event.target.files[0])
+  //set img
+  function onFileChange(e) {
+    const files = e.target.files
+    const selectedFiles = []
+    const fileUrls = []
+
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
+
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFile(selectedFiles)
+        }
+      }
+    })
+
+    // Set file URLs for immediate preview
+    setFile(fileUrls)
   }
 
-  const handleImageRemove = () => {
-    setSelectedImage(null)
-  }
-
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     console.log('>>>check values', values)
-    // async requets fetch for update
-  }
+    // async requets fetch
 
+    try {
+      const response = await axios.put(`http://192.168.245.190:8000/api/category/${id}`, {
+        cat_name: values.title,
+        friendly_url: values.friendlyUrl,
+        parentid: values.parentId,
+        picture: selectedFile,
+        color: values.color,
+        home_title: values.homeTitle,
+        script_code: values.scriptCode,
+        description: values.description,
+        friendly_title: values.pageTitle,
+        metakey: values.metaKeyword,
+        metadesc: values.metaDesc,
+        display: values.visible,
+      })
+
+      if (response.data.status === true) {
+        toast.success('Cập nhật danh mục thành công.')
+      }
+    } catch (error) {
+      console.error('Put product category data error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
+  }
   return (
     <CContainer>
       <CRow className="mb-3">
@@ -122,11 +151,9 @@ function EditProductCategory() {
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
-            <Link to={`/product/category`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+            <CButton color="primary" type="submit" size="sm">
+              Danh sách
+            </CButton>
           </div>
         </CCol>
       </CRow>
@@ -140,22 +167,8 @@ function EditProductCategory() {
           >
             {({ setFieldValue, values, setValues }) => {
               useEffect(() => {
-                const fetchData = async () => {
-                  try {
-                    const response = await axiosClient.get('/endpoint')
-                    const data = response.data
-
-                    setValues({
-                      title: data.title,
-                      //...
-                    })
-                  } catch (error) {
-                    console.error('Error fetching data:', error)
-                  }
-                }
-
-                fetchData()
-              }, [setFieldValue])
+                fetchCategoriesData(setValues)
+              }, [setValues])
               return (
                 <Form>
                   <CCol md={12}>
@@ -195,10 +208,11 @@ function EditProductCategory() {
                       id="category-select"
                       onChange={(e) => setFieldValue('parentId', e.target.value)}
                       className="select-input"
+                      text="Chuyên mục khác với thẻ, bạn có thể sử dụng nhiều cấp chuyên mục. Ví dụ: Trong chuyên mục nhạc, bạn có chuyên mục con là nhạc Pop, nhạc Jazz. Việc này hoàn toàn là tùy theo ý bạn."
                     >
                       <option value="0">Trống (0)</option>
-                      {fakeData &&
-                        fakeData.map((item) => (
+                      {categories &&
+                        categories.map((item) => (
                           <optgroup key={item.category_desc.cat_id}>
                             <option value={item.category_desc.cat_id}>
                               {item.category_desc.cat_name} ({item.category_desc.cat_id})
@@ -206,7 +220,7 @@ function EditProductCategory() {
                             {item.sub_categories &&
                               item.sub_categories.map((subItem) => (
                                 <option key={subItem.cat_id} value={subItem.cat_id}>
-                                  + {subItem.category_desc.cat_name} ({subItem.cat_id})
+                                  + {subItem.category_desc.cat_name} ({subItem?.cat_id})
                                 </option>
                               ))}
                           </optgroup>
@@ -217,32 +231,26 @@ function EditProductCategory() {
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="avatar-input">Hình ảnh</label>
+                    <CFormInput
+                      name="picture"
+                      type="file"
+                      id="formFile"
+                      label="Hình ảnh"
+                      onChange={(e) => onFileChange(e)}
+                    />
+                    <br />
+                    <ErrorMessage name="picture" component="div" className="text-danger" />
+
                     <div>
-                      <CFormInput
-                        type="file"
-                        id="avatar-input"
-                        size="sm"
-                        onChange={handleImageUpload}
-                      />
-                      <ErrorMessage name="avatar" component="div" className="text-danger" />
-                      {selectedImage && (
+                      {file.length == 0 ? (
                         <div>
                           <CImage
-                            className="mt-2"
-                            src={URL.createObjectURL(selectedImage)}
-                            alt="Ảnh đã upload"
-                            width={300}
+                            src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                            width={370}
                           />
-                          <CButton
-                            className="mt-2"
-                            color="danger"
-                            size="sm"
-                            onClick={handleImageRemove}
-                          >
-                            Xóa
-                          </CButton>
                         </div>
+                      ) : (
+                        file.map((item, index) => <CImage key={index} src={item} width={370} />)
                       )}
                     </div>
                   </CCol>
@@ -256,23 +264,36 @@ function EditProductCategory() {
                   <br />
 
                   <CCol md={12}>
+                    <label htmlFor="homeTitle-input">Tiêu đề trang chủ</label>
+                    <Field
+                      name="homeTitle"
+                      type="text"
+                      as={CFormInput}
+                      id="homeTitle-input"
+                      text="Áp dụng cho danh mục được hiển thị ngoài trang chủ."
+                    />
+                    <ErrorMessage name="homeTitle" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  {/* <CCol md={12} className="overflow-scroll" style={{ height: '300px' }}>
                     <label htmlFor="visible-select">Thương hiệu</label>
-                    {dataBrand &&
-                      dataBrand.length > 0 &&
-                      dataBrand.map((item) => (
-                        <div key={item.brand_id}>
+                    {brands &&
+                      brands.length > 0 &&
+                      brands.map((item) => (
+                        <div key={item.brandId}>
                           <Field
                             type="checkbox"
                             name="visibleBrands"
                             as={CFormCheck}
-                            id={`brand-${item.brand_id}`}
-                            value={item.brand_id}
-                            label={item.brand}
-                            checked={values.visibleBrands.includes(item.brand_id)}
+                            id={`brand-${item.brandId}`}
+                            value={item.brandId}
+                            label={item.title}
+                            checked={values.visibleBrands.includes(item.brandId)}
                             onChange={() => {
-                              const newValue = values.visibleBrands.includes(item.brand_id)
-                                ? values.visibleBrands.filter((id) => id !== item.brand_id)
-                                : [...values.visibleBrands, item.brand_id]
+                              const newValue = values.visibleBrands.includes(item.brandId)
+                                ? values.visibleBrands.filter((id) => id !== item.brandId)
+                                : [...values.visibleBrands, item.brandId]
                               setFieldValue('visibleBrands', newValue)
                             }}
                           />
@@ -280,9 +301,9 @@ function EditProductCategory() {
                       ))}
                     <ErrorMessage name="visibleBrands" component="div" className="text-danger" />
                   </CCol>
-                  <br />
+                  <br /> */}
 
-                  <CCol md={12}>
+                  {/* <CCol md={12}>
                     <label htmlFor="visible-select">Nhân viên kinh doanh</label>
                     {dataCustomerSupport &&
                       dataCustomerSupport.length > 0 &&
@@ -306,6 +327,20 @@ function EditProductCategory() {
                         </div>
                       ))}
                     <ErrorMessage name="visibleSupport" component="div" className="text-danger" />
+                  </CCol>
+                  <br /> */}
+
+                  <CCol md={12}>
+                    <label htmlFor="scriptCode-input">Script code</label>
+                    <Field
+                      style={{ height: '100px' }}
+                      name="scriptCode"
+                      type="text"
+                      as={CFormTextarea}
+                      id="scriptCode-input"
+                      text="Mã Script Code."
+                    />
+                    <ErrorMessage name="scriptCode" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
@@ -371,8 +406,8 @@ function EditProductCategory() {
                       id="visible-select"
                       className="select-input"
                       options={[
-                        { label: 'Không', value: '0' },
-                        { label: 'Có', value: '1' },
+                        { label: 'Không', value: 0 },
+                        { label: 'Có', value: 1 },
                       ]}
                     />
                     <ErrorMessage name="visible" component="div" className="text-danger" />
@@ -381,7 +416,7 @@ function EditProductCategory() {
 
                   <CCol xs={12}>
                     <CButton color="primary" type="submit" size="sm">
-                      Thêm mới
+                      Cập nhật
                     </CButton>
                   </CCol>
                 </Form>
