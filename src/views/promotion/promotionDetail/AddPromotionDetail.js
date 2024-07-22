@@ -24,7 +24,7 @@ import { unformatNumber, formatNumber } from '../../../helper/utils'
 
 import { toast } from 'react-toastify'
 
-function AddPromotionDe() {
+function AddPromotionDetail() {
   const [categories, setCategories] = useState([])
   const [editorData, setEditorData] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -36,7 +36,7 @@ function AddPromotionDe() {
     endDate: new Date(),
     minPrice: 0,
     maxPrice: 0,
-    applyGiftType: '0',
+    applyGiftType: 0,
     industry: 'all',
     applyToProductCategories: [],
     ordersHaveProductCode: '',
@@ -383,4 +383,4 @@ function AddPromotionDe() {
   )
 }
 
-export default AddPromotionDe
+export default AddPromotionDetail

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import {
@@ -12,6 +12,7 @@ import {
   CImage,
   CRow,
 } from '@coreui/react'
+import axios from 'axios'
 
 const fakeData = [
   {
@@ -35,16 +36,8 @@ const fakeData = [
 function AddProductCategory() {
   // image upload
   const [selectedImage, setSelectedImage] = useState(null)
-  const [dataBrand, setDataBrand] = useState([
-    {
-      brand: 'Acer',
-      brand_id: 1,
-    },
-    {
-      brand: 'Dell',
-      brand_id: 2,
-    },
-  ])
+  const [brands, setBrands] = useState([])
+  const [categories, setCategories] = useState([])
   const [dataCustomerSupport, setDataCustomerSupport] = useState([
     {
       id: 1,
@@ -58,6 +51,7 @@ function AddProductCategory() {
 
   const initialValues = {
     title: '',
+    homeTitle: '',
     friendlyUrl: '',
     parentId: '',
     color: '',
@@ -80,6 +74,34 @@ function AddProductCategory() {
     visible: Yup.string().required('Hiển thị là bắt buộc.'),
   })
 
+  const fetchCategoriesData = async () => {
+    try {
+      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      setCategories(response.data)
+    } catch (error) {
+      console.error('Fetch categories data error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategoriesData()
+  }, [])
+
+  // const fetchBrandData = async () => {
+  //   try {
+  //     const response = await axios.get('http://192.168.245.190:8000/api/brand')
+  //     if ((response.data.status = true)) {
+  //       setBrands(response.data.list)
+  //     }
+  //   } catch (error) {
+  //     console.error('Fetch brands data error', error)
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchBrandData()
+  // }, [])
+
   const handleImageUpload = (event) => {
     setSelectedImage(event.target.files[0])
   }
@@ -88,9 +110,15 @@ function AddProductCategory() {
     setSelectedImage(null)
   }
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     console.log('>>>check values', values)
     // async requets fetch
+
+    try {
+      const response = await axios.post('http://192.168.245.190:8000/api/category', {})
+    } catch (error) {
+      console.error('Post product category data error', error)
+    }
   }
   return (
     <CContainer>
@@ -155,8 +183,8 @@ function AddProductCategory() {
                     className="select-input"
                   >
                     <option value="0">Trống (0)</option>
-                    {fakeData &&
-                      fakeData.map((item) => (
+                    {categories &&
+                      categories.map((item) => (
                         <optgroup key={item.category_desc.cat_id}>
                           <option value={item.category_desc.cat_id}>
                             {item.category_desc.cat_name} ({item.category_desc.cat_id})
@@ -164,7 +192,7 @@ function AddProductCategory() {
                           {item.sub_categories &&
                             item.sub_categories.map((subItem) => (
                               <option key={subItem.cat_id} value={subItem.cat_id}>
-                                + {subItem.category_desc.cat_name} ({subItem.cat_id})
+                                + {subItem.category_desc.cat_name} ({subItem?.cat_id})
                               </option>
                             ))}
                         </optgroup>
@@ -213,24 +241,24 @@ function AddProductCategory() {
                 </CCol>
                 <br />
 
-                <CCol md={12}>
+                {/* <CCol md={12} className="overflow-scroll" style={{ height: '300px' }}>
                   <label htmlFor="visible-select">Thương hiệu</label>
-                  {dataBrand &&
-                    dataBrand.length > 0 &&
-                    dataBrand.map((item) => (
-                      <div key={item.brand_id}>
+                  {brands &&
+                    brands.length > 0 &&
+                    brands.map((item) => (
+                      <div key={item.brandId}>
                         <Field
                           type="checkbox"
                           name="visibleBrands"
                           as={CFormCheck}
-                          id={`brand-${item.brand_id}`}
-                          value={item.brand_id}
-                          label={item.brand}
-                          checked={values.visibleBrands.includes(item.brand_id)}
+                          id={`brand-${item.brandId}`}
+                          value={item.brandId}
+                          label={item.title}
+                          checked={values.visibleBrands.includes(item.brandId)}
                           onChange={() => {
-                            const newValue = values.visibleBrands.includes(item.brand_id)
-                              ? values.visibleBrands.filter((id) => id !== item.brand_id)
-                              : [...values.visibleBrands, item.brand_id]
+                            const newValue = values.visibleBrands.includes(item.brandId)
+                              ? values.visibleBrands.filter((id) => id !== item.brandId)
+                              : [...values.visibleBrands, item.brandId]
                             setFieldValue('visibleBrands', newValue)
                           }}
                         />
@@ -238,7 +266,7 @@ function AddProductCategory() {
                     ))}
                   <ErrorMessage name="visibleBrands" component="div" className="text-danger" />
                 </CCol>
-                <br />
+                <br /> */}
 
                 <CCol md={12}>
                   <label htmlFor="visible-select">Nhân viên kinh doanh</label>

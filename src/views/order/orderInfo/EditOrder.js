@@ -23,14 +23,11 @@ function EditOrder() {
   const id = searchParams.get('id')
 
   const [dataOrderDetail, setDataOrderDetail] = useState([])
-  const [dataOrderInfo, setDataOrderInfo] = useState({})
 
   const [dataStatus, setDataStatus] = useState([])
   const [choosenStatus, setChoosenStatus] = useState('')
   const [orderNote, setOrderNote] = useState(null)
   const [spx, setSpx] = useState(null)
-
-  const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
   const fetchDataStatusOrder = async () => {
     try {
@@ -51,12 +48,12 @@ function EditOrder() {
   const fetchOrderDataDetail = async () => {
     try {
       const response = await axios.get(`http://192.168.245.190:8000/api/order/${id}/edit`)
-      const orderInfo = response.data.orderSumId
-      const data = response.data.orderDetail
+
+      const data = response.data.dataOrder
       if (data) {
         setDataOrderDetail(data)
-        setDataOrderInfo(orderInfo)
-        setOrderNote(orderInfo.comment)
+        setOrderNote(data.comment)
+        // setDataStatus(2)
       } else {
         console.error('No data found for the given ID.')
       }
@@ -68,6 +65,8 @@ function EditOrder() {
   useEffect(() => {
     fetchOrderDataDetail()
   }, [])
+
+  // const total = dataOrderDetail.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
   const handleUpdateClick = async () => {
     // submit api put
@@ -112,19 +111,21 @@ function EditOrder() {
             >
               <div className="">
                 <strong>
-                  Mã đơn hàng: <strong className="order-code">{dataOrderInfo?.order_code}</strong>
+                  Mã đơn hàng: <strong className="order-code">{dataOrderDetail?.order_code}</strong>
                 </strong>
               </div>
 
               <div>
                 <strong>Trạng thái: </strong>
-                <span className="order-status border">{dataOrderInfo?.order_status?.title}</span>
+                <span className="order-status border">{dataOrderDetail?.order_status}</span>
               </div>
 
               <div>
                 <strong>Ngày đặt hàng: </strong>
                 <span>
-                  {moment.unix(Number(dataOrderInfo?.date_order)).format('DD-MM-YYYY, hh:mm:ss A')}
+                  {moment
+                    .unix(Number(dataOrderDetail?.date_order))
+                    .format('DD-MM-YYYY, hh:mm:ss A')}
                 </span>
               </div>
             </CCol>
@@ -135,45 +136,45 @@ function EditOrder() {
                 <div className="col-md-6">
                   <strong>Thông tin thanh toán</strong>
                   <p>
-                    Họ tên: <span className="customer-info-name">{dataOrderInfo?.d_name}</span>{' '}
+                    Họ tên: <span className="customer-info-name">{dataOrderDetail?.d_name}</span>{' '}
                     <span className="customer-info-type">
-                      {dataOrderInfo?.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
+                      {dataOrderDetail?.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
                     </span>
                   </p>
                   <p>
                     Điện thoại:{' '}
-                    <span className="customer-info-phone">{dataOrderInfo?.d_phone}</span>
+                    <span className="customer-info-phone">{dataOrderDetail?.d_phone}</span>
                   </p>
                   <p>
-                    Địa chỉ: <span>{dataOrderInfo?.d_address}</span>
+                    Địa chỉ: <span>{dataOrderDetail?.d_address}</span>
                   </p>
                   <p>
-                    Email: <span>{dataOrderInfo?.d_email}</span>
+                    Email: <span>{dataOrderDetail?.d_email}</span>
                   </p>
 
                   <strong>Phương thức thanh toán:</strong>
-                  <p>{dataOrderInfo?.payment_method?.title}</p>
+                  <p>{dataOrderDetail?.payment_method?.title}</p>
                 </div>
                 <div className="col-md-6">
                   <strong>Thông tin giao hàng</strong>
                   <p>
-                    Họ tên: <span className="customer-info-name">{dataOrderInfo?.d_name}</span>{' '}
+                    Họ tên: <span className="customer-info-name">{dataOrderDetail?.d_name}</span>{' '}
                     <span className="customer-info-type">
-                      {dataOrderInfo?.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
+                      {dataOrderDetail?.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
                     </span>
                   </p>
                   <p>
                     Điện thoại:{' '}
-                    <span className="customer-info-phone">{dataOrderInfo?.d_phone}</span>
+                    <span className="customer-info-phone">{dataOrderDetail?.d_phone}</span>
                   </p>
                   <p>
-                    Địa chỉ: <span>{dataOrderInfo?.d_address}</span>
+                    Địa chỉ: <span>{dataOrderDetail?.d_address}</span>
                   </p>
                   <p>
-                    Email: <span>{dataOrderInfo?.d_email}</span>
+                    Email: <span>{dataOrderDetail?.d_email}</span>
                   </p>
                   <strong>Phương thức giao hàng:</strong>
-                  <p>{dataOrderInfo?.shipping_method?.title}</p>
+                  <p>{dataOrderDetail?.shipping_method?.title}</p>
                 </div>
               </div>
             </CCol>
@@ -194,7 +195,7 @@ function EditOrder() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dataOrderDetail?.map((item, index) => (
+                  {dataOrderDetail?.orderDetail?.map((item, index) => (
                     <tr key={index}>
                       <td>{index + 1}</td>
                       <td>
@@ -214,9 +215,27 @@ function EditOrder() {
                 </tbody>
               </table>
               <div className="total">
+                <div className="total">
+                  Thành tiền:{' '}
+                  <span>
+                    {dataOrderDetail.total_price &&
+                      dataOrderDetail.total_price?.toLocaleString('vi-VN')}
+                    đ
+                  </span>
+                </div>
+                Giảm giá:{' '}
+                <span>
+                  {dataOrderDetail.CouponDiscout &&
+                    dataOrderDetail.CouponDiscout?.toLocaleString('vi-VN')}
+                  đ
+                </span>
+              </div>
+              <div className="total">
                 Tổng tiền:{' '}
                 <span>
-                  {dataOrderInfo.total_cart && dataOrderInfo.total_cart?.toLocaleString('vi-VN')}đ
+                  {dataOrderDetail.total_cart &&
+                    dataOrderDetail.total_cart?.toLocaleString('vi-VN')}
+                  đ
                 </span>
               </div>
             </CCol>

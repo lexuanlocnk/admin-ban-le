@@ -14,7 +14,7 @@ import {
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Search from '../../components/search/Search'
 
 import CIcon from '@coreui/icons-react'
@@ -45,11 +45,13 @@ function ProductBrand() {
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  // image upload
-  const [selectedImage, setSelectedImage] = useState(null)
+  //img avatart
+  const [selectedFile, setSelectedFile] = useState('')
+  //show img
+  const [file, setFile] = useState([])
 
   // search input
-  const [dataSearch, setDataSearch] = useState('')
+  // const [dataSearch, setDataSearch] = useState('')
 
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
@@ -66,8 +68,7 @@ function ProductBrand() {
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // description: Yup.string().required('Mô tả là bắt buộc.'),
-    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
     pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
     metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
     metaDesc: Yup.string().required('Meta description là bắt buộc.'),
@@ -85,7 +86,7 @@ function ProductBrand() {
     }
   }, [location.search])
 
-  const fetchDataBrands = async (dataSearch) => {
+  const fetchDataBrands = async (dataSearch = '') => {
     try {
       const response = await axios.get(
         `http://192.168.245.190:8000/api/brand?data=${dataSearch}&page=${pageNumber}`,
@@ -101,7 +102,7 @@ function ProductBrand() {
 
   useEffect(() => {
     fetchDataBrands()
-  }, [pageNumber, dataSearch])
+  }, [pageNumber])
 
   const fetchDataById = async (setValues) => {
     try {
@@ -111,12 +112,13 @@ function ProductBrand() {
         setValues({
           title: data.brand_desc.title,
           description: data.brand_desc.description,
-          friendly_url: data.brand_desc.friendlyUrl,
-          metakey: data.brand_desc.metaKeyword,
-          metadesc: data.brand_desc.metaDesc,
-          display: data.display,
+          friendlyUrl: data.brand_desc.friendly_url,
+          pageTitle: data.brand_desc.friendly_title,
+          metaKeyword: data.brand_desc.metakey,
+          metaDesc: data.brand_desc.metadesc,
+          visible: data.display,
         })
-        setSelectedImage(data.picture)
+        setSelectedFile(data.picture)
       } else {
         console.error('No data found for the given ID.')
       }
@@ -128,27 +130,40 @@ function ProductBrand() {
   const handleSubmit = async (values) => {
     if (isEditing) {
       //call api update data
+      try {
+        const response = await axios.put(`http://192.168.245.190:8000/api/brand/${id}`, {
+          description: values.description,
+          title: values.title,
+          friendly_url: values.friendlyUrl,
+          friendly_title: values.pageTitle,
+          metakey: values.metaKeyword,
+          metadesc: values.metaDesc,
+          display: values.visible,
+          picture: selectedFile,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Cập nhật thương hiệu thành công')
+        } else {
+          console.error('No data found for the given ID.')
+        }
+      } catch (error) {
+        console.error('Put data id product brand is error', error.message)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     } else {
       //call api post new data
-
       try {
-        const response = await axios.post(
-          'http://192.168.245.190:8000/api/brand',
-          {
-            title: values.title,
-            description: values.visible,
-            friendly_url: values.friendlyUrl,
-            metakey: values.metaKeyword,
-            metadesc: values.metaDesc,
-            display: values.visible,
-            picture: selectedImage,
-          },
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          },
-        )
+        const response = await axios.post('http://192.168.245.190:8000/api/brand', {
+          title: values.title,
+          description: values.description,
+          friendly_url: values.friendlyUrl,
+          friendly_title: values.pageTitle,
+          metakey: values.metaKeyword,
+          metadesc: values.metaDesc,
+          display: values.visible,
+          picture: selectedFile,
+        })
 
         if (response.data.status === true) {
           toast.success('Thêm mới thương hiệu thành công!')
@@ -159,6 +174,33 @@ function ProductBrand() {
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
     }
+  }
+
+  //set img avatar
+  function onFileChange(e) {
+    const files = e.target.files
+    const selectedFiles = []
+    const fileUrls = []
+
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
+
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFile(selectedFiles)
+        }
+      }
+    })
+
+    // Set file URLs for immediate preview
+    setFile(fileUrls)
   }
 
   const handleAddNewClick = () => {
@@ -184,13 +226,14 @@ function ProductBrand() {
     }
   }
 
-  const handleImageUpload = (event) => {
-    setSelectedImage(event.target.files[0])
-  }
+  // const handleImageUpload = (event) => {
+  //   setSelectedImage(event.target.files[0])
+  // }
 
-  const handleImageRemove = () => {
-    setSelectedImage(null)
-  }
+  // const handleImageRemove = () => {
+  //   setSelectedImage(null)
+  //   setImageUrl(null)
+  // }
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -288,6 +331,11 @@ function ProductBrand() {
     },
   ]
 
+  console.log('>>>> check upload image: ', {
+    selectedFile,
+    file,
+  })
+
   return (
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
@@ -306,9 +354,11 @@ function ProductBrand() {
             >
               Thêm mới
             </CButton>
-            <CButton color="primary" type="submit" size="sm">
-              Danh sách
-            </CButton>
+            <Link to={'/product/brand'}>
+              <CButton color="primary" type="submit" size="sm">
+                Danh sách
+              </CButton>
+            </Link>
           </div>
         </CCol>
       </CRow>
@@ -344,41 +394,26 @@ function ProductBrand() {
                   </CCol>
                   <br />
                   <CCol md={12}>
-                    <label htmlFor="avatar-input">Ảnh thương hiệu</label>
+                    <CFormInput
+                      name="avatar"
+                      type="file"
+                      id="formFile"
+                      label="Ảnh đại diện"
+                      onChange={(e) => onFileChange(e)}
+                    />
+                    <br />
+                    <ErrorMessage name="avatar" component="div" className="text-danger" />
+
                     <div>
-                      <CFormInput
-                        type="file"
-                        id="avatar-input"
-                        size="sm"
-                        onChange={handleImageUpload}
-                      />
-                      <ErrorMessage name="avatar" component="div" className="text-danger" />
-                      {selectedImage && (
+                      {file.length == 0 ? (
                         <div>
-                          {typeof selectedImage === 'string' ? (
-                            <CImage
-                              className="mt-2"
-                              src={`http://192.168.245.190:8000/uploads/${selectedImage}`}
-                              alt="Ảnh đã upload"
-                              width={300}
-                            />
-                          ) : (
-                            <CImage
-                              className="mt-2"
-                              src={URL.createObjectURL(selectedImage)}
-                              alt="Ảnh đã upload"
-                              width={300}
-                            />
-                          )}
-                          <CButton
-                            className="mt-2"
-                            color="danger"
-                            size="sm"
-                            onClick={handleImageRemove}
-                          >
-                            Xóa
-                          </CButton>
+                          <CImage
+                            src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                            width={370}
+                          />
                         </div>
+                      ) : (
+                        file.map((item, index) => <CImage key={index} src={item} width={370} />)
                       )}
                     </div>
                   </CCol>
@@ -479,7 +514,7 @@ function ProductBrand() {
 
           <div className="d-flex justify-content-end">
             <ReactPaginate
-              pageCount={Math.ceil(countBrand / 10)}
+              pageCount={Math.ceil(countBrand / 15)}
               pageRangeDisplayed={3}
               marginPagesDisplayed={1}
               pageClassName="page-item"

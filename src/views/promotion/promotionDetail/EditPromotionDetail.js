@@ -39,7 +39,7 @@ function EditPromotionDetail() {
     endDate: new Date(),
     minPrice: 0,
     maxPrice: 0,
-    applyGiftType: '0',
+    applyGiftType: 0,
     industry: '1',
     applyToProductCategories: [],
     ordersHaveProductCode: '',
@@ -281,7 +281,7 @@ function EditPromotionDetail() {
                   </CCol>
                   <br />
 
-                  {values.applyGiftType == '1' && (
+                  {values.applyGiftType === 1 && (
                     <React.Fragment>
                       <CCol md={12}>
                         <label htmlFor="productCode-input">Đơn hàng có Mã SP</label>
@@ -302,7 +302,7 @@ function EditPromotionDetail() {
                     </React.Fragment>
                   )}
 
-                  {values.applyGiftType == '0' && (
+                  {values.applyGiftType === 0 && (
                     <React.Fragment>
                       <CCol md={12}>
                         <CCol md={12}>

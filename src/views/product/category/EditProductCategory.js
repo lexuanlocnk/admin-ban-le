@@ -62,6 +62,8 @@ function EditProductCategory() {
     },
   ])
 
+  const [categories, setCategories] = useState([])
+
   const initialValues = {
     title: '',
     friendlyUrl: '',
@@ -85,6 +87,19 @@ function EditProductCategory() {
     metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
     visible: Yup.string().required('Hiển thị là bắt buộc.'),
   })
+
+  const fetchCategoriesData = async () => {
+    try {
+      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      setCategories(response.data)
+    } catch (error) {
+      console.error('Fetch categories data error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategoriesData()
+  }, [])
 
   const handleImageUpload = (event) => {
     setSelectedImage(event.target.files[0])

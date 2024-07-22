@@ -39,8 +39,8 @@ function EditGift() {
     endDate: new Date(),
     minPrice: 0,
     maxPrice: 0,
-    applyGiftType: '0',
-    industry: '1',
+    applyGiftType: 0,
+    industry: 'all',
     applyToProductCategories: [],
     ordersHaveProductCode: '',
     visible: 1,
@@ -93,11 +93,11 @@ function EditGift() {
         maxPrice: data.priceMax,
         startDate: new Date(moment.unix(data.StartDate)),
         endDate: new Date(moment.unix(data.EndDate)),
-        applyGiftType: data.applyGiftType,
+        applyGiftType: data.type,
         ordersHaveProductCode: data.ordersHaveProductCode,
-        industry: data.industry,
+        industry: data.cat_parent_id,
         visible: data.visible,
-        applyToProductCategories: data.applyToProductCategories,
+        applyToProductCategories: data.list_cat,
       })
     } catch (error) {
       console.error('Fetch data gift is error', error)
@@ -133,8 +133,6 @@ function EditGift() {
   const handleEditorChange = (data) => {
     setEditorData(data)
   }
-
-  console.log('>>>> chekc editor data, ', editorData)
 
   return (
     <CContainer>
@@ -283,7 +281,7 @@ function EditGift() {
                   </CCol>
                   <br />
 
-                  {values.applyGiftType == '1' && (
+                  {values.applyGiftType === 1 && (
                     <React.Fragment>
                       <CCol md={12}>
                         <label htmlFor="productCode-input">Đơn hàng có Mã SP</label>
@@ -304,13 +302,13 @@ function EditGift() {
                     </React.Fragment>
                   )}
 
-                  {values.applyGiftType == '0' && (
+                  {values.applyGiftType === 0 && (
                     <React.Fragment>
                       <CCol md={12}>
                         <CCol md={12}>
                           <label htmlFor="industry-select">Áp dụng cho danh mục sản phẩm</label>
                           <p>
-                            Ngành hàng (Nếu dùng chung chọn [tất cả] !, Nếu không chọn nghành hàng
+                            Ngành hàng (Nếu dùng chung chọn [Tất cả] !, Nếu không chọn nghành hàng
                             con mặc định lấy theo nghành hàng cha)
                           </p>
                           <Field
@@ -322,7 +320,7 @@ function EditGift() {
                               { label: 'Tất cả', value: 'all' },
                               ...categories?.map((item) => ({
                                 label: item.category_desc?.cat_name,
-                                value: item.cat_id,
+                                value: item.sub_categories.map((sub) => sub.cat_id),
                               })),
                             ]}
                           />
@@ -330,12 +328,15 @@ function EditGift() {
                         </CCol>
                         <br />
                         <CCol md={12} className="overflow-scroll" style={{ height: 'auto' }}>
-                          {categories
-                            .filter((item) => item.cat_id == values.industry)
-                            .map((category) => (
-                              <div key={category?.cat_id}>
-                                {category?.sub_categories &&
-                                  category?.sub_categories.map((child) => (
+                          {categories.map((category) => (
+                            <div key={category?.cat_id}>
+                              {category?.sub_categories &&
+                                category?.sub_categories
+                                  .filter((item) => {
+                                    const industryArr = values.industry.split(',')
+                                    return industryArr.includes(item.cat_id.toString())
+                                  })
+                                  .map((child) => (
                                     <div key={child.cat_id} className="ms-3 d-flex">
                                       <img
                                         src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
@@ -361,8 +362,8 @@ function EditGift() {
                                       />
                                     </div>
                                   ))}
-                              </div>
-                            ))}
+                            </div>
+                          ))}
                           <ErrorMessage
                             name="applyToProductCategories"
                             component="div"
