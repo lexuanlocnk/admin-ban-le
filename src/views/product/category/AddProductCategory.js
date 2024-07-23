@@ -336,6 +336,7 @@ function AddProductCategory() {
                   <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
                 </CCol>
                 <br />
+
                 <CCol md={12}>
                   <label htmlFor="metaDesc-input">Meta description</label>
                   <Field
