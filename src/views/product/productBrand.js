@@ -45,9 +45,8 @@ function ProductBrand() {
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  //img avatart
+  // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
-  //show img
   const [file, setFile] = useState([])
 
   // search input

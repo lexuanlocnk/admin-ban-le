@@ -7,75 +7,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import axios from 'axios'
 
-const fakeData = [
-  {
-    categories: [
-      {
-        id: 1,
-        name: 'Laptop',
-        subcategories: [
-          {
-            id: 11,
-            name: 'Laptop HP',
-            products: [
-              {
-                id: 111,
-                name: 'HP Pavilion 15',
-                price: 700,
-                specifications: {
-                  processor: 'Intel Core i5',
-                  ram: '8GB',
-                  storage: '512GB SSD',
-                  screen: '15.6 inch',
-                },
-              },
-              {
-                id: 112,
-                name: 'HP Envy 13',
-                price: 900,
-                specifications: {
-                  processor: 'Intel Core i7',
-                  ram: '16GB',
-                  storage: '1TB SSD',
-                  screen: '13.3 inch',
-                },
-              },
-            ],
-          },
-          {
-            id: 12,
-            name: 'Laptop Dell',
-            products: [
-              {
-                id: 121,
-                name: 'Dell XPS 13',
-                price: 1000,
-                specifications: {
-                  processor: 'Intel Core i7',
-                  ram: '16GB',
-                  storage: '512GB SSD',
-                  screen: '13.3 inch',
-                },
-              },
-              {
-                id: 122,
-                name: 'Dell Inspiron 15',
-                price: 750,
-                specifications: {
-                  processor: 'Intel Core i5',
-                  ram: '8GB',
-                  storage: '1TB HDD',
-                  screen: '15.6 inch',
-                },
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-]
-
 function ProductCategory() {
   const navigate = useNavigate()
 
@@ -188,7 +119,13 @@ function ProductCategory() {
                           >
                             <CIcon icon={cilColorBorder} className="text-white" />
                           </button>
-                          <button className="button-action bg-danger">
+                          <button
+                            onClick={() => {
+                              setVisible(true)
+                              setDeletedId(cate.cat_id)
+                            }}
+                            className="button-action bg-danger"
+                          >
                             <CIcon icon={cilTrash} className="text-white" />
                           </button>
                         </div>
@@ -217,7 +154,13 @@ function ProductCategory() {
                                 >
                                   <CIcon icon={cilColorBorder} className="text-white" />
                                 </button>
-                                <button className="button-action bg-danger">
+                                <button
+                                  onClick={() => {
+                                    setVisible(true)
+                                    setDeletedId(subCate.cat_id)
+                                  }}
+                                  className="button-action bg-danger"
+                                >
                                   <CIcon icon={cilTrash} className="text-white" />
                                 </button>
                               </div>
