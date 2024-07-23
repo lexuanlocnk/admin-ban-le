@@ -128,10 +128,9 @@ function OrderList() {
   }
 
   const fetchOrderListData = async () => {
-    console.log('>>>> check date: ', { startDate, endDate })
     try {
       const response = await axios.get(
-        `http://192.168.245.190:8000/api/order?name=${dataSearch}&status=${choosenStatus}&typeMember=${typeMember}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}`,
+        `http://192.168.245.190:8000/api/order?name=${dataSearch}&status=${choosenStatus}&typeMember=${typeMember}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
       )
 
       const orderData = response.data.data
@@ -145,7 +144,7 @@ function OrderList() {
 
   useEffect(() => {
     fetchOrderListData()
-  }, [dataSearch, choosenStatus, typeMember, startDate, endDate])
+  }, [pageNumber, dataSearch, choosenStatus, typeMember, startDate, endDate])
 
   // search Data
   const handleSearch = (keyword) => {
@@ -181,7 +180,9 @@ function OrderList() {
             <React.Fragment>
               <div>
                 <span>Họ tên: </span>
-                <span className="customer-name">{order.member?.full_name}</span>
+                <span className="customer-name">
+                  {order.member === null ? order.d_name : order.member?.full_name}
+                </span>
                 <span className="customer-type">
                   {order.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
                 </span>

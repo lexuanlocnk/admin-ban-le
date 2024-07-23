@@ -25,42 +25,28 @@ import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
 import Search from '../../../components/search/Search'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-
-const categories = [
-  'Laptop',
-  'Máy tính để bàn',
-  'Workstation',
-  'Server',
-  'Máy in',
-  'Linh kiện PC',
-  'Phụ kiện',
-  'Phần mềm',
-  'Smart Home',
-  'Thiết bị mạng',
-  'Thiết bị văn phòng',
-  'Smart phone-Tablet',
-  'Thiết bị dân dụng',
-  'Mực in chính hãng',
-  'Màn hình máy tính',
-  'Thiết bị thông minh',
-  'Linh Kiện Server',
-  'Dịch vụ bảo hành mở rộng',
-]
-
-const modules = ['Main', 'Product']
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 function ProductStatus() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  const params = new URLSearchParams(location.search)
+  const id = params.get('id')
+  const sub = params.get('sub')
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
+
+  const [dataProductStatus, setDataProductStatus] = useState([])
 
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  // image upload
-  const [selectedImage, setSelectedImage] = useState(null)
+  // upload image and show image
+  const [selectedFile, setSelectedFile] = useState('')
+  const [file, setFile] = useState([])
 
   const [isCollapse, setIsCollapse] = useState(false)
 
@@ -72,13 +58,13 @@ function ProductStatus() {
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
+  const [deletedId, setDeletedId] = useState(null)
 
   // form formik value
   const initialValues = {
     title: '',
     name: '',
-    url: '',
-    destination: '',
+    image: '',
     width: '',
     height: '',
     desc: '',
@@ -91,17 +77,13 @@ function ProductStatus() {
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    destination: Yup.string().required('Chọn vị trí liên kết!'),
-    width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    name: Yup.string().required('Name là bắt buộc!'),
+    // destination: Yup.string().required('Chọn vị trí liên kết!'),
+    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
+    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
   })
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const id = params.get('id')
-    const sub = params.get('sub')
-
     if (sub === 'add') {
       setIsEditing(false)
       if (inputRef.current) {
@@ -109,21 +91,133 @@ function ProductStatus() {
       }
     } else if (sub === 'edit' && id) {
       setIsEditing(true)
-      fetchDataById(id)
     }
   }, [location.search])
 
-  const fetchDataById = async (id, dataSearch) => {
+  const fetchDataStaus = async (dataSearch = '') => {
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/productStatus?data=${dataSearch}&page=${pageNumber}`,
+      )
+      if (response.data.status === 'success') {
+        setDataProductStatus(response.data.list)
+      }
+    } catch (error) {
+      console.error('Fetch data product brand is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataStaus()
+  }, [pageNumber])
+
+  const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/productStatus/${id}/edit`)
+      const data = response.data.productStatus
+      if (response.data.status === true) {
+        setValues({
+          title: data.product_status_desc.title,
+          name: data.name,
+          width: data.width,
+          height: data.height,
+          desc: data.product_status_desc.description,
+          friendlyUrl: data.product_status_desc.friendly_url,
+          pageTitle: data.product_status_desc.friendly_title,
+          metaKeyword: data.product_status_desc.metakey,
+          metaDesc: data.product_status_desc.metadesc,
+          visible: data.display,
+        })
+        setSelectedFile(data.picture)
+      } else {
+        console.error('No data found for the given ID.')
+      }
+    } catch (error) {
+      console.error('Fetch data id product brand is error', error.message)
+    }
   }
 
   const handleSubmit = async (values) => {
-    console.log(values)
-    // if (isEditing) {
-    //   //call api update data
-    // } else {
-    //   //call api post new data
-    // }
+    if (isEditing) {
+      //call api update data
+      try {
+        const response = await axios.put(`http://192.168.245.190:8000/api/productStatus/${id}`, {
+          title: values.title,
+          name: values.name,
+          picture: selectedFile,
+          width: values.width,
+          height: values.height,
+          description: values.desc,
+          friendly_url: values.friendlyUrl,
+          friendly_title: values.pageTitle,
+          metakey: values.metaKeyword,
+          metadesc: values.metaDesc,
+          display: values.visible,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Cập nhật trạng thái thành công')
+        } else {
+          console.error('No data found for the given ID.')
+        }
+      } catch (error) {
+        console.error('Put data product status is error', error.message)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
+    } else {
+      //call api post new data
+      try {
+        const response = await axios.post('http://192.168.245.190:8000/api/productStatus', {
+          title: values.title,
+          name: values.name,
+          picture: selectedFile,
+          width: values.width,
+          height: values.height,
+          description: values.desc,
+          friendly_url: values.friendlyUrl,
+          friendly_title: values.pageTitle,
+          metakey: values.metaKeyword,
+          metadesc: values.metaDesc,
+          display: values.visible,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Thêm mới trạng thái thành công!')
+          fetchDataStaus()
+        }
+      } catch (error) {
+        console.error('Post data product status is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
+    }
+  }
+
+  //set img avatar
+  function onFileChange(e) {
+    const files = e.target.files
+    const selectedFiles = []
+    const fileUrls = []
+
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
+
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFile(selectedFiles)
+        }
+      }
+    })
+
+    // Set file URLs for immediate preview
+    setFile(fileUrls)
   }
 
   const handleAddNewClick = () => {
@@ -135,20 +229,28 @@ function ProductStatus() {
   }
 
   // delete row
-  const handleDelete = (id) => {
+  const handleDelete = async () => {
     setVisible(true)
+    try {
+      const response = await axios.delete(
+        `http://192.168.245.190:8000/api/productStatus/${deletedId}`,
+      )
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchDataStaus()
+      } else {
+        console.error('ID not found for deleting product status')
+      }
+    } catch (error) {
+      console.error('Delete product status id is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    } finally {
+      setVisible(false)
+    }
   }
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
-  }
-
-  const handleImageUpload = (event) => {
-    setSelectedImage(event.target.files[0])
-  }
-
-  const handleImageRemove = () => {
-    setSelectedImage(null)
   }
 
   // pagination data
@@ -165,7 +267,7 @@ function ProductStatus() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchDataStaus(keyword)
   }
 
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
@@ -186,46 +288,37 @@ function ProductStatus() {
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = [
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      title: 'Bán chạy',
-      images: (
-        <CImage fluid src="https://vitinhnguyenkim.vn/uploads/product/status/giam-gia-10.png" />
-      ),
-      name: 'sale',
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      title: 'Khuyễn mãi',
-      images: (
-        <CImage fluid src="https://vitinhnguyenkim.vn/uploads/product/status/khuyen-mai.png" />
-      ),
-      name: 'promotion',
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-  ]
+  const items =
+    dataProductStatus?.data && dataProductStatus?.data.length > 0
+      ? dataProductStatus?.data.map((item) => ({
+          id: <CFormCheck id="flexCheckDefault" />,
+          title: item.product_status_desc?.title,
+          images: (
+            <CImage fluid src={`http://192.168.245.190:8000/uploads/${item.picture}`} width={80} />
+          ),
+          name: item.name,
+          actions: (
+            <div>
+              <button
+                onClick={() => handleEditClick(item.status_id)}
+                className="button-action mr-2 bg-info"
+              >
+                <CIcon icon={cilColorBorder} className="text-white" />
+              </button>
+              <button
+                onClick={() => {
+                  setVisible(true)
+                  setDeletedId(item.status_id)
+                }}
+                className="button-action bg-danger"
+              >
+                <CIcon icon={cilTrash} className="text-white" />
+              </button>
+            </div>
+          ),
+          _cellProps: { id: { scope: 'row' } },
+        }))
+      : []
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
@@ -245,7 +338,7 @@ function ProductStatus() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
 
       <CRow className="mb-3">
         <CCol>
@@ -280,184 +373,184 @@ function ProductStatus() {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ setFieldValue }) => (
-              <Form>
-                <CCol md={12}>
-                  <label htmlFor="title-input">Tiêu đề</label>
-                  <Field name="title">
-                    {({ field }) => (
-                      <CFormInput
-                        {...field}
-                        type="text"
-                        id="title-input"
-                        ref={inputRef}
-                        text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
-                      />
-                    )}
-                  </Field>
-                  <ErrorMessage name="title" component="div" className="text-danger" />
-                </CCol>
-                <br />
-
-                <CCol md={12}>
-                  <label htmlFor="name-input">Name</label>
-                  <Field
-                    name="name"
-                    type="text"
-                    as={CFormInput}
-                    id="name-input"
-                    text="Name là bắt buộc và duy nhất."
-                  />
-                  <ErrorMessage name="name" component="div" className="text-danger" />
-                </CCol>
-                <br />
-
-                <CCol md={12}>
-                  <label htmlFor="avatar-input">Hình ảnh</label>
-                  <div>
-                    <CFormInput
-                      type="file"
-                      id="avatar-input"
-                      size="sm"
-                      onChange={handleImageUpload}
-                    />
-                    <ErrorMessage name="avatar" component="div" className="text-danger" />
-                    {selectedImage && (
-                      <div>
-                        <CImage
-                          className="mt-2"
-                          src={URL.createObjectURL(selectedImage)}
-                          alt="Ảnh đã upload"
-                          width={300}
+            {({ setFieldValue, setValues }) => {
+              useEffect(() => {
+                fetchDataById(setValues)
+              }, [setValues, id])
+              return (
+                <Form>
+                  <CCol md={12}>
+                    <label htmlFor="title-input">Tiêu đề</label>
+                    <Field name="title">
+                      {({ field }) => (
+                        <CFormInput
+                          {...field}
+                          type="text"
+                          id="title-input"
+                          ref={inputRef}
+                          text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
                         />
-                        <CButton
-                          className="mt-2"
-                          color="danger"
-                          size="sm"
-                          onClick={handleImageRemove}
-                        >
-                          Xóa
-                        </CButton>
-                      </div>
-                    )}
-                  </div>
-                </CCol>
-                <br />
+                      )}
+                    </Field>
+                    <ErrorMessage name="title" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol md={12}>
-                  <label htmlFor="width-input">Chiều rộng</label>
-                  <Field
-                    name="width"
-                    type="width"
-                    as={CFormInput}
-                    id="width-input"
-                    text="Đơn vị chiều rộng được sử dụng đơn vị pixel."
-                  />
-                  <ErrorMessage name="width" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="height-input">Chiều cao</label>
-                  <Field
-                    name="height"
-                    type="text"
-                    as={CFormInput}
-                    id="height-input"
-                    text="Đơn vị chiều cao được sử dụng đơn vị pixel."
-                  />
-                  <ErrorMessage name="height" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="desc-input">Mô tả</label>
-                  <Field
-                    name="desc"
-                    type="text"
-                    as={CFormTextarea}
-                    id="desc-input"
-                    text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
-                  />
-                  <ErrorMessage name="desc" component="div" className="text-danger" />
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <label htmlFor="name-input">Name</label>
+                    <Field
+                      name="name"
+                      type="text"
+                      as={CFormInput}
+                      id="name-input"
+                      text="Name là bắt buộc và duy nhất."
+                    />
+                    <ErrorMessage name="name" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <h6>Search Engine Optimization</h6>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="url-input">Chuỗi đường dẫn</label>
-                  <Field
-                    name="friendlyUrl"
-                    type="text"
-                    as={CFormInput}
-                    id="url-input"
-                    text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
-                  />
-                  <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="pageTitle-input">Tiêu đề trang</label>
-                  <Field
-                    name="pageTitle"
-                    type="text"
-                    as={CFormInput}
-                    id="pageTitle-input"
-                    text="Độ dài của tiêu đề trang tối đa 60 ký tự."
-                  />
-                  <ErrorMessage name="pageTitle" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="metaKeyword-input">Meta keywords</label>
-                  <Field
-                    name="metaKeyword"
-                    type="text"
-                    as={CFormInput}
-                    id="metaKeyword-input"
-                    text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
-                  />
-                  <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="metaDesc-input">Meta description</label>
-                  <Field
-                    name="metaDesc"
-                    type="text"
-                    as={CFormInput}
-                    id="metaDesc-input"
-                    text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
-                  />
-                  <ErrorMessage name="metaDesc" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="visible-select">Hiển thị</label>
-                  <Field
-                    className="component-size w-50"
-                    name="visible"
-                    as={CFormSelect}
-                    id="visible-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="visible" component="div" className="text-danger" />
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <CFormInput
+                      name="image"
+                      type="file"
+                      id="formFile"
+                      label="Ảnh đại diện"
+                      size="sm"
+                      onChange={(e) => onFileChange(e)}
+                    />
+                    <br />
+                    <ErrorMessage name="image" component="div" className="text-danger" />
 
-                <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                  </CButton>
-                </CCol>
-              </Form>
-            )}
+                    <div>
+                      {file.length == 0 ? (
+                        <div>
+                          <CImage
+                            src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                            width={300}
+                          />
+                        </div>
+                      ) : (
+                        file.map((item, index) => <CImage key={index} src={item} fluid />)
+                      )}
+                    </div>
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="width-input">Chiều rộng</label>
+                    <Field
+                      name="width"
+                      type="width"
+                      as={CFormInput}
+                      id="width-input"
+                      text="Đơn vị chiều rộng được sử dụng đơn vị pixel."
+                    />
+                    <ErrorMessage name="width" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="height-input">Chiều cao</label>
+                    <Field
+                      name="height"
+                      type="text"
+                      as={CFormInput}
+                      id="height-input"
+                      text="Đơn vị chiều cao được sử dụng đơn vị pixel."
+                    />
+                    <ErrorMessage name="height" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="desc-input">Mô tả</label>
+                    <Field
+                      name="desc"
+                      type="text"
+                      as={CFormTextarea}
+                      id="desc-input"
+                      text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
+                    />
+                    <ErrorMessage name="desc" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <h6>Search Engine Optimization</h6>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="url-input">Chuỗi đường dẫn</label>
+                    <Field
+                      name="friendlyUrl"
+                      type="text"
+                      as={CFormInput}
+                      id="url-input"
+                      text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
+                    />
+                    <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="pageTitle-input">Tiêu đề trang</label>
+                    <Field
+                      name="pageTitle"
+                      type="text"
+                      as={CFormInput}
+                      id="pageTitle-input"
+                      text="Độ dài của tiêu đề trang tối đa 60 ký tự."
+                    />
+                    <ErrorMessage name="pageTitle" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="metaKeyword-input">Meta keywords</label>
+                    <Field
+                      name="metaKeyword"
+                      type="text"
+                      as={CFormInput}
+                      id="metaKeyword-input"
+                      text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
+                    />
+                    <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="metaDesc-input">Meta description</label>
+                    <Field
+                      name="metaDesc"
+                      type="text"
+                      as={CFormInput}
+                      id="metaDesc-input"
+                      text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
+                    />
+                    <ErrorMessage name="metaDesc" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="visible-select">Hiển thị</label>
+                    <Field
+                      className="component-size w-50"
+                      name="visible"
+                      as={CFormSelect}
+                      id="visible-select"
+                      options={[
+                        { label: 'Không', value: '0' },
+                        { label: 'Có', value: '1' },
+                      ]}
+                    />
+                    <ErrorMessage name="visible" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol xs={12}>
+                    <CButton color="primary" type="submit" size="sm">
+                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                    </CButton>
+                  </CCol>
+                </Form>
+              )
+            }}
           </Formik>
         </CCol>
         <CCol md={8}>
-          <Search />
+          <Search count={dataProductStatus?.total} onSearchData={handleSearch} />
           <CCol className="mt-4">
             <CTable hover>
               <thead>
@@ -492,7 +585,7 @@ function ProductStatus() {
 
             <div className="d-flex justify-content-end">
               <ReactPaginate
-                pageCount={Math.round(20 / 10)}
+                pageCount={Math.round(dataProductStatus?.total / dataProductStatus?.per_page)}
                 pageRangeDisplayed={3}
                 marginPagesDisplayed={1}
                 pageClassName="page-item"

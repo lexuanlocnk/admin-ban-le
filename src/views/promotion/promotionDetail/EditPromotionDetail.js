@@ -93,11 +93,11 @@ function EditPromotionDetail() {
         maxPrice: data.priceMax,
         startDate: new Date(moment.unix(data.StartDate)),
         endDate: new Date(moment.unix(data.EndDate)),
-        applyGiftType: data.applyGiftType,
+        applyGiftType: data.type,
         ordersHaveProductCode: data.ordersHaveProductCode,
-        industry: data.industry,
+        industry: data.cat_parent_id,
         visible: data.visible,
-        applyToProductCategories: data.applyToProductCategories,
+        applyToProductCategories: data.list_cat,
       })
     } catch (error) {
       console.error('Fetch data gift is error', error)

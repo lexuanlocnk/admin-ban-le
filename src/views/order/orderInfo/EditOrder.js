@@ -54,6 +54,7 @@ function EditOrder() {
         setDataOrderDetail(data)
         setOrderNote(data.comment)
         // setDataStatus(2)
+        setChoosenStatus(data.status)
       } else {
         console.error('No data found for the given ID.')
       }

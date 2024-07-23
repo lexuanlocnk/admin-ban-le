@@ -19,9 +19,11 @@ function ProductCategory() {
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  const fetchDataCategories = async () => {
+  const fetchDataCategories = async (dataSearch = '') => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/category?data=${dataSearch}`,
+      )
       const data = response.data
 
       if (data) {
@@ -42,6 +44,10 @@ function ProductCategory() {
 
   const handleUpdateClick = (id) => {
     navigate(`/product/category/edit?id=${id}`)
+  }
+
+  const handleSearch = (keyword) => {
+    fetchDataCategories(keyword)
   }
 
   // delete row
@@ -88,7 +94,7 @@ function ProductCategory() {
 
       <CRow>
         <CCol>
-          <Search />
+          <Search count={categories.length} onSearchData={handleSearch} />
           <table className="table table-hover caption-top mt-3">
             <thead className="thead-dark">
               <tr>
@@ -96,6 +102,7 @@ function ProductCategory() {
                   <CFormCheck id="flexCheckDefault" />
                 </th>
                 <th scope="col">Tên</th>
+                <th scope="col">Show home</th>
                 <th scope="col">Tác vụ</th>
               </tr>
             </thead>
@@ -111,6 +118,7 @@ function ProductCategory() {
                       <td scope="row" style={{ fontWeight: 600 }}>
                         {cate?.category_desc?.cat_name}
                       </td>
+                      <td scope="row">{1111}</td>
                       <td scope="row">
                         <div>
                           <button

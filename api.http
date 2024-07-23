@@ -1,1 +1,1 @@
-PUT  http://192.168.245.190:8000/api/category/1
+GET http://192.168.245.190:8000/api/productStatus/11/edit

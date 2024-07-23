@@ -225,15 +225,6 @@ function ProductBrand() {
     }
   }
 
-  // const handleImageUpload = (event) => {
-  //   setSelectedImage(event.target.files[0])
-  // }
-
-  // const handleImageRemove = () => {
-  //   setSelectedImage(null)
-  //   setImageUrl(null)
-  // }
-
   // pagination data
   const handlePageChange = ({ selected }) => {
     const newPage = selected + 1
@@ -398,6 +389,7 @@ function ProductBrand() {
                       type="file"
                       id="formFile"
                       label="Ảnh đại diện"
+                      size="sm"
                       onChange={(e) => onFileChange(e)}
                     />
                     <br />

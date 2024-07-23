@@ -44,7 +44,8 @@ function EditProductCategory() {
     pageTitle: '',
     metaDesc: '',
     metaKeyword: '',
-    visible: '',
+    visible: 0,
+    showHome: 0,
   }
 
   const validationSchema = Yup.object({
@@ -76,6 +77,7 @@ function EditProductCategory() {
           metaDesc: data.category_desc.metadesc,
           metaKeyword: data.category_desc.metakey,
           visible: data.display,
+          showHome: data.show_home,
         })
         setSelectedFile(data.picture)
       }
@@ -133,6 +135,7 @@ function EditProductCategory() {
         metakey: values.metaKeyword,
         metadesc: values.metaDesc,
         display: values.visible,
+        show_home: values.showHome,
       })
 
       if (response.data.status === true) {
@@ -395,6 +398,23 @@ function EditProductCategory() {
                       text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                     />
                     <ErrorMessage name="metaDesc" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="showHome-select">Hiển thị ở trang chủ</label>
+                    <Field
+                      name="showHome"
+                      as={CFormSelect}
+                      id="showHome-select"
+                      className="select-input"
+                      options={[
+                        { label: 'Không', value: 0 },
+                        { label: 'Có', value: 1 },
+                      ]}
+                      text="Cho phép danh mục hiển thị ở trang chủ, bên ngoài web"
+                    />
+                    <ErrorMessage name="showHome" component="div" className="text-danger" />
                   </CCol>
                   <br />
 

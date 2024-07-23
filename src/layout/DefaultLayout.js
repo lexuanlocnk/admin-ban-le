@@ -7,7 +7,7 @@ const DefaultLayout = () => {
   return (
     <div
       style={{
-        fontSize: 13,
+        fontSize: 14,
       }}
     >
       <ToastContainer

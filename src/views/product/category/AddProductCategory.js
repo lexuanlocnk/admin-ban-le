@@ -39,7 +39,8 @@ function AddProductCategory() {
     pageTitle: '',
     metaDesc: '',
     metaKeyword: '',
-    visible: '',
+    visible: 0,
+    showHome: 0,
   }
 
   const validationSchema = Yup.object({
@@ -95,7 +96,6 @@ function AddProductCategory() {
   const handleSubmit = async (values) => {
     console.log('>>>check values', values)
     // async requets fetch
-
     try {
       const response = await axios.post('http://192.168.245.190:8000/api/category', {
         cat_name: values.title,
@@ -110,6 +110,7 @@ function AddProductCategory() {
         metakey: values.metaKeyword,
         metadesc: values.metaDesc,
         display: values.visible,
+        show_home: values.showHome,
       })
 
       if (response.data.status === true) {
@@ -369,6 +370,23 @@ function AddProductCategory() {
                     text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                   />
                   <ErrorMessage name="metaDesc" component="div" className="text-danger" />
+                </CCol>
+                <br />
+
+                <CCol md={12}>
+                  <label htmlFor="showHome-select">Hiển thị ở trang chủ</label>
+                  <Field
+                    name="showHome"
+                    as={CFormSelect}
+                    id="showHome-select"
+                    className="select-input"
+                    options={[
+                      { label: 'Không', value: 0 },
+                      { label: 'Có', value: 1 },
+                    ]}
+                    text="Cho phép danh mục hiển thị ở trang chủ, bên ngoài web"
+                  />
+                  <ErrorMessage name="showHome" component="div" className="text-danger" />
                 </CCol>
                 <br />
 

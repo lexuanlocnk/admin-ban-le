@@ -24,6 +24,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
+import axios from 'axios'
 
 const categories = [
   'Laptop',
@@ -52,8 +53,14 @@ function ProductBanner() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  const params = new URLSearchParams(location.search)
+  const id = params.get('id')
+  const sub = params.get('sub')
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
+
+  const [dataBanner, setDataBanner] = useState([])
 
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
@@ -71,12 +78,15 @@ function ProductBanner() {
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
+  const [deletedId, setDeletedId] = useState(null)
 
   // form formik value
   const initialValues = {
     title: '',
+    image: '',
     url: '',
     destination: '',
+    position: '',
     width: '',
     height: '',
     desc: '',
@@ -85,17 +95,13 @@ function ProductBanner() {
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    destination: Yup.string().required('Chọn vị trí liên kết!'),
-    width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    // url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
+    // destination: Yup.string().required('Chọn vị trí liên kết!'),
+    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
+    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
   })
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const id = params.get('id')
-    const sub = params.get('sub')
-
     if (sub === 'add') {
       setIsEditing(false)
       if (inputRef.current) {
@@ -103,9 +109,26 @@ function ProductBanner() {
       }
     } else if (sub === 'edit' && id) {
       setIsEditing(true)
-      fetchDataById(id)
     }
   }, [location.search])
+
+  const fetchDataBanner = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/product-advertise?data=${dataSearch}&page=${pageNumber}`,
+      )
+
+      if (response.data.status === true) {
+        setDataBanner(response.data.data)
+      }
+    } catch (error) {
+      console.error('Fetch data banner is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataBanner()
+  }, [pageNumber])
 
   const fetchDataById = async (id, dataSearch) => {
     //api?search={dataSearch}
@@ -180,52 +203,35 @@ function ProductBanner() {
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  const items = [
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      images: (
-        <CImage
-          fluid
-          src="https://media.vitinhnguyenkim.vn/uploads/productAdvertise/6621fa419d2f2.png"
-        />
-      ),
-      url: 'linh-phu-kien-laptop?sortStatus=4',
-      dimensions: '300x200',
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: <CFormCheck id="flexCheckDefault" />,
-      images: (
-        <CImage
-          fluid
-          src="https://media.vitinhnguyenkim.vn/uploads/productAdvertise/6621fa419d2f2.png"
-        />
-      ),
-      url: 'linh-phu-kien-laptop?sortStatus=5',
-      dimensions: '300x200',
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    },
-  ]
+  const items =
+    dataBanner && dataBanner.length > 0
+      ? dataBanner.map((item) => ({
+          id: <CFormCheck id="flexCheckDefault" />,
+          images: <CImage fluid src={`http://192.168.245.190:8000/uploads/${item.picture}`} />,
+          url: item.link,
+          dimensions: `${item.width}X${item.height}`,
+          actions: (
+            <div>
+              <button
+                onClick={() => handleEditClick(item.id)}
+                className="button-action mr-2 bg-info"
+              >
+                <CIcon icon={cilColorBorder} className="text-white" />
+              </button>
+              <button
+                onClick={() => {
+                  setVisible(true)
+                  setDeletedId(item.id)
+                }}
+                className="button-action bg-danger"
+              >
+                <CIcon icon={cilTrash} className="text-white" />
+              </button>
+            </div>
+          ),
+          _cellProps: { id: { scope: 'row' } },
+        }))
+      : []
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]
