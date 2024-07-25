@@ -86,7 +86,7 @@ function ProductBanner() {
     image: '',
     url: '',
     destination: '',
-    position: '',
+    categories: '',
     width: '',
     height: '',
     desc: '',
@@ -136,11 +136,34 @@ function ProductBanner() {
 
   const handleSubmit = async (values) => {
     console.log(values)
-    // if (isEditing) {
-    //   //call api update data
-    // } else {
-    //   //call api post new data
-    // }
+    if (isEditing) {
+      //call api update data
+    } else {
+      //call api post new data
+      try {
+        const response = await axios.post('http://192.168.245.190:8000/api/product-advertise', {
+          title: values.title,
+          name: values.name,
+          picture: selectedFile,
+          width: values.width,
+          height: values.height,
+          description: values.desc,
+          friendly_url: values.friendlyUrl,
+          friendly_title: values.pageTitle,
+          metakey: values.metaKeyword,
+          metadesc: values.metaDesc,
+          display: values.visible,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Thêm mới trạng thái thành công!')
+          fetchDataStaus()
+        }
+      } catch (error) {
+        console.error('Post data product status is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
+    }
   }
 
   const handleAddNewClick = () => {
