@@ -140,6 +140,7 @@ function ProductBanner() {
       //call api update data
     } else {
       //call api post new data
+      // page,address,filePath,link,title,description,height,width,display
       try {
         const response = await axios.post('http://192.168.245.190:8000/api/product-advertise', {
           title: values.title,

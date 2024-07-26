@@ -1,4 +1,4 @@
-import { CButton, CCol, CContainer, CFormCheck, CRow } from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CImage, CRow } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import Search from '../../../components/search/Search'
 import CIcon from '@coreui/icons-react'
@@ -102,6 +102,7 @@ function ProductCategory() {
                   <CFormCheck id="flexCheckDefault" />
                 </th>
                 <th scope="col">Tên</th>
+                <th scope="col">Background</th>
                 <th scope="col">Show home</th>
                 <th scope="col">Tác vụ</th>
               </tr>
@@ -118,7 +119,13 @@ function ProductCategory() {
                       <td scope="row" style={{ fontWeight: 600 }}>
                         {cate?.category_desc?.cat_name}
                       </td>
-                      <td scope="row">{1111}</td>
+                      <td scope="row">
+                        <CImage
+                          src={`http://192.168.245.190:8000/uploads/${cate.background !== null && cate.background !== '' ? cate.background : 'no-image.jpg'}`}
+                          width={50}
+                        />
+                      </td>
+                      <td scope="row">{cate.show_home === 1 ? 'Có' : 'Không'}</td>
                       <td scope="row">
                         <div>
                           <button
@@ -154,6 +161,13 @@ function ProductCategory() {
                               />
                               {subCate?.category_desc?.cat_name}
                             </td>
+                            <td scope="row">
+                              <CImage
+                                src={`http://192.168.245.190:8000/uploads/${subCate.background !== null && subCate.background !== '' ? subCate.background : 'no-image.jpg'}`}
+                                width={50}
+                              />
+                            </td>
+                            <td scope="row">{subCate.show_home === 1 ? 'Có' : 'Không'}</td>
                             <td scope="row">
                               <div>
                                 <button

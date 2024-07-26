@@ -30,11 +30,16 @@ function EditProductCategory() {
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
 
+  // upload category background
+  const [selectedFileBackground, setSelectedFileBackground] = useState('')
+  const [fileBackground, setFileBackground] = useState([])
+
   const initialValues = {
     title: '',
     homeTitle: '',
     friendlyUrl: '',
     picture: [],
+    backgroundImage: [],
     parentId: '',
     color: '',
     visibleBrands: [],
@@ -78,8 +83,10 @@ function EditProductCategory() {
           metaKeyword: data.category_desc.metakey,
           visible: data.display,
           showHome: data.show_home,
+          backgroundImage: data.background,
         })
         setSelectedFile(data.picture)
+        setSelectedFileBackground(data.background)
       }
     } catch (error) {
       console.error('Fetch categories data error', error)
@@ -117,6 +124,33 @@ function EditProductCategory() {
     setFile(fileUrls)
   }
 
+  //set img category background
+  function onFileChangeBackground(e) {
+    const files = e.target.files
+    const selectedFiles = []
+    const fileUrls = []
+
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
+
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFileBackground(selectedFiles)
+        }
+      }
+    })
+
+    // Set file URLs for immediate preview
+    setFileBackground(fileUrls)
+  }
+
   const handleSubmit = async (values) => {
     console.log('>>>check values', values)
     // async requets fetch
@@ -136,6 +170,7 @@ function EditProductCategory() {
         metadesc: values.metaDesc,
         display: values.visible,
         show_home: values.showHome,
+        background: selectedFileBackground,
       })
 
       if (response.data.status === true) {
@@ -238,7 +273,7 @@ function EditProductCategory() {
                       name="picture"
                       type="file"
                       id="formFile"
-                      label="Hình ảnh"
+                      label="Hình ảnh danh mục"
                       onChange={(e) => onFileChange(e)}
                     />
                     <br />
@@ -254,6 +289,34 @@ function EditProductCategory() {
                         </div>
                       ) : (
                         file.map((item, index) => <CImage key={index} src={item} width={370} />)
+                      )}
+                    </div>
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <CFormInput
+                      name="backgroundImage"
+                      type="file"
+                      id="formFile"
+                      label="Hình ảnh background"
+                      onChange={(e) => onFileChangeBackground(e)}
+                    />
+                    <br />
+                    <ErrorMessage name="backgroundImage" component="div" className="text-danger" />
+
+                    <div>
+                      {fileBackground.length == 0 ? (
+                        <div>
+                          <CImage
+                            src={`http://192.168.245.190:8000/uploads/` + selectedFileBackground}
+                            width={370}
+                          />
+                        </div>
+                      ) : (
+                        fileBackground.map((item, index) => (
+                          <CImage key={index} src={item} width={370} />
+                        ))
                       )}
                     </div>
                   </CCol>
