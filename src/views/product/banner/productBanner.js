@@ -25,29 +25,7 @@ import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import axios from 'axios'
-
-const categories = [
-  'Laptop',
-  'Máy tính để bàn',
-  'Workstation',
-  'Server',
-  'Máy in',
-  'Linh kiện PC',
-  'Phụ kiện',
-  'Phần mềm',
-  'Smart Home',
-  'Thiết bị mạng',
-  'Thiết bị văn phòng',
-  'Smart phone-Tablet',
-  'Thiết bị dân dụng',
-  'Mực in chính hãng',
-  'Màn hình máy tính',
-  'Thiết bị thông minh',
-  'Linh Kiện Server',
-  'Dịch vụ bảo hành mở rộng',
-]
-
-const modules = ['Main', 'Product']
+import { toast } from 'react-toastify'
 
 function ProductBanner() {
   const location = useLocation()
@@ -60,13 +38,15 @@ function ProductBanner() {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
+  const [categories, setCategories] = useState([])
   const [dataBanner, setDataBanner] = useState([])
 
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  // image upload
-  const [selectedImage, setSelectedImage] = useState(null)
+  // upload image and show image
+  const [selectedFile, setSelectedFile] = useState('')
+  const [file, setFile] = useState([])
 
   const [isCollapse, setIsCollapse] = useState(false)
 
@@ -112,12 +92,24 @@ function ProductBanner() {
     }
   }, [location.search])
 
+  const fetchCategoriesData = async () => {
+    try {
+      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      setCategories(response.data)
+    } catch (error) {
+      console.error('Fetch categories data error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategoriesData()
+  }, [])
+
   const fetchDataBanner = async () => {
     try {
       const response = await axios.get(
         `http://192.168.245.190:8000/api/product-advertise?data=${dataSearch}&page=${pageNumber}`,
       )
-
       if (response.data.status === true) {
         setDataBanner(response.data.data)
       }
@@ -130,38 +122,85 @@ function ProductBanner() {
     fetchDataBanner()
   }, [pageNumber])
 
-  const fetchDataById = async (id, dataSearch) => {
+  const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/product-advertise/${id}/edit`,
+      )
+      const data = response.data.data
+      if (response.data.status === true) {
+        setValues({
+          title: data.title,
+          url: data.link,
+          destination: data.target,
+          // categories: data.category,
+          width: data.width,
+          height: data.height,
+          desc: data.description,
+          visible: data.display,
+        })
+        setSelectedFile(data.picture)
+      } else {
+        console.error('No data found for the given ID.')
+      }
+    } catch (error) {
+      console.error('Fetch data id product banner is error', error.message)
+    }
   }
 
   const handleSubmit = async (values) => {
     console.log(values)
+
     if (isEditing) {
       //call api update data
+      try {
+        const response = await axios.put(
+          `http://192.168.245.190:8000/api/product-advertise/${id}`,
+          {
+            title: values.title,
+            picture: selectedFile,
+            link: values.url,
+            filePath: values.destination,
+            // category: values.category,
+            width: values.width,
+            height: values.height,
+            description: values.desc,
+            display: values.visible,
+          },
+        )
+
+        if (response.data.status === true) {
+          toast.success('Cập nhật trạng thái thành công')
+          fetchDataBanner()
+        } else {
+          console.error('No data found for the given ID.')
+        }
+      } catch (error) {
+        console.error('Put data product status is error', error.message)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     } else {
       //call api post new data
-      // page,address,filePath,link,title,description,height,width,display
       try {
         const response = await axios.post('http://192.168.245.190:8000/api/product-advertise', {
           title: values.title,
-          name: values.name,
           picture: selectedFile,
+          link: values.url,
+          filePath: values.destination,
+          // category: values.category,
           width: values.width,
           height: values.height,
           description: values.desc,
-          friendly_url: values.friendlyUrl,
-          friendly_title: values.pageTitle,
-          metakey: values.metaKeyword,
-          metadesc: values.metaDesc,
           display: values.visible,
         })
 
         if (response.data.status === true) {
-          toast.success('Thêm mới trạng thái thành công!')
-          fetchDataStaus()
+          toast.success('Cập nhật banner sản phẩm thành công!')
+          fetchDataBanner()
         }
       } catch (error) {
-        console.error('Post data product status is error', error)
+        console.error('Put data product banner is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
     }
@@ -176,20 +215,28 @@ function ProductBanner() {
   }
 
   // delete row
-  const handleDelete = (id) => {
+  const handleDelete = async () => {
     setVisible(true)
+    try {
+      const response = await axios.delete(
+        `http://192.168.245.190:8000/api/product-advertise/${deletedId}`,
+      )
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchDataBanner()
+      } else {
+        console.error('ID not found for deleting product status')
+      }
+    } catch (error) {
+      console.error('Delete product banner id is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    } finally {
+      setVisible(false)
+    }
   }
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
-  }
-
-  const handleImageUpload = (event) => {
-    setSelectedImage(event.target.files[0])
-  }
-
-  const handleImageRemove = () => {
-    setSelectedImage(null)
   }
 
   // pagination data
@@ -206,7 +253,34 @@ function ProductBanner() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchDataBanner(keyword)
+  }
+
+  //set img avatar
+  function onFileChange(e) {
+    const files = e.target.files
+    const selectedFiles = []
+    const fileUrls = []
+
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
+
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFile(selectedFiles)
+        }
+      }
+    })
+
+    // Set file URLs for immediate preview
+    setFile(fileUrls)
   }
 
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
@@ -275,7 +349,7 @@ function ProductBanner() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CCol>
           <h3>BANNER SẢN PHẨM</h3>
@@ -291,7 +365,7 @@ function ProductBanner() {
             >
               Thêm mới
             </CButton>
-            <Link to={`/product/category`}>
+            <Link to={`/product/banner`}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
               </CButton>
@@ -309,145 +383,167 @@ function ProductBanner() {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ setFieldValue }) => (
-              <Form>
-                <CCol md={12}>
-                  <label htmlFor="title-input">Tiêu đề</label>
-                  <Field name="title">
-                    {({ field }) => (
-                      <CFormInput
-                        {...field}
-                        type="text"
-                        id="title-input"
-                        ref={inputRef}
-                        text="Tiêu đề được sử dụng trên trang mạng của bạn và làm thẻ ALT của banner."
-                      />
-                    )}
-                  </Field>
-                  <ErrorMessage name="title" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="avatar-input">Hình ảnh</label>
-                  <div>
-                    <CFormInput
-                      type="file"
-                      id="avatar-input"
-                      size="sm"
-                      onChange={handleImageUpload}
-                    />
-                    <ErrorMessage name="avatar" component="div" className="text-danger" />
-                    {selectedImage && (
-                      <div>
-                        <CImage
-                          className="mt-2"
-                          src={URL.createObjectURL(selectedImage)}
-                          alt="Ảnh đã upload"
-                          width={300}
+            {({ setFieldValue, setValues }) => {
+              useEffect(() => {
+                fetchDataById(setValues)
+              }, [setValues, id])
+              return (
+                <Form>
+                  <CCol md={12}>
+                    <label htmlFor="title-input">Tiêu đề</label>
+                    <Field name="title">
+                      {({ field }) => (
+                        <CFormInput
+                          {...field}
+                          type="text"
+                          id="title-input"
+                          ref={inputRef}
+                          text="Tiêu đề được sử dụng trên trang mạng của bạn và làm thẻ ALT của banner."
                         />
-                        <CButton
-                          className="mt-2"
-                          color="danger"
-                          size="sm"
-                          onClick={handleImageRemove}
-                        >
-                          Xóa
-                        </CButton>
-                      </div>
-                    )}
-                  </div>
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="url-input">Liên kết</label>
-                  <Field
-                    name="url"
-                    type="url"
-                    as={CFormInput}
-                    id="url-input"
-                    text="Liên kết có hoặc không: https://vitinhnguyenkim.vn/"
-                    placeholder="https://"
-                  />
-                  <ErrorMessage name="url" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="destination-select">Đích đến</label>
-                  <Field
-                    className="component-size w-50"
-                    name="destination"
-                    as={CFormSelect}
-                    id="destination-select"
-                    text="Loại hiển thị của liên kết. Mặc định liên kết tại trang (_self)."
-                    options={[
-                      { label: 'Tại trang (_self)', value: '1' },
-                      { label: 'Cửa sổ mới (_blank)', value: '2' },
-                      { label: 'Cửa sổ cha (_parent)', value: '3' },
-                      { label: 'Cửa sổ trên cùng (_top)', value: '4' },
-                    ]}
-                  />
-                  <ErrorMessage name="destination" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="width-input">Chiều rộng</label>
-                  <Field
-                    name="width"
-                    type="width"
-                    as={CFormInput}
-                    id="width-input"
-                    text="Đơn vị chiều rộng được sử dụng đơn vị pixel."
-                  />
-                  <ErrorMessage name="width" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="height-input">Chiều cao</label>
-                  <Field
-                    name="height"
-                    type="text"
-                    as={CFormInput}
-                    id="height-input"
-                    text="Đơn vị chiều cao được sử dụng đơn vị pixel."
-                  />
-                  <ErrorMessage name="height" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="desc-input">Mô tả</label>
-                  <Field
-                    name="desc"
-                    type="text"
-                    as={CFormTextarea}
-                    id="desc-input"
-                    text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
-                  />
-                  <ErrorMessage name="desc" component="div" className="text-danger" />
-                </CCol>
-                <br />
-                <CCol md={12}>
-                  <label htmlFor="visible-select">Hiển thị</label>
-                  <Field
-                    className="component-size w-50"
-                    name="visible"
-                    as={CFormSelect}
-                    id="visible-select"
-                    options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
-                    ]}
-                  />
-                  <ErrorMessage name="visible" component="div" className="text-danger" />
-                </CCol>
-                <br />
+                      )}
+                    </Field>
+                    <ErrorMessage name="title" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <CFormInput
+                      name="image"
+                      type="file"
+                      id="formFile"
+                      label="Ảnh đại diện"
+                      size="sm"
+                      onChange={(e) => onFileChange(e)}
+                    />
+                    <br />
+                    <ErrorMessage name="image" component="div" className="text-danger" />
 
-                <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                  </CButton>
-                </CCol>
-              </Form>
-            )}
+                    <div>
+                      {file.length == 0 ? (
+                        <div>
+                          <CImage
+                            src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                            width={300}
+                          />
+                        </div>
+                      ) : (
+                        file.map((item, index) => <CImage key={index} src={item} fluid />)
+                      )}
+                    </div>
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="url-input">Liên kết</label>
+                    <Field
+                      name="url"
+                      type="url"
+                      as={CFormInput}
+                      id="url-input"
+                      text="Liên kết có hoặc không: https://vitinhnguyenkim.vn/"
+                      placeholder="https://"
+                    />
+                    <ErrorMessage name="url" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="destination-select">Đích đến</label>
+                    <Field
+                      className="component-size w-50"
+                      name="destination"
+                      as={CFormSelect}
+                      id="destination-select"
+                      text="Loại hiển thị của liên kết. Mặc định liên kết tại trang (_self)."
+                      options={[
+                        { label: 'Tại trang (_self)', value: '1' },
+                        { label: 'Cửa sổ mới (_blank)', value: '2' },
+                        { label: 'Cửa sổ cha (_parent)', value: '3' },
+                        { label: 'Cửa sổ trên cùng (_top)', value: '4' },
+                      ]}
+                    />
+                    <ErrorMessage name="destination" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="categories-select">Danh mục đăng</label>
+                    <Field
+                      className="component-size w-50"
+                      name="categories"
+                      as={CFormSelect}
+                      id="categories-select"
+                      text="Lựa chọn danh mục sẽ hiển thị banner ngoài trang chủ."
+                      options={
+                        categories &&
+                        categories.length > 0 &&
+                        categories.map((cate) => ({
+                          label: cate.category_desc.cat_name,
+                          value: cate.cat_id,
+                        }))
+                      }
+                    />
+                    <ErrorMessage name="categories" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="width-input">Chiều rộng</label>
+                    <Field
+                      name="width"
+                      type="width"
+                      as={CFormInput}
+                      id="width-input"
+                      text="Đơn vị chiều rộng được sử dụng đơn vị pixel."
+                    />
+                    <ErrorMessage name="width" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="height-input">Chiều cao</label>
+                    <Field
+                      name="height"
+                      type="text"
+                      as={CFormInput}
+                      id="height-input"
+                      text="Đơn vị chiều cao được sử dụng đơn vị pixel."
+                    />
+                    <ErrorMessage name="height" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="desc-input">Mô tả</label>
+                    <Field
+                      name="desc"
+                      type="text"
+                      as={CFormTextarea}
+                      id="desc-input"
+                      text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
+                    />
+                    <ErrorMessage name="desc" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+                  <CCol md={12}>
+                    <label htmlFor="visible-select">Hiển thị</label>
+                    <Field
+                      className="component-size w-50"
+                      name="visible"
+                      as={CFormSelect}
+                      id="visible-select"
+                      options={[
+                        { label: 'Không', value: 0 },
+                        { label: 'Có', value: 1 },
+                      ]}
+                    />
+                    <ErrorMessage name="visible" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol xs={12}>
+                    <CButton color="primary" type="submit" size="sm">
+                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                    </CButton>
+                  </CCol>
+                </Form>
+              )
+            }}
           </Formik>
         </CCol>
         <CCol md={8}>
@@ -473,11 +569,18 @@ function ProductBanner() {
                 <tr>
                   <td>Lọc theo vị trí</td>
                   <td>
-                    <CFormSelect className="component-size w-50" aria-label="Chọn yêu cầu lọc">
-                      {categories &&
+                    <CFormSelect
+                      className="component-size w-50"
+                      aria-label="Chọn yêu cầu lọc"
+                      options={
+                        categories &&
                         categories.length > 0 &&
-                        categories.map((cate) => <option key={cate}>{cate}</option>)}
-                    </CFormSelect>
+                        categories.map((cate) => ({
+                          label: cate.category_desc.cat_name,
+                          value: cate.cat_id,
+                        }))
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>

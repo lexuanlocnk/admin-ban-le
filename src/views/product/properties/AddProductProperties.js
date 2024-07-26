@@ -10,10 +10,11 @@ import {
   CRow,
 } from '@coreui/react'
 
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
+import axios from 'axios'
 
 const fakeParentData = [
   {
@@ -31,8 +32,15 @@ const fakeParentData = [
 ]
 
 function AddProductProperties() {
+  const location = useLocation()
+
+  const searchParams = new URLSearchParams(location.search)
+  const catId = searchParams.get('cat_id')
+
+  console.log('>>> check catID', catId)
+
   const [propertiesName, setPropertiesName] = useState('')
-  const [category, setCategory] = useState([])
+  const [categories, setCategories] = useState([])
 
   const initialValues = {
     title: '',
@@ -50,10 +58,34 @@ function AddProductProperties() {
     visible: Yup.string().required('Hiển thị là bắt buộc.'),
   })
 
+  const fetchDataCategories = async (dataSearch = '') => {
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/category?data=${dataSearch}`,
+      )
+      const data = response.data
+
+      if (data) {
+        setCategories(data)
+      }
+    } catch (error) {
+      console.error('Fetch data categories is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataCategories()
+  }, [])
+
   const handleSubmit = (values) => {
     console.log('>>>> cehck values', values)
     // api for submit
   }
+
+  console.log(
+    '>>>. cehck data',
+    categories.filter((cate) => cate.cat_id == catId)[0]?.sub_categories,
+  )
 
   return (
     <CContainer>
@@ -120,11 +152,13 @@ function AddProductProperties() {
                     className="select-input"
                     options={[
                       { label: 'Trống', value: '' },
-                      ...(fakeParentData && fakeParentData.length > 0
-                        ? fakeParentData.map((item) => ({
-                            label: item.cate_name,
-                            value: item.cate_id,
-                          }))
+                      ...(categories && categories.length > 0
+                        ? categories
+                            .filter((cate) => cate.cat_id == catId)[0]
+                            ?.sub_categories.map((subCate) => ({
+                              label: subCate.category_desc.cat_name,
+                              value: subCate.cat_id,
+                            }))
                         : []),
                     ]}
                   />

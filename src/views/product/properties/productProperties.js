@@ -1,77 +1,18 @@
 import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow } from '@coreui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
-
-const fakeData = [
-  {
-    title: 'Màu sắc',
-    slug: 'mau-sac',
-    options: [
-      { title: 'Đen', slug: 'den' },
-      { title: 'Xám', slug: 'xam' },
-      { title: 'Bạc', slug: 'bac' },
-      { title: 'Vàng', slug: 'vang' },
-      { title: 'Trắng', slug: 'trang' },
-      { title: 'Xanh', slug: 'xanh' },
-      { title: 'Xanh đen', slug: 'xanh-den' },
-      { title: 'Vàng đồng', slug: 'vang-dong' },
-      { title: 'Vàng hồng', slug: 'vang-hong' },
-    ],
-  },
-  {
-    title: 'Hệ điều hành',
-    slug: 'he-dieu-hanh',
-    options: [
-      { title: 'Windows', slug: 'windows' },
-      { title: 'Free Dos', slug: 'free-dos' },
-      { title: 'Linux', slug: 'linux' },
-    ],
-  },
-]
-
-const categories = [
-  {
-    id: 1,
-    category_desc: {
-      cat_id: 1,
-      cat_name: 'Laptop',
-    },
-    sub_categories: [
-      {
-        cat_id: 179,
-        category_desc: {
-          cat_id: 179,
-          cat_name: 'Laptop HP',
-        },
-      },
-    ],
-  },
-
-  {
-    id: 2,
-    category_desc: {
-      cat_id: 2,
-      cat_name: 'Máy tính để bàn',
-    },
-    sub_categories: [
-      {
-        cat_id: 180,
-        category_desc: {
-          cat_id: 180,
-          cat_name: 'Laptop HP',
-        },
-      },
-    ],
-  },
-]
+import axios from 'axios'
 
 function ProductProperties() {
   const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
+
+  const [dataProductProperties, setDataProductProperties] = useState([])
+  const [categories, setCategories] = useState([])
 
   const [selectedCategory, setSelectedCategory] = useState(null)
 
@@ -86,9 +27,37 @@ function ProductProperties() {
   // show deleted Modal
   const [visible, setVisible] = useState(false)
 
-  const fetchDataById = async (id, dataSearch, searchParams) => {
-    //api?search={dataSearch}
+  const fetchCategoriesData = async () => {
+    try {
+      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      setCategories(response.data)
+    } catch (error) {
+      console.error('Fetch categories data error', error)
+    }
   }
+
+  useEffect(() => {
+    fetchCategoriesData()
+  }, [])
+
+  const fetchProductProperties = async (dataSearch = '') => {
+    try {
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/cat-option?data=${dataSearch}`,
+      )
+      const data = response.data.listOption
+
+      if (data) {
+        setDataProductProperties(data)
+      }
+    } catch (error) {
+      console.error('Fetch data categories is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchProductProperties()
+  }, [])
 
   const handleAddNewClick = () => {
     const catId = searchParams.get('cat_id') || '1'
@@ -96,7 +65,7 @@ function ProductProperties() {
   }
 
   const handleUpdateClick = (slug) => {
-    navigate(`/product/properties/edit?slug=${slug}`)
+    navigate(`/product/properties/edit?id=${slug}`)
   }
 
   const handleToggleCollapse = () => {
@@ -109,20 +78,20 @@ function ProductProperties() {
   }
 
   // pagination data
-  const handlePageChange = ({ selected }) => {
-    const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
-    setPageNumber(newPage)
-  }
+  // const handlePageChange = ({ selected }) => {
+  //   const newPage = selected + 1
+  //   if (newPage < 2) {
+  //     setPageNumber(newPage)
+  //     window.scrollTo(0, 0)
+  //     return
+  //   }
+  //   window.scrollTo(0, 0)
+  //   setPageNumber(newPage)
+  // }
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchProductProperties(keyword)
   }
 
   const handleChange = (event) => {
@@ -192,17 +161,17 @@ function ProductProperties() {
                       aria-label="Chọn yêu cầu lọc"
                       onChange={handleChange}
                     >
-                      <option value={0}>Chọn nghành hàng</option>
+                      <option value="0">Chọn nghành hàng</option>
                       {categories &&
                         categories.map((item) => (
                           <optgroup key={item.category_desc.cat_id}>
                             <option value={item.category_desc.cat_id}>
-                              {item.category_desc.cat_name}
+                              {item.category_desc.cat_name} ({item.category_desc.cat_id})
                             </option>
                             {item.sub_categories &&
                               item.sub_categories.map((subItem) => (
                                 <option key={subItem.cat_id} value={subItem.cat_id}>
-                                  + {subItem.category_desc.cat_name}
+                                  + {subItem.category_desc.cat_name} ({subItem?.cat_id})
                                 </option>
                               ))}
                           </optgroup>
@@ -229,7 +198,7 @@ function ProductProperties() {
           </table>
         </CCol>
         <CCol>
-          <table className="table table-hover caption-top mt-3">
+          <table className="table table-hover border caption-top mt-3">
             <thead className="thead-dark">
               <tr>
                 <th scope="col">
@@ -241,21 +210,21 @@ function ProductProperties() {
               </tr>
             </thead>
             <tbody>
-              {fakeData &&
-                fakeData.map((cate) => (
-                  <React.Fragment key={cate.slug}>
+              {dataProductProperties &&
+                dataProductProperties.map((option) => (
+                  <React.Fragment key={option.op_id}>
                     <tr>
                       <td scope="row">
                         <CFormCheck id="flexCheckDefault" />
                       </td>
                       <td scope="row" style={{ fontWeight: 600 }}>
-                        {cate.title}
+                        {option.title}
                       </td>
-                      <td scope="row">{cate.slug}</td>
+                      <td scope="row">{option.slug}</td>
                       <td scope="row">
                         <div>
                           <button
-                            onClick={() => handleUpdateClick(cate.slug)}
+                            onClick={() => handleUpdateClick(option.op_id)}
                             className="button-action mr-2 bg-info"
                           >
                             <CIcon icon={cilColorBorder} className="text-white" />
@@ -269,9 +238,9 @@ function ProductProperties() {
                         </div>
                       </td>
                     </tr>
-                    {cate.options &&
-                      cate.options.map((option) => (
-                        <React.Fragment key={option.slug}>
+                    {option?.optionChild &&
+                      option?.optionChild.map((optionChild) => (
+                        <React.Fragment key={optionChild.op_id}>
                           <tr>
                             <td scope="row">
                               <CFormCheck id="flexCheckDefault" />
@@ -282,13 +251,13 @@ function ProductProperties() {
                                 alt="Subcategory"
                                 className="mr-2"
                               />
-                              {option.title}
+                              {optionChild.title}
                             </td>
-                            <td>{option.slug}</td>
+                            <td>{optionChild.slug}</td>
                             <td scope="row">
                               <div>
                                 <button
-                                  onClick={() => handleUpdateClick(option.slug)}
+                                  onClick={() => handleUpdateClick(optionChild.op_id)}
                                   className="button-action mr-2 bg-info"
                                 >
                                   <CIcon icon={cilColorBorder} className="text-white" />
@@ -308,27 +277,6 @@ function ProductProperties() {
                 ))}
             </tbody>
           </table>
-          <div className="d-flex justify-content-end">
-            <ReactPaginate
-              pageCount={Math.round(20 / 10)}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={1}
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakLabel="..."
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-              onPageChange={handlePageChange}
-              containerClassName={'pagination'}
-              activeClassName={'active'}
-              previousLabel={'<<'}
-              nextLabel={'>>'}
-            />
-          </div>
         </CCol>
       </CRow>
     </CContainer>
