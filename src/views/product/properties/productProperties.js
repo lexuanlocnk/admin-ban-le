@@ -15,6 +15,7 @@ function ProductProperties() {
   const [categories, setCategories] = useState([])
 
   const [selectedCategory, setSelectedCategory] = useState(null)
+  const [selectedCate, setSelectedCate] = useState('1')
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -43,7 +44,7 @@ function ProductProperties() {
   const fetchProductProperties = async (dataSearch = '') => {
     try {
       const response = await axios.get(
-        `http://192.168.245.190:8000/api/cat-option?data=${dataSearch}`,
+        `http://192.168.245.190:8000/api/cat-option?data=${dataSearch}&catId=${selectedCate}`,
       )
       const data = response.data.listOption
 
@@ -57,7 +58,7 @@ function ProductProperties() {
 
   useEffect(() => {
     fetchProductProperties()
-  }, [])
+  }, [selectedCate])
 
   const handleAddNewClick = () => {
     const catId = searchParams.get('cat_id') || '1'
@@ -99,6 +100,7 @@ function ProductProperties() {
     searchParams.set('cat_id', catId)
     setSearchParams(searchParams)
     setSelectedCategory(event.target.options[event.target.selectedIndex].label)
+    setSelectedCate(catId)
   }
 
   return (

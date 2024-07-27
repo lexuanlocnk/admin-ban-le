@@ -154,11 +154,14 @@ function AddProductProperties() {
                       { label: 'Trống', value: '' },
                       ...(categories && categories.length > 0
                         ? categories
-                            .filter((cate) => cate.cat_id == catId)[0]
-                            ?.sub_categories.map((subCate) => ({
-                              label: subCate.category_desc.cat_name,
-                              value: subCate.cat_id,
-                            }))
+                            .filter((cate) => cate.cat_id == catId)
+                            .reduce((acc, cate) => {
+                              const subCategories = cate.sub_categories.map((subCate) => ({
+                                label: subCate.category_desc.cat_name,
+                                value: subCate.cat_id,
+                              }))
+                              return acc.concat(subCategories)
+                            }, [])
                         : []),
                     ]}
                   />

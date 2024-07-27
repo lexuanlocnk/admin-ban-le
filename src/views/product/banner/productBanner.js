@@ -41,6 +41,8 @@ function ProductBanner() {
   const [categories, setCategories] = useState([])
   const [dataBanner, setDataBanner] = useState([])
 
+  const [selectedCate, setSelectedCate] = useState('')
+
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
@@ -108,7 +110,7 @@ function ProductBanner() {
   const fetchDataBanner = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.245.190:8000/api/product-advertise?data=${dataSearch}&page=${pageNumber}`,
+        `http://192.168.245.190:8000/api/product-advertise?data=${dataSearch}&page=${pageNumber}&cat_id=${selectedCate}`,
       )
       if (response.data.status === true) {
         setDataBanner(response.data.data)
@@ -120,7 +122,7 @@ function ProductBanner() {
 
   useEffect(() => {
     fetchDataBanner()
-  }, [pageNumber])
+  }, [pageNumber, selectedCate])
 
   const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
@@ -134,7 +136,7 @@ function ProductBanner() {
           title: data.title,
           url: data.link,
           destination: data.target,
-          // categories: data.category,
+          categories: data.cat_id,
           width: data.width,
           height: data.height,
           desc: data.description,
@@ -161,8 +163,8 @@ function ProductBanner() {
             title: values.title,
             picture: selectedFile,
             link: values.url,
-            filePath: values.destination,
-            // category: values.category,
+            target: values.destination,
+            cat_id: values.categories,
             width: values.width,
             height: values.height,
             description: values.desc,
@@ -187,8 +189,8 @@ function ProductBanner() {
           title: values.title,
           picture: selectedFile,
           link: values.url,
-          filePath: values.destination,
-          // category: values.category,
+          target: values.destination,
+          cat_id: values.categories,
           width: values.width,
           height: values.height,
           description: values.desc,
@@ -302,8 +304,8 @@ function ProductBanner() {
   ]
 
   const items =
-    dataBanner && dataBanner.length > 0
-      ? dataBanner.map((item) => ({
+    dataBanner?.data && dataBanner?.data.length > 0
+      ? dataBanner?.data.map((item) => ({
           id: <CFormCheck id="flexCheckDefault" />,
           images: <CImage fluid src={`http://192.168.245.190:8000/uploads/${item.picture}`} />,
           url: item.link,
@@ -453,10 +455,10 @@ function ProductBanner() {
                       id="destination-select"
                       text="Loại hiển thị của liên kết. Mặc định liên kết tại trang (_self)."
                       options={[
-                        { label: 'Tại trang (_self)', value: '1' },
-                        { label: 'Cửa sổ mới (_blank)', value: '2' },
-                        { label: 'Cửa sổ cha (_parent)', value: '3' },
-                        { label: 'Cửa sổ trên cùng (_top)', value: '4' },
+                        { label: 'Tại trang (_self)', value: '_self' },
+                        { label: 'Cửa sổ mới (_blank)', value: '_blank' },
+                        { label: 'Cửa sổ cha (_parent)', value: '_parent' },
+                        { label: 'Cửa sổ trên cùng (_top)', value: '_top' },
                       ]}
                     />
                     <ErrorMessage name="destination" component="div" className="text-danger" />
@@ -572,14 +574,26 @@ function ProductBanner() {
                     <CFormSelect
                       className="component-size w-50"
                       aria-label="Chọn yêu cầu lọc"
-                      options={
-                        categories &&
-                        categories.length > 0 &&
-                        categories.map((cate) => ({
-                          label: cate.category_desc.cat_name,
-                          value: cate.cat_id,
-                        }))
-                      }
+                      options={[
+                        { label: 'Chọn danh mục', value: '' },
+                        ...(categories && categories.length > 0
+                          ? categories.map((cate) => ({
+                              label: cate.category_desc.cat_name,
+                              value: cate.cat_id,
+                            }))
+                          : []),
+                      ]}
+                      // options={[
+                      //   { label: 'Chọn trạng thái', value: '' },
+                      //   ...(dataStatus && dataStatus.length > 0
+                      //     ? dataStatus.map((status) => ({
+                      //         label: status.title,
+                      //         value: status.status_id,
+                      //       }))
+                      //     : []),
+                      // ]}
+                      value={selectedCate}
+                      onChange={(e) => setSelectedCate(e.target.value)}
                     />
                   </td>
                 </tr>
@@ -635,7 +649,7 @@ function ProductBanner() {
 
             <div className="d-flex justify-content-end">
               <ReactPaginate
-                pageCount={Math.round(20 / 10)}
+                pageCount={Math.round(dataBanner?.total / dataBanner?.per_page)}
                 pageRangeDisplayed={3}
                 marginPagesDisplayed={1}
                 pageClassName="page-item"
