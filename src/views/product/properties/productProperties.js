@@ -47,7 +47,7 @@ function ProductProperties() {
   const fetchProductProperties = async (dataSearch = '') => {
     try {
       const response = await axios.get(
-        `http://192.168.245.190:8000/api/cat-option?data=${dataSearch}&catId=${selectedCate}`,
+        `http://192.168.245.190:8000/api/cat-option?data=${dataSearch}&catId=${choosenCategory}`,
       )
       const data = response.data.listOption
 
@@ -61,7 +61,7 @@ function ProductProperties() {
 
   useEffect(() => {
     fetchProductProperties()
-  }, [selectedCate])
+  }, [choosenCategory])
 
   const handleAddNewClick = () => {
     const catId = searchParams.get('cat_id') || '1'
