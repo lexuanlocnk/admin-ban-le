@@ -144,12 +144,26 @@ function AddProductProperties() {
                     onChange={(e) => setFieldValue('parentId', e.target.value)}
                     className="select-input"
                     options={[
+<<<<<<< HEAD
                       { label: 'Trống', value: '0' },
                       ...(propertiesChild && propertiesChild.length > 0
                         ? propertiesChild.map((option) => ({
                             label: option.title,
                             value: option.op_id,
                           }))
+=======
+                      { label: 'Trống', value: '' },
+                      ...(categories && categories.length > 0
+                        ? categories
+                            .filter((cate) => cate.cat_id == catId)
+                            .reduce((acc, cate) => {
+                              const subCategories = cate.sub_categories.map((subCate) => ({
+                                label: subCate.category_desc.cat_name,
+                                value: subCate.cat_id,
+                              }))
+                              return acc.concat(subCategories)
+                            }, [])
+>>>>>>> 4bbc456a7f22732d83ffdd5e32f0dec79976e2d5
                         : []),
                     ]}
                   />
