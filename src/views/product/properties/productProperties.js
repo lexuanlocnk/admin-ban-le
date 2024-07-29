@@ -1,20 +1,23 @@
 import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 function ProductProperties() {
   const navigate = useNavigate()
+
   const [isCollapse, setIsCollapse] = useState(false)
 
   const [dataProductProperties, setDataProductProperties] = useState([])
   const [categories, setCategories] = useState([])
 
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [choosenCategory, setChoosenCategory] = useState('1')
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -26,6 +29,7 @@ function ProductProperties() {
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
+  const [deletedId, setDeletedId] = useState(null)
 
   const fetchCategoriesData = async () => {
     try {
@@ -43,7 +47,7 @@ function ProductProperties() {
   const fetchProductProperties = async (dataSearch = '') => {
     try {
       const response = await axios.get(
-        `http://192.168.245.190:8000/api/cat-option?data=${dataSearch}`,
+        `http://192.168.245.190:8000/api/cat-option?catId=${choosenCategory}&data=${dataSearch}`,
       )
       const data = response.data.listOption
 
@@ -57,7 +61,7 @@ function ProductProperties() {
 
   useEffect(() => {
     fetchProductProperties()
-  }, [])
+  }, [choosenCategory])
 
   const handleAddNewClick = () => {
     const catId = searchParams.get('cat_id') || '1'
@@ -65,7 +69,8 @@ function ProductProperties() {
   }
 
   const handleUpdateClick = (slug) => {
-    navigate(`/product/properties/edit?id=${slug}`)
+    const catId = searchParams.get('cat_id') || '1'
+    navigate(`/product/properties/edit?id=${slug}&cat_id=${catId}`)
   }
 
   const handleToggleCollapse = () => {
@@ -73,21 +78,19 @@ function ProductProperties() {
   }
 
   // delete row
-  const handleDelete = (id) => {
+  const handleDelete = async () => {
     setVisible(true)
+    try {
+      const response = await axios.delete(`http://192.168.245.190:8000/api/cat-option/${deletedId}`)
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchProductProperties()
+      }
+    } catch (error) {
+      console.error('Delete properties id is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    }
   }
-
-  // pagination data
-  // const handlePageChange = ({ selected }) => {
-  //   const newPage = selected + 1
-  //   if (newPage < 2) {
-  //     setPageNumber(newPage)
-  //     window.scrollTo(0, 0)
-  //     return
-  //   }
-  //   window.scrollTo(0, 0)
-  //   setPageNumber(newPage)
-  // }
 
   // search Data
   const handleSearch = (keyword) => {
@@ -99,11 +102,12 @@ function ProductProperties() {
     searchParams.set('cat_id', catId)
     setSearchParams(searchParams)
     setSelectedCategory(event.target.options[event.target.selectedIndex].label)
+    setChoosenCategory(catId)
   }
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CCol>
           <h3>
@@ -161,7 +165,6 @@ function ProductProperties() {
                       aria-label="Chọn yêu cầu lọc"
                       onChange={handleChange}
                     >
-                      <option value="0">Chọn nghành hàng</option>
                       {categories &&
                         categories.map((item) => (
                           <optgroup key={item.category_desc.cat_id}>
@@ -230,7 +233,10 @@ function ProductProperties() {
                             <CIcon icon={cilColorBorder} className="text-white" />
                           </button>
                           <button
-                            onClick={() => handleDelete()}
+                            onClick={() => {
+                              setVisible(true)
+                              setDeletedId(option.op_id)
+                            }}
                             className="button-action bg-danger"
                           >
                             <CIcon icon={cilTrash} className="text-white" />
@@ -263,7 +269,10 @@ function ProductProperties() {
                                   <CIcon icon={cilColorBorder} className="text-white" />
                                 </button>
                                 <button
-                                  onClick={() => handleDelete()}
+                                  onClick={() => {
+                                    setVisible(true)
+                                    setDeletedId(optionChild.op_id)
+                                  }}
                                   className="button-action bg-danger"
                                 >
                                   <CIcon icon={cilTrash} className="text-white" />

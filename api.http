@@ -1,1 +1,1 @@
-GET http://192.168.245.190:8000/api/productStatus/11/edit
+GET http://192.168.245.190:8000/api/cat-option/593/edit

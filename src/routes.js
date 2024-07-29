@@ -29,6 +29,9 @@ const EditProductProperties = React.lazy(
 const ProductBanner = React.lazy(() => import('./views/product/banner/productBanner'))
 const ProductStatus = React.lazy(() => import('./views/product/status/productStatus'))
 
+// product detail
+const ProductDetail = React.lazy(() => import('./views/product/detail/ProductDetail'))
+
 //  ORDER
 const OrderList = React.lazy(() => import('./views/order/orderInfo/orderList'))
 const EditOrder = React.lazy(() => import('./views/order/orderInfo/EditOrder'))
@@ -122,6 +125,10 @@ const routes = [
   { path: '/admin/list', name: 'AdminList', element: AdminList },
   { path: '/admin/log', name: 'AdminLog', element: AdminLog },
   { path: '/admin', name: 'Admin', element: AdminInfo, exact: true },
+
+  // product detail
+
+  { path: '/product', name: 'ProductDetail', element: ProductDetail },
 
   //product brand
   { path: '/product/brand', name: 'ProductBrand', element: ProductBrand, exact: true },

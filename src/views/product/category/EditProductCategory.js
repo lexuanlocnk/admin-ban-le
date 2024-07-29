@@ -66,24 +66,15 @@ function EditProductCategory() {
   const fetchCategoriesData = async (setValues) => {
     try {
       const response = await axios.get(`http://192.168.245.190:8000/api/category/${id}/edit`)
-      const data = response.data.category
+      const data = response.data
       if (response.data.status === true) {
         setValues({
-          title: data.category_desc.cat_name,
-          homeTitle: data.category_desc.home_title,
-          friendlyUrl: data.category_desc.friendly_url,
-          parentId: data.parentid,
-          color: data.color,
-          // visibleBrands: [],
-          // visibleSupport: [],
-          description: data.category_desc.description,
-          scriptCode: data.category_desc.script_code,
-          pageTitle: data.category_desc.friendly_title,
-          metaDesc: data.category_desc.metadesc,
-          metaKeyword: data.category_desc.metakey,
-          visible: data.display,
-          showHome: data.show_home,
-          backgroundImage: data.background,
+          title: values.title,
+          parentid: values.parentId,
+          cat_id: catId,
+          slug: values.friendlyUrl,
+          description: values.desc,
+          display: values.visible,
         })
         setSelectedFile(data.picture)
         setSelectedFileBackground(data.background)

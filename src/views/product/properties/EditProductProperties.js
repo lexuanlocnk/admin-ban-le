@@ -10,33 +10,24 @@ import {
   CRow,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
-const fakeParentData = [
-  {
-    cate_id: 1,
-    cate_name: 'Màu sắc',
-  },
-  {
-    cate_id: 2,
-    cate_name: 'Hệ điều hành',
-  },
-  {
-    cate_id: 3,
-    cate_name: 'CPU',
-  },
-]
 function EditProductProperties() {
-  const [propertiesName, setPropertiesName] = useState('')
-  const [category, setCategory] = useState([])
+  const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
+  const id = searchParams.get('id')
+  const catId = searchParams.get('cat_id')
+
+  const [propertiesChild, setPropertiesChild] = useState([])
 
   const initialValues = {
     title: '',
     friendlyUrl: '',
-    parentId: '',
+    parentId: '0',
     desc: '',
     visible: '',
   }
@@ -49,9 +40,63 @@ function EditProductProperties() {
     visible: Yup.string().required('Hiển thị là bắt buộc.'),
   })
 
-  const handleSubmit = (values) => {
+  const fetchDataCategoryChild = async () => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/cat-option-child/${catId}`)
+      const data = response.data.listOption
+
+      if (data && response.data.status === true) {
+        setPropertiesChild(data)
+      }
+    } catch (error) {
+      console.error('Fetch data categories child option is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataCategoryChild()
+  }, [])
+
+  const fetchDataProperties = async (setValues) => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/cat-option/${id}/edit`)
+      const dataDesc = response.data.productCatOptionDesc
+      const dataOption = response.data.productCatOption
+
+      if (response.data.status === true) {
+        setValues({
+          title: dataDesc.title,
+          friendlyUrl: dataDesc.slug,
+          parentId: dataOption.parentid,
+          desc: dataDesc.description,
+          visible: dataOption.display,
+        })
+      }
+    } catch (error) {
+      console.error('Fetch properties data error', error)
+    }
+  }
+
+  const handleSubmit = async (values) => {
     console.log('>>>> cehck values', values)
     // api for submit
+    try {
+      const response = await axios.put(`http://192.168.245.190:8000/api/cat-option/${id}`, {
+        title: values.title,
+        parentid: values.parentId,
+        cat_id: catId,
+        slug: values.friendlyUrl,
+        description: values.desc,
+        display: values.visible,
+      })
+
+      if (response.data.status === true) {
+        toast.success('Cập nhật thuộc tính thành công.')
+      }
+    } catch (error) {
+      console.error('Put product properties data error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   return (
@@ -81,21 +126,7 @@ function EditProductProperties() {
           >
             {({ setFieldValue, values, setValues }) => {
               useEffect(() => {
-                const fetchData = async () => {
-                  try {
-                    const response = await axios.get('/endpoint')
-                    const data = response.data
-
-                    setValues({
-                      title: data.title,
-                      //...
-                    })
-                  } catch (error) {
-                    console.error('Error fetching data:', error)
-                  }
-                }
-
-                fetchData()
+                fetchDataProperties(setValues)
               }, [setValues])
               return (
                 <Form>
@@ -137,11 +168,11 @@ function EditProductProperties() {
                       onChange={(e) => setFieldValue('parentId', e.target.value)}
                       className="select-input"
                       options={[
-                        { label: 'Trống', value: '' },
-                        ...(fakeParentData && fakeParentData.length > 0
-                          ? fakeParentData.map((item) => ({
-                              label: item.cate_name,
-                              value: item.cate_id,
+                        { label: 'Trống', value: '0' },
+                        ...(propertiesChild && propertiesChild.length > 0
+                          ? propertiesChild.map((option) => ({
+                              label: option.title,
+                              value: option.op_id,
                             }))
                           : []),
                       ]}
@@ -182,7 +213,7 @@ function EditProductProperties() {
 
                   <CCol xs={12}>
                     <CButton color="primary" type="submit" size="sm">
-                      Thêm mới
+                      Cập nhật
                     </CButton>
                   </CCol>
                 </Form>

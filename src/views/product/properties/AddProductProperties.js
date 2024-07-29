@@ -15,21 +15,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import axios from 'axios'
-
-const fakeParentData = [
-  {
-    cate_id: 1,
-    cate_name: 'Màu sắc',
-  },
-  {
-    cate_id: 2,
-    cate_name: 'Hệ điều hành',
-  },
-  {
-    cate_id: 3,
-    cate_name: 'CPU',
-  },
-]
+import { toast } from 'react-toastify'
 
 function AddProductProperties() {
   const location = useLocation()
@@ -37,17 +23,14 @@ function AddProductProperties() {
   const searchParams = new URLSearchParams(location.search)
   const catId = searchParams.get('cat_id')
 
-  console.log('>>> check catID', catId)
-
-  const [propertiesName, setPropertiesName] = useState('')
-  const [categories, setCategories] = useState([])
+  const [propertiesChild, setPropertiesChild] = useState([])
 
   const initialValues = {
     title: '',
     friendlyUrl: '',
-    parentId: '',
+    parentId: '0',
     desc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
@@ -58,34 +41,44 @@ function AddProductProperties() {
     visible: Yup.string().required('Hiển thị là bắt buộc.'),
   })
 
-  const fetchDataCategories = async (dataSearch = '') => {
+  const fetchDataCategoryChild = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/category?data=${dataSearch}`,
-      )
-      const data = response.data
+      const response = await axios.get(`http://192.168.245.190:8000/api/cat-option-child/${catId}`)
+      const data = response.data.listOption
 
-      if (data) {
-        setCategories(data)
+      if (data && response.data.status === true) {
+        setPropertiesChild(data)
       }
     } catch (error) {
-      console.error('Fetch data categories is error', error)
+      console.error('Fetch data categories child option is error', error)
     }
   }
 
   useEffect(() => {
-    fetchDataCategories()
+    fetchDataCategoryChild()
   }, [])
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     console.log('>>>> cehck values', values)
     // api for submit
-  }
+    try {
+      const response = await axios.post('http://192.168.245.190:8000/api/cat-option', {
+        title: values.title,
+        parentid: values.parentId,
+        cat_id: catId,
+        slug: values.friendlyUrl,
+        description: values.desc,
+        display: values.visible,
+      })
 
-  console.log(
-    '>>>. cehck data',
-    categories.filter((cate) => cate.cat_id == catId)[0]?.sub_categories,
-  )
+      if (response.data.status === true) {
+        toast.success('Thêm mới thuộc tính thành công.')
+      }
+    } catch (error) {
+      console.error('Post product properties data error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
+  }
 
   return (
     <CContainer>
@@ -151,14 +144,12 @@ function AddProductProperties() {
                     onChange={(e) => setFieldValue('parentId', e.target.value)}
                     className="select-input"
                     options={[
-                      { label: 'Trống', value: '' },
-                      ...(categories && categories.length > 0
-                        ? categories
-                            .filter((cate) => cate.cat_id == catId)[0]
-                            ?.sub_categories.map((subCate) => ({
-                              label: subCate.category_desc.cat_name,
-                              value: subCate.cat_id,
-                            }))
+                      { label: 'Trống', value: '0' },
+                      ...(propertiesChild && propertiesChild.length > 0
+                        ? propertiesChild.map((option) => ({
+                            label: option.title,
+                            value: option.op_id,
+                          }))
                         : []),
                     ]}
                   />
@@ -188,8 +179,8 @@ function AddProductProperties() {
                     id="visible-select"
                     className="select-input"
                     options={[
-                      { label: 'Không', value: '0' },
-                      { label: 'Có', value: '1' },
+                      { label: 'Không', value: 0 },
+                      { label: 'Có', value: 1 },
                     ]}
                   />
                   <ErrorMessage name="visible" component="div" className="text-danger" />
