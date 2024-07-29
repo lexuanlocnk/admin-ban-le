@@ -16,13 +16,8 @@ function ProductProperties() {
   const [dataProductProperties, setDataProductProperties] = useState([])
   const [categories, setCategories] = useState([])
 
-<<<<<<< HEAD
   const [selectedCategory, setSelectedCategory] = useState('')
   const [choosenCategory, setChoosenCategory] = useState('1')
-=======
-  const [selectedCategory, setSelectedCategory] = useState(null)
-  const [selectedCate, setSelectedCate] = useState('1')
->>>>>>> 4bbc456a7f22732d83ffdd5e32f0dec79976e2d5
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -52,11 +47,7 @@ function ProductProperties() {
   const fetchProductProperties = async (dataSearch = '') => {
     try {
       const response = await axios.get(
-<<<<<<< HEAD
-        `http://192.168.245.190:8000/api/cat-option?catId=${choosenCategory}&data=${dataSearch}`,
-=======
         `http://192.168.245.190:8000/api/cat-option?data=${dataSearch}&catId=${selectedCate}`,
->>>>>>> 4bbc456a7f22732d83ffdd5e32f0dec79976e2d5
       )
       const data = response.data.listOption
 
@@ -111,11 +102,7 @@ function ProductProperties() {
     searchParams.set('cat_id', catId)
     setSearchParams(searchParams)
     setSelectedCategory(event.target.options[event.target.selectedIndex].label)
-<<<<<<< HEAD
     setChoosenCategory(catId)
-=======
-    setSelectedCate(catId)
->>>>>>> 4bbc456a7f22732d83ffdd5e32f0dec79976e2d5
   }
 
   return (
