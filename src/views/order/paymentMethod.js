@@ -34,39 +34,6 @@ import { CKEditor } from 'ckeditor4-react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 
-const paymentMethods = [
-  {
-    title: 'Trả tiền mặt khi nhận hàng',
-    name: 'cash',
-    config: '',
-  },
-  {
-    title: 'Thẻ ATM nội địa/ Internet banking',
-    name: 'bank_transfer',
-    config: '',
-  },
-  {
-    title: 'Trực tiếp tại cửa hàng, văn phòng công ty',
-    name: 'company',
-    config: '',
-  },
-  {
-    title: 'Thanh toán bằng thẻ tín dụng (Visa, MasterCard, JCB)',
-    name: 'visa_transfer',
-    config: '',
-  },
-  {
-    title: 'Trả góp (Nhà tài chính, thẻ tín dụng)',
-    name: 'installment',
-    config: '',
-  },
-  {
-    title: 'Thanh toán chuyển khoản rồi nhận hàng',
-    name: 'bank_transfer',
-    config: '',
-  },
-]
-
 function PaymentMethod() {
   const location = useLocation()
   const navigate = useNavigate()

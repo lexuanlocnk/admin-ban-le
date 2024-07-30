@@ -234,7 +234,7 @@ function ProductDetail() {
           actions: (
             <div>
               <button
-                onClick={() => handleUpdateClick(item.id)}
+                onClick={() => handleUpdateClick(item.product_id)}
                 className="button-action mr-2 bg-info"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
@@ -290,7 +290,7 @@ function ProductDetail() {
             >
               Thêm mới
             </CButton>
-            <Link to={`/product/category`}>
+            <Link to={`/product`}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
               </CButton>
@@ -405,7 +405,7 @@ function ProductDetail() {
                   <td>Tìm kiếm</td>
                   <td>
                     <strong>
-                      <em>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán, Chuỗi đường dẫn</em>
+                      <em>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</em>
                     </strong>
                     <input
                       type="text"
