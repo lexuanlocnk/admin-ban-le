@@ -201,7 +201,7 @@ function ProductDetail() {
       ? dataProductList?.data?.map((item) => ({
           title: (
             <>
-              <p className="blue-txt m-0">{item?.product_desc.title}</p>
+              <p className="blue-txt m-0">{item?.product_desc?.title}</p>
               <p className="orange-txt">{`#${item?.macn}`}</p>
             </>
           ),

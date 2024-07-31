@@ -32,6 +32,23 @@
   position: relative;
 }
 
+.tech-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tech-table th {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+  background-color: #f9f9f9;
+}
+
+.tech-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
 /* table {
   width: 100%;
   border-collapse: collapse;

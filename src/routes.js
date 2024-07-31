@@ -34,6 +34,10 @@ const ProductDetail = React.lazy(() => import('./views/product/detail/ProductDet
 const AddProductDetail = React.lazy(() => import('./views/product/detail/AddProductDetail'))
 const EditProductDetail = React.lazy(() => import('./views/product/detail/EditProductDetail'))
 
+// product hot
+const ProductHot = React.lazy(() => import('./views/product/productShow/productHot'))
+const ProductFlashSale = React.lazy(() => import('./views/product/productShow/productFlashSale'))
+
 //  ORDER
 const OrderList = React.lazy(() => import('./views/order/orderInfo/orderList'))
 const EditOrder = React.lazy(() => import('./views/order/orderInfo/EditOrder'))
@@ -132,8 +136,6 @@ const routes = [
 
   { path: '/product', name: 'ProductDetail', element: ProductDetail },
 
-  //product brand
-  { path: '/product/brand', name: 'ProductBrand', element: ProductBrand, exact: true },
   {
     path: '/product/add',
     name: 'AddProductDetail',
@@ -141,11 +143,29 @@ const routes = [
     exact: true,
   },
   {
-    path: '/product/category/edit',
+    path: '/product/edit',
     name: 'EditProductCategory',
-    element: EditProductCategory,
+    element: EditProductDetail,
     exact: true,
   },
+
+  // show product
+  {
+    path: '/product/product-hot',
+    name: 'ProductHot',
+    element: ProductHot,
+    exact: true,
+  },
+
+  {
+    path: '/product/product-flash-sale',
+    name: 'ProductFlashSale',
+    element: ProductFlashSale,
+    exact: true,
+  },
+
+  //product brand
+  { path: '/product/brand', name: 'ProductBrand', element: ProductBrand, exact: true },
 
   //product categories
   { path: '/product/category', name: 'ProductCategory', element: ProductCategory, exact: true },

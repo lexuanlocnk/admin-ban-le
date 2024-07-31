@@ -22,6 +22,7 @@ import { formatNumber, unformatNumber } from '../../../helper/utils'
 import useDebounce from '../../../helper/debounce'
 import axios from 'axios'
 import { meta } from 'eslint-plugin-prettier'
+import { toast } from 'react-toastify'
 
 function AddProductDetail() {
   const [descEditor, setDescEditor] = useState('')
@@ -51,8 +52,9 @@ function AddProductDetail() {
   const [choosenCategory, setChoosenCategory] = useState('1')
 
   const [selectedCategory, setSelectedCategory] = useState([])
+  const [selectedChildCate, setSelectedChildCate] = useState([])
 
-  const [selectedStatus, setSelectedStatus] = useState([])
+  const [selectedStatus, setSelectedStatus] = useState('')
 
   const [activeTab, setActiveTab] = useState('tab1')
 
@@ -78,18 +80,18 @@ function AddProductDetail() {
     price: 0,
     marketPrice: 0,
     brand: '',
-    status: '',
+    stock: 0,
     visible: 0,
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc .'),
+    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc .'),
     // parentId: Yup.string().required('Chọn danh mục cha là bắt buộc.'),
-    pageTitle: Yup.string().required('Tiêu đề trang là bắt buộc.'),
-    metaDesc: Yup.string().required('metaDescription là bắt buộc.'),
-    metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
-    visible: Yup.string().required('Hiển thị là bắt buộc.'),
+    // pageTitle: Yup.string().required('Tiêu đề trang là bắt buộc.'),
+    // metaDesc: Yup.string().required('metaDescription là bắt buộc.'),
+    // metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
+    // visible: Yup.string().required('Hiển thị là bắt buộc.'),
   })
 
   const fetchData = async () => {
@@ -101,7 +103,7 @@ function AddProductDetail() {
       ])
 
       if (categoriesResult.status === 'fulfilled') {
-        setCategories(categoriesResult.value.data)
+        setCategories(categoriesResult.value.data.data)
       } else {
         console.error('Fetch categories data error', categoriesResult.reason)
       }
@@ -183,13 +185,42 @@ function AddProductDetail() {
     setFile(fileUrls)
   }
 
-  const handleEditorChange = (data) => {
-    setEditorData(data)
-  }
-
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     console.log('>>>>check values', values)
     //api for submit
+
+    try {
+      const response = await axios.post('http://192.168.245.190:8000/api/product', {
+        title: values.title,
+        description: editorData,
+        short: descEditor,
+        op_search: selectedTechOptions,
+        cat_id: selectedCategory?.[0],
+        cat_list: [...choosenCategory, ...selectedCategory, ...selectedChildCate],
+        friendly_title: values.pageTitle,
+        friendly_url: values.friendlyUrl,
+        metakey: values.metaKeywords,
+        metadesc: values.metaDescription,
+        code_script: values.syndicationCode,
+        maso: values.productCodeNumber,
+        macn: values.productCode,
+        price: values.marketPrice,
+        price_old: values.price,
+        brand_id: values.brand,
+        status: selectedStatus,
+        stock: values.stock,
+        display: values.visible,
+        picture: selectedFile,
+        technology: tech,
+      })
+
+      if (response.data.status === true) {
+        toast.success('Thêm sản phẩm mới thành công!')
+      }
+    } catch (error) {
+      console.error('Post product data is error', error)
+      toast.error('Đã xảy ra lỗi. Xin vui lòng thử lại!')
+    }
   }
 
   return (
@@ -237,18 +268,23 @@ function AddProductDetail() {
 
                   <CCol md={12}>
                     <label htmlFor="visible-select">Bài viết mô tả sản phẩm</label>
-                    <CKedtiorCustom data={editorData} onChangeData={handleEditorChange} />
+                    <CKedtiorCustom
+                      data={editorData}
+                      onChangeData={(data) => setEditorData(data)}
+                    />
                   </CCol>
 
                   <CCol md={12}>
                     <div className="tabs">
                       <button
+                        type="button"
                         className={activeTab === 'tab1' ? 'active' : ''}
                         onClick={() => handleTabClick('tab1')}
                       >
                         Mô tả
                       </button>
                       <button
+                        type="button"
                         className={activeTab === 'tab2' ? 'active' : ''}
                         onClick={() => handleTabClick('tab2')}
                       >
@@ -256,6 +292,7 @@ function AddProductDetail() {
                       </button>
 
                       <button
+                        type="button"
                         className={activeTab === 'tab3' ? 'active' : ''}
                         onClick={() => handleTabClick('tab3')}
                       >
@@ -263,6 +300,7 @@ function AddProductDetail() {
                       </button>
 
                       <button
+                        type="button"
                         className={activeTab === 'tab4' ? 'active' : ''}
                         onClick={() => handleTabClick('tab4')}
                       >
@@ -296,7 +334,7 @@ function AddProductDetail() {
                       </div>
                       <div className={`tab-content ${activeTab === 'tab4' ? 'active' : ''}`}>
                         <CCol md={12}>
-                          <table>
+                          <table className="tech-table">
                             {dataProductProperties &&
                               dataProductProperties.length > 0 &&
                               dataProductProperties?.map((prop) => (
@@ -351,7 +389,7 @@ function AddProductDetail() {
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="url-input">Chuỗi đường dẫn</label>
+                    <label htmlFor="friendlyUrl-input">Chuỗi đường dẫn</label>
                     <Field
                       name="friendlyUrl"
                       type="text"
@@ -359,7 +397,7 @@ function AddProductDetail() {
                       id="url-input"
                       text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
                     />
-                    <ErrorMessage name="email" component="div" className="text-danger" />
+                    <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
@@ -376,74 +414,83 @@ function AddProductDetail() {
                   </CCol>
                   <br />
                   <CCol md={12}>
-                    <label htmlFor="metaKeyword-input">Meta keywords</label>
+                    <label htmlFor="metaKeywords-input">Meta keywords</label>
                     <Field
-                      name="metaKeyword"
+                      name="metaKeywords"
                       type="text"
                       as={CFormInput}
-                      id="metaKeyword-input"
+                      id="metaKeywords-input"
                       text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                     />
-                    <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
+                    <ErrorMessage name="metaKeywords" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="metaDesc-input">Meta description</label>
+                    <label htmlFor="metaDescription-input">Meta description</label>
                     <Field
-                      name="metaDesc"
+                      name="metaDescription"
                       type="text"
                       as={CFormInput}
-                      id="metaDesc-input"
+                      id="metaDescription-input"
                       text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                     />
-                    <ErrorMessage name="metaDesc" component="div" className="text-danger" />
+                    <ErrorMessage name="metaDescription" component="div" className="text-danger" />
                   </CCol>
                   <br />
                 </CCol>
 
                 <CCol md={3}>
                   <CCol md={12}>
-                    <label htmlFor="color-input">Mã Syndication</label>
-                    <Field name="color" type="text" as={CFormInput} id="color-input" />
-                    <ErrorMessage name="color" component="div" className="text-danger" />
+                    <label htmlFor="syndicationCode-input">Mã Syndication</label>
+                    <Field
+                      name="syndicationCode"
+                      type="text"
+                      as={CFormInput}
+                      id="syndicationCode-input"
+                    />
+                    <ErrorMessage name="syndicationCode" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="color-input">Mã số</label>
+                    <label htmlFor="productCodeNumber-input">Mã số</label>
                     <Field
-                      name="color"
+                      name="productCodeNumber"
                       type="text"
                       as={CFormInput}
-                      id="color-input"
+                      id="productCodeNumber-input"
                       text="Nếu không nhập mã số hoặc mã số đã tồn tại. Hệ thống sẽ tự tạo mã số theo chuẩn."
                     />
-                    <ErrorMessage name="color" component="div" className="text-danger" />
+                    <ErrorMessage
+                      name="productCodeNumber"
+                      component="div"
+                      className="text-danger"
+                    />
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="color-input">Mã kho</label>
+                    <label htmlFor="productCode-input">Mã kho</label>
                     <Field
-                      name="color"
+                      name="productCode"
                       type="text"
                       as={CFormInput}
-                      id="color-input"
+                      id="productCode-input"
                       text="Nếu không nhập mã kho hoặc mã kho đã tồn tại. Hệ thống sẽ tự tạo mã kho theo chuẩn."
                     />
-                    <ErrorMessage name="color" component="div" className="text-danger" />
+                    <ErrorMessage name="productCode" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <Field name="minPrice">
+                    <Field name="marketPrice">
                       {({ field }) => (
                         <CFormInput
                           {...field}
                           type="text"
-                          id="minPrice-input"
-                          // value={formatNumber(field.value)}
+                          id="marketPrice-input"
+                          value={formatNumber(field.value)}
                           label="Giá thị trường"
                           onChange={(e) => {
                             const rawValue = unformatNumber(e.target.value)
@@ -452,18 +499,18 @@ function AddProductDetail() {
                         />
                       )}
                     </Field>
-                    <ErrorMessage name="minPrice" component="div" className="text-danger" />
+                    <ErrorMessage name="marketPrice" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <Field name="maxPrice">
+                    <Field name="price">
                       {({ field }) => (
                         <CFormInput
                           {...field}
                           type="text"
-                          id="maxPrice-input"
-                          // value={formatNumber(field.value)}
+                          id="price-input"
+                          value={formatNumber(field.value)}
                           label="Giá bán"
                           onChange={(e) => {
                             const rawValue = unformatNumber(e.target.value)
@@ -472,7 +519,7 @@ function AddProductDetail() {
                         />
                       )}
                     </Field>
-                    <ErrorMessage name="maxPrice" component="div" className="text-danger" />
+                    <ErrorMessage name="price" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
@@ -494,39 +541,74 @@ function AddProductDetail() {
                           : []
                       }
                     />
-                    <ErrorMessage name="categories" component="div" className="text-danger" />
+                    {/* <ErrorMessage name="categories" component="div" className="text-danger" /> */}
                   </CCol>
                   <br />
 
-                  <div className="border p-3 bg-white">
+                  <div
+                    className="border p-3 bg-white"
+                    style={{
+                      maxHeight: 400,
+                      minHeight: 250,
+                      overflowY: 'scroll',
+                    }}
+                  >
                     <React.Fragment>
                       <strong>Danh mục sản phẩm</strong>
                       <div className="mt-2">
                         {categories &&
                           categories.length > 0 &&
                           categories
-                            ?.filter((cate) => cate.cat_id == choosenCategory)[0]
-                            .sub_categories?.map((subCate) => (
-                              <CFormCheck
-                                key={subCate?.cat_id}
-                                label={subCate?.category_desc?.cat_name}
-                                aria-label="Default select example"
-                                defaultChecked={subCate?.category_desc.cat_id}
-                                id={`flexCheckDefault_${subCate?.category_desc.cat_id}`}
-                                value={subCate?.category_desc.cat_id}
-                                checked={selectedCategory.includes(subCate?.category_desc.cat_id)}
-                                onChange={(e) => {
-                                  const cateId = subCate?.category_desc.cat_id
-                                  const isChecked = e.target.checked
-                                  if (isChecked) {
-                                    setSelectedCategory([...selectedCategory, cateId])
-                                  } else {
-                                    setSelectedCategory(
-                                      selectedCategory.filter((id) => id !== cateId),
-                                    )
-                                  }
-                                }}
-                              />
+                            ?.filter((cate) => cate.cat_id == choosenCategory)?.[0]
+                            ?.parenty.map((subCate) => (
+                              <>
+                                <CFormCheck
+                                  key={subCate?.cat_id}
+                                  label={subCate?.category_desc?.cat_name}
+                                  aria-label="Default select example"
+                                  defaultChecked={subCate?.cat_id}
+                                  id={`flexCheckDefault_${subCate?.cat_id}`}
+                                  value={subCate?.cat_id}
+                                  checked={selectedCategory.includes(subCate?.cat_id)}
+                                  onChange={(e) => {
+                                    const cateId = subCate?.cat_id
+                                    const isChecked = e.target.checked
+                                    if (isChecked) {
+                                      setSelectedCategory([...selectedCategory, cateId])
+                                    } else {
+                                      setSelectedCategory(
+                                        selectedCategory.filter((id) => id !== cateId),
+                                      )
+                                    }
+                                  }}
+                                />
+
+                                {subCate &&
+                                  subCate?.parentx.length > 0 &&
+                                  subCate?.parentx.map((childCate) => (
+                                    <CFormCheck
+                                      className="ms-3"
+                                      key={childCate?.cat_id}
+                                      label={childCate?.category_desc?.cat_name}
+                                      aria-label="Default select example"
+                                      defaultChecked={childCate?.cat_id}
+                                      id={`flexCheckDefault_${childCate?.cat_id}`}
+                                      value={childCate?.cat_id}
+                                      checked={selectedChildCate.includes(childCate?.cat_id)}
+                                      onChange={(e) => {
+                                        const cateId = childCate?.cat_id
+                                        const isChecked = e.target.checked
+                                        if (isChecked) {
+                                          setSelectedChildCate([...selectedChildCate, cateId])
+                                        } else {
+                                          setSelectedChildCate(
+                                            selectedChildCate.filter((id) => id !== cateId),
+                                          )
+                                        }
+                                      }}
+                                    />
+                                  ))}
+                              </>
                             ))}
                       </div>
                     </React.Fragment>
@@ -534,11 +616,11 @@ function AddProductDetail() {
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="categories-select">Thương hiệu</label>
+                    <label htmlFor="brand-select">Thương hiệu</label>
                     <Field
-                      name="categories"
+                      name="brand"
                       as={CFormSelect}
-                      id="categories-select"
+                      id="brand-select"
                       className="select-input"
                       options={
                         brands && brands.length > 0
@@ -549,11 +631,11 @@ function AddProductDetail() {
                           : []
                       }
                     />
-                    <ErrorMessage name="categories" component="div" className="text-danger" />
+                    <ErrorMessage name="brand" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
-                  <div className="border p-3 bg-white">
+                  {/* <div className="border p-3 bg-white">
                     <React.Fragment>
                       <strong>Trạng thái</strong>
                       <div className="mt-2">
@@ -582,14 +664,37 @@ function AddProductDetail() {
                       </div>
                     </React.Fragment>
                   </div>
+                  <br /> */}
+
+                  <CCol md={12}>
+                    <label htmlFor="status-select">Trạng thái</label>
+                    <Field
+                      name="status"
+                      as={CFormSelect}
+                      id="status-select"
+                      className="select-input"
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value)}
+                      options={[
+                        { label: 'Chọn trạng thái', value: '' },
+                        ...(status && status.length > 0
+                          ? status.map((item) => ({
+                              label: item.name,
+                              value: item.status_id,
+                            }))
+                          : []),
+                      ]}
+                    />
+                    {/* <ErrorMessage name="status" component="div" className="text-danger" /> */}
+                  </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="visible-select">Tình trạng</label>
+                    <label htmlFor="stock-select">Tình trạng</label>
                     <Field
-                      name="visible"
+                      name="stock"
                       as={CFormSelect}
-                      id="visible-select"
+                      id="stock-select"
                       className="select-input"
                       options={[
                         { label: 'Còn hàng', value: 0 },
@@ -597,7 +702,7 @@ function AddProductDetail() {
                         { label: 'Hàng đang về', value: 2 },
                       ]}
                     />
-                    <ErrorMessage name="visible" component="div" className="text-danger" />
+                    <ErrorMessage name="stock" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
@@ -618,11 +723,11 @@ function AddProductDetail() {
                         <div>
                           <CImage
                             src={`http://192.168.245.190:8000/uploads/` + selectedFile}
-                            width={370}
+                            width={200}
                           />
                         </div>
                       ) : (
-                        file.map((item, index) => <CImage key={index} src={item} width={370} />)
+                        file.map((item, index) => <CImage key={index} src={item} width={200} />)
                       )}
                     </div>
                   </CCol>
