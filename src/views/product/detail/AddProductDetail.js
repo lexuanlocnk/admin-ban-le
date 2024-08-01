@@ -53,7 +53,6 @@ function AddProductDetail() {
 
   const [selectedCategory, setSelectedCategory] = useState([])
   const [selectedChildCate, setSelectedChildCate] = useState([])
-
   const [selectedStatus, setSelectedStatus] = useState('')
 
   const [activeTab, setActiveTab] = useState('tab1')
@@ -67,6 +66,10 @@ function AddProductDetail() {
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
+
+  // upload list of images and show images
+  const [selectedFileDetail, setSelectedFileDetail] = useState([])
+  const [fileDetail, setFileDetail] = useState([])
 
   const initialValues = {
     title: '',
@@ -158,7 +161,7 @@ function AddProductDetail() {
     }))
   }
 
-  //set img category
+  //set img detail
   function onFileChange(e) {
     const files = e.target.files
     const selectedFiles = []
@@ -183,6 +186,39 @@ function AddProductDetail() {
 
     // Set file URLs for immediate preview
     setFile(fileUrls)
+  }
+
+  // set list of images
+  const onFileChangeDetail = (e) => {
+    const selectedFiles = []
+    const targetFiles = e.target.files
+    const targetFilesObject = [...targetFiles]
+    let files = e.target.files
+    let newSelectedFileDetail = []
+
+    function readNextFile(index) {
+      if (index < files.length) {
+        let fileReader = new FileReader()
+        fileReader.onload = (event) => {
+          let newFileDetail = event.target.result
+          newSelectedFileDetail.push(newFileDetail)
+          readNextFile(index + 1)
+        }
+        fileReader.readAsDataURL(files[index])
+      } else {
+        setSelectedFileDetail((prevFiles) => [...prevFiles, ...newSelectedFileDetail])
+      }
+    }
+    readNextFile(0)
+    targetFilesObject.map((item) => {
+      return selectedFiles.push(URL.createObjectURL(item))
+    })
+    setFileDetail((prevFiles) => [...prevFiles, ...selectedFiles])
+  }
+
+  const removeImage = (index) => {
+    setSelectedFileDetail((prevFiles) => prevFiles.filter((_, i) => i !== index))
+    setFileDetail((prevFiles) => prevFiles.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async (values) => {
@@ -212,6 +248,7 @@ function AddProductDetail() {
         display: values.visible,
         picture: selectedFile,
         technology: tech,
+        picture_detail: selectedFileDetail,
       })
 
       if (response.data.status === true) {
@@ -383,6 +420,38 @@ function AddProductDetail() {
                       </div>
                     </div>
                   </CCol>
+                  <br />
+                  <CCol>
+                    <CFormInput
+                      type="file"
+                      id="formFile"
+                      label="Hình ảnh chi tiết sản phẩm"
+                      multiple
+                      onChange={(e) => onFileChangeDetail(e)}
+                      size="sm"
+                    />
+                    <br />
+                    <div className="d-flex gap-4 w-100 flex-wrap">
+                      {fileDetail.length === 0 ? (
+                        <div></div>
+                      ) : (
+                        fileDetail.map((item, index) => (
+                          <div key={index} className="position-relative">
+                            <CImage className="border" src={item} fluid width={130} />
+                            <CButton
+                              color="danger"
+                              size="sm"
+                              onClick={() => removeImage(index)}
+                              style={{ position: 'absolute', top: 0, right: 0 }}
+                            >
+                              X
+                            </CButton>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <br />
+                  </CCol>
 
                   <br />
                   <h6>Search Engine Optimization</h6>
@@ -541,7 +610,6 @@ function AddProductDetail() {
                           : []
                       }
                     />
-                    {/* <ErrorMessage name="categories" component="div" className="text-danger" /> */}
                   </CCol>
                   <br />
 
@@ -711,7 +779,7 @@ function AddProductDetail() {
                       name="picture"
                       type="file"
                       id="formFile"
-                      label="Hình ảnh"
+                      label="Hình ảnh đại diện"
                       onChange={(e) => onFileChange(e)}
                       size="sm"
                     />
@@ -722,6 +790,7 @@ function AddProductDetail() {
                       {file.length == 0 ? (
                         <div>
                           <CImage
+                            className="border"
                             src={`http://192.168.245.190:8000/uploads/` + selectedFile}
                             width={200}
                           />

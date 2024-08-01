@@ -1,5 +1,6 @@
 import {
   CButton,
+  CCloseButton,
   CCol,
   CContainer,
   CFormCheck,
@@ -47,8 +48,6 @@ function EditProductDetail() {
 
   // technology
   const [tech, setTech] = useState({})
-  // const [tempTech, setTempTech] = useState({})
-  // const debouncedTempTech = useDebounce(tempTech, 300)
 
   // selected technology option
   const [selectedTechOptions, setSelectedTechOptions] = useState([])
@@ -71,6 +70,13 @@ function EditProductDetail() {
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
+
+  // upload list of images and show images
+  const [selectedFileDetail, setSelectedFileDetail] = useState([])
+  const [fileDetail, setFileDetail] = useState([])
+
+  // const showIamge detail
+  const [imagesDetail, setImagesDetail] = useState([])
 
   const initialValues = {
     title: '',
@@ -137,6 +143,13 @@ function EditProductDetail() {
       const response = await axios.get(`http://192.168.245.190:8000/api/product/${id}/edit`)
       const data = response.data.product
 
+      // const productPictures = data.product_picture
+
+      // const fileUrls = productPictures.map(
+      //   (pic) => `http://192.168.245.190:8000/uploads/${pic.picture}`,
+      // )
+      // const base64Images = productPictures.map((pic) => `data:image/png;base64,${pic.picture}`)
+
       if (data && response.data.status === true) {
         setValues({
           title: data?.product_desc?.title,
@@ -163,15 +176,14 @@ function EditProductDetail() {
         setSelectedTechOptions(data?.op_search)
         setTech(data?.tech)
         setSelectedFile(data?.picture)
+        // setFileDetail(fileUrls)
+        // setSelectedFileDetail(base64Images)
+        setImagesDetail(data?.product_picture)
       }
     } catch (error) {
       console.error('Fetch data product is error', error)
     }
   }
-
-  // useEffect(() => {
-  //   setTech(debouncedTempTech)
-  // }, [debouncedTempTech])
 
   const fetchProductProperties = async () => {
     try {
@@ -226,6 +238,39 @@ function EditProductDetail() {
     setFile(fileUrls)
   }
 
+  // set list of images
+  const onFileChangeDetail = (e) => {
+    const selectedFiles = []
+    const targetFiles = e.target.files
+    const targetFilesObject = [...targetFiles]
+    let files = e.target.files
+    let newSelectedFileDetail = []
+
+    function readNextFile(index) {
+      if (index < files.length) {
+        let fileReader = new FileReader()
+        fileReader.onload = (event) => {
+          let newFileDetail = event.target.result
+          newSelectedFileDetail.push(newFileDetail)
+          readNextFile(index + 1)
+        }
+        fileReader.readAsDataURL(files[index])
+      } else {
+        setSelectedFileDetail((prevFiles) => [...prevFiles, ...newSelectedFileDetail])
+      }
+    }
+    readNextFile(0)
+    targetFilesObject.map((item) => {
+      return selectedFiles.push(URL.createObjectURL(item))
+    })
+    setFileDetail((prevFiles) => [...prevFiles, ...selectedFiles])
+  }
+
+  const removeImage = (index) => {
+    setSelectedFileDetail((prevFiles) => prevFiles.filter((_, i) => i !== index))
+    setFileDetail((prevFiles) => prevFiles.filter((_, i) => i !== index))
+  }
+
   const handleSubmit = async (values) => {
     console.log('>>>>check values', values)
     //api for submit
@@ -253,6 +298,7 @@ function EditProductDetail() {
         display: values.visible,
         picture: selectedFile,
         technology: tech,
+        picture_detail: selectedFileDetail,
       })
 
       if (response.data.status === true) {
@@ -431,8 +477,52 @@ function EditProductDetail() {
                         </div>
                       </div>
                     </CCol>
-
                     <br />
+
+                    <CCol>
+                      <CFormInput
+                        type="file"
+                        id="formFile"
+                        label="Hình ảnh chi tiết sản phẩm"
+                        multiple
+                        onChange={(e) => onFileChangeDetail(e)}
+                        size="sm"
+                      />
+                      <br />
+                      <div className="d-flex gap-4 w-100 flex-wrap">
+                        {fileDetail.length === 0 ? (
+                          <div className="d-flex flex-wrap gap-3">
+                            {imagesDetail &&
+                              imagesDetail.length > 0 &&
+                              imagesDetail.map((image) => (
+                                <CImage
+                                  key={image.id}
+                                  src={`http://192.168.245.190:8000/uploads/${image.picture}`}
+                                  fluid
+                                  width={130}
+                                />
+                              ))}
+                          </div>
+                        ) : (
+                          fileDetail.map((item, index) => (
+                            <div key={index} className="position-relative">
+                              <CImage className="border" src={item} fluid width={130} />
+                              <CButton
+                                color="danger"
+                                size="sm"
+                                onClick={() => removeImage(index)}
+                                style={{ position: 'absolute', top: 0, right: 0 }}
+                              >
+                                X
+                              </CButton>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      <br />
+                    </CCol>
+                    <br />
+
                     <h6>Search Engine Optimization</h6>
                     <br />
 
@@ -765,7 +855,7 @@ function EditProductDetail() {
                         name="picture"
                         type="file"
                         id="formFile"
-                        label="Hình ảnh"
+                        label="Hình ảnh đại diện"
                         onChange={(e) => onFileChange(e)}
                         size="sm"
                       />
@@ -776,6 +866,7 @@ function EditProductDetail() {
                         {file.length == 0 ? (
                           <div>
                             <CImage
+                              className="border"
                               src={`http://192.168.245.190:8000/uploads/` + selectedFile}
                               width={200}
                             />

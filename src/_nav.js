@@ -105,6 +105,11 @@ const _nav = [
       },
       {
         component: CNavItem,
+        name: 'Sản phẩm flash sale',
+        to: '/product/product-flash-sale',
+      },
+      {
+        component: CNavItem,
         name: 'Banner sản phẩm',
         to: '/product/banner',
       },
