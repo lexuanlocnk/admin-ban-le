@@ -24,9 +24,11 @@ import 'react-datepicker/dist/react-datepicker.css'
 import ReactPaginate from 'react-paginate'
 import moment from 'moment'
 import { formatNumber, unformatNumber } from '../../../helper/utils'
+import { toast } from 'react-toastify'
 
 function ProductFlashSale() {
   const [dataProductList, setDataProductList] = useState([])
+  const [flashSaleData, setFlashSaleData] = useState([])
 
   // category
   const [categories, setCategories] = useState([])
@@ -40,9 +42,17 @@ function ProductFlashSale() {
   const [status, setStatus] = useState([])
   const [selectedStatus, setSelectedStatus] = useState('')
 
+  //checkbox for set deal
+  const [isAllDealCheckbox, setIsAllDealCheckbox] = useState(false)
+  const [selectedDealCheckbox, setSelectedDealCheckbox] = useState([])
+
+  //checkbox for unset deal
+  const [isAllUnDealCheckbox, setIsAllUnDealCheckbox] = useState(false)
+  const [selectedUnDealCheckbox, setSelectedUnDealCheckbox] = useState([])
+
   //price
   const [price, setPrice] = useState('')
-  const [originalPrice, setOriginalPrice] = useState('')
+  const [originalPrice, setOriginalPrice] = useState(0)
 
   // check all and check
 
@@ -131,6 +141,23 @@ function ProductFlashSale() {
     fetchProductData()
   }, [pageNumber, dataSearch, selectedBrand, selectedCategory, selectedStatus])
 
+  const fetchFlashSaleData = async () => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/product-flash-sale`)
+      console.log('>>>chek price', response.data.list.discount_price)
+      if (response.data.status === true) {
+        setFlashSaleData(response.data.list)
+        setOriginalPrice(response.data.list.discount_price)
+      }
+    } catch (error) {
+      console.error('Fetch flash sale data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchFlashSaleData()
+  }, [])
+
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
   }
@@ -151,18 +178,41 @@ function ProductFlashSale() {
     setPageNumber(newPage)
   }
 
-  // sorting columns
-  const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
+  const handleSubmitDeal = async () => {
+    try {
+      const response = await axios.post(`http://192.168.245.190:8000/api/product-flash-sale`, {
+        data: selectedDealCheckbox,
+      })
 
-  const handleSort = (columnKey) => {
-    let direction = 'ascending'
-    if (sortConfig.key === columnKey && sortConfig.direction === 'ascending') {
-      direction = 'descending'
+      if (response.data.status === true) {
+        toast.success('Set deal các mục thành công!')
+      }
+    } catch (error) {
+      console.error('Post set deal data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
-    setSortConfig({ key: columnKey, direction })
   }
 
   const columns = [
+    {
+      key: 'checklist',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllDealCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllDealCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataProductList?.data.map((item) => item.product_id) || []
+              setSelectedDealCheckbox(allIds)
+            } else {
+              setSelectedDealCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'image', label: 'Hình ảnh' },
     { key: 'price', label: 'Giá bán' },
@@ -171,9 +221,30 @@ function ProductFlashSale() {
     { key: 'info', label: 'Thông tin ' },
   ]
 
+  console.log('>>> check deal: ', selectedDealCheckbox)
+
   const items =
     dataProductList?.data && dataProductList?.data.length > 0
       ? dataProductList?.data?.map((item) => ({
+          checklist: (
+            <CFormCheck
+              key={item?.product_id}
+              aria-label="Default select example"
+              defaultChecked={item?.product_id}
+              id={`flexCheckDefault_${item?.product_id}`}
+              value={item?.product_id}
+              checked={selectedDealCheckbox.includes(item?.product_id)}
+              onChange={(e) => {
+                const dealId = item?.product_id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedDealCheckbox([...selectedDealCheckbox, dealId])
+                } else {
+                  setSelectedDealCheckbox(selectedDealCheckbox.filter((id) => id !== dealId))
+                }
+              }}
+            />
+          ),
           title: (
             <>
               <p className="blue-txt m-0">{item?.product_desc?.title}</p>
@@ -210,24 +281,6 @@ function ProductFlashSale() {
         }))
       : []
 
-  const sortedItems = React.useMemo(() => {
-    let sortableItems = [...items]
-    if (sortConfig.key) {
-      sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1
-        }
-        return 0
-      })
-    }
-    return sortableItems
-  }, [items, sortConfig])
-
-  console.log('>>>. chek category: ', categories)
-
   return (
     <CContainer>
       <CRow className="my-3">
@@ -260,23 +313,20 @@ function ProductFlashSale() {
               <CTableRow>
                 <CTableHeaderCell scope="col">
                   <CFormCheck
-                    // key={option?.op_id}
-                    // label={option?.title}
-                    aria-label="Default select example"
-                    // defaultChecked={option?.op_id}
-                    // id={`flexCheckDefault_${option?.op_id}`}
-                    value={option?.op_id}
-                    checked={selectedTechOptions.includes(option?.op_id)}
+                    aria-label="Select all"
+                    checked={isAllUnDealCheckbox}
                     onChange={(e) => {
-                      const optionId = option?.op_id
                       const isChecked = e.target.checked
+                      setIsAllUnDealCheckbox(isChecked)
                       if (isChecked) {
-                        setSelectedTechOptions([...selectedTechOptions, optionId])
+                        const allIds = flashSaleData?.map((item) => item.id) || []
+                        setSelectedUnDealCheckbox(allIds)
                       } else {
-                        setSelectedTechOptions(selectedTechOptions.filter((id) => id !== optionId))
+                        setSelectedUnDealCheckbox([])
                       }
                     }}
                   />
+                  #
                 </CTableHeaderCell>
                 <CTableHeaderCell scope="col">Tiêu đề</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Hình ảnh</CTableHeaderCell>
@@ -287,62 +337,86 @@ function ProductFlashSale() {
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              <CTableRow>
-                <CTableHeaderCell scope="row">1</CTableHeaderCell>
-                <CTableDataCell
-                  style={{
-                    width: '35%',
-                  }}
-                >
-                  {
-                    'Laptop HP Envy x360 14-FC0094TU 5- 125U/16GB /512GB SSD/ 14" 2.8K/Pen/Win 11H/ A19C4PA'
-                  }
-                </CTableDataCell>
-                <CTableDataCell>
-                  <CImage
-                    className="d-flex justify-content-center align-items-center"
-                    width={50}
-                    src={`http://192.168.245.190:8000/uploads/product/66aaec54563d9.png`}
-                    alt={`image_1`}
-                  />
-                </CTableDataCell>
-                <CTableDataCell>
-                  <DatePicker
-                    className="custom-datepicker"
-                    showIcon
-                    dateFormat={'dd-MM-yyyy'}
-                    selected={startDate}
-                    onChange={handleStartDateChange}
-                  />
-                  {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                </CTableDataCell>
-                <CTableDataCell>
-                  <DatePicker
-                    className="custom-datepicker"
-                    showIcon
-                    dateFormat={'dd-MM-yyyy'}
-                    selected={endDate}
-                    onChange={handleEndDateChange}
-                  />
-                  {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
-                </CTableDataCell>
-                <CTableDataCell>
-                  <CFormInput
-                    style={{
-                      width: '100px',
-                      fontSize: 13,
-                    }}
-                    type="text"
-                    id="price-input"
-                    value={formatNumber(price)}
-                    onChange={(e) => {
-                      const rawValue = unformatNumber(e.target.value)
-                      setPrice(rawValue)
-                    }}
-                  />
-                </CTableDataCell>
-                <CTableDataCell style={{ fontSize: 13 }}>30.520.000 đ</CTableDataCell>
-              </CTableRow>
+              {flashSaleData &&
+                flashSaleData.length > 0 &&
+                flashSaleData.map((item) => (
+                  <CTableRow key={item.id}>
+                    <CTableHeaderCell scope="row">
+                      <CFormCheck
+                        key={item?.id}
+                        aria-label="Default select example"
+                        defaultChecked={item?.id}
+                        id={`flexCheckDefault_${item?.id}`}
+                        value={item?.id}
+                        checked={selectedUnDealCheckbox.includes(item?.id)}
+                        onChange={(e) => {
+                          const undealId = item?.id
+                          const isChecked = e.target.checked
+                          if (isChecked) {
+                            setSelectedUnDealCheckbox([...selectedUnDealCheckbox, undealId])
+                          } else {
+                            setSelectedUnDealCheckbox(
+                              selectedUnDealCheckbox.filter((id) => id !== undealId),
+                            )
+                          }
+                        }}
+                      />
+                    </CTableHeaderCell>
+                    <CTableDataCell
+                      style={{
+                        width: '35%',
+                      }}
+                    >
+                      {item?.product?.product_desc?.title}
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      <CImage
+                        className="d-flex justify-content-center align-items-center"
+                        width={50}
+                        src={`http://192.168.245.190:8000/uploads/${item?.product.picture}`}
+                        alt={`image_1`}
+                      />
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      <DatePicker
+                        className="custom-datepicker"
+                        showIcon
+                        dateFormat={'dd-MM-yyyy'}
+                        selected={moment.unix(item?.start_time).format('DD-MM-YYYY')}
+                        onChange={handleStartDateChange}
+                      />
+                      {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      <DatePicker
+                        className="custom-datepicker"
+                        showIcon
+                        dateFormat={'dd-MM-yyyy'}
+                        selected={moment.unix(item?.end_time).format('DD-MM-YYYY')}
+                        onChange={handleEndDateChange}
+                      />
+                      {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      <CFormInput
+                        style={{
+                          width: '100px',
+                          fontSize: 13,
+                        }}
+                        type="text"
+                        id="price-input"
+                        value={formatNumber(item?.discount_price)}
+                        onChange={(e) => {
+                          const rawValue = unformatNumber(e.target.value)
+                          setOriginalPrice(rawValue)
+                        }}
+                      />
+                    </CTableDataCell>
+                    <CTableDataCell style={{ fontSize: 13 }}>
+                      {(item?.price).toLocaleString('vi-VN')}đ
+                    </CTableDataCell>
+                  </CTableRow>
+                ))}
             </CTableBody>
           </CTable>
         </CCol>
@@ -487,36 +561,11 @@ function ProductFlashSale() {
           </table>
         </CCol>
 
-        <CCol>
-          <CTable hover className="mt-3 border">
-            <thead>
-              <tr>
-                {columns.map((column) => (
-                  <CTableHeaderCell
-                    key={column.key}
-                    onClick={() => handleSort(column.key)}
-                    className="prevent-select"
-                  >
-                    {column.label}
-                    {sortConfig.key === column.key
-                      ? sortConfig.direction === 'ascending'
-                        ? ' ▼'
-                        : ' ▲'
-                      : ''}
-                  </CTableHeaderCell>
-                ))}
-              </tr>
-            </thead>
-            <CTableBody>
-              {sortedItems.map((item, index) => (
-                <CTableRow key={index}>
-                  {columns.map((column) => (
-                    <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
-                  ))}
-                </CTableRow>
-              ))}
-            </CTableBody>
-          </CTable>
+        <CCol className="mt-3">
+          <CButton onClick={handleSubmitDeal} color="primary" size="sm">
+            Set deal các mục đã chọn
+          </CButton>
+          <CTable hover className="mt-2 border" columns={columns} items={items} />
 
           <div className="d-flex justify-content-end">
             <ReactPaginate

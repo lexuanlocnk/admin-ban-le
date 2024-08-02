@@ -4,7 +4,6 @@ import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
-import ReactPaginate from 'react-paginate'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 
