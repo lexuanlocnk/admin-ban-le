@@ -16,7 +16,7 @@ import {
 } from '@coreui/react'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -25,10 +25,15 @@ import ReactPaginate from 'react-paginate'
 import moment from 'moment'
 import { formatNumber, unformatNumber } from '../../../helper/utils'
 import { toast } from 'react-toastify'
+import './css/productFlashSale.css'
 
 function ProductFlashSale() {
   const [dataProductList, setDataProductList] = useState([])
   const [flashSaleData, setFlashSaleData] = useState([])
+
+  // is set deal
+  const [isEditDeal, setIsEditDeal] = useState(null)
+  const [editedPrice, setEditedPrice] = useState('')
 
   // category
   const [categories, setCategories] = useState([])
@@ -49,12 +54,6 @@ function ProductFlashSale() {
   //checkbox for unset deal
   const [isAllUnDealCheckbox, setIsAllUnDealCheckbox] = useState(false)
   const [selectedUnDealCheckbox, setSelectedUnDealCheckbox] = useState([])
-
-  //price
-  const [price, setPrice] = useState('')
-  const [originalPrice, setOriginalPrice] = useState(0)
-
-  // check all and check
 
   // date picker
   const [startDate, setStartDate] = useState('')
@@ -144,10 +143,8 @@ function ProductFlashSale() {
   const fetchFlashSaleData = async () => {
     try {
       const response = await axios.get(`http://192.168.245.190:8000/api/product-flash-sale`)
-      console.log('>>>chek price', response.data.list.discount_price)
       if (response.data.status === true) {
         setFlashSaleData(response.data.list)
-        setOriginalPrice(response.data.list.discount_price)
       }
     } catch (error) {
       console.error('Fetch flash sale data is error', error)
@@ -182,6 +179,7 @@ function ProductFlashSale() {
     try {
       const response = await axios.post(`http://192.168.245.190:8000/api/product-flash-sale`, {
         data: selectedDealCheckbox,
+        status_id: 5,
       })
 
       if (response.data.status === true) {
@@ -191,6 +189,36 @@ function ProductFlashSale() {
       console.error('Post set deal data is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
+  }
+
+  const handleEditDeal = async (id) => {
+    try {
+      const response = await axios.put(`http://192.168.245.190:8000/api/product-flash-sale/${id}`, {
+        discount_price: editedPrice,
+        start_time: startDate,
+        end_time: endDate,
+      })
+
+      setIsEditDeal(null)
+    } catch (error) {
+      console.error('Update product flash-sale is error', error)
+    }
+  }
+
+  const handleSubmitUndeal = async () => {
+    console.log('>>> check undeal', selectedUnDealCheckbox)
+    // try {
+    //   const response = await axios.post(`http://192.168.245.190:8000/api/product-flash-sale`, {
+    //     data: selectedUnDealCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Set undeal các mục thành công!')
+    //   }
+    // } catch (error) {
+    //   console.error('Post set undeal data is error', error)
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
   }
 
   const columns = [
@@ -220,8 +248,6 @@ function ProductFlashSale() {
     { key: 'status', label: 'Tình trạng' },
     { key: 'info', label: 'Thông tin ' },
   ]
-
-  console.log('>>> check deal: ', selectedDealCheckbox)
 
   const items =
     dataProductList?.data && dataProductList?.data.length > 0
@@ -274,12 +300,14 @@ function ProductFlashSale() {
           info: (
             <>
               <p>{item.views} lượt xem</p>
-              <p>{moment.unix(item.date_post).format('DD-MM-YYYY, hh:mm:ss A')}</p>
+              <p>{moment.unix(item?.date_post).format('DD-MM-YYYY, hh:mm:ss A')}</p>
             </>
           ),
           _cellProps: { id: { scope: 'row' } },
         }))
       : []
+
+  console.log('>>>checkkdc', Number(flashSaleData?.[0]?.start_time))
 
   return (
     <CContainer>
@@ -300,15 +328,12 @@ function ProductFlashSale() {
 
       <CRow>
         <CCol className="d-flex gap-3 mb-2" md={12}>
-          <CButton size="sm" color="primary">
-            Cập nhật
-          </CButton>
-          <CButton size="sm" color="primary">
+          <CButton onClick={handleSubmitUndeal} size="sm" color="primary">
             Bỏ set deal các mục đã chọn
           </CButton>
         </CCol>
         <CCol>
-          <CTable>
+          <CTable className="border">
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell scope="col">
@@ -319,14 +344,13 @@ function ProductFlashSale() {
                       const isChecked = e.target.checked
                       setIsAllUnDealCheckbox(isChecked)
                       if (isChecked) {
-                        const allIds = flashSaleData?.map((item) => item.id) || []
+                        const allIds = flashSaleData?.map((item) => item.product_id) || []
                         setSelectedUnDealCheckbox(allIds)
                       } else {
                         setSelectedUnDealCheckbox([])
                       }
                     }}
                   />
-                  #
                 </CTableHeaderCell>
                 <CTableHeaderCell scope="col">Tiêu đề</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Hình ảnh</CTableHeaderCell>
@@ -334,6 +358,7 @@ function ProductFlashSale() {
                 <CTableHeaderCell scope="col">Thời gian kết thúc</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Giá gốc</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Giá bán</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Tác vụ</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
@@ -345,12 +370,12 @@ function ProductFlashSale() {
                       <CFormCheck
                         key={item?.id}
                         aria-label="Default select example"
-                        defaultChecked={item?.id}
+                        defaultChecked={item?.product_id}
                         id={`flexCheckDefault_${item?.id}`}
-                        value={item?.id}
-                        checked={selectedUnDealCheckbox.includes(item?.id)}
+                        value={item?.product_id}
+                        checked={selectedUnDealCheckbox.includes(item?.product_id)}
                         onChange={(e) => {
-                          const undealId = item?.id
+                          const undealId = item?.product_id
                           const isChecked = e.target.checked
                           if (isChecked) {
                             setSelectedUnDealCheckbox([...selectedUnDealCheckbox, undealId])
@@ -364,10 +389,12 @@ function ProductFlashSale() {
                     </CTableHeaderCell>
                     <CTableDataCell
                       style={{
-                        width: '35%',
+                        width: '30%',
                       }}
                     >
-                      {item?.product?.product_desc?.title}
+                      <Link to={`/product/edit?id=${item?.product?.product_id}`}>
+                        {item?.product?.product_desc?.title}
+                      </Link>
                     </CTableDataCell>
                     <CTableDataCell>
                       <CImage
@@ -378,42 +405,111 @@ function ProductFlashSale() {
                       />
                     </CTableDataCell>
                     <CTableDataCell>
-                      <DatePicker
-                        className="custom-datepicker"
-                        showIcon
-                        dateFormat={'dd-MM-yyyy'}
-                        selected={moment.unix(item?.start_time).format('DD-MM-YYYY')}
-                        onChange={handleStartDateChange}
-                      />
-                      {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                      {isEditDeal === item?.id ? (
+                        <React.Fragment>
+                          <DatePicker
+                            className="custom-datepicker"
+                            showIcon
+                            dateFormat={'dd-MM-yyyy'}
+                            selected={startDate}
+                            onChange={handleStartDateChange}
+                          />
+                          {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                        </React.Fragment>
+                      ) : (
+                        <DatePicker
+                          className="custom-datepicker"
+                          showIcon
+                          dateFormat={'dd-MM-yyyy'}
+                          selected={
+                            item?.start_time !== null && !isNaN(item?.start_time)
+                              ? moment.unix(Number(item.start_time)).format('DD-MM-YYYY')
+                              : ''
+                          }
+                        />
+                      )}
                     </CTableDataCell>
                     <CTableDataCell>
-                      <DatePicker
-                        className="custom-datepicker"
-                        showIcon
-                        dateFormat={'dd-MM-yyyy'}
-                        selected={moment.unix(item?.end_time).format('DD-MM-YYYY')}
-                        onChange={handleEndDateChange}
-                      />
-                      {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                      {isEditDeal === item?.id ? (
+                        <React.Fragment>
+                          <DatePicker
+                            className="custom-datepicker"
+                            showIcon
+                            dateFormat={'dd-MM-yyyy'}
+                            selected={endDate}
+                            onChange={handleEndDateChange}
+                          />
+                          {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                        </React.Fragment>
+                      ) : (
+                        <DatePicker
+                          className="custom-datepicker"
+                          showIcon
+                          dateFormat={'dd-MM-yyyy'}
+                          selected={
+                            item?.end_time !== null && !isNaN(item?.end_time)
+                              ? moment.unix(Number(item.end_time)).format('DD-MM-YYYY')
+                              : ''
+                          }
+                        />
+                      )}
                     </CTableDataCell>
                     <CTableDataCell>
-                      <CFormInput
-                        style={{
-                          width: '100px',
-                          fontSize: 13,
-                        }}
-                        type="text"
-                        id="price-input"
-                        value={formatNumber(item?.discount_price)}
-                        onChange={(e) => {
-                          const rawValue = unformatNumber(e.target.value)
-                          setOriginalPrice(rawValue)
-                        }}
-                      />
+                      {isEditDeal === item?.id ? (
+                        <CFormInput
+                          style={{
+                            width: '100px',
+                            fontSize: 13,
+                          }}
+                          type="text"
+                          id="price-input"
+                          value={formatNumber(editedPrice)}
+                          onChange={(e) => {
+                            const rawValue = unformatNumber(e.target.value)
+                            setEditedPrice(rawValue)
+                          }}
+                        />
+                      ) : (
+                        <CFormInput
+                          style={{
+                            width: '100px',
+                            fontSize: 13,
+                          }}
+                          type="text"
+                          id="price-input"
+                          value={formatNumber(item?.discount_price)}
+                        />
+                      )}
                     </CTableDataCell>
-                    <CTableDataCell style={{ fontSize: 13 }}>
+                    <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
                       {(item?.price).toLocaleString('vi-VN')}đ
+                    </CTableDataCell>
+
+                    <CTableDataCell>
+                      <div>
+                        {isEditDeal === item?.id ? (
+                          <CButton
+                            size="sm"
+                            color={'success'}
+                            onClick={() => handleEditDeal(item?.product_id)}
+                            className="button-action mr-2 bg-info"
+                          >
+                            Cập nhật
+                          </CButton>
+                        ) : (
+                          <CButton
+                            size="sm"
+                            color={'info'}
+                            onClick={() => {
+                              setIsEditDeal(item?.id)
+                              setEditedPrice(item.discount_price)
+                            }}
+                            className="button-action mr-2 bg-info"
+                          >
+                            Chỉnh sửa
+                          </CButton>
+                        )}
+                      </div>
                     </CTableDataCell>
                   </CTableRow>
                 ))}
@@ -452,22 +548,6 @@ function ProductFlashSale() {
                         columnGap: 10,
                       }}
                     >
-                      {/* <CFormSelect
-                        className="component-size w-25"
-                        aria-label="Chọn yêu cầu lọc"
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        options={[
-                          { label: 'Chọn danh mục', value: '' },
-                          ...(categories && categories.length > 0
-                            ? categories.map((cate) => ({
-                                label: cate.category_desc.cat_name,
-                                value: cate.cat_id,
-                              }))
-                            : []),
-                        ]}
-                      /> */}
-
                       <CFormSelect
                         className="component-size w-25"
                         aria-label="Chọn yêu cầu lọc"
@@ -485,7 +565,7 @@ function ProductFlashSale() {
                                 category.parenty.map((subCategory) => (
                                   <React.Fragment key={subCategory.cat_id}>
                                     <option value={subCategory.cat_id}>
-                                      {'|--'}
+                                      &nbsp;&nbsp;&nbsp;{'|--'}
                                       {subCategory?.category_desc?.cat_name} ({subCategory.cat_id})
                                     </option>
 
@@ -495,7 +575,7 @@ function ProductFlashSale() {
                                           key={subSubCategory.cat_id}
                                           value={subSubCategory.cat_id}
                                         >
-                                          {'|++++'}
+                                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'|--'}
                                           {subSubCategory?.category_desc?.cat_name}(
                                           {subSubCategory.cat_id})
                                         </option>

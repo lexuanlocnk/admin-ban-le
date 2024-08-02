@@ -17,17 +17,30 @@ import { ErrorMessage, Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 
 import '../detail/css/addProductDetail.css'
-import { data } from 'autoprefixer'
 import { formatNumber, unformatNumber } from '../../../helper/utils'
 import useDebounce from '../../../helper/debounce'
 import axios from 'axios'
-import { meta } from 'eslint-plugin-prettier'
 import { toast } from 'react-toastify'
 
 function AddProductDetail() {
   const [descEditor, setDescEditor] = useState('')
   const [promotionEditor, setPromotionEditor] = useState('')
   const [videoEditor, setVideoEditor] = useState('')
+
+  // date picker
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [errors, setErrors] = useState({ startDate: '', endDate: '' })
+
+  // validate for date start - date end
+  const validateDates = (start, end) => {
+    const newErrors = { startDate: '', endDate: '' }
+    if (start && end && start > end) {
+      newErrors.startDate = 'Ngày bắt đầu không được sau ngày kết thúc'
+      newErrors.endDate = 'Ngày kết thúc không được trước ngày bắt đầu'
+    }
+    setErrors(newErrors)
+  }
 
   // category
   const [categories, setCategories] = useState([])
@@ -425,7 +438,7 @@ function AddProductDetail() {
                     <CFormInput
                       type="file"
                       id="formFile"
-                      label="Hình ảnh chi tiết sản phẩm"
+                      label="Hình ảnh chi tiết sản phẩm (*Có thể chọn nhiều hình cùng lúc)"
                       multiple
                       onChange={(e) => onFileChangeDetail(e)}
                       size="sm"
@@ -756,6 +769,9 @@ function AddProductDetail() {
                     {/* <ErrorMessage name="status" component="div" className="text-danger" /> */}
                   </CCol>
                   <br />
+
+                  {/* if flashsale */}
+                  {selectedStatus === 5}
 
                   <CCol md={12}>
                     <label htmlFor="stock-select">Tình trạng</label>

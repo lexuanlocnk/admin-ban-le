@@ -110,8 +110,18 @@ const _nav = [
       },
       {
         component: CNavItem,
+        name: 'Sản phẩm hot',
+        to: '/product/product-hot',
+      },
+      {
+        component: CNavItem,
         name: 'Banner sản phẩm',
         to: '/product/banner',
+      },
+      {
+        component: CNavItem,
+        name: 'Thêm mới sản phẩm',
+        to: '/product/add',
       },
       {
         component: CNavItem,

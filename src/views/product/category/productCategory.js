@@ -24,7 +24,7 @@ function ProductCategory() {
       const response = await axios.get(
         `http://192.168.245.190:8000/api/category?data=${dataSearch}`,
       )
-      const data = response.data
+      const data = response.data.data
 
       if (data) {
         setCategories(data)
@@ -146,8 +146,9 @@ function ProductCategory() {
                         </div>
                       </td>
                     </tr>
-                    {cate.sub_categories &&
-                      cate.sub_categories.map((subCate) => (
+
+                    {cate.parenty &&
+                      cate.parenty.map((subCate) => (
                         <React.Fragment key={subCate.cat_id}>
                           <tr>
                             <td scope="row">
@@ -188,6 +189,51 @@ function ProductCategory() {
                               </div>
                             </td>
                           </tr>
+
+                          {subCate.parentx &&
+                            subCate.parentx.map((childCate) => (
+                              <React.Fragment key={childCate.cat_id}>
+                                <tr>
+                                  <td scope="row">
+                                    <CFormCheck id="flexCheckDefault" />
+                                  </td>
+                                  <td>
+                                    <img
+                                      src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
+                                      alt="Subcategory"
+                                      style={{ marginLeft: 16 }}
+                                    />
+                                    {childCate?.category_desc?.cat_name}
+                                  </td>
+                                  <td scope="row">
+                                    <CImage
+                                      src={`http://192.168.245.190:8000/uploads/${childCate.background !== null && childCate.background !== '' ? childCate.background : 'no-image.jpg'}`}
+                                      width={50}
+                                    />
+                                  </td>
+                                  <td scope="row">{childCate.show_home === 1 ? 'Có' : 'Không'}</td>
+                                  <td scope="row">
+                                    <div>
+                                      <button
+                                        onClick={() => handleUpdateClick(childCate.cat_id)}
+                                        className="button-action mr-2 bg-info"
+                                      >
+                                        <CIcon icon={cilColorBorder} className="text-white" />
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setVisible(true)
+                                          setDeletedId(childCate.cat_id)
+                                        }}
+                                        className="button-action bg-danger"
+                                      >
+                                        <CIcon icon={cilTrash} className="text-white" />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </React.Fragment>
+                            ))}
                         </React.Fragment>
                       ))}
                   </React.Fragment>

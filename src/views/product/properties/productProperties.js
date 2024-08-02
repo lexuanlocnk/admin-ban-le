@@ -33,7 +33,7 @@ function ProductProperties() {
   const fetchCategoriesData = async () => {
     try {
       const response = await axios.get('http://192.168.245.190:8000/api/category')
-      setCategories(response.data)
+      setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
     }
@@ -160,23 +160,40 @@ function ProductProperties() {
                   <td>Nghành</td>
                   <td>
                     <CFormSelect
-                      className="component-size w-50"
+                      className="component-size w-25"
                       aria-label="Chọn yêu cầu lọc"
+                      value={selectedCategory}
                       onChange={handleChange}
                     >
+                      <option>Chọn danh mục</option>
                       {categories &&
-                        categories.map((item) => (
-                          <optgroup key={item.category_desc.cat_id}>
-                            <option value={item.category_desc.cat_id}>
-                              {item.category_desc.cat_name} ({item.category_desc.cat_id})
+                        categories?.map((category) => (
+                          <React.Fragment key={category.cat_id}>
+                            <option value={category.cat_id}>
+                              {category?.category_desc?.cat_name} ({category.cat_id})
                             </option>
-                            {item.sub_categories &&
-                              item.sub_categories.map((subItem) => (
-                                <option key={subItem.cat_id} value={subItem.cat_id}>
-                                  + {subItem.category_desc.cat_name} ({subItem?.cat_id})
-                                </option>
+                            {category.parenty &&
+                              category.parenty.map((subCategory) => (
+                                <React.Fragment key={subCategory.cat_id}>
+                                  <option value={subCategory.cat_id}>
+                                    &nbsp;&nbsp;&nbsp;{'|--'}
+                                    {subCategory?.category_desc?.cat_name} ({subCategory.cat_id})
+                                  </option>
+
+                                  {subCategory.parentx &&
+                                    subCategory.parentx.map((subSubCategory) => (
+                                      <option
+                                        key={subSubCategory.cat_id}
+                                        value={subSubCategory.cat_id}
+                                      >
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'|--'}
+                                        {subSubCategory?.category_desc?.cat_name}(
+                                        {subSubCategory.cat_id})
+                                      </option>
+                                    ))}
+                                </React.Fragment>
                               ))}
-                          </optgroup>
+                          </React.Fragment>
                         ))}
                     </CFormSelect>
                   </td>
