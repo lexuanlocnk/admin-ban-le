@@ -44,6 +44,8 @@ function ProductFlashSale() {
   const [price, setPrice] = useState('')
   const [originalPrice, setOriginalPrice] = useState('')
 
+  // check all and check
+
   // date picker
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -262,7 +264,7 @@ function ProductFlashSale() {
                     // label={option?.title}
                     aria-label="Default select example"
                     // defaultChecked={option?.op_id}
-                    id={`flexCheckDefault_${option?.op_id}`}
+                    // id={`flexCheckDefault_${option?.op_id}`}
                     value={option?.op_id}
                     checked={selectedTechOptions.includes(option?.op_id)}
                     onChange={(e) => {
