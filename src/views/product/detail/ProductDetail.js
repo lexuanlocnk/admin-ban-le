@@ -160,7 +160,7 @@ function ProductDetail() {
   }
 
   const handleSearch = (keyword) => {
-    fetchDataCategories(keyword)
+    fetchProductData(keyword)
   }
 
   // pagination data

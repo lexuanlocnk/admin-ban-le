@@ -27,9 +27,13 @@ import { formatNumber, unformatNumber } from '../../../helper/utils'
 import { toast } from 'react-toastify'
 
 import './css/productFlashSale.css'
+import Loading from '../../../components/loading/Loading'
 function ProductHot() {
   const [dataProductList, setDataProductList] = useState([])
   const [productHotData, setProductHotData] = useState([])
+
+  //loading
+  const [isLoading, setIsLoading] = useState(false)
 
   // is set deal
   const [isEditDeal, setIsEditDeal] = useState(null)
@@ -125,6 +129,7 @@ function ProductHot() {
 
   const fetchProductData = async () => {
     try {
+      setIsLoading(true)
       const response = await axios.get(
         `http://192.168.245.190:8000/api/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
       )
@@ -133,6 +138,8 @@ function ProductHot() {
       }
     } catch (error) {
       console.error('Fetch product data list is error', error.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -177,14 +184,18 @@ function ProductHot() {
   }
 
   const handleSubmitDeal = async () => {
+    console.log('>>> cehck deal:', selectedDealCheckbox)
+
     try {
-      const response = await axios.post(`http://192.168.245.190:8000/api/product-flash-sale`, {
+      const response = await axios.post(`http://192.168.245.190:8000/api/product-hot`, {
         data: selectedDealCheckbox,
-        status_id: 5,
+        status_id: 4,
       })
 
       if (response.data.status === true) {
         toast.success('Set deal các mục thành công!')
+        fetchProductHot()
+        setSelectedDealCheckbox([])
       }
     } catch (error) {
       console.error('Post set deal data is error', error)
@@ -192,18 +203,22 @@ function ProductHot() {
     }
   }
 
-  const handleEditDeal = async (id) => {
-    try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/product-flash-sale/${id}`, {
-        discount_price: editedPrice,
-        start_time: startDate,
-        end_time: endDate,
-      })
+  const handleSubmitUndeal = async () => {
+    console.log('>>> check undeal', selectedUnDealCheckbox)
+    // try {
+    //   const response = await axios.post(`http://192.168.245.190:8000/api/delete-all-hot `, {
+    //     data: selectedUnDealCheckbox,
+    //   })
 
-      setIsEditDeal(null)
-    } catch (error) {
-      console.error('Update product flash-sale is error', error)
-    }
+    //   if (response.data.status === true) {
+    //     toast.success('Set undeal các mục thành công!')
+    //     fetchProductHot()
+    //     setSelectedUnDealCheckbox([])
+    //   }
+    // } catch (error) {
+    //   console.error('Post set undeal data is error', error)
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
   }
 
   const columns = [
@@ -309,91 +324,103 @@ function ProductHot() {
         </CCol>
       </CRow>
 
-      <CRow>
-        <CCol className="d-flex gap-3 mb-2" md={12}>
-          <CButton size="sm" color="primary">
-            Bỏ set deal các mục đã chọn
-          </CButton>
-        </CCol>
-        <CCol>
-          <CTable className="border">
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell scope="col">
-                  <CFormCheck
-                    aria-label="Select all"
-                    checked={isAllUnDealCheckbox}
-                    onChange={(e) => {
-                      const isChecked = e.target.checked
-                      setIsAllUnDealCheckbox(isChecked)
-                      if (isChecked) {
-                        const allIds = flashSaleData?.map((item) => item.id) || []
-                        setSelectedUnDealCheckbox(allIds)
-                      } else {
-                        setSelectedUnDealCheckbox([])
-                      }
-                    }}
-                  />
-                </CTableHeaderCell>
-                <CTableHeaderCell scope="col">Tiêu đề</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Hình ảnh</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Lượt xem</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Giá bán</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>
-              {productHotData &&
-                productHotData.length > 0 &&
-                productHotData.map((item) => (
-                  <CTableRow key={item.id}>
-                    <CTableHeaderCell scope="row">
-                      <CFormCheck
-                        key={item?.id}
-                        aria-label="Default select example"
-                        defaultChecked={item?.id}
-                        id={`flexCheckDefault_${item?.id}`}
-                        value={item?.id}
-                        checked={selectedUnDealCheckbox.includes(item?.id)}
-                        onChange={(e) => {
-                          const undealId = item?.id
-                          const isChecked = e.target.checked
-                          if (isChecked) {
-                            setSelectedUnDealCheckbox([...selectedUnDealCheckbox, undealId])
-                          } else {
-                            setSelectedUnDealCheckbox(
-                              selectedUnDealCheckbox.filter((id) => id !== undealId),
-                            )
-                          }
-                        }}
-                      />
-                    </CTableHeaderCell>
-
-                    <CTableDataCell
-                      style={{
-                        width: '30%',
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <CRow>
+          <CCol className="d-flex gap-3 mb-2" md={12}>
+            <CButton onClick={handleSubmitUndeal} size="sm" color="primary">
+              Bỏ set deal các mục đã chọn
+            </CButton>
+          </CCol>
+          <CCol>
+            <CTable className="border">
+              <CTableHead>
+                <CTableRow>
+                  <CTableHeaderCell scope="col">
+                    <CFormCheck
+                      aria-label="Select all"
+                      checked={isAllUnDealCheckbox}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked
+                        setIsAllUnDealCheckbox(isChecked)
+                        if (isChecked) {
+                          const allIds = productHotData?.map((item) => item.product_id) || []
+                          setSelectedUnDealCheckbox(allIds)
+                        } else {
+                          setSelectedUnDealCheckbox([])
+                        }
                       }}
-                    >
-                      {item?.product_desc?.title}
-                    </CTableDataCell>
+                    />
+                  </CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Tiêu đề</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Hình ảnh</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Lượt xem</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Giá bán</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Giá thị trường</CTableHeaderCell>
+                </CTableRow>
+              </CTableHead>
+              <CTableBody>
+                {productHotData &&
+                  productHotData.length > 0 &&
+                  productHotData.map((item) => (
+                    <CTableRow key={item.id}>
+                      <CTableHeaderCell scope="row">
+                        <CFormCheck
+                          key={item?.product_id}
+                          aria-label="Default select example"
+                          defaultChecked={item?.product_id}
+                          id={`flexCheckDefault_${item?.product_id}`}
+                          value={item?.product_id}
+                          checked={selectedUnDealCheckbox.includes(item?.product_id)}
+                          onChange={(e) => {
+                            const undealId = item?.product_id
+                            const isChecked = e.target.checked
+                            if (isChecked) {
+                              setSelectedUnDealCheckbox([...selectedUnDealCheckbox, undealId])
+                            } else {
+                              setSelectedUnDealCheckbox(
+                                selectedUnDealCheckbox.filter((id) => id !== undealId),
+                              )
+                            }
+                          }}
+                        />
+                      </CTableHeaderCell>
 
-                    <CTableDataCell>
-                      <CImage
-                        className="d-flex justify-content-center align-items-center"
-                        width={50}
-                        src={`http://192.168.245.190:8000/uploads/${item?.picture}`}
-                        alt={`image_1`}
-                      />
-                    </CTableDataCell>
+                      <CTableDataCell
+                        style={{
+                          width: '40%',
+                        }}
+                      >
+                        <Link to={`/product/edit?id=${item?.product_id}`}>
+                          {item?.product_desc?.title}
+                        </Link>
+                      </CTableDataCell>
 
-                    <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
-                      {(item?.price).toLocaleString('vi-VN')}đ
-                    </CTableDataCell>
-                  </CTableRow>
-                ))}
-            </CTableBody>
-          </CTable>
-        </CCol>
-      </CRow>
+                      <CTableDataCell>
+                        <CImage
+                          className="d-flex justify-content-center align-items-center"
+                          width={50}
+                          src={`http://192.168.245.190:8000/uploads/${item?.picture}`}
+                          alt={`image_1`}
+                        />
+                      </CTableDataCell>
+
+                      <CTableDataCell>{item?.views} lượt xem</CTableDataCell>
+
+                      <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
+                        {(item?.price_old).toLocaleString('vi-VN')}đ
+                      </CTableDataCell>
+                      <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
+                        {(item?.price).toLocaleString('vi-VN')}đ
+                      </CTableDataCell>
+                    </CTableRow>
+                  ))}
+              </CTableBody>
+            </CTable>
+          </CCol>
+        </CRow>
+      )}
 
       <CRow>
         <CCol md={12}>

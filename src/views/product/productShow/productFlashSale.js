@@ -184,6 +184,8 @@ function ProductFlashSale() {
 
       if (response.data.status === true) {
         toast.success('Set deal các mục thành công!')
+        fetchFlashSaleData()
+        setSelectedDealCheckbox([])
       }
     } catch (error) {
       console.error('Post set deal data is error', error)
@@ -199,26 +201,35 @@ function ProductFlashSale() {
         end_time: endDate,
       })
 
-      setIsEditDeal(null)
+      if (response.data.status === true) {
+        toast.success('Cập nhật thông tin flashsale thành công.')
+        fetchFlashSaleData()
+        setIsEditDeal(null)
+        setStartDate('')
+        setEndDate('')
+      }
     } catch (error) {
       console.error('Update product flash-sale is error', error)
+      toast.error('Đã xảy ra lỗi khi cập nhật. Vui lòng thử lại!')
     }
   }
 
   const handleSubmitUndeal = async () => {
     console.log('>>> check undeal', selectedUnDealCheckbox)
-    // try {
-    //   const response = await axios.post(`http://192.168.245.190:8000/api/product-flash-sale`, {
-    //     data: selectedUnDealCheckbox,
-    //   })
+    try {
+      const response = await axios.post(`http://192.168.245.190:8000/api/delete-all-flash-sale`, {
+        data: selectedUnDealCheckbox,
+      })
 
-    //   if (response.data.status === true) {
-    //     toast.success('Set undeal các mục thành công!')
-    //   }
-    // } catch (error) {
-    //   console.error('Post set undeal data is error', error)
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+      if (response.data.status === true) {
+        toast.success('Set undeal các mục thành công!')
+        fetchFlashSaleData()
+        setSelectedUnDealCheckbox([])
+      }
+    } catch (error) {
+      console.error('Post set undeal data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   const columns = [
@@ -306,8 +317,6 @@ function ProductFlashSale() {
           _cellProps: { id: { scope: 'row' } },
         }))
       : []
-
-  console.log('>>>checkkdc', Number(flashSaleData?.[0]?.start_time))
 
   return (
     <CContainer>
@@ -423,7 +432,9 @@ function ProductFlashSale() {
                           dateFormat={'dd-MM-yyyy'}
                           selected={
                             item?.start_time !== null && !isNaN(item?.start_time)
-                              ? moment.unix(Number(item.start_time)).format('DD-MM-YYYY')
+                              ? moment.unix(Number(item?.start_time)).isValid()
+                                ? moment.unix(Number(item?.start_time)).toDate()
+                                : ''
                               : ''
                           }
                         />
@@ -448,7 +459,9 @@ function ProductFlashSale() {
                           dateFormat={'dd-MM-yyyy'}
                           selected={
                             item?.end_time !== null && !isNaN(item?.end_time)
-                              ? moment.unix(Number(item.end_time)).format('DD-MM-YYYY')
+                              ? moment.unix(Number(item?.end_time)).isValid()
+                                ? moment.unix(Number(item?.end_time)).toDate()
+                                : ''
                               : ''
                           }
                         />
