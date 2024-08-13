@@ -20,6 +20,8 @@ import { cilLockLocked, cilUser } from '@coreui/icons'
 import Logo from '../../../assets/images/logo/logo CN.png'
 
 import { axiosClient } from '../../../axiosConfig'
+import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const Login = () => {
   const [username, setUserName] = useState('')
@@ -34,21 +36,26 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post('/login-admin', { username, password })
-      if (res.data.status == true) {
+      const res = await axios.post('http://192.168.245.190:8000/api/admin-login', {
+        username,
+        password,
+      })
+
+      if (res.data.status === true) {
         localStorage.setItem('adminCN', res.data.token)
-        // window.location.reload()
+        localStorage.setItem('username', res.data.username)
         navigate('/')
       } else {
         if (res.data.mess == 'username') {
-          alert('Sai tên đăng nhập')
+          toast.error('Sai tên đăng nhập!. Vui lòng kiểm tra lại!')
         } else if (res.data.mess == 'pass') {
-          alert('Sai mật khẩu')
+          toast.error('Sai mật khẩu. Vui lòng kiểm tra lại!')
         }
-        alert('đăng nhập thất bại !!!')
+        console.error('Đăng nhập thất bại!!!')
       }
     } catch (error) {
-      console.error('login error', error)
+      console.error('Post login data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng kiểm tra lại thông tin!')
     }
   }
 
@@ -60,7 +67,7 @@ const Login = () => {
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
-                  <CForm>
+                  <CForm onKeyDown={handleKeyDown}>
                     <div style={{ width: '100%', marginBottom: 10 }}>
                       <CImage align="center" rounded src={Logo} width={200} />
                     </div>
@@ -68,7 +75,12 @@ const Login = () => {
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Tên đăng nhập" autoComplete="username" />
+                      <CFormInput
+                        placeholder="Tài khoản"
+                        autoComplete="username"
+                        value={username}
+                        onChange={(e) => setUserName(e.target.value)}
+                      />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -78,11 +90,13 @@ const Login = () => {
                         type="password"
                         placeholder="Mật khẩu"
                         autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassWord(e.target.value)}
                       />
                     </CInputGroup>
                     <CRow className="justify-content-md-center">
                       <CCol xs={12}>
-                        <CButton color="primary" className="px-4 w-100">
+                        <CButton onClick={handleLogin} color="primary" className="px-4 w-100">
                           Đăng nhập
                         </CButton>
                       </CCol>

@@ -2,6 +2,7 @@ import React from 'react'
 import {
   CAvatar,
   CBadge,
+  CButton,
   CDropdown,
   CDropdownDivider,
   CDropdownHeader,
@@ -21,10 +22,19 @@ import {
   cilUser,
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
+import '../css/headerLogout.css'
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
+import { useNavigate } from 'react-router-dom'
 
 const AppHeaderDropdown = () => {
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.clear()
+    navigate('/login')
+  }
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
@@ -53,10 +63,10 @@ const AppHeaderDropdown = () => {
           Thông tin tài khoản
         </CDropdownItem>
         <CDropdownDivider />
-        <CDropdownItem href="#">
+        <CButton className="logout-btn w-100" onClick={handleLogout}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Đăng xuất
-        </CDropdownItem>
+        </CButton>
       </CDropdownMenu>
     </CDropdown>
   )

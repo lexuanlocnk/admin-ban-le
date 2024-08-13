@@ -292,7 +292,7 @@ function ProductFlashSale() {
             <CImage
               className="d-flex justify-content-center align-items-center"
               width={50}
-              src={`http://192.168.245.190:8000/uploads/${item.picture}`}
+              src={`http://192.168.245.190:8000/uploads/${item?.picture}`}
               alt={`image_${item?.macn}`}
             />
           ),
@@ -409,7 +409,7 @@ function ProductFlashSale() {
                       <CImage
                         className="d-flex justify-content-center align-items-center"
                         width={50}
-                        src={`http://192.168.245.190:8000/uploads/${item?.product.picture}`}
+                        src={`http://192.168.245.190:8000/uploads/${item?.product?.picture}`}
                         alt={`image_1`}
                       />
                     </CTableDataCell>
