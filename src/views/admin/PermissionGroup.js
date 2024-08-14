@@ -1,6 +1,6 @@
-import { CButton, CCol, CContainer, CFormInput, CFormSelect, CRow } from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CFormInput, CFormSelect, CRow } from '@coreui/react'
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
@@ -13,21 +13,28 @@ function PermissionGroup() {
   const navigate = useNavigate()
 
   const params = new URLSearchParams(location.search)
-  const id = params.get('id')
   const sub = params.get('sub')
 
   const [cateParentData, setCateParentData] = useState([])
   const [cateChildData, setCateChildData] = useState([])
 
+  const [parentCateChoosen, setParentCateChoosen] = useState(1)
+  const [selectedLabel, setSelectedLabel] = useState('')
+
+  const [permissionsData, setPermissionsData] = useState([])
+
   const inputRef = useRef(null)
 
+  const [isCollapse, setIsCollapse] = useState(false)
+
   const initialValues = {
-    title: '',
+    permissions: 'manage',
     parentCate: '',
-    childCate: '',
+    childCate: 'Thông tin admin',
   }
+
   const validationSchema = Yup.object({
-    title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
     // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
     // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
     // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
@@ -60,7 +67,9 @@ function PermissionGroup() {
 
   const fetchCateChild = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/cate-child-per`)
+      const response = await axios.get(
+        `http://192.168.245.190:8000/api/select-cate-child-per/${parentCateChoosen}`,
+      )
       if (response.data.status === true) {
         setCateChildData(response.data.data)
       }
@@ -71,43 +80,37 @@ function PermissionGroup() {
 
   useEffect(() => {
     fetchCateChild()
-  }, [])
+  }, [parentCateChoosen])
 
-  // const fetchDataById = async (setValues) => {
-  //   try {
-  //     const response = await axios.get(`http://192.168.245.190:8000/api/brand/${id}/edit`)
-  //     const data = response.data.brand
-  //     if (data) {
-  //       setValues({
-  //         title: data.brand_desc.title,
-  //         description: data.brand_desc.description,
-  //         friendlyUrl: data.brand_desc.friendly_url,
-  //         pageTitle: data.brand_desc.friendly_title,
-  //         metaKeyword: data.brand_desc.metakey,
-  //         metaDesc: data.brand_desc.metadesc,
-  //         visible: data.display,
-  //       })
-  //       setSelectedFile(data.picture)
-  //     } else {
-  //       console.error('No data found for the given ID.')
-  //     }
-  //   } catch (error) {
-  //     console.error('Fetch data id product brand is error', error.message)
-  //   }
-  // }
+  const fetchPermissionsData = async () => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/permission`)
+      if (response.data.status === true) {
+        setPermissionsData(response.data.permissions)
+      }
+    } catch (error) {
+      console.error('Fetch permissions data is error', error.message)
+    }
+  }
+
+  useEffect(() => {
+    fetchPermissionsData()
+  }, [])
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/brand', {
-        title: values.title,
+      const response = await axios.post('http://192.168.245.190:8000/api/permission', {
+        permissionName: values.permissions,
+        parentCate: selectedLabel,
+        childCate: values.childCate,
       })
 
       if (response.data.status === true) {
-        toast.success('Thêm mới thương hiệu thành công!')
-        fetchDataBrands()
+        toast.success('Thêm mới quyền hạn thành công!')
+        fetchPermissionsData()
       }
     } catch (error) {
-      console.error('Post data product brand is error', error)
+      console.error('Post data permission is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
@@ -115,12 +118,27 @@ function PermissionGroup() {
   const handleAddNewClick = () => {
     navigate('/admin/permissions-group?sub=add')
   }
+  const handleToggleCollapse = () => {
+    setIsCollapse((prevState) => !prevState)
+  }
+
+  const handleParentCateChange = (event, setFieldValue) => {
+    const selectedValue = event.target.value
+    setParentCateChoosen(selectedValue)
+    setFieldValue('parentCate', selectedValue)
+
+    const selectedCate = cateParentData.find((cate) => cate.id == selectedValue)
+
+    if (selectedCate) {
+      setSelectedLabel(selectedCate.name)
+    }
+  }
 
   return (
     <CContainer>
       <CRow className="mb-3">
         <CCol md={{ span: 6 }}>
-          <h3>Bảng phân quyền theo tab quản trị</h3>
+          <h3>Thêm quyền hạn cho tab quản trị</h3>
         </CCol>
         <CCol md={{ span: 6 }}>
           <div className="d-flex justify-content-end">
@@ -144,7 +162,7 @@ function PermissionGroup() {
 
       <CRow>
         <CCol md={4}>
-          <h6>{'Thêm tab quản trị và quyền'}</h6>
+          <h6>{'Thêm mới quyền hạn'}</h6>
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
@@ -154,33 +172,34 @@ function PermissionGroup() {
               return (
                 <Form>
                   <CCol md={12}>
-                    <label htmlFor="categories-select">Chọn tab quản trị cha</label>
+                    <label htmlFor="parentCate-select">Chọn tab quản trị</label>
                     <Field
                       className="component-size "
-                      name="categories"
+                      name="parentCate"
                       as={CFormSelect}
-                      id="categories-select"
+                      id="parentCate-select"
                       text="Lựa chọn danh mục sẽ thêm tab quản trị trong Admin."
+                      onChange={(event) => handleParentCateChange(event, setFieldValue)}
                       options={
                         cateParentData &&
                         cateParentData.length > 0 &&
                         cateParentData.map((cate) => ({
                           label: cate?.name,
-                          value: cate?.name,
+                          value: cate?.id,
                         }))
                       }
                     />
-                    <ErrorMessage name="categories" component="div" className="text-danger" />
+                    <ErrorMessage name="parentCate" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="categories-select">Chọn tab quản trị con</label>
+                    <label htmlFor="childCate-select">Chọn danh mục quản trị</label>
                     <Field
                       className="component-size "
-                      name="categories"
+                      name="childCate"
                       as={CFormSelect}
-                      id="categories-select"
+                      id="childCate-select"
                       text="Lựa chọn danh mục sẽ thêm tab quản trị trong Admin."
                       options={
                         cateChildData &&
@@ -191,7 +210,7 @@ function PermissionGroup() {
                         }))
                       }
                     />
-                    <ErrorMessage name="categories" component="div" className="text-danger" />
+                    <ErrorMessage name="childCate" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
@@ -226,6 +245,60 @@ function PermissionGroup() {
             }}
           </Formik>
         </CCol>
+      </CRow>
+
+      <CRow className="mt-4">
+        {permissionsData || Object.keys(permissionsData).length !== 0 ? (
+          Object.entries(permissionsData)?.map((tabs) => {
+            return (
+              <>
+                <table className="filter-table mt-3">
+                  <thead>
+                    <tr>
+                      <th colSpan="2">
+                        <div className="d-flex justify-content-between">
+                          <span>{tabs?.[0]}</span>
+                          <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                            {isCollapse ? '▼' : '▲'}
+                          </span>
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  {!isCollapse && (
+                    <tbody>
+                      {Object.entries(tabs[1])?.map((item, index) => (
+                        <tr key={index}>
+                          <td
+                            style={{
+                              width: '40%',
+                            }}
+                          >
+                            {item?.[0]}
+                          </td>
+                          <td className="d-flex gap-4 ">
+                            {item?.[1].map((permission) => (
+                              <CFormCheck
+                                key={permission?.id}
+                                aria-label="Default select example"
+                                defaultChecked={permission?.id}
+                                disabled
+                                id={`flexCheckDefault_${permission?.id}`}
+                                label={permission?.name}
+                              />
+                            ))}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  )}
+                </table>
+              </>
+            )
+          })
+        ) : (
+          <p>No permission available</p>
+        )}
       </CRow>
     </CContainer>
   )

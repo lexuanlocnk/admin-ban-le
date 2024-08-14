@@ -22,6 +22,8 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
+import axios from 'axios'
+import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
 const fakeData = [
   {
@@ -41,6 +43,10 @@ const fakeData = [
 function AdminList() {
   const location = useLocation()
   const navigate = useNavigate()
+
+  const params = new URLSearchParams(location.search)
+  const id = params.get('id')
+  const sub = params.get('sub')
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
@@ -62,6 +68,10 @@ function AdminList() {
   // show deleted Modal
   const [visible, setVisible] = useState(false)
 
+  // upload image and show image
+  const [selectedFile, setSelectedFile] = useState('')
+  const [file, setFile] = useState([])
+
   // form formik value
   const initialValues = {
     username: '',
@@ -82,10 +92,6 @@ function AdminList() {
   })
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const id = params.get('id')
-    const sub = params.get('sub')
-
     if (sub === 'add') {
       setIsEditing(false)
       if (inputRef.current) {
@@ -93,7 +99,6 @@ function AdminList() {
       }
     } else if (sub === 'edit' && id) {
       setIsEditing(true)
-      fetchDataById(id)
     }
   }, [location.search])
 
@@ -101,13 +106,32 @@ function AdminList() {
     //api?search={dataSearch}
   }
 
+  // const fetchAdminGroupData = async () => {
+  //   try {
+  //     const response = await axiosClient.get('/admin/information', {})
+  //   } catch (error) {
+  //     console.error('Delete admin role is error', error)
+  //     toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchAdminGroupData()
+  // }, [])
+
   const handleSubmit = async (values) => {
-    console.log(values)
-    // if (isEditing) {
-    //   //call api update data
-    // } else {
-    //   //call api post new data
-    // }
+    console.log('>>> check values:', values)
+    if (isEditing) {
+      //call api update data
+    } else {
+      //call api post new data
+      try {
+        const response = await axiosClient.post('/admin/information', {})
+      } catch (error) {
+        console.error('Delete admin role is error', error)
+        toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+      }
+    }
   }
 
   const handleAddNewClick = () => {
@@ -127,12 +151,31 @@ function AdminList() {
     setIsCollapse((prevState) => !prevState)
   }
 
-  const handleImageUpload = (event) => {
-    setSelectedImage(event.target.files[0])
-  }
+  //set img avatar
+  function onFileChange(e) {
+    const files = e.target.files
+    const selectedFiles = []
+    const fileUrls = []
 
-  const handleImageRemove = () => {
-    setSelectedImage(null)
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
+
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFile(selectedFiles)
+        }
+      }
+    })
+
+    // Set file URLs for immediate preview
+    setFile(fileUrls)
   }
 
   // pagination data
@@ -151,24 +194,6 @@ function AdminList() {
   const handleSearch = (keyword) => {
     fetchDataById(keyword)
   }
-
-  // const handleImageSubmit = async (e, values) => {
-  //   if (selectedImage) {
-  //     const formData = new FormData()
-  //     formData.append('image', selectedImage)
-
-  //     try {
-  //       await axios.post('/api/upload', formData, {
-  //         headers: {
-  //           'Content-Type': 'multipart/form-data',
-  //         },
-  //       })
-  //       console.log('Ảnh đã được upload thành công!')
-  //     } catch (error) {
-  //       console.error('Lỗi khi upload ảnh:', error)
-  //     }
-  //   }
-  // }
 
   const items = fakeData.map((item) => ({
     id: (
@@ -235,10 +260,10 @@ function AdminList() {
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} />
       <CRow className="mb-3">
-        <CCol>
+        <CCol md={6}>
           <h5>QUẢN LÝ TÀI KHOẢN AMDIN</h5>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <CButton
               onClick={handleAddNewClick}
@@ -307,32 +332,24 @@ function AdminList() {
                 <br />
 
                 <CCol md={12}>
-                  <label htmlFor="avatar-input">Ảnh đại diện</label>
+                  <CFormInput
+                    name="avatar"
+                    type="file"
+                    id="formFile"
+                    label="Ảnh đại diện"
+                    size="sm"
+                    onChange={(e) => onFileChange(e)}
+                  />
+                  <br />
+                  <ErrorMessage name="avatar" component="div" className="text-danger" />
+
                   <div>
-                    <CFormInput
-                      type="file"
-                      id="avatar-input"
-                      size="sm"
-                      onChange={handleImageUpload}
-                    />
-                    <ErrorMessage name="avatar" component="div" className="text-danger" />
-                    {selectedImage && (
+                    {file.length == 0 ? (
                       <div>
-                        <CImage
-                          className="mt-2"
-                          src={URL.createObjectURL(selectedImage)}
-                          alt="Ảnh đã upload"
-                          width={300}
-                        />
-                        <CButton
-                          className="mt-2"
-                          color="danger"
-                          size="sm"
-                          onClick={handleImageRemove}
-                        >
-                          Xóa
-                        </CButton>
+                        <CImage src={`${imageBaseUrl}` + selectedFile} width={370} />
                       </div>
+                    ) : (
+                      file.map((item, index) => <CImage key={index} src={item} width={370} />)
                     )}
                   </div>
                 </CCol>

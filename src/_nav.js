@@ -71,6 +71,11 @@ const _nav = [
       },
       {
         component: CNavItem,
+        name: 'Thêm quyền hạn',
+        to: '/admin/permissions-group',
+      },
+      {
+        component: CNavItem,
         name: 'Lịch sử hoạt động admin',
         to: '/admin/log',
       },

@@ -96,7 +96,12 @@ const Login = () => {
                     </CInputGroup>
                     <CRow className="justify-content-md-center">
                       <CCol xs={12}>
-                        <CButton onClick={handleLogin} color="primary" className="px-4 w-100">
+                        <CButton
+                          onKeyDown={handleKeyDown}
+                          onClick={handleLogin}
+                          color="primary"
+                          className="px-4 w-100"
+                        >
                           Đăng nhập
                         </CButton>
                       </CCol>

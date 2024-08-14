@@ -13,6 +13,7 @@ const AdminLog = React.lazy(() => import('./views/admin/AdminLog'))
 
 // permission group
 const PermissionGroup = React.lazy(() => import('./views/admin/PermissionGroup'))
+const EditPermission = React.lazy(() => import('./views/admin/EditPermissions'))
 
 // PRODUCT
 
@@ -139,6 +140,13 @@ const routes = [
     path: '/admin/permissions-group',
     name: 'PermissionGroup',
     element: PermissionGroup,
+    exact: true,
+  },
+
+  {
+    path: '/admin/groups/edit',
+    name: 'EditPermission',
+    element: EditPermission,
     exact: true,
   },
 

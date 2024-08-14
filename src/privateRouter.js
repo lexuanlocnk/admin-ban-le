@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
 const useAuth = () => {
-  const user = localStorage.getItem('admiCN')
+  const user = localStorage.getItem('adminCN')
   if (user) {
     return true
   } else {
@@ -12,6 +12,5 @@ const useAuth = () => {
 
 export const PrivateRoute = () => {
   const auth = useAuth()
-
   return auth ? <Outlet /> : <Navigate to="/login" />
 }

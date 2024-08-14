@@ -19,22 +19,21 @@ import Search from '../../components/search/Search'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
-
-const fakeData = [
-  {
-    id: 1,
-    title: 'Quản trị website',
-    role: 'administrator',
-    permission: 'administrator',
-  },
-]
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 function AdminGroup() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  const params = new URLSearchParams(location.search)
+  const id = params.get('id')
+  const sub = params.get('sub')
+
   const [title, setTitle] = useState('')
   const [role, setRole] = useState('')
+
+  const [adminGroupData, setAdminGroupData] = useState([])
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
@@ -47,12 +46,9 @@ function AdminGroup() {
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
+  const [deletedId, setDeletedId] = useState(null)
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const id = params.get('id')
-    const sub = params.get('sub')
-
     if (sub === 'add') {
       setIsEditing(false)
       setTitle('')
@@ -62,20 +58,77 @@ function AdminGroup() {
       }
     } else if (sub === 'edit' && id) {
       setIsEditing(true)
-      fetchDataById(id)
     }
   }, [location.search])
 
-  const fetchDataById = async (id, dataSearch) => {
-    //api?search={dataSearch}
+  const fetchAdminGroupData = async (dataSearch = '') => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/role`)
+
+      if (response.data.status === true) {
+        setAdminGroupData(response.data.roles)
+      }
+    } catch (error) {
+      console.error('Fetch role adminstrator data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
+
+  useEffect(() => {
+    fetchAdminGroupData()
+  }, [])
+
+  const fetchDataById = async () => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/role/${id}/edit`)
+      const data = response.data.role
+      if (response.data.status === true) {
+        setTitle(data?.title)
+        setRole(data?.name)
+      }
+    } catch (error) {
+      console.error('Fetch data admin group by id is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataById()
+  }, [id])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (isEditing) {
       //call api update data
+      try {
+        const response = await axios.put(`http://192.168.245.190:8000/api/role/${id}`, {
+          title: title,
+          name: role,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Cập nhật vai trò thành công!')
+          fetchAdminGroupData()
+        }
+      } catch (error) {
+        console.error('Put role adminstrator data is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     } else {
       //call api post new data
+      try {
+        const response = await axios.post(`http://192.168.245.190:8000/api/role`, {
+          title: title,
+          name: role,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Thêm mới vai trò thành công!')
+          fetchAdminGroupData()
+        }
+      } catch (error) {
+        console.error('Post role adminstrator data is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     }
   }
 
@@ -88,8 +141,18 @@ function AdminGroup() {
   }
 
   // delete row
-  const handleDelete = (id) => {
+  const handleDelete = async () => {
     setVisible(true)
+    try {
+      const response = await axios.delete(`http://192.168.245.190:8000/api/role/${deletedId}`)
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchAdminGroupData()
+      }
+    } catch (error) {
+      console.error('Delete admin role is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    }
   }
 
   // table data
@@ -121,44 +184,45 @@ function AdminGroup() {
     },
   ]
 
-  const items = fakeData.map((item, index) => ({
-    id: item.id,
-    title: item.title,
-    role: item.role,
-    permission: <Link>Cập nhật quyền [{item.permission}]</Link>,
-    actions: (
-      <div>
-        <button onClick={() => handleEditClick(item.id)} className="button-action mr-2 bg-info">
-          <CIcon icon={cilColorBorder} className="text-white" />
-        </button>
-        <button onClick={() => handleDelete(item.id)} className="button-action bg-danger">
-          <CIcon icon={cilTrash} className="text-white" />
-        </button>
-      </div>
-    ),
-  }))
-
-  // pagination data
-
-  const handlePageChange = ({ selected }) => {
-    const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
-    setPageNumber(newPage)
-  }
+  const items =
+    adminGroupData && adminGroupData?.length > 0
+      ? adminGroupData?.map((item, index) => ({
+          id: index + 1,
+          title: item.title,
+          role: item.name,
+          permission: (
+            <Link to={`/admin/groups/edit?id=${item.id}`}>Cập nhật quyền [{item.name}]</Link>
+          ),
+          actions: (
+            <div>
+              <button
+                onClick={() => handleEditClick(item.id)}
+                className="button-action mr-2 bg-info"
+              >
+                <CIcon icon={cilColorBorder} className="text-white" />
+              </button>
+              <button
+                onClick={() => {
+                  setVisible(true)
+                  setDeletedId(item.id)
+                }}
+                className="button-action bg-danger"
+              >
+                <CIcon icon={cilTrash} className="text-white" />
+              </button>
+            </div>
+          ),
+        }))
+      : []
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchAdminGroupData(keyword)
   }
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CRow>
           <CCol>
@@ -215,30 +279,11 @@ function AdminGroup() {
         </CCol>
 
         <CCol md={8}>
-          <Search onSearchData={handleSearch} />
+          <Search
+            onSearchData={handleSearch}
+            count={adminGroupData && adminGroupData.length > 0 ? adminGroupData.length : 0}
+          />
           <CTable hover className="mt-3" columns={columns} items={items} />
-
-          <div className="d-flex justify-content-end">
-            <ReactPaginate
-              pageCount={Math.round(20 / 10)}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={1}
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakLabel="..."
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-              onPageChange={handlePageChange}
-              containerClassName={'pagination'}
-              activeClassName={'active'}
-              previousLabel={'<<'}
-              nextLabel={'>>'}
-            />
-          </div>
         </CCol>
       </CRow>
     </CContainer>

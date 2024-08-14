@@ -20,7 +20,7 @@ import { Link } from 'react-router-dom'
 
 import axios from 'axios'
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
-import { formatNumber } from 'chart.js/helpers'
+import { formatNumber } from '../../helper/utils'
 import { unformatNumber } from '../../helper/utils'
 
 import { toast } from 'react-toastify'
@@ -69,7 +69,7 @@ function AddGift() {
   const fetchCategoriesData = async () => {
     try {
       const response = await axios.get('http://192.168.245.190:8000/api/category')
-      setCategories(response.data)
+      setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
     }
@@ -249,7 +249,7 @@ function AddGift() {
                             { label: 'Tất cả', value: 'all' },
                             ...categories?.map((item) => ({
                               label: item.category_desc?.cat_name,
-                              value: item.sub_categories.map((sub) => sub.cat_id),
+                              value: item.parenty.map((sub) => sub.cat_id),
                             })),
                           ]}
                         />
@@ -259,8 +259,8 @@ function AddGift() {
                       <CCol md={12} className="overflow-scroll" style={{ height: 'auto' }}>
                         {categories.map((category) => (
                           <div key={category?.cat_id}>
-                            {category?.sub_categories &&
-                              category?.sub_categories
+                            {category?.parenty &&
+                              category?.parenty
                                 .filter((item) => {
                                   const industryArr = values.industry.split(',')
                                   return industryArr.includes(item.cat_id.toString())

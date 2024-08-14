@@ -3,7 +3,7 @@ import axios from 'axios'
 const token = localStorage.getItem('adminCN')
 
 const axiosClient = axios.create({
-  baseURL: 'http://admin.chinhnhan.vn',
+  baseURL: 'http://192.168.245.190:8000/api/',
   headers: {
     'Content-Type': 'application/json',
     Authorization: token ? `Bearer ${token}` : '',
@@ -11,6 +11,6 @@ const axiosClient = axios.create({
 })
 
 // Configuration for images
-const imageBaseUrl = 'http://media.chinhnhan.vn/'
+const imageBaseUrl = 'http://192.168.245.190:8000/uploads/'
 
 export { axiosClient, imageBaseUrl }
