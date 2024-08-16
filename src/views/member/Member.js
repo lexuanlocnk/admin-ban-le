@@ -10,7 +10,7 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import './css/member.scss'
@@ -18,6 +18,7 @@ import './css/member.scss'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
+import { axiosClient } from '../../axiosConfig'
 
 const fakeData = [
   {
@@ -48,6 +49,9 @@ const fakeData = [
 
 function Member() {
   const navigate = useNavigate()
+
+  const [memberData, setMemberData] = useState([])
+
   const [isCollapse, setIsCollapse] = useState(false)
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -61,6 +65,22 @@ function Member() {
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
   }
+
+  const fetchMemberData = async () => {
+    try {
+      const response = await axiosClient.get('admin/member')
+
+      if (response.data.status === true) {
+        setMemberData(response.data.data)
+      }
+    } catch (error) {
+      console.error('Fetch member data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchMemberData()
+  }, [])
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -109,51 +129,58 @@ function Member() {
     { key: 'actions', label: 'Tác vụ' },
   ]
 
+  console.log('>>> cehck memberdata', memberData?.data)
+
   const items =
-    fakeData &&
-    fakeData.length > 0 &&
-    fakeData.map((customer) => ({
-      id: <CFormCheck id="flexCheckDefault" />,
-      username: (
-        <>
-          <div className="customer-username">{customer.username}</div>
-          <div className="customer-userid">{`#KH-2010`}</div>
-        </>
-      ),
-      customerInfo: (
-        <React.Fragment>
-          <div>
-            <span>Họ tên: </span>
-            <span className="customer-name">{customer?.memberInfo.fullName}</span>
-          </div>
-          <div>
-            <span>Điểm tích lũy: </span>
-            <span className="customer-pointsAccumulated">
-              {customer?.memberInfo.pointsAccumulated}
-            </span>
-          </div>
-          <div>
-            <span>Điểm đã sử dụng: </span>
-            <span className="customer-pointsUsed">{customer?.memberInfo.pointsUsed}</span>
-          </div>
-        </React.Fragment>
-      ),
-      orderYet: <span className="customer-order">{customer.orderStatus}</span>,
-      createDate: <span className="customer-registrationDate">{customer?.registrationDate}</span>,
-      login: customer?.lastLogin,
-      status: <span className="customer-status">{`[${customer?.accountStatus}]`}</span>,
-      actions: (
-        <div>
-          <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-            <CIcon icon={cilColorBorder} className="text-white" />
-          </button>
-          <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-            <CIcon icon={cilTrash} className="text-white" />
-          </button>
-        </div>
-      ),
-      _cellProps: { id: { scope: 'row' } },
-    }))
+    memberData?.data && memberData?.data.length > 0
+      ? memberData?.data.map((customer) => ({
+          id: <CFormCheck id="flexCheckDefault" />,
+          username: (
+            <>
+              <div className="customer-username">{customer?.username}</div>
+              <div className="customer-userid">{`#KH-${customer.id}`}</div>
+            </>
+          ),
+          customerInfo: (
+            <React.Fragment>
+              <div>
+                <span>Họ tên: </span>
+                <span className="customer-name">{customer?.full_name}</span>
+              </div>
+              <div>
+                <span>Điểm tích lũy: </span>
+                <span className="customer-pointsAccumulated">
+                  {customer?.accumulatedPoints === null ? 0 : customer?.accumulatedPoints}
+                </span>
+              </div>
+              {/* <div>
+                <span>Điểm đã sử dụng: </span>
+                <span className="customer-pointsUsed">{customer?.memberInfo.pointsUsed}</span>
+              </div> */}
+            </React.Fragment>
+          ),
+          orderYet: <span className="customer-order">{customer.orderStatus}</span>,
+          createDate: (
+            <span className="customer-registrationDate">{customer?.registrationDate}</span>
+          ),
+          login: customer?.lastLogin,
+          status: <span className="customer-status">{`[${customer?.accountStatus}]`}</span>,
+          actions: (
+            <div>
+              <button
+                onClick={() => handleEditClick(customer?.id)}
+                className="button-action mr-2 bg-info"
+              >
+                <CIcon icon={cilColorBorder} className="text-white" />
+              </button>
+              <button onClick={() => handleDelete(1)} className="button-action bg-danger">
+                <CIcon icon={cilTrash} className="text-white" />
+              </button>
+            </div>
+          ),
+          _cellProps: { id: { scope: 'row' } },
+        }))
+      : []
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...items]

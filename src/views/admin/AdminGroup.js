@@ -63,7 +63,7 @@ function AdminGroup() {
 
   const fetchAdminGroupData = async (dataSearch = '') => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/role`)
+      const response = await axios.get(`http://192.168.245.190:8000/api/role?data=${dataSearch}`)
 
       if (response.data.status === true) {
         setAdminGroupData(response.data.roles)

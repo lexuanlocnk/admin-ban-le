@@ -228,6 +228,25 @@ const _nav = [
 
   {
     component: CNavGroup,
+    name: 'QUẢN LÝ SUPPORT',
+    to: '/support',
+    icon: <CIcon icon={cilMoney} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý nhóm',
+        to: '/order/status',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý support',
+        to: '/order/shipping-method',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
     name: 'Base',
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,

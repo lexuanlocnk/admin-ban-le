@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {
@@ -13,12 +13,16 @@ import {
   CTable,
 } from '@coreui/react'
 import ReactPaginate from 'react-paginate'
+import { axiosClient } from '../../axiosConfig'
+import moment from 'moment/moment'
 // import './css/adminLog.css'
 
 function AdminLog() {
   const [isCollapse, setIsCollapse] = useState(false)
 
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
+
+  const [adminLogData, setAdminLogData] = useState([])
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -34,6 +38,22 @@ function AdminLog() {
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
   }
+
+  const fetchAdminLogData = async (dataSearch = '') => {
+    try {
+      const response = await axiosClient.get(`/admin-log?page=${pageNumber}?data=${dataSearch}`)
+
+      if (response.data.status === true) {
+        setAdminLogData(response.data.listLog)
+      }
+    } catch (error) {
+      console.error('Fetch admin log data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchAdminLogData()
+  }, [pageNumber])
 
   const columns = [
     {
@@ -61,24 +81,32 @@ function AdminLog() {
       label: 'Name/ID',
       _props: { scope: 'col' },
     },
+
     {
       key: 'time',
       label: 'Time',
       _props: { scope: 'col' },
     },
-  ]
-
-  const items = [
     {
-      id: <CFormCheck id="flexCheckDefault" />,
-      username: 'quocnguyen',
-      page: 'Product',
-      actions: 'Add',
-      nameID: 'quocnguyen',
-      time: '14:35:30, 18/06/2024',
-      _cellProps: { id: { scope: 'row' } },
+      key: 'ip',
+      label: 'IP',
+      _props: { scope: 'col' },
     },
   ]
+
+  const items =
+    adminLogData?.data && adminLogData?.data.length > 0
+      ? adminLogData?.data.map((log) => ({
+          id: <CFormCheck id="flexCheckDefault" />,
+          username: log?.username,
+          page: log?.cat,
+          actions: log?.action,
+          nameID: log?.display_name,
+          time: moment.unix(log?.time).format('DD-MM-YYYY, hh:mm:ss A'),
+          ip: log?.ip,
+          _cellProps: { id: { scope: 'row' } },
+        }))
+      : []
 
   // validate for date start - date end
   const validateDates = (start, end) => {
@@ -114,7 +142,9 @@ function AdminLog() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    console.log('keyword:', keyword)
+
+    fetchAdminLogData(keyword)
   }
 
   return (
@@ -137,7 +167,7 @@ function AdminLog() {
             <tbody>
               <tr>
                 <td>Tổng cộng</td>
-                <td className="total-count">6</td>
+                <td className="total-count">{adminLogData?.total}</td>
               </tr>
               <tr>
                 <td>Lọc</td>
@@ -198,7 +228,7 @@ function AdminLog() {
                       value={dataSearch}
                       onChange={(e) => setDataSearch(e.target.value)}
                     />
-                    <button onClick={handleSearch} className="submit-btn">
+                    <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
                       Submit
                     </button>
                   </div>
@@ -221,7 +251,7 @@ function AdminLog() {
         <CTable className="mt-2" columns={columns} items={items} />
         <div className="d-flex justify-content-end">
           <ReactPaginate
-            pageCount={Math.round(20 / 10)}
+            pageCount={Math.ceil(adminLogData?.total / adminLogData?.per_page)}
             pageRangeDisplayed={3}
             marginPagesDisplayed={1}
             pageClassName="page-item"

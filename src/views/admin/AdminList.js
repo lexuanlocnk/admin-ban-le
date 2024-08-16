@@ -24,21 +24,8 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import axios from 'axios'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
-
-const fakeData = [
-  {
-    id: 1,
-    username: 'quocnguyen',
-    role: 'administrator',
-    visited: '10:51, 20/04/2024',
-  },
-  {
-    id: 2,
-    username: 'quocnguyen1',
-    role: 'administrator',
-    visited: '10:51, 20/04/2024',
-  },
-]
+import moment from 'moment/moment'
+import { toast } from 'react-toastify'
 
 function AdminList() {
   const location = useLocation()
@@ -48,14 +35,16 @@ function AdminList() {
   const id = params.get('id')
   const sub = params.get('sub')
 
+  console.log('>>>cehck id', id)
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
+  const [dataRole, setDataRole] = useState([])
+  const [adminListData, setAdminListData] = useState([])
+
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
-
-  // image upload
-  const [selectedImage, setSelectedImage] = useState(null)
 
   const [isCollapse, setIsCollapse] = useState(false)
 
@@ -67,6 +56,7 @@ function AdminList() {
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
+  const [deletedId, setDeletedId] = useState(null)
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
@@ -84,7 +74,7 @@ function AdminList() {
 
   const validationSchema = Yup.object({
     username: Yup.string().required('Tên đăng nhập là bắt buộc.'),
-    password: Yup.string().required('Mật khẩu là bắt buộc.'),
+    // password: Yup.string().required('Mật khẩu là bắt buộc.'),
     email: Yup.string().email('Địa chỉ email không hợp lệ.').required('Email là bắt buộc.'),
     phone: Yup.string().required('Số điện thoại là bắt buộc.'),
     displayName: Yup.string().required('Tên hiển thị là bắt buộc.'),
@@ -102,33 +92,102 @@ function AdminList() {
     }
   }, [location.search])
 
-  const fetchDataById = async (id, dataSearch) => {
-    //api?search={dataSearch}
+  const fetchDataById = async (setValues) => {
+    try {
+      const response = await axiosClient.get(`/admin/information/${id}/edit`)
+      const data = response.data.userAdminDetail
+
+      if (data && response.data.status === true) {
+        setValues({
+          username: data.username,
+          // password: '',
+          email: data.email,
+          displayName: data.display_name,
+          phone: data.phone,
+          role: data.roles[0].id,
+        })
+        setSelectedFile(data.avatar)
+      } else {
+        console.error('No data found for the given ID.')
+      }
+    } catch (error) {
+      console.error('Fetch data id admin is error', error.message)
+    }
   }
 
-  // const fetchAdminGroupData = async () => {
-  //   try {
-  //     const response = await axiosClient.get('/admin/information', {})
-  //   } catch (error) {
-  //     console.error('Delete admin role is error', error)
-  //     toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
-  //   }
-  // }
+  const fetchAdminGroupData = async () => {
+    try {
+      const response = await axios.get(`http://192.168.245.190:8000/api/role`)
 
-  // useEffect(() => {
-  //   fetchAdminGroupData()
-  // }, [])
+      if (response.data.status === true) {
+        setDataRole(response.data.roles)
+      }
+    } catch (error) {
+      console.error('Fetch role adminstrator data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
+  }
+
+  useEffect(() => {
+    fetchAdminGroupData()
+  }, [])
+
+  const fetchAdminListData = async (dataSearch = '') => {
+    try {
+      const response = await axiosClient.get(`/admin/information?data=${dataSearch}`)
+
+      if (response.data.status === true) {
+        setAdminListData(response.data.adminList)
+      }
+    } catch (error) {
+      console.error('Fetch admin list data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchAdminListData()
+  }, [])
 
   const handleSubmit = async (values) => {
-    console.log('>>> check values:', values)
     if (isEditing) {
       //call api update data
+      try {
+        const response = await axiosClient.put(`/admin/information/${id}`, {
+          // username: values.username,
+          // password: values.password,
+          email: values.email,
+          display_name: values.displayName,
+          avatar: selectedFile,
+          phone: values.phone,
+          // role_id: values.role,
+        })
+        if (response.data.status === true) {
+          toast.success('Cập nhật thông tin admin thành công!')
+          fetchAdminListData()
+        }
+      } catch (error) {
+        console.error('Put data admin is error', error)
+        toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+      }
     } else {
       //call api post new data
       try {
-        const response = await axiosClient.post('/admin/information', {})
+        const response = await axiosClient.post('/admin/information', {
+          username: values.username,
+          password: values.password,
+          email: values.email,
+          display_name: values.displayName,
+          avatar: selectedFile,
+          phone: values.phone,
+          role_id: values.role,
+        })
+
+        if (response.data.status === true) {
+          toast.success('Thêm mới thông tin admin thành công!')
+          fetchAdminListData()
+        }
       } catch (error) {
-        console.error('Delete admin role is error', error)
+        console.error('Post data admin is error', error)
         toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
       }
     }
@@ -143,12 +202,27 @@ function AdminList() {
   }
 
   // delete row
-  const handleDelete = (id) => {
+  const handleDelete = async () => {
     setVisible(true)
+    try {
+      const response = await axiosClient.delete(`/admin/information/${deletedId}`)
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchAdminListData()
+      }
+    } catch (error) {
+      console.error('Delete admin id is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    }
   }
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
+  }
+
+  // search Data
+  const handleSearch = (keyword) => {
+    fetchAdminListData(keyword)
   }
 
   //set img avatar
@@ -190,43 +264,53 @@ function AdminList() {
     setPageNumber(newPage)
   }
 
-  // search Data
-  const handleSearch = (keyword) => {
-    fetchDataById(keyword)
-  }
-
-  const items = fakeData.map((item) => ({
-    id: (
-      <CFormCheck
-        id={item.id}
-        checked={selectedCheckbox.includes(item.id)}
-        value={item.id}
-        onChange={(e) => {
-          const idx = item.id
-          const isChecked = e.target.checked
-          if (isChecked) {
-            setSelectedCheckbox([...selectedCheckbox, idx])
-          } else {
-            setSelectedCheckbox(selectedCheckbox.filter((id) => id !== idx))
-          }
-        }}
-      />
-    ),
-    username: item.username,
-    role: item.role,
-    visited: item.visited,
-    actions: (
-      <div>
-        <button onClick={() => handleEditClick(1)} className="button-action mr-2 bg-info">
-          <CIcon icon={cilColorBorder} className="text-white" />
-        </button>
-        <button onClick={() => handleDelete(1)} className="button-action bg-danger">
-          <CIcon icon={cilTrash} className="text-white" />
-        </button>
-      </div>
-    ),
-    _cellProps: { id: { scope: 'row' } },
-  }))
+  const items =
+    adminListData?.data && adminListData?.data?.length > 0
+      ? adminListData?.data.map((item) => ({
+          id: (
+            <CFormCheck
+              id={item.id}
+              checked={selectedCheckbox.includes(item.id)}
+              value={item.id}
+              onChange={(e) => {
+                const idx = item.id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, idx])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== idx))
+                }
+              }}
+            />
+          ),
+          username: item.username,
+          role: item.roles && item?.roles.length > 0 ? item.roles[0].title : 'Không',
+          visited:
+            item.lastlogin !== '0'
+              ? moment.unix(item?.lastlogin).format('DD-MM-YYYY, hh:mm:ss A')
+              : 'Chưa từng đăng nhập',
+          actions: (
+            <div>
+              <button
+                onClick={() => handleEditClick(item.id)}
+                className="button-action mr-2 bg-info"
+              >
+                <CIcon icon={cilColorBorder} className="text-white" />
+              </button>
+              <button
+                onClick={() => {
+                  setVisible(true)
+                  setDeletedId(item?.id)
+                }}
+                className="button-action bg-danger"
+              >
+                <CIcon icon={cilTrash} className="text-white" />
+              </button>
+            </div>
+          ),
+          _cellProps: { id: { scope: 'row' } },
+        }))
+      : []
 
   const columns = [
     {
@@ -258,10 +342,10 @@ function AdminList() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CCol md={6}>
-          <h5>QUẢN LÝ TÀI KHOẢN AMDIN</h5>
+          <h2>QUẢN LÝ TÀI KHOẢN AMDIN</h2>
         </CCol>
         <CCol md={6}>
           <div className="d-flex justify-content-end">
@@ -290,94 +374,99 @@ function AdminList() {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ setFieldValue }) => (
-              <Form>
-                <CCol md={12}>
-                  <label htmlFor="username-input">Tên đăng nhập</label>
-                  <Field name="username">
-                    {({ field }) => (
-                      <CFormInput {...field} type="text" id="username-input" ref={inputRef} />
-                    )}
-                  </Field>
-                  <ErrorMessage name="username" component="div" className="text-danger" />
-                </CCol>
-                <br />
-
-                <CCol md={12}>
-                  <label htmlFor="password-input">Mật khẩu</label>
-                  <Field name="password" type="password" as={CFormInput} id="password-input" />
-                  <ErrorMessage name="password" component="div" className="text-danger" />
-                </CCol>
-                <br />
-
-                <CCol md={12}>
-                  <label htmlFor="email-input">Thư điện tử</label>
-                  <Field name="email" type="email" as={CFormInput} id="email-input" />
-                  <ErrorMessage name="email" component="div" className="text-danger" />
-                </CCol>
-                <br />
-
-                <CCol md={12}>
-                  <label htmlFor="phone-input">Số điện thoại</label>
-                  <Field name="phone" type="text" as={CFormInput} id="phone-input" />
-                  <ErrorMessage name="phone" component="div" className="text-danger" />
-                </CCol>
-                <br />
-
-                <CCol md={12}>
-                  <label htmlFor="display-name-input">Tên hiển thị</label>
-                  <Field name="displayName" type="text" as={CFormInput} id="display-name-input" />
-                  <ErrorMessage name="displayName" component="div" className="text-danger" />
-                </CCol>
-                <br />
-
-                <CCol md={12}>
-                  <CFormInput
-                    name="avatar"
-                    type="file"
-                    id="formFile"
-                    label="Ảnh đại diện"
-                    size="sm"
-                    onChange={(e) => onFileChange(e)}
-                  />
+            {({ setFieldValue, setValues }) => {
+              useEffect(() => {
+                fetchDataById(setValues)
+              }, [setValues, id])
+              return (
+                <Form>
+                  <CCol md={12}>
+                    <label htmlFor="username-input">Tên đăng nhập</label>
+                    <Field name="username">
+                      {({ field }) => (
+                        <CFormInput {...field} type="text" id="username-input" ref={inputRef} />
+                      )}
+                    </Field>
+                    <ErrorMessage name="username" component="div" className="text-danger" />
+                  </CCol>
                   <br />
-                  <ErrorMessage name="avatar" component="div" className="text-danger" />
 
-                  <div>
-                    {file.length == 0 ? (
-                      <div>
-                        <CImage src={`${imageBaseUrl}` + selectedFile} width={370} />
-                      </div>
-                    ) : (
-                      file.map((item, index) => <CImage key={index} src={item} width={370} />)
-                    )}
-                  </div>
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <label htmlFor="password-input">Mật khẩu</label>
+                    <Field name="password" type="password" as={CFormInput} id="password-input" />
+                    <ErrorMessage name="password" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol md={12}>
-                  <label htmlFor="role-select">Vai trò</label>
-                  <Field
-                    name="role"
-                    as={CFormSelect}
-                    id="role-select"
-                    options={[
-                      { label: 'Biên tập viên', value: '1' },
-                      { label: 'Quản trị web', value: '2' },
-                      { label: 'Marketing', value: '3' },
-                    ]}
-                  />
-                  <ErrorMessage name="role" component="div" className="text-danger" />
-                </CCol>
-                <br />
+                  <CCol md={12}>
+                    <label htmlFor="email-input">Thư điện tử</label>
+                    <Field name="email" type="email" as={CFormInput} id="email-input" />
+                    <ErrorMessage name="email" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
 
-                <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                  </CButton>
-                </CCol>
-              </Form>
-            )}
+                  <CCol md={12}>
+                    <label htmlFor="phone-input">Số điện thoại</label>
+                    <Field name="phone" type="text" as={CFormInput} id="phone-input" />
+                    <ErrorMessage name="phone" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="display-name-input">Tên hiển thị</label>
+                    <Field name="displayName" type="text" as={CFormInput} id="display-name-input" />
+                    <ErrorMessage name="displayName" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <CFormInput
+                      name="avatar"
+                      type="file"
+                      id="formFile"
+                      label="Ảnh đại diện"
+                      size="sm"
+                      onChange={(e) => onFileChange(e)}
+                    />
+                    <br />
+                    <ErrorMessage name="avatar" component="div" className="text-danger" />
+
+                    <div>
+                      {file.length == 0 ? (
+                        <div>
+                          <CImage src={`${imageBaseUrl}` + selectedFile} width={370} />
+                        </div>
+                      ) : (
+                        file.map((item, index) => <CImage key={index} src={item} width={370} />)
+                      )}
+                    </div>
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="role-select">Vai trò</label>
+                    <Field
+                      name="role"
+                      as={CFormSelect}
+                      id="role-select"
+                      options={
+                        dataRole && dataRole?.length > 0
+                          ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
+                          : []
+                      }
+                    />
+                    <ErrorMessage name="role" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol xs={12}>
+                    <CButton color="primary" type="submit" size="sm">
+                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                    </CButton>
+                  </CCol>
+                </Form>
+              )
+            }}
           </Formik>
         </CCol>
 
@@ -401,7 +490,7 @@ function AdminList() {
                 <tbody>
                   <tr>
                     <td>Tổng cộng</td>
-                    <td className="total-count">6</td>
+                    <td className="total-count">{adminListData?.total}</td>
                   </tr>
                   <tr>
                     <td>Lọc</td>
@@ -409,11 +498,11 @@ function AdminList() {
                       <CFormSelect
                         className="component-size w-50"
                         aria-label="Chọn yêu cầu lọc"
-                        options={[
-                          { label: 'Biên tập viên', value: '1' },
-                          { label: 'Quản trị web', value: '2' },
-                          { label: 'Marketing', value: '3' },
-                        ]}
+                        options={
+                          dataRole && dataRole?.length > 0
+                            ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
+                            : []
+                        }
                       />
                     </td>
                   </tr>
@@ -446,7 +535,7 @@ function AdminList() {
             <CTable className="mt-2" columns={columns} items={items} />
             <div className="d-flex justify-content-end">
               <ReactPaginate
-                pageCount={Math.round(20 / 10)}
+                pageCount={Math.ceil(adminListData?.total / adminListData?.per_page)}
                 pageRangeDisplayed={3}
                 marginPagesDisplayed={1}
                 pageClassName="page-item"

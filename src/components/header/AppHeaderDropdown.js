@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CAvatar,
   CBadge,
@@ -26,8 +26,11 @@ import '../css/headerLogout.css'
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
 import { useNavigate } from 'react-router-dom'
+import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
 const AppHeaderDropdown = () => {
+  const username = localStorage.getItem('username')
+  const [avatar, setAvatar] = useState(null)
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -35,10 +38,28 @@ const AppHeaderDropdown = () => {
     navigate('/login')
   }
 
+  const fetchAdminInfo = async () => {
+    try {
+      const response = await axiosClient.get('/admin/admin-information')
+      if (response.data.status === true) {
+        setAvatar(response.data.data.avatar)
+      }
+    } catch (error) {
+      console.error('Fetch data admin info error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchAdminInfo()
+  }, [])
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-        <CAvatar src={avatar8} size="md" />
+        <div className="d-flex gap-3 align-items-center">
+          <strong>{username}</strong>
+          <CAvatar src={`${imageBaseUrl}${avatar}`} size="md" />
+        </div>
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
