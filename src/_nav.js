@@ -18,6 +18,7 @@ import {
   cilMoney,
   cilPeople,
   cilGift,
+  cilCommentBubble,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -230,17 +231,31 @@ const _nav = [
     component: CNavGroup,
     name: 'QUẢN LÝ SUPPORT',
     to: '/support',
-    icon: <CIcon icon={cilMoney} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
         name: 'Quản lý nhóm',
-        to: '/order/status',
+        to: '/group-support',
       },
       {
         component: CNavItem,
         name: 'Quản lý support',
-        to: '/order/shipping-method',
+        to: '/support',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ COMMENT',
+    to: '/comment',
+    icon: <CIcon icon={cilCommentBubble} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý bình luận',
+        to: '/comment',
       },
     ],
   },

@@ -76,6 +76,15 @@ const EditPromotionDetail = React.lazy(
   () => import('./views/promotion/promotionDetail/EditPromotionDetail'),
 )
 
+// SUPPORT
+const Support = React.lazy(() => import('./views/support/Support'))
+const GroupSupport = React.lazy(() => import('./views/support/GroupSupport'))
+
+// COMMENT
+const Comment = React.lazy(() => import('./views/comment/Comment'))
+const AddComment = React.lazy(() => import('./views/comment/AddComment'))
+const EditComment = React.lazy(() => import('./views/comment/EditComment'))
+
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -333,6 +342,36 @@ const routes = [
     path: 'promotion-detail/edit',
     name: 'EditPromotionDetail',
     element: EditPromotionDetail,
+    exact: true,
+  },
+
+  // support
+  {
+    path: '/group-support',
+    name: 'GroupSupport',
+    element: GroupSupport,
+    exact: true,
+  },
+
+  {
+    path: '/support',
+    name: 'Support',
+    element: Support,
+    exact: true,
+  },
+
+  // comment
+  {
+    path: '/comment',
+    name: 'Comment',
+    element: Comment,
+    exact: true,
+  },
+
+  {
+    path: 'comment/edit',
+    name: 'EditComment',
+    element: EditComment,
     exact: true,
   },
 

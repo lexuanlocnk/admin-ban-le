@@ -20,6 +20,7 @@ import logo from '../assets/images/logo/logo CN.png'
 
 // sidebar nav config
 import navigation from '../_nav'
+import { Link } from 'react-router-dom'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
@@ -39,7 +40,9 @@ const AppSidebar = () => {
     >
       <CSidebarHeader className="border-bottom" style={{ justifyContent: 'center', padding: 0 }}>
         <CSidebarBrand to="/">
-          <CImage rounded src={logo} width={150} />
+          <Link to={'/'}>
+            <CImage rounded src={logo} width={150} />
+          </Link>
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
           {/* <CImage customClassName="sidebar-brand-narrow" rounded src={logo} width={30} /> */}
         </CSidebarBrand>

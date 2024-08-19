@@ -20,33 +20,6 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { axiosClient } from '../../axiosConfig'
 
-const fakeData = [
-  {
-    username: 'dntcamera',
-    memberInfo: {
-      fullName: 'Mr Nhựt',
-      pointsAccumulated: 0,
-      pointsUsed: 0,
-    },
-    orderStatus: 'Chưa có',
-    registrationDate: '17:28, 18/05/2024',
-    lastLogin: '00:29, 19/05/2024',
-    accountStatus: 'Đang hoạt động',
-  },
-  {
-    username: 'a123011',
-    memberInfo: {
-      fullName: 'wangfu wangfugui',
-      pointsAccumulated: 0,
-      pointsUsed: 0,
-    },
-    orderStatus: 'Chưa có',
-    registrationDate: '01:39, 20/04/2024',
-    lastLogin: '08:39, 20/04/2024',
-    accountStatus: 'Đang hoạt động',
-  },
-]
-
 function Member() {
   const navigate = useNavigate()
 
@@ -81,6 +54,8 @@ function Member() {
   useEffect(() => {
     fetchMemberData()
   }, [])
+
+  console.log('>>>cehck member', memberData)
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -129,16 +104,14 @@ function Member() {
     { key: 'actions', label: 'Tác vụ' },
   ]
 
-  console.log('>>> cehck memberdata', memberData?.data)
-
   const items =
-    memberData?.data && memberData?.data.length > 0
-      ? memberData?.data.map((customer) => ({
+    memberData && memberData?.length > 0
+      ? memberData?.map((customer) => ({
           id: <CFormCheck id="flexCheckDefault" />,
           username: (
             <>
               <div className="customer-username">{customer?.username}</div>
-              <div className="customer-userid">{`#KH-${customer.id}`}</div>
+              {/* <div className="customer-userid">{`#KH-${customer.id}`}</div> */}
             </>
           ),
           customerInfo: (
@@ -149,24 +122,28 @@ function Member() {
               </div>
               <div>
                 <span>Điểm tích lũy: </span>
+                <span className="customer-pointsUsed">{customer?.orderPoints}</span>
+              </div>
+              <div>
+                <span>Điểm đã sử dụng: </span>
                 <span className="customer-pointsAccumulated">
                   {customer?.accumulatedPoints === null ? 0 : customer?.accumulatedPoints}
                 </span>
               </div>
-              {/* <div>
-                <span>Điểm đã sử dụng: </span>
-                <span className="customer-pointsUsed">{customer?.memberInfo.pointsUsed}</span>
-              </div> */}
             </React.Fragment>
           ),
-          orderYet: <span className="customer-order">{customer.orderStatus}</span>,
+          orderYet: (
+            <span className="customer-order">
+              {customer.order_sum > 0 ? 'Đã từng đặt' : 'Chưa có đơn'}
+            </span>
+          ),
           createDate: (
             <span className="customer-registrationDate">{customer?.registrationDate}</span>
           ),
           login: customer?.lastLogin,
-          status: <span className="customer-status">{`[${customer?.accountStatus}]`}</span>,
+          status: <span className="customer-status">{`[Đang hoạt động]`}</span>,
           actions: (
-            <div>
+            <div style={{ width: 100 }}>
               <button
                 onClick={() => handleEditClick(customer?.id)}
                 className="button-action mr-2 bg-info"
