@@ -71,7 +71,7 @@ function EditPromotionDetail() {
   const fetchCategoriesData = async () => {
     try {
       const response = await axios.get('http://192.168.245.190:8000/api/category')
-      setCategories(response.data)
+      setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
     }
@@ -137,10 +137,10 @@ function EditPromotionDetail() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol>
-          <h3>CẬP NHẬT QÙA TẶNG</h3>
+        <CCol md={6}>
+          <h3>CẬP NHẬT KHUYẾN MÃI</h3>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <Link to={`/gift`}>
               <CButton color="primary" type="submit" size="sm">
@@ -320,7 +320,7 @@ function EditPromotionDetail() {
                               { label: 'Tất cả', value: 'all' },
                               ...categories?.map((item) => ({
                                 label: item.category_desc?.cat_name,
-                                value: item.cat_id,
+                                value: item.parenty.map((sub) => sub.cat_id),
                               })),
                             ]}
                           />
@@ -328,12 +328,15 @@ function EditPromotionDetail() {
                         </CCol>
                         <br />
                         <CCol md={12} className="overflow-scroll" style={{ height: 'auto' }}>
-                          {categories
-                            .filter((item) => item.cat_id == values.industry)
-                            .map((category) => (
-                              <div key={category?.cat_id}>
-                                {category?.sub_categories &&
-                                  category?.sub_categories.map((child) => (
+                          {categories.map((category) => (
+                            <div key={category?.cat_id}>
+                              {category?.parenty &&
+                                category?.parenty
+                                  .filter((item) => {
+                                    const industryArr = values.industry.split(',')
+                                    return industryArr.includes(item.cat_id.toString())
+                                  })
+                                  .map((child) => (
                                     <div key={child.cat_id} className="ms-3 d-flex">
                                       <img
                                         src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
@@ -359,8 +362,8 @@ function EditPromotionDetail() {
                                       />
                                     </div>
                                   ))}
-                              </div>
-                            ))}
+                            </div>
+                          ))}
                           <ErrorMessage
                             name="applyToProductCategories"
                             component="div"

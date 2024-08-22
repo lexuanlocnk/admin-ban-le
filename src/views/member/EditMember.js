@@ -15,9 +15,9 @@ import {
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
+import moment from 'moment'
 
 function EditMember() {
   const location = useLocation()
@@ -25,11 +25,10 @@ function EditMember() {
   const params = new URLSearchParams(location.search)
   const id = params.get('id')
 
-  console.log('>>>check id', id)
-
   const initialValues = {
     userName: '',
     password: '',
+    provider: '',
     fullName: '',
     email: '',
     phone: '',
@@ -42,34 +41,37 @@ function EditMember() {
   }
 
   const validationSchema = Yup.object({
-    title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
+    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
+    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
+    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
 
   const fetchDataById = async (setValues) => {
     try {
       const response = await axiosClient.get(`/admin/member/${id}/edit`)
-      // const data = response.data.brand
-      // if (data) {
-      //   setValues({
-      //     title: data.brand_desc.title,
-      //     description: data.brand_desc.description,
-      //     friendlyUrl: data.brand_desc.friendly_url,
-      //     pageTitle: data.brand_desc.friendly_title,
-      //     metaKeyword: data.brand_desc.metakey,
-      //     metaDesc: data.brand_desc.metadesc,
-      //     visible: data.display,
-      //   })
-      //   setSelectedFile(data.picture)
-      // } else {
-      //   console.error('No data found for the given ID.')
-      // }
+      const data = response.data.member
+      if (data) {
+        setValues({
+          userName: data?.username,
+          fullName: data?.full_name,
+          provider: data?.provider,
+          email: data?.email,
+          phone: data?.phone,
+          address: data?.address,
+          gender: data?.gender == 'female' ? 'Nam' : 'Nữ',
+          dob: data?.dateOfBirth,
+          point: response?.data?.orderPoints,
+          pointUsed: response?.data?.accumulatedPoints,
+        })
+        setSelectedFile(data.picture)
+      } else {
+        console.error('No data found for the given ID.')
+      }
     } catch (error) {
-      console.error('Fetch data id product brand is error', error.message)
+      console.error('Fetch data id member is error', error.message)
     }
   }
 
@@ -79,24 +81,22 @@ function EditMember() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/brand/${id}`, {
-        description: values.description,
-        title: values.title,
-        friendly_url: values.friendlyUrl,
-        friendly_title: values.pageTitle,
-        metakey: values.metaKeyword,
-        metadesc: values.metaDesc,
-        display: values.visible,
-        picture: selectedFile,
+      const response = await axiosClient.put(`/admin/member/${id}`, {
+        // username: values.userName,
+        fullname: values.fullName,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        gender: values.gender,
+        dateOfBirth: values.dob,
       })
-
       if (response.data.status === true) {
-        toast.success('Cập nhật thương hiệu thành công')
+        toast.success('Cập nhật thông tin thành công')
       } else {
         console.error('No data found for the given ID.')
       }
     } catch (error) {
-      console.error('Put data id product brand is error', error.message)
+      console.error('Put data id member is error', error.message)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
@@ -128,6 +128,7 @@ function EditMember() {
           >
             {({ setFieldValue, setValues }) => {
               useEffect(() => {
+                ;``
                 fetchDataById(setValues)
               }, [setValues, id])
               return (
@@ -166,6 +167,19 @@ function EditMember() {
                   <br />
 
                   <CCol md={12}>
+                    <label htmlFor="provider-input">Hình thức đăng nhập</label>
+                    <Field
+                      name="provider"
+                      type="text"
+                      as={CFormInput}
+                      id="provider-input"
+                      disabled
+                    />
+                    <ErrorMessage name="provider" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
                     <label htmlFor="fullName-input">Họ tên</label>
                     <Field name="fullName" type="text" as={CFormInput} id="fullName-input" />
                     <ErrorMessage name="fullName" component="div" className="text-danger" />
@@ -197,7 +211,13 @@ function EditMember() {
                   <br />
                   <CCol md={12}>
                     <label htmlFor="dob-input">Ngày sinh</label>
-                    <Field name="dob" type="text" as={CFormInput} id="dob-input" />
+                    <Field
+                      name="dob"
+                      type="text"
+                      as={CFormInput}
+                      id="dob-input"
+                      text={'Định dạng ngày sinh: DD/MM/YYYY'}
+                    />
                     <ErrorMessage name="dob" component="div" className="text-danger" />
                   </CCol>
                   <br />
@@ -232,10 +252,7 @@ function EditMember() {
                       name="status"
                       as={CFormSelect}
                       id="status-select"
-                      options={[
-                        { label: 'Đang chờ kích hoạt', value: '0' },
-                        { label: 'Đang hoạt động', value: '1' },
-                      ]}
+                      options={[{ label: 'Đang hoạt động', value: '1' }]}
                     />
                     <ErrorMessage name="status" component="div" className="text-danger" />
                   </CCol>

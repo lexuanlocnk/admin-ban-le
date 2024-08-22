@@ -17,12 +17,16 @@ import { axiosClient } from '../../axiosConfig'
 import moment from 'moment/moment'
 // import './css/adminLog.css'
 
+import { convertStringToTimeStamp } from '../../helper/utils'
+
 function AdminLog() {
   const [isCollapse, setIsCollapse] = useState(false)
 
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const [adminLogData, setAdminLogData] = useState([])
+  const [userNameData, setUserNameData] = useState([])
+  const [selectedUsername, setSelectedUsername] = useState('')
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -31,17 +35,28 @@ function AdminLog() {
   const [pageNumber, setPageNumber] = useState(1)
 
   // date picker
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date())
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [errors, setErrors] = useState({ startDate: '', endDate: '' })
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
   }
 
+  const convertStringToTimeStamp = (dateString) => {
+    if (dateString == '') {
+      return ''
+    } else {
+      const dateMoment = moment(dateString, 'ddd MMM DD YYYY HH:mm:ss GMTZ')
+      return dateMoment.unix()
+    }
+  }
+
   const fetchAdminLogData = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(`/admin-log?page=${pageNumber}?data=${dataSearch}`)
+      const response = await axiosClient.get(
+        `/admin-log?page=${pageNumber}&data=${dataSearch}&username=${selectedUsername}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}`,
+      )
 
       if (response.data.status === true) {
         setAdminLogData(response.data.listLog)
@@ -53,7 +68,22 @@ function AdminLog() {
 
   useEffect(() => {
     fetchAdminLogData()
-  }, [pageNumber])
+  }, [pageNumber, selectedUsername, startDate, endDate])
+
+  const fetchUserNameData = async () => {
+    try {
+      const response = await axiosClient.get('select-name-admin')
+      if (response.data.status === true) {
+        setUserNameData(response.data.data)
+      }
+    } catch (error) {
+      console.error('Fetch username data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchUserNameData()
+  }, [])
 
   const columns = [
     {
@@ -143,7 +173,6 @@ function AdminLog() {
   // search Data
   const handleSearch = (keyword) => {
     console.log('keyword:', keyword)
-
     fetchAdminLogData(keyword)
   }
 
@@ -175,11 +204,16 @@ function AdminLog() {
                   <CFormSelect
                     className="component-size w-25"
                     aria-label="Chọn yêu cầu lọc"
+                    value={selectedUsername}
+                    onChange={(e) => setSelectedUsername(e.target.value)}
                     options={[
-                      'Tất cả các username',
-                      { label: 'quocnguyen', value: '1' },
-                      { label: 'an', value: '2' },
-                      { label: 'long', value: '3' },
+                      { label: 'Tất cả username', value: '' },
+                      ...(userNameData && userNameData?.length > 0
+                        ? userNameData?.map((item) => ({
+                            label: item.username,
+                            value: item.username,
+                          }))
+                        : []),
                     ]}
                   />
                 </td>
@@ -212,7 +246,7 @@ function AdminLog() {
               <tr>
                 <td>Tìm kiếm</td>
                 <td>
-                  <CFormSelect
+                  {/* <CFormSelect
                     className="component-size w-25"
                     aria-label="Chọn yêu cầu lọc"
                     options={[
@@ -220,7 +254,7 @@ function AdminLog() {
                       { label: 'product', value: '1' },
                       { label: 'order', value: '2' },
                     ]}
-                  />
+                  /> */}
                   <div className="mt-2">
                     <input
                       type="text"

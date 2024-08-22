@@ -189,7 +189,9 @@ function Comment() {
 
                     <CTableDataCell>{item.name}</CTableDataCell>
 
-                    <CTableDataCell style={{ width: '30%' }}>{item.content}</CTableDataCell>
+                    <CTableDataCell>
+                      <div style={{ width: '300px' }}>{item.content}</div>
+                    </CTableDataCell>
 
                     <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
                       <a

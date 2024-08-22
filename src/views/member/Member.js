@@ -19,6 +19,7 @@ import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { axiosClient } from '../../axiosConfig'
+import moment from 'moment/moment'
 
 function Member() {
   const navigate = useNavigate()
@@ -39,9 +40,9 @@ function Member() {
     setIsCollapse((prevState) => !prevState)
   }
 
-  const fetchMemberData = async () => {
+  const fetchMemberData = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get('admin/member')
+      const response = await axiosClient.get(`admin/member?data=${dataSearch}`)
 
       if (response.data.status === true) {
         setMemberData(response.data.data)
@@ -54,8 +55,6 @@ function Member() {
   useEffect(() => {
     fetchMemberData()
   }, [])
-
-  console.log('>>>cehck member', memberData)
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -71,7 +70,7 @@ function Member() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataById(keyword)
+    fetchMemberData(keyword)
   }
 
   const handleEditClick = (id) => {
@@ -138,21 +137,23 @@ function Member() {
             </span>
           ),
           createDate: (
-            <span className="customer-registrationDate">{customer?.registrationDate}</span>
+            <span className="customer-registrationDate">
+              {moment(customer?.created_at).format('DD-MM-YYYY, hh:mm:ss A')}
+            </span>
           ),
           login: customer?.lastLogin,
           status: <span className="customer-status">{`[Đang hoạt động]`}</span>,
           actions: (
-            <div style={{ width: 100 }}>
+            <div style={{ width: 60 }}>
               <button
                 onClick={() => handleEditClick(customer?.id)}
                 className="button-action mr-2 bg-info"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
               </button>
-              <button onClick={() => handleDelete(1)} className="button-action bg-danger">
+              {/* <button onClick={() => handleDelete(1)} className="button-action bg-danger">
                 <CIcon icon={cilTrash} className="text-white" />
-              </button>
+              </button> */}
             </div>
           ),
           _cellProps: { id: { scope: 'row' } },
@@ -224,7 +225,7 @@ function Member() {
                       value={dataSearch}
                       onChange={(e) => setDataSearch(e.target.value)}
                     />
-                    <button onClick={handleSearch} className="submit-btn">
+                    <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
                       Submit
                     </button>
                   </div>

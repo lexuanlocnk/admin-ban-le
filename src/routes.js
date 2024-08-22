@@ -68,12 +68,20 @@ const EditMember = React.lazy(() => import('./views/member/EditMember'))
 const PromotionDetail = React.lazy(
   () => import('./views/promotion/promotionDetail/promotionDetail'),
 )
-
 const AddPromotionDetail = React.lazy(
   () => import('./views/promotion/promotionDetail/AddPromotionDetail'),
 )
 const EditPromotionDetail = React.lazy(
   () => import('./views/promotion/promotionDetail/EditPromotionDetail'),
+)
+
+// promotion news
+const PromotionNews = React.lazy(() => import('./views/promotion/promotionNews/promotionNews'))
+const AddPromotionNews = React.lazy(
+  () => import('./views/promotion/promotionNews/AddPromotionNews'),
+)
+const EditPromotionNews = React.lazy(
+  () => import('./views/promotion/promotionNews/EditPromotionNews'),
 )
 
 // SUPPORT
@@ -342,6 +350,20 @@ const routes = [
     path: 'promotion-detail/edit',
     name: 'EditPromotionDetail',
     element: EditPromotionDetail,
+    exact: true,
+  },
+
+  { path: '/promotion-news', name: 'Promotion', element: PromotionNews, exact: true },
+  {
+    path: 'promotion-news/add',
+    name: 'AddPromotionNews',
+    element: AddPromotionNews,
+    exact: true,
+  },
+  {
+    path: 'promotion-news/edit',
+    name: 'EditPromotionNews',
+    element: EditPromotionNews,
     exact: true,
   },
 
