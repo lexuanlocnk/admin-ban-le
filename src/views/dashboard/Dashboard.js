@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import classNames from 'classnames'
 
 import {
@@ -10,6 +10,7 @@ import {
   CCardFooter,
   CCardHeader,
   CCol,
+  CFormCheck,
   CProgress,
   CRow,
   CTable,
@@ -53,8 +54,17 @@ import avatar6 from '../../assets/images/avatars/6.jpg'
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
+import { axiosClient } from '../../axiosConfig'
+import moment from 'moment'
+
+import './css/dashboard.css'
+import { Link } from 'react-router-dom'
 
 const Dashboard = () => {
+  const [adminLogData, setAdminLogData] = useState([])
+
+  const [timePeriod, setTimePeriod] = useState('Tuần')
+
   const progressExample = [
     { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
     { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
@@ -176,6 +186,152 @@ const Dashboard = () => {
     },
   ]
 
+  const fetchAdminLogData = async () => {
+    try {
+      const response = await axiosClient.get(`/admin-log`)
+
+      if (response.data.status === true) {
+        setAdminLogData(response.data.listLog)
+      }
+    } catch (error) {
+      console.error('Fetch admin log data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchAdminLogData()
+  }, [])
+
+  const columnsVisited = [
+    {
+      key: 'index',
+      label: 'Thứ tự',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'visited',
+      label: 'Lượt truy cập',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'username',
+      label: 'Name',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'url',
+      label: 'Link truy cập',
+      _props: { scope: 'col' },
+    },
+
+    {
+      key: 'ip',
+      label: 'IP Address',
+      _props: { scope: 'col' },
+    },
+  ]
+
+  const itemsVisited = [
+    {
+      index: '1',
+      visited: '189',
+      username: 'Rồng Thần',
+      url: (
+        <Link to={'https://chinhnhan.vn/san-pham'}>Màn hình HP S5 524SF 94C18AA 23.8inch FHD</Link>
+      ),
+      ip: '192.168.245.134',
+      _cellProps: { id: { scope: 'row' } },
+    },
+    {
+      index: '2',
+      visited: '189',
+      username: 'Rồng Thần',
+      url: (
+        <Link to={'https://chinhnhan.vn/san-pham'}>Màn hình HP S5 524SF 94C18AA 23.8inch FHD</Link>
+      ),
+      ip: '192.168.245.134',
+      _cellProps: { id: { scope: 'row' } },
+    },
+    {
+      index: '3',
+      visited: '189',
+      username: 'Rồng Thần',
+      url: (
+        <Link to={'https://chinhnhan.vn/san-pham'}>Màn hình HP S5 524SF 94C18AA 23.8inch FHD</Link>
+      ),
+      ip: '192.168.245.134',
+      _cellProps: { id: { scope: 'row' } },
+    },
+    {
+      index: '4',
+      visited: '189',
+      username: 'Rồng Thần',
+      url: (
+        <Link to={'https://chinhnhan.vn/san-pham'}>Màn hình HP S5 524SF 94C18AA 23.8inch FHD</Link>
+      ),
+      ip: '192.168.245.134',
+      _cellProps: { id: { scope: 'row' } },
+    },
+  ]
+
+  const columns = [
+    {
+      key: 'username',
+      label: 'Username',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'page',
+      label: 'Page',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'actions',
+      label: 'Action',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'nameID',
+      label: 'Name/ID',
+      _props: { scope: 'col' },
+    },
+
+    {
+      key: 'ip',
+      label: 'IP Address',
+      _props: { scope: 'col' },
+    },
+  ]
+
+  const items =
+    adminLogData?.data && adminLogData?.data.length > 0
+      ? adminLogData?.data.map((log) => ({
+          username: log?.username,
+          page: log?.cat,
+          actions: log?.action,
+          nameID: log?.display_name,
+          ip: log?.ip,
+          _cellProps: { id: { scope: 'row' } },
+        }))
+      : []
+
+  const getDateRange = (period) => {
+    const today = moment()
+    let startDate
+
+    if (period === 'Tuần') {
+      startDate = today.clone().startOf('week') // Bắt đầu của tuần hiện tại
+    } else if (period === 'Tháng') {
+      startDate = today.clone().startOf('month') // Bắt đầu của tháng hiện tại
+    } else if (period === 'Năm') {
+      startDate = today.clone().startOf('year') // Bắt đầu của năm hiện tại
+    }
+
+    return `${moment(startDate).format('DD/MM/YYYY')} - ${moment(today).format('DD/MM/YYYY')}`
+  }
+
+  const dateRange = getDateRange(timePeriod)
+
   return (
     <>
       <WidgetsDropdown className="mb-4" />
@@ -183,22 +339,24 @@ const Dashboard = () => {
         <CCardBody>
           <CRow>
             <CCol sm={5}>
-              <h4 id="traffic" className="card-title mb-0">
-                Traffic
-              </h4>
-              <div className="small text-body-secondary">January - July 2023</div>
+              <h5 id="traffic" className="card-title mb-0">
+                Thống kê lượt truy cập
+              </h5>
+              <div className="small text-body-secondary">{dateRange}</div>
             </CCol>
             <CCol sm={7} className="d-none d-md-block">
-              <CButton color="primary" className="float-end">
+              <CButton color="primary" className="float-end" size="sm">
                 <CIcon icon={cilCloudDownload} />
               </CButton>
               <CButtonGroup className="float-end me-3">
-                {['Day', 'Month', 'Year'].map((value) => (
+                {['Tuần', 'Tháng', 'Năm'].map((value) => (
                   <CButton
+                    size="sm"
                     color="outline-secondary"
                     key={value}
                     className="mx-0"
-                    active={value === 'Month'}
+                    active={value === timePeriod}
+                    onClick={() => setTimePeriod(value)}
                   >
                     {value}
                   </CButton>
@@ -206,9 +364,9 @@ const Dashboard = () => {
               </CButtonGroup>
             </CCol>
           </CRow>
-          <MainChart />
+          <MainChart timePeriod={timePeriod} />
         </CCardBody>
-        <CCardFooter>
+        {/* <CCardFooter>
           <CRow
             xs={{ cols: 1, gutter: 4 }}
             sm={{ cols: 2 }}
@@ -231,10 +389,10 @@ const Dashboard = () => {
               </CCol>
             ))}
           </CRow>
-        </CCardFooter>
+        </CCardFooter> */}
       </CCard>
-      <WidgetsBrand className="mb-4" withCharts />
-      <CRow>
+      {/* <WidgetsBrand className="mb-4" withCharts /> */}
+      {/* <CRow>
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>Traffic {' & '} Sales</CCardHeader>
@@ -378,6 +536,70 @@ const Dashboard = () => {
               </CTable>
             </CCardBody>
           </CCard>
+        </CCol>
+      </CRow> */}
+
+      <CRow>
+        <h6>Khách hàng có lượt truy cập nhiều nhất</h6>
+        <CCol>
+          <CTable
+            bordered
+            style={{ fontSize: 14 }}
+            className="mt-2 mb-4"
+            columns={columnsVisited}
+            items={itemsVisited}
+          />
+        </CCol>
+      </CRow>
+
+      <CRow>
+        <CCol md={8}>
+          <h6 style={{ fontWeight: 'bold' }}>Lịch sử hoạt động admin</h6>
+          <CTable style={{ fontSize: 13 }} className="mt-2" columns={columns} items={items} />
+        </CCol>
+        <CCol md={4} className="mb-4">
+          <div className="system-info">
+            <h6 style={{ fontWeight: 'bold' }}>Thông tin hệ thống</h6>
+            <ul>
+              <li>
+                <span role="img" aria-label="icon">
+                  📄
+                </span>
+                <strong>PHP Version</strong>: 7.1.33
+              </li>
+              <li>
+                <span role="img" aria-label="icon">
+                  📄
+                </span>
+                <strong>MySQL Version</strong>: 5.5.5-10.3.34-MariaDB
+              </li>
+              <li>
+                <span role="img" aria-label="icon">
+                  📄
+                </span>
+                <strong>Server Software</strong>: LiteSpeed
+              </li>
+              <li>
+                <span role="img" aria-label="icon">
+                  📄
+                </span>
+                <strong>Client Browser</strong>: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+                AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
+              </li>
+              <li>
+                <span role="img" aria-label="icon">
+                  📄
+                </span>
+                <strong>IP Address</strong>: 115.79.38.83
+              </li>
+              <li>
+                <span role="img" aria-label="icon">
+                  📄
+                </span>
+                <strong>Version</strong>: 3.1.9
+              </li>
+            </ul>
+          </div>
         </CCol>
       </CRow>
     </>

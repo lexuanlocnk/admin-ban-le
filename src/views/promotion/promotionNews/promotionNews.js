@@ -2,7 +2,7 @@ import { cilColorBorder, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { CButton, CCol, CContainer, CImage, CRow, CTable } from '@coreui/react'
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Search from '../../../components/search/Search'
 
 const dataBrands = [
@@ -17,12 +17,14 @@ const dataBrands = [
 ]
 
 function PromotionNews() {
+  const navigate = useNavigate()
+
   const handleAddNewClick = () => {
     navigate('/promotion-news?sub=add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/promotion-news?id=${id}&sub=edit`)
+    navigate(`/promotion-news/edit?id=${id}`)
   }
 
   const handleSearch = () => {}

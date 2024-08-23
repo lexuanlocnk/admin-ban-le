@@ -1,9 +1,75 @@
 import React, { useEffect, useRef } from 'react'
 
-import { CChartLine } from '@coreui/react-chartjs'
+import { CChart, CChartLine } from '@coreui/react-chartjs'
 import { getStyle } from '@coreui/utils'
 
-const MainChart = () => {
+const data = {
+  Tuần: {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [
+      {
+        label: 'Khách mua hàng',
+        data: [12, 19, 3, 5, 2, 3, 7],
+        backgroundColor: 'rgba(60, 141, 188, 0.2)',
+        borderColor: '#3c8dbc',
+        pointBackgroundColor: '#3c8dbc',
+        pointBorderColor: '#fff',
+      },
+      {
+        label: 'Lượt truy cập',
+        data: [7, 11, 5, 8, 3, 7, 4],
+        backgroundColor: 'rgba(247, 114, 37, 0.2)',
+        borderColor: '#f77225',
+        pointBackgroundColor: '#f77225',
+        pointBorderColor: '#fff',
+      },
+    ],
+  },
+  Tháng: {
+    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+    datasets: [
+      {
+        label: 'Khách mua hàng',
+        data: [40, 30, 60, 80],
+        backgroundColor: 'rgba(60, 141, 188, 0.2)',
+        borderColor: '#3c8dbc',
+        pointBackgroundColor: '#3c8dbc',
+        pointBorderColor: '#fff',
+      },
+      {
+        label: 'Lượt truy cập',
+        data: [60, 45, 70, 90],
+        backgroundColor: 'rgba(247, 114, 37, 0.2)',
+        borderColor: '#f77225',
+        pointBackgroundColor: '#f77225',
+        pointBorderColor: '#fff',
+      },
+    ],
+  },
+  Năm: {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+      {
+        label: 'Khách mua hàng',
+        data: [40, 20, 12, 39, 10, 40, 39],
+        backgroundColor: 'rgba(60, 141, 188, 0.2)',
+        borderColor: '#3c8dbc',
+        pointBackgroundColor: '#3c8dbc',
+        pointBorderColor: '#fff',
+      },
+      {
+        label: 'Lượt truy cập',
+        data: [50, 12, 28, 29, 7, 25, 12],
+        backgroundColor: 'rgba(247, 114, 37, 0.2)',
+        borderColor: '#f77225',
+        pointBackgroundColor: '#f77225',
+        pointBorderColor: '#fff',
+      },
+    ],
+  },
+}
+
+const MainChart = ({ timePeriod }) => {
   const chartRef = useRef(null)
 
   useEffect(() => {
@@ -30,98 +96,33 @@ const MainChart = () => {
 
   return (
     <>
-      <CChartLine
-        ref={chartRef}
-        style={{ height: '300px', marginTop: '40px' }}
-        data={{
-          labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-          datasets: [
-            {
-              label: 'My First dataset',
-              backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
-              borderColor: getStyle('--cui-info'),
-              pointHoverBackgroundColor: getStyle('--cui-info'),
-              borderWidth: 2,
-              data: [
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-              ],
-              fill: true,
-            },
-            {
-              label: 'My Second dataset',
-              backgroundColor: 'transparent',
-              borderColor: getStyle('--cui-success'),
-              pointHoverBackgroundColor: getStyle('--cui-success'),
-              borderWidth: 2,
-              data: [
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-              ],
-            },
-            {
-              label: 'My Third dataset',
-              backgroundColor: 'transparent',
-              borderColor: getStyle('--cui-danger'),
-              pointHoverBackgroundColor: getStyle('--cui-danger'),
-              borderWidth: 1,
-              borderDash: [8, 5],
-              data: [65, 65, 65, 65, 65, 65, 65],
-            },
-          ],
-        }}
+      <CChart
+        type="line"
+        data={data[timePeriod]}
         options={{
-          maintainAspectRatio: false,
           plugins: {
             legend: {
-              display: false,
+              labels: {
+                color: getStyle('--cui-body-color'),
+              },
             },
           },
           scales: {
             x: {
               grid: {
                 color: getStyle('--cui-border-color-translucent'),
-                drawOnChartArea: false,
               },
               ticks: {
                 color: getStyle('--cui-body-color'),
               },
             },
             y: {
-              beginAtZero: true,
-              border: {
-                color: getStyle('--cui-border-color-translucent'),
-              },
               grid: {
                 color: getStyle('--cui-border-color-translucent'),
               },
-              max: 250,
               ticks: {
                 color: getStyle('--cui-body-color'),
-                maxTicksLimit: 5,
-                stepSize: Math.ceil(250 / 5),
               },
-            },
-          },
-          elements: {
-            line: {
-              tension: 0.4,
-            },
-            point: {
-              radius: 0,
-              hitRadius: 10,
-              hoverRadius: 4,
-              hoverBorderWidth: 3,
             },
           },
         }}
