@@ -25,6 +25,8 @@ import { unformatNumber } from '../../helper/utils'
 
 import { toast } from 'react-toastify'
 
+import { axiosClient } from '../../axiosConfig'
+
 function AddGift() {
   const [categories, setCategories] = useState([])
   const [editorData, setEditorData] = useState('')
@@ -68,7 +70,7 @@ function AddGift() {
 
   const fetchCategoriesData = async () => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      const response = await axiosClient.get('admin/category')
       setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
@@ -82,7 +84,7 @@ function AddGift() {
   const handleSubmit = async (values) => {
     setIsLoading(true)
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/present', {
+      const response = await axiosClient.post('admin/present', {
         title: values.title,
         code: values.releaseCode,
         cat_parent_id: values.industry.split(','),

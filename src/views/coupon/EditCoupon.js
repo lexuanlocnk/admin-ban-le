@@ -5,6 +5,7 @@ import moment from 'moment'
 
 import './css/editCoupon.css'
 import axios from 'axios'
+import { axiosClient } from '../../axiosConfig'
 
 const fakeData = [
   {
@@ -31,7 +32,7 @@ function EditCoupon() {
 
   const fetchCouponDetailData = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/coupon/${id}/edit`)
+      const response = await axiosClient.get(`admin/coupon/${id}/edit`)
       setDataCoupon(response.data.listCoupon)
       setDataCouponDetail(response.data.listCoupon.coupon_desc)
     } catch (error) {

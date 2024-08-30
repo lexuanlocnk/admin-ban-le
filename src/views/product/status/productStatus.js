@@ -27,6 +27,7 @@ import Search from '../../../components/search/Search'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function ProductStatus() {
   const location = useLocation()
@@ -96,8 +97,8 @@ function ProductStatus() {
 
   const fetchDataStaus = async (dataSearch = '') => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/productStatus?data=${dataSearch}&page=${pageNumber}`,
+      const response = await axiosClient.get(
+        `admin/productStatus?data=${dataSearch}&page=${pageNumber}`,
       )
       if (response.data.status === 'success') {
         setDataProductStatus(response.data.list)
@@ -114,7 +115,7 @@ function ProductStatus() {
   const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/productStatus/${id}/edit`)
+      const response = await axiosClient.get(`admin/productStatus/${id}/edit`)
       const data = response.data.productStatus
       if (response.data.status === true) {
         setValues({
@@ -142,7 +143,7 @@ function ProductStatus() {
     if (isEditing) {
       //call api update data
       try {
-        const response = await axios.put(`http://192.168.245.190:8000/api/productStatus/${id}`, {
+        const response = await axiosClient.put(`admin/productStatus/${id}`, {
           title: values.title,
           name: values.name,
           picture: selectedFile,
@@ -168,7 +169,7 @@ function ProductStatus() {
     } else {
       //call api post new data
       try {
-        const response = await axios.post('http://192.168.245.190:8000/api/productStatus', {
+        const response = await axiosClient.post('admin/productStatus', {
           title: values.title,
           name: values.name,
           picture: selectedFile,
@@ -232,9 +233,7 @@ function ProductStatus() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(
-        `http://192.168.245.190:8000/api/productStatus/${deletedId}`,
-      )
+      const response = await axiosClient.delete(`admin/productStatus/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataStaus()
@@ -341,10 +340,10 @@ function ProductStatus() {
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
 
       <CRow className="mb-3">
-        <CCol>
-          <h3>TRẠNG THÁI SẢN PHẨM</h3>
+        <CCol md={6}>
+          <h2>TRẠNG THÁI SẢN PHẨM</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <CButton
               onClick={handleAddNewClick}
@@ -424,10 +423,7 @@ function ProductStatus() {
                     <div>
                       {file.length == 0 ? (
                         <div>
-                          <CImage
-                            src={`http://192.168.245.190:8000/uploads/` + selectedFile}
-                            width={300}
-                          />
+                          <CImage src={`${imageBaseUrl}${selectedFile}`} width={200} />
                         </div>
                       ) : (
                         file.map((item, index) => <CImage key={index} src={item} fluid />)

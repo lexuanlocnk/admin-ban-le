@@ -88,7 +88,7 @@ function Support() {
 
   const fetchDataSupportGroup = async () => {
     try {
-      const response = await axiosClient.get('/support-group')
+      const response = await axiosClient.get('admin/support-group')
       if (response.data.status === true) {
         setSupportGroup(response.data.data)
       }
@@ -104,7 +104,7 @@ function Support() {
   const fetchSupportData = async (dataSearch = '') => {
     try {
       const response = await axiosClient.get(
-        `/support?data=${dataSearch}&page=${pageNumber}&group=${selectedGroup}`,
+        `admin/support?data=${dataSearch}&page=${pageNumber}&group=${selectedGroup}`,
       )
       const data = response.data.data
 
@@ -123,7 +123,7 @@ function Support() {
   const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/support/${id}/edit`)
+      const response = await axiosClient.get(`admin/support/${id}/edit`)
       const data = response.data.data
 
       if (response.data.status === true) {
@@ -149,7 +149,7 @@ function Support() {
     if (isEditing) {
       //call api update data
       try {
-        const response = await axiosClient.put(`support/${id}`, {
+        const response = await axiosClient.put(`admin/support/${id}`, {
           title: values.name,
           email: values.email,
           phone: values.phone,
@@ -171,7 +171,7 @@ function Support() {
     } else {
       //call api post new data
       try {
-        const response = await axiosClient.post('support', {
+        const response = await axiosClient.post('admin/support', {
           title: values.name,
           email: values.email,
           phone: values.phone,
@@ -203,7 +203,7 @@ function Support() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`support/${deletedId}`)
+      const response = await axiosClient.delete(`admin/support/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchSupportData()
@@ -312,7 +312,7 @@ function Support() {
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CCol md={6}>
-          <h3>QUẢN LÝ SUPPORT</h3>
+          <h2>QUẢN LÝ SUPPORT</h2>
         </CCol>
         <CCol md={6}>
           <div className="d-flex justify-content-end">

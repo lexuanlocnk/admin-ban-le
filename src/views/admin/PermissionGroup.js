@@ -7,6 +7,7 @@ import * as Yup from 'yup'
 
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../axiosConfig'
 
 function PermissionGroup() {
   const location = useLocation()
@@ -52,7 +53,7 @@ function PermissionGroup() {
 
   const fetchCateParent = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/cate-parent-per`)
+      const response = await axiosClient.get(`admin/cate-parent-per`)
       if (response.data.status === true) {
         setCateParentData(response.data.data)
       }
@@ -67,9 +68,7 @@ function PermissionGroup() {
 
   const fetchCateChild = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/select-cate-child-per/${parentCateChoosen}`,
-      )
+      const response = await axiosClient.get(`admin/select-cate-child-per/${parentCateChoosen}`)
       if (response.data.status === true) {
         setCateChildData(response.data.data)
       }
@@ -84,7 +83,7 @@ function PermissionGroup() {
 
   const fetchPermissionsData = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/permission`)
+      const response = await axiosClient.get(`admin/permission`)
       if (response.data.status === true) {
         setPermissionsData(response.data.permissions)
       }
@@ -99,7 +98,7 @@ function PermissionGroup() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/permission', {
+      const response = await axiosClient.post('admin/permission', {
         permissionName: values.permissions,
         parentCate: selectedLabel,
         childCate: values.childCate,
@@ -137,10 +136,10 @@ function PermissionGroup() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol md={{ span: 6 }}>
-          <h3>Thêm quyền hạn cho tab quản trị</h3>
+        <CCol md={6}>
+          <h3>THÊM QUYỀN HẠN TAB QUẢN TRỊ</h3>
         </CCol>
-        <CCol md={{ span: 6 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <CButton
               onClick={handleAddNewClick}
@@ -201,14 +200,15 @@ function PermissionGroup() {
                       as={CFormSelect}
                       id="childCate-select"
                       text="Lựa chọn danh mục sẽ thêm tab quản trị trong Admin."
-                      options={
-                        cateChildData &&
-                        cateChildData.length > 0 &&
-                        cateChildData.map((cate) => ({
-                          label: cate?.name,
-                          value: cate?.name,
-                        }))
-                      }
+                      options={[
+                        { label: '**Chọn danh mục**', value: '' },
+                        ...(cateChildData && cateChildData.length > 0
+                          ? cateChildData.map((cate) => ({
+                              label: cate?.name,
+                              value: cate?.name,
+                            }))
+                          : []),
+                      ]}
                     />
                     <ErrorMessage name="childCate" component="div" className="text-danger" />
                   </CCol>

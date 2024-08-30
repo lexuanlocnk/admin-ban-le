@@ -30,6 +30,7 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import { toast } from 'react-toastify'
 import axios, { isCancel } from 'axios'
+import { axiosClient } from '../../axiosConfig'
 
 function OrderStatus() {
   const location = useLocation()
@@ -89,8 +90,8 @@ function OrderStatus() {
 
   const fetchDataStatusOrder = async (dataSearch) => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/order-status?data=${dataSearch}&page=${pageNumber}`,
+      const response = await axiosClient.get(
+        `admin/order-status?data=${dataSearch}&page=${pageNumber}`,
       )
       if (response.data.status === true) {
         const orderStatus = response.data.orderStatus
@@ -107,7 +108,7 @@ function OrderStatus() {
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/order-status/${id}/edit`)
+      const response = await axiosClient.get(`admin/order-status/${id}/edit`)
       const data = response.data.orderStatus
       if (data) {
         setValues({
@@ -132,7 +133,7 @@ function OrderStatus() {
     console.log(values)
     if (isEditing) {
       try {
-        const response = await axios.put(`http://192.168.245.190:8000/api/order-status/${id}`, {
+        const response = await axiosClient.put(`admin/order-status/${id}`, {
           title: values.title,
           display: values.visible,
           color: values.color,
@@ -153,7 +154,7 @@ function OrderStatus() {
       }
     } else {
       try {
-        const response = await axios.post('http://192.168.245.190:8000/api/order-status', {
+        const response = await axiosClient.post('admin/order-status', {
           title: values.title,
           display: values.visible,
           color: values.color,
@@ -187,9 +188,7 @@ function OrderStatus() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(
-        `http://192.168.245.190:8000/api/order-status/${deletedId}`,
-      )
+      const response = await axiosClient.delete(`admin/order-status/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataStatusOrder()
@@ -303,10 +302,10 @@ function OrderStatus() {
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
-        <CCol>
+        <CCol md={6}>
           <h3>TRẠNG THÁI ĐƠN HÀNG</h3>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <CButton
               onClick={handleAddNewClick}

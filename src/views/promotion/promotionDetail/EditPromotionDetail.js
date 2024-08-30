@@ -23,6 +23,7 @@ import { formatNumber } from 'chart.js/helpers'
 import { unformatNumber } from '../../../helper/utils'
 import moment from 'moment'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../../axiosConfig'
 
 function EditPromotionDetail() {
   const [categories, setCategories] = useState([])
@@ -70,7 +71,7 @@ function EditPromotionDetail() {
 
   const fetchCategoriesData = async () => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      const response = await axiosClient.get('admin/category')
       setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
@@ -83,8 +84,9 @@ function EditPromotionDetail() {
 
   const fetchDataGiftPromotion = async (setValues) => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/gift-promotion/${id}/edit`)
+      const response = await axiosClient.get(`admin/gift-promotion/${id}/edit`)
       const data = response.data.data
+
       setEditorData(data.content)
       setValues({
         title: data.title,
@@ -106,7 +108,7 @@ function EditPromotionDetail() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/gift-promotion/${id}`, {
+      const response = await axiosClient.put(`admin/gift-promotion/${id}`, {
         title: values.title,
         code: values.releaseCode,
         cat_parent_id: [values.industry],

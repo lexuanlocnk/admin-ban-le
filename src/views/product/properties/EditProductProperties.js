@@ -15,6 +15,7 @@ import { ErrorMessage, Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../../axiosConfig'
 
 function EditProductProperties() {
   const location = useLocation()
@@ -42,7 +43,7 @@ function EditProductProperties() {
 
   const fetchDataCategoryChild = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/cat-option-child/${catId}`)
+      const response = await axiosClient.get(`admin/cat-option-child/${catId}`)
       const data = response.data.listOption
 
       if (data && response.data.status === true) {
@@ -59,7 +60,7 @@ function EditProductProperties() {
 
   const fetchDataProperties = async (setValues) => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/cat-option/${id}/edit`)
+      const response = await axiosClient.get(`admin/cat-option/${id}/edit`)
       const dataDesc = response.data.productCatOptionDesc
       const dataOption = response.data.productCatOption
 
@@ -81,7 +82,7 @@ function EditProductProperties() {
     console.log('>>>> cehck values', values)
     // api for submit
     try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/cat-option/${id}`, {
+      const response = await axiosClient.put(`admin/cat-option/${id}`, {
         title: values.title,
         parentid: values.parentId,
         cat_id: catId,
@@ -102,10 +103,10 @@ function EditProductProperties() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol>
-          <h3>TÍNH NĂNG THUỘC TÍNH</h3>
+        <CCol md={6}>
+          <h2>TÍNH NĂNG THUỘC TÍNH</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <Link to={`/product/properties`}>
               <CButton color="primary" type="submit" size="sm">

@@ -28,6 +28,7 @@ import { toast } from 'react-toastify'
 
 import './css/productFlashSale.css'
 import Loading from '../../../components/loading/Loading'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 function ProductHot() {
   const [dataProductList, setDataProductList] = useState([])
   const [productHotData, setProductHotData] = useState([])
@@ -96,9 +97,9 @@ function ProductHot() {
   const fetchData = async () => {
     try {
       const [categoriesResult, brandsResult, statusResult] = await Promise.allSettled([
-        axios.get('http://192.168.245.190:8000/api/category'),
-        axios.get('http://192.168.245.190:8000/api/brand?type=all'),
-        axios.get('http://192.168.245.190:8000/api/productStatus'),
+        axiosClient.get('admin/category'),
+        axiosClient.get('admin/brand?type=all'),
+        axiosClient.get('admin/productStatus'),
       ])
 
       if (categoriesResult.status === 'fulfilled') {
@@ -130,8 +131,8 @@ function ProductHot() {
   const fetchProductData = async () => {
     try {
       setIsLoading(true)
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
+      const response = await axiosClient.get(
+        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
       )
       if (response.data.status === true) {
         setDataProductList(response.data.product)
@@ -149,7 +150,7 @@ function ProductHot() {
 
   const fetchProductHot = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/product-hot`)
+      const response = await axiosClient.get(`admin/product-hot`)
 
       if (response.data.status === true) {
         setProductHotData(response.data.list)
@@ -187,7 +188,7 @@ function ProductHot() {
     console.log('>>> cehck deal:', selectedDealCheckbox)
 
     try {
-      const response = await axios.post(`http://192.168.245.190:8000/api/product-hot`, {
+      const response = await axiosClient.post(`admin/product-hot`, {
         data: selectedDealCheckbox,
         status_id: 4,
       })
@@ -205,20 +206,20 @@ function ProductHot() {
 
   const handleSubmitUndeal = async () => {
     console.log('>>> check undeal', selectedUnDealCheckbox)
-    // try {
-    //   const response = await axios.post(`http://192.168.245.190:8000/api/delete-all-hot `, {
-    //     data: selectedUnDealCheckbox,
-    //   })
+    try {
+      const response = await axiosClient.post(`admin/delete-all-hot `, {
+        data: selectedUnDealCheckbox,
+      })
 
-    //   if (response.data.status === true) {
-    //     toast.success('Set undeal các mục thành công!')
-    //     fetchProductHot()
-    //     setSelectedUnDealCheckbox([])
-    //   }
-    // } catch (error) {
-    //   console.error('Post set undeal data is error', error)
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+      if (response.data.status === true) {
+        toast.success('Set undeal các mục thành công!')
+        fetchProductHot()
+        setSelectedUnDealCheckbox([])
+      }
+    } catch (error) {
+      console.error('Post set undeal data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   const columns = [
@@ -281,7 +282,7 @@ function ProductHot() {
             <CImage
               className="d-flex justify-content-center align-items-center"
               width={50}
-              src={`http://192.168.245.190:8000/uploads/${item.picture}`}
+              src={`${imageBaseUrl}${item.picture}`}
               alt={`image_${item?.macn}`}
             />
           ),
@@ -311,7 +312,7 @@ function ProductHot() {
     <CContainer>
       <CRow className="my-3">
         <CCol>
-          <h3>SẢN PHẨM HOT</h3>
+          <h2>SẢN PHẨM HOT</h2>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">
@@ -401,7 +402,7 @@ function ProductHot() {
                         <CImage
                           className="d-flex justify-content-center align-items-center"
                           width={50}
-                          src={`http://192.168.245.190:8000/uploads/${item?.picture}`}
+                          src={`${imageBaseUrl}${item?.picture}`}
                           alt={`image_1`}
                         />
                       </CTableDataCell>
@@ -458,7 +459,7 @@ function ProductHot() {
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                       >
-                        <option>Chọn danh mục</option>
+                        <option value={''}>Chọn danh mục</option>
                         {categories &&
                           categories?.map((category) => (
                             <React.Fragment key={category.cat_id}>

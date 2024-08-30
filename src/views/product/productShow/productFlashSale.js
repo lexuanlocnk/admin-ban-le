@@ -26,6 +26,7 @@ import moment from 'moment'
 import { formatNumber, unformatNumber } from '../../../helper/utils'
 import { toast } from 'react-toastify'
 import './css/productFlashSale.css'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function ProductFlashSale() {
   const [dataProductList, setDataProductList] = useState([])
@@ -92,9 +93,9 @@ function ProductFlashSale() {
   const fetchData = async () => {
     try {
       const [categoriesResult, brandsResult, statusResult] = await Promise.allSettled([
-        axios.get('http://192.168.245.190:8000/api/category'),
-        axios.get('http://192.168.245.190:8000/api/brand?type=all'),
-        axios.get('http://192.168.245.190:8000/api/productStatus'),
+        axiosClient.get('admin/category'),
+        axiosClient.get('admin/brand?type=all'),
+        axiosClient.get('admin/productStatus'),
       ])
 
       if (categoriesResult.status === 'fulfilled') {
@@ -125,8 +126,8 @@ function ProductFlashSale() {
 
   const fetchProductData = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
+      const response = await axiosClient.get(
+        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
       )
       if (response.data.status === true) {
         setDataProductList(response.data.product)
@@ -142,7 +143,7 @@ function ProductFlashSale() {
 
   const fetchFlashSaleData = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/product-flash-sale`)
+      const response = await axiosClient.get(`admin/product-flash-sale`)
       if (response.data.status === true) {
         setFlashSaleData(response.data.list)
       }
@@ -177,7 +178,7 @@ function ProductFlashSale() {
 
   const handleSubmitDeal = async () => {
     try {
-      const response = await axios.post(`http://192.168.245.190:8000/api/product-flash-sale`, {
+      const response = await axiosClient.post(`admin/product-flash-sale`, {
         data: selectedDealCheckbox,
         status_id: 5,
       })
@@ -195,7 +196,7 @@ function ProductFlashSale() {
 
   const handleEditDeal = async (id) => {
     try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/product-flash-sale/${id}`, {
+      const response = await axiosClient.put(`admin/product-flash-sale/${id}`, {
         discount_price: editedPrice,
         start_time: startDate,
         end_time: endDate,
@@ -217,7 +218,7 @@ function ProductFlashSale() {
   const handleSubmitUndeal = async () => {
     console.log('>>> check undeal', selectedUnDealCheckbox)
     try {
-      const response = await axios.post(`http://192.168.245.190:8000/api/delete-all-flash-sale`, {
+      const response = await axiosClient.post(`admin/delete-all-flash-sale`, {
         data: selectedUnDealCheckbox,
       })
 
@@ -321,10 +322,10 @@ function ProductFlashSale() {
   return (
     <CContainer>
       <CRow className="my-3">
-        <CCol>
-          <h3>SẢN PHẨM FLASH SALE</h3>
+        <CCol md={6}>
+          <h2>SẢN PHẨM FLASH SALE</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <Link to={`/product`}>
               <CButton color="primary" type="submit" size="sm">
@@ -409,7 +410,7 @@ function ProductFlashSale() {
                       <CImage
                         className="d-flex justify-content-center align-items-center"
                         width={50}
-                        src={`http://192.168.245.190:8000/uploads/${item?.product?.picture}`}
+                        src={`${imageBaseUrl}${item?.product?.picture}`}
                         alt={`image_1`}
                       />
                     </CTableDataCell>
@@ -567,7 +568,7 @@ function ProductFlashSale() {
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                       >
-                        <option>Chọn danh mục</option>
+                        <option value={''}>Chọn danh mục</option>
                         {categories &&
                           categories?.map((category) => (
                             <React.Fragment key={category.cat_id}>

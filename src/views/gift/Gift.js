@@ -24,6 +24,7 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import axios from 'axios'
 import moment from 'moment/moment'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
+import { axiosClient } from '../../axiosConfig'
 
 function Gift() {
   const navigate = useNavigate()
@@ -103,7 +104,7 @@ function Gift() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(`http://192.168.245.190:8000/api/present/${deletedId}`)
+      const response = await axiosClient.delete(`admin/present/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchGiftCoupon()
@@ -127,8 +128,8 @@ function Gift() {
 
   const fetchGiftCoupon = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/present?data=${dataSearch}&StartDate=${startDate}&EndDate=${endDate}`,
+      const response = await axiosClient.get(
+        `admin/present?data=${dataSearch}&StartDate=${startDate}&EndDate=${endDate}`,
       )
       if (response.data.status === true) {
         setDataGift(response.data.data)

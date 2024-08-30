@@ -20,6 +20,7 @@ import './css/addCoupon.css'
 
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../axiosConfig'
 
 function AddCoupon() {
   const [categories, setCategories] = useState([])
@@ -61,7 +62,7 @@ function AddCoupon() {
 
   const fetchCategoriesData = async () => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      const response = await axiosClient.get('admin/category')
       setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
@@ -74,7 +75,7 @@ function AddCoupon() {
 
   const fetchBrandData = async () => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/brand')
+      const response = await axiosClient.get('admin/brand')
       if ((response.data.status = true)) {
         setBrands(response.data.list)
       }
@@ -89,7 +90,7 @@ function AddCoupon() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/coupon', {
+      const response = await axiosClient.post('admin/coupon', {
         TenCoupon: values.title,
         MaPhatHanh: values.releaseCode,
         StartCouponDate: values.startDate,
@@ -122,12 +123,12 @@ function AddCoupon() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol>
+        <CCol md={6}>
           <h3>THÊM ĐỢT PHÁT HÀNH</h3>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
-            <Link to={`/product/properties`}>
+            <Link to={`/coupon`}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
               </CButton>

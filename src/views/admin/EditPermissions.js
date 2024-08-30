@@ -3,6 +3,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../axiosConfig'
 
 function EditPermissions() {
   const location = useLocation()
@@ -23,7 +24,7 @@ function EditPermissions() {
 
   const fetchDataById = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/role/${id}/edit`)
+      const response = await axiosClient.get(`admin/role/${id}/edit`)
       const data = response.data.role
       if (response.data.status === true) {
         setTitle(data?.title)
@@ -41,7 +42,7 @@ function EditPermissions() {
 
   const fetchPermissionsData = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/permission`)
+      const response = await axiosClient.get(`admin/permission`)
       if (response.data.status === true) {
         setPermissionsData(response.data.permissions)
       }
@@ -58,7 +59,7 @@ function EditPermissions() {
     console.log('>>> cehck permissions arr', selectedPermissions)
 
     try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/role/${id}`, {
+      const response = await axiosClient.put(`admin/role/${id}`, {
         title: title,
         name: role,
         permission_id: selectedPermissions,

@@ -8,12 +8,13 @@ import {
   CImage,
   CRow,
 } from '@coreui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 import { formatNumber, unformatNumber } from '../../helper/utils'
+import { toast } from 'react-toastify'
 
 function ProductConfig() {
   // upload image and show image
@@ -66,50 +67,55 @@ function ProductConfig() {
     setFile(fileUrls)
   }
 
-  // const fetchDataById = async (setValues) => {
-  //   try {
-  //     const response = await axiosClient.get(`product/brand/${id}/edit`)
-  //     const data = response.data.brand
-  //     if (data) {
-  //       setValues({
-  //         title: data.brand_desc.title,
-  //         description: data.brand_desc.description,
-  //         friendlyUrl: data.brand_desc.friendly_url,
-  //         pageTitle: data.brand_desc.friendly_title,
-  //         metaKeyword: data.brand_desc.metakey,
-  //         metaDesc: data.brand_desc.metadesc,
-  //         visible: data.display,
-  //       })
-  //       setSelectedFile(data.picture)
-  //     } else {
-  //       console.error('No data found for the given ID.')
-  //     }
-  //   } catch (error) {
-  //     console.error('Fetch data id product brand is error', error.message)
-  //   }
-  // }
+  const fetchDataById = async (setValues) => {
+    try {
+      const response = await axiosClient.get(`admin/config/1/edit`)
+      const data = response.data.data
+      if (data && response.data.status === true) {
+        setValues({
+          point: data.priceOfPoint,
+          productPerPage: data.productOfPage,
+          widthImage: data.width,
+          pageTitle: data.title,
+          metaKeyword: data.metaKeywords,
+          metaDesc: data.metaDescription,
+          visible: data.displayPicture,
+        })
+        setSelectedFile(data.picture)
+      } else {
+        console.error('No data found for the given ID.')
+      }
+    } catch (error) {
+      console.error('Fetch data id product config is error', error.message)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataById()
+  }, [])
 
   const handleSubmit = async (values) => {
-    console.log('>>>> values', values)
+    try {
+      const response = await axiosClient.put('admin/config/1', {
+        title: values.pageTitle,
+        metaKeywords: values.metaKeyword,
+        metaDescription: values.metaDesc,
+        priceOfPoint: values.point,
+        productOfPage: values.productPerPage,
+        width: values.widthImage,
+        display: values.visible,
+        picture: selectedFile,
+      })
 
-    // try {
-    //   const response = await axiosClient.put('/product', {
-    //     pageTitle: values.pageTitle,
-    //     metaKeyword: values.metaKeyword,
-    //     metaDesc: values.metaDesc,
-    //     moneyPerPoint: values.point,
-    //     productPerPage: values.productPerPage,
-    //     width: values.widthImage,
-    //     display: values.visible,
-    //     picture: selectedFile,
-    //   })
-
-    //   if (response.data.status === true) {
-    //     // notify
-    //   }
-    // } catch (error) {
-    //   console.error('Put product config data is error', error)
-    // }
+      if (response.data.status === true) {
+        toast.success('Cập nhật cấu hình thành công')
+      } else {
+        console.error('No data found for the given ID.')
+      }
+    } catch (error) {
+      console.error('Put product config data is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   return (
@@ -128,9 +134,9 @@ function ProductConfig() {
             onSubmit={handleSubmit}
           >
             {({ setFieldValue, setValues }) => {
-              // useEffect(() => {
-              //   fetchDataById(setValues)
-              // }, [setValues, id])
+              useEffect(() => {
+                fetchDataById(setValues)
+              }, [setValues])
               return (
                 <Form>
                   <h6>Search Engine Optimization</h6>
@@ -150,9 +156,10 @@ function ProductConfig() {
                   <CCol md={12}>
                     <label htmlFor="metaKeyword-input">Meta keywords</label>
                     <Field
+                      style={{ height: '100px' }}
                       name="metaKeyword"
                       type="text"
-                      as={CFormInput}
+                      as={CFormTextarea}
                       id="metaKeyword-input"
                       text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                     />
@@ -162,9 +169,10 @@ function ProductConfig() {
                   <CCol md={12}>
                     <label htmlFor="metaDesc-input">Meta description</label>
                     <Field
+                      style={{ height: '100px' }}
                       name="metaDesc"
                       type="text"
-                      as={CFormInput}
+                      as={CFormTextarea}
                       id="metaDesc-input"
                       text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                     />
@@ -247,7 +255,7 @@ function ProductConfig() {
                     <div>
                       {file.length == 0 ? (
                         <div>
-                          <CImage src={`${imageBaseUrl}` + selectedFile} width={370} />
+                          <CImage src={`${imageBaseUrl}${selectedFile}`} width={370} />
                         </div>
                       ) : (
                         file.map((item, index) => <CImage key={index} src={item} width={370} />)

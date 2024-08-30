@@ -16,6 +16,7 @@ import '../css/editOrder.scss'
 import axios from 'axios'
 import moment from 'moment'
 import { toast } from 'react-toastify'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function EditOrder() {
   const location = useLocation()
@@ -31,7 +32,7 @@ function EditOrder() {
 
   const fetchDataStatusOrder = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/order-status`)
+      const response = await axiosClient.get(`admin/order-status`)
       if (response.data.status === true) {
         const orderStatus = response.data.orderStatus.data
         setDataStatus(orderStatus)
@@ -47,7 +48,7 @@ function EditOrder() {
 
   const fetchOrderDataDetail = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/order/${id}/edit`)
+      const response = await axiosClient.get(`admin/order/${id}/edit`)
 
       const data = response.data.dataOrder
       if (data) {
@@ -72,7 +73,7 @@ function EditOrder() {
   const handleUpdateClick = async () => {
     // submit api put
     try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/order/${id}`, {
+      const response = await axiosClient.put(`admin/order/${id}`, {
         status: choosenStatus,
         comment: orderNote,
       })
@@ -201,7 +202,7 @@ function EditOrder() {
                       <td>{index + 1}</td>
                       <td>
                         <img
-                          src={`http://192.168.245.190:8000/uploads/product/${item.product?.picture}`}
+                          src={`${imageBaseUrl}/product/${item.product?.picture}`}
                           alt={'img-product'}
                         />
                       </td>
@@ -215,29 +216,65 @@ function EditOrder() {
                   ))}
                 </tbody>
               </table>
-              <div className="total">
-                <div className="total">
-                  Thành tiền:{' '}
+
+              <div className="d-flex justify-content-between">
+                <div className="mt-3">
+                  <div
+                    style={{
+                      fontWeight: 600,
+                    }}
+                  >
+                    {dataOrderDetail.valueCoupon && dataOrderDetail.valueCoupon !== null ? (
+                      <div>
+                        Đơn hàng áp dụng Coupon:
+                        {`${dataOrderDetail.valueCoupon.MaPhatHanh}, Giá trị: ${dataOrderDetail.valueCoupon.GiaTriCoupon.toLocaleString('vi-VN')}đ`}
+                      </div>
+                    ) : (
+                      `Đơn hàng không áp dụng Coupon`
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                    }}
+                  >
+                    {dataOrderDetail.PresentDes && dataOrderDetail.PresentDes !== null && (
+                      <>
+                        <div>
+                          Đơn hành có quà tặng kèm: {`${dataOrderDetail.PresentDes?.title}`}
+                        </div>
+                        <div
+                          dangerouslySetInnerHTML={{ __html: dataOrderDetail.PresentDes?.content }}
+                        ></div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="total justify-content-end">
+                  <div className="total">
+                    Thành tiền:{' '}
+                    <span>
+                      {dataOrderDetail.total_price &&
+                        dataOrderDetail.total_price?.toLocaleString('vi-VN')}
+                      đ
+                    </span>
+                  </div>
+                  Giảm giá:{' '}
                   <span>
-                    {dataOrderDetail.total_price &&
-                      dataOrderDetail.total_price?.toLocaleString('vi-VN')}
+                    {dataOrderDetail.CouponDiscout &&
+                      dataOrderDetail.CouponDiscout?.toLocaleString('vi-VN')}
                     đ
                   </span>
+                  <div>
+                    Tổng tiền:{' '}
+                    <span>
+                      {dataOrderDetail.total_cart &&
+                        dataOrderDetail.total_cart?.toLocaleString('vi-VN')}
+                      đ
+                    </span>
+                  </div>
                 </div>
-                Giảm giá:{' '}
-                <span>
-                  {dataOrderDetail.CouponDiscout &&
-                    dataOrderDetail.CouponDiscout?.toLocaleString('vi-VN')}
-                  đ
-                </span>
-              </div>
-              <div className="total">
-                Tổng tiền:{' '}
-                <span>
-                  {dataOrderDetail.total_cart &&
-                    dataOrderDetail.total_cart?.toLocaleString('vi-VN')}
-                  đ
-                </span>
               </div>
             </CCol>
 

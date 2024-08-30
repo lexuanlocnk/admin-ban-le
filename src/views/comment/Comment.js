@@ -65,7 +65,7 @@ function Comment() {
 
   const fetchCommentData = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(`/comment?page=${pageNumber}&data=${dataSearch}`)
+      const response = await axiosClient.get(`admin/comment?page=${pageNumber}&data=${dataSearch}`)
 
       if (response.data.status === true) {
         setCommentData(response.data.listComment)
@@ -83,7 +83,7 @@ function Comment() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`comment/${deletedId}`)
+      const response = await axiosClient.delete(`admin/comment/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchCommentData()
@@ -98,7 +98,7 @@ function Comment() {
     console.log('>>> selectedCheckbox', selectedCheckbox)
 
     try {
-      const response = await axiosClient.post('/delete-all-comment', {
+      const response = await axiosClient.post('admin/delete-all-comment', {
         data: selectedCheckbox,
       })
     } catch (error) {

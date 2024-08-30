@@ -33,6 +33,7 @@ import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber, unformatNumber } from '../../helper/utils'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../axiosConfig'
 
 const paymentMethods = [
   {
@@ -113,8 +114,8 @@ function ShippingMethod() {
 
   const fetchDataShippingMethod = async (dataSearch) => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/shipping-method?data=${dataSearch}&page=${pageNumber}`,
+      const response = await axiosClient.get(
+        `admin/shipping-method?data=${dataSearch}&page=${pageNumber}`,
       )
       const shippingMethodData = response.data
       if (shippingMethodData.status === true) {
@@ -131,7 +132,7 @@ function ShippingMethod() {
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/shipping-method/${id}/edit`)
+      const response = await axiosClient.get(`admin/shipping-method/${id}/edit`)
       const shippingMethodData = response.data.data
       if (shippingMethodData) {
         setValues({
@@ -154,7 +155,7 @@ function ShippingMethod() {
       //call api update data
       try {
         setIsLoading(true)
-        const response = await axios.put(`http://192.168.245.190:8000/api/shipping-method/${id}`, {
+        const response = await axiosClient.put(`admin/shipping-method/${id}`, {
           title: values.title,
           display: values.visible,
           name: values.name,
@@ -177,7 +178,7 @@ function ShippingMethod() {
     } else {
       //call api post new data
       try {
-        const response = await axios.post('http://192.168.245.190:8000/api/shipping-method', {
+        const response = await axiosClient.post('admin/shipping-method', {
           title: values.title,
           display: values.visible,
           name: values.name,
@@ -209,9 +210,7 @@ function ShippingMethod() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(
-        `http://192.168.245.190:8000/api/shipping-method/${deletedId}`,
-      )
+      const response = await axiosClient.delete(`admin/shipping-method/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataShippingMethod()

@@ -14,6 +14,7 @@ import {
 } from '@coreui/react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function AddProductCategory() {
   const [categories, setCategories] = useState([])
@@ -60,8 +61,8 @@ function AddProductCategory() {
 
   const fetchCategoriesData = async () => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
-      setCategories(response.data)
+      const response = await axiosClient.get('admin/category')
+      setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
     }
@@ -129,7 +130,7 @@ function AddProductCategory() {
     console.log('>>>check values', values)
     // async requets fetch
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/category', {
+      const response = await axiosClient.post('admin/category', {
         cat_name: values.title,
         friendly_url: values.friendlyUrl,
         parentid: values.parentId,
@@ -251,10 +252,7 @@ function AddProductCategory() {
                   <div>
                     {file.length == 0 ? (
                       <div>
-                        <CImage
-                          src={`http://192.168.245.190:8000/uploads/` + selectedFile}
-                          width={370}
-                        />
+                        <CImage src={`${imageBaseUrl}${selectedFile}`} width={370} />
                       </div>
                     ) : (
                       file.map((item, index) => <CImage key={index} src={item} width={370} />)
@@ -277,10 +275,7 @@ function AddProductCategory() {
                   <div>
                     {fileBackground.length == 0 ? (
                       <div>
-                        <CImage
-                          src={`http://192.168.245.190:8000/uploads/` + selectedFile}
-                          width={370}
-                        />
+                        <CImage src={`${imageBaseUrl}${selectedFile}`} width={370} />
                       </div>
                     ) : (
                       fileBackground.map((item, index) => (

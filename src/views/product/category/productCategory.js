@@ -6,6 +6,7 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import axios from 'axios'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function ProductCategory() {
   const navigate = useNavigate()
@@ -21,9 +22,7 @@ function ProductCategory() {
 
   const fetchDataCategories = async (dataSearch = '') => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/category?data=${dataSearch}`,
-      )
+      const response = await axiosClient.get(`admin/category?data=${dataSearch}`)
       const data = response.data.data
 
       if (data) {
@@ -54,7 +53,7 @@ function ProductCategory() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(`http://192.168.245.190:8000/api/category/${deletedId}`)
+      const response = await axiosClient.delete(`admin/category/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataCategories()
@@ -121,7 +120,7 @@ function ProductCategory() {
                       </td>
                       <td scope="row">
                         <CImage
-                          src={`http://192.168.245.190:8000/uploads/${cate.background !== null && cate.background !== '' ? cate.background : 'no-image.jpg'}`}
+                          src={`${imageBaseUrl}${cate.background !== null && cate.background !== '' ? cate.background : 'no-image.jpg'}`}
                           width={50}
                         />
                       </td>
@@ -164,7 +163,7 @@ function ProductCategory() {
                             </td>
                             <td scope="row">
                               <CImage
-                                src={`http://192.168.245.190:8000/uploads/${subCate.background !== null && subCate.background !== '' ? subCate.background : 'no-image.jpg'}`}
+                                src={`${imageBaseUrl}${subCate.background !== null && subCate.background !== '' ? subCate.background : 'no-image.jpg'}`}
                                 width={50}
                               />
                             </td>
@@ -207,7 +206,7 @@ function ProductCategory() {
                                   </td>
                                   <td scope="row">
                                     <CImage
-                                      src={`http://192.168.245.190:8000/uploads/${childCate.background !== null && childCate.background !== '' ? childCate.background : 'no-image.jpg'}`}
+                                      src={`${imageBaseUrl}${childCate.background !== null && childCate.background !== '' ? childCate.background : 'no-image.jpg'}`}
                                       width={50}
                                     />
                                   </td>

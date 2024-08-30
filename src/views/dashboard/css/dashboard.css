@@ -41,3 +41,7 @@
   color: #000;
   margin-right: 8px;
 }
+
+table th {
+  white-space: nowrap;
+}

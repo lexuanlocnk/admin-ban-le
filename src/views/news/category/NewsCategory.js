@@ -15,17 +15,17 @@ import {
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import Search from '../../components/search/Search'
+import Search from '../../../components/search/Search'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
-import DeletedModal from '../../components/deletedModal/DeletedModal'
+import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { axiosClient, imageBaseUrl } from '../../axiosConfig'
+import { axiosClient } from '../../../axiosConfig'
 
-function ProductBrand() {
+function NewsCategory() {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -33,25 +33,21 @@ function ProductBrand() {
   const id = params.get('id')
   const sub = params.get('sub')
 
+  console.log('>>>> hgeck id', id)
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
-  const [dataBrands, setDataBrands] = useState([])
-  const [countBrand, setCountBrand] = useState(null)
+  const [dataNewsCategory, setDataNewsCategroy] = useState([])
+  const [countNewsCategory, setCountNewsCategory] = useState(null)
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
   const [deletedId, setDeletedId] = useState(null)
 
-  // selected checkbox
+  // checkbox selected
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
-
-  // upload image and show image
-  const [selectedFile, setSelectedFile] = useState('')
-  const [file, setFile] = useState([])
-
-  // search input
-  // const [dataSearch, setDataSearch] = useState('')
 
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
@@ -63,16 +59,16 @@ function ProductBrand() {
     pageTitle: '',
     metaKeyword: '',
     metaDesc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
-    title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
+    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
+    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
+    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -86,12 +82,13 @@ function ProductBrand() {
     }
   }, [location.search])
 
-  const fetchDataBrands = async (dataSearch = '') => {
+  const fetchDataNewsCategory = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(`admin/brand?data=${dataSearch}&page=${pageNumber}`)
+      const response = await axiosClient.get(
+        `admin/news-category?data=${dataSearch}&page=${pageNumber}`,
+      )
       if (response.data.status === true) {
-        setDataBrands(response.data.list)
-        setCountBrand(response.data.total)
+        setDataNewsCategroy(response.data.list)
       }
     } catch (error) {
       console.error('Fetch data product brand is error', error)
@@ -99,29 +96,28 @@ function ProductBrand() {
   }
 
   useEffect(() => {
-    fetchDataBrands()
+    fetchDataNewsCategory()
   }, [pageNumber])
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/brand/${id}/edit`)
-      const data = response.data.brand
+      const response = await axiosClient.get(`admin/news-category/${id}/edit`)
+      const data = response.data.newsCategory
       if (data) {
         setValues({
-          title: data.brand_desc.title,
-          description: data.brand_desc.description,
-          friendlyUrl: data.brand_desc.friendly_url,
-          pageTitle: data.brand_desc.friendly_title,
-          metaKeyword: data.brand_desc.metakey,
-          metaDesc: data.brand_desc.metadesc,
+          title: data?.news_category_desc.cat_name,
+          description: data?.news_category_desc.description,
+          friendlyUrl: data?.news_category_desc.friendly_url,
+          pageTitle: data?.news_category_desc.friendly_title,
+          metaKeyword: data?.news_category_desc.metakey,
+          metaDesc: data?.news_category_desc.metadesc,
           visible: data.display,
         })
-        setSelectedFile(data.picture)
       } else {
         console.error('No data found for the given ID.')
       }
     } catch (error) {
-      console.error('Fetch data id product brand is error', error.message)
+      console.error('Fetch data id news category is error', error.message)
     }
   }
 
@@ -129,94 +125,65 @@ function ProductBrand() {
     if (isEditing) {
       //call api update data
       try {
-        const response = await axiosClient.put(`admin/brand/${id}`, {
+        const response = await axiosClient.put(`admin/news-category/${id}`, {
+          cat_name: values.title,
           description: values.description,
-          title: values.title,
           friendly_url: values.friendlyUrl,
           friendly_title: values.pageTitle,
           metakey: values.metaKeyword,
           metadesc: values.metaDesc,
           display: values.visible,
-          picture: selectedFile,
         })
-
         if (response.data.status === true) {
-          toast.success('Cập nhật thương hiệu thành công')
+          toast.success('Cập nhật danh mục thành công')
+          fetchDataNewsCategory()
         } else {
           console.error('No data found for the given ID.')
         }
       } catch (error) {
-        console.error('Put data id product brand is error', error.message)
+        console.error('Put data id news category is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
     } else {
       //call api post new data
       try {
-        const response = await axiosClient.post('admin/brand', {
-          title: values.title,
+        const response = await axiosClient.post('admin/news-category', {
+          cat_name: values.title,
           description: values.description,
           friendly_url: values.friendlyUrl,
           friendly_title: values.pageTitle,
           metakey: values.metaKeyword,
           metadesc: values.metaDesc,
           display: values.visible,
-          picture: selectedFile,
         })
 
         if (response.data.status === true) {
-          toast.success('Thêm mới thương hiệu thành công!')
-          fetchDataBrands()
+          toast.success('Thêm mới danh mục thành công!')
+          fetchDataNewsCategory()
         }
       } catch (error) {
-        console.error('Post data product brand is error', error)
+        console.error('Post data news category is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
     }
   }
 
-  //set img avatar
-  function onFileChange(e) {
-    const files = e.target.files
-    const selectedFiles = []
-    const fileUrls = []
-
-    Array.from(files).forEach((file) => {
-      // Create a URL for the file
-      fileUrls.push(URL.createObjectURL(file))
-
-      // Read the file as base64
-      const fileReader = new FileReader()
-      fileReader.readAsDataURL(file)
-
-      fileReader.onload = (event) => {
-        selectedFiles.push(event.target.result)
-        // Set base64 data after all files have been read
-        if (selectedFiles.length === files.length) {
-          setSelectedFile(selectedFiles)
-        }
-      }
-    })
-
-    // Set file URLs for immediate preview
-    setFile(fileUrls)
-  }
-
   const handleAddNewClick = () => {
-    navigate('/product/brand?sub=add')
+    navigate('/news/category?sub=add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/product/brand?id=${id}&sub=edit`)
+    navigate(`/news/category?id=${id}&sub=edit`)
   }
 
   // delete row
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/brand/${deletedId}`)
+      const response = await axiosClient.delete(`admin/news-category/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
-        fetchDataBrands()
+        fetchDataNewsCategory()
       }
     } catch (error) {
       console.error('Delete brand id is error', error)
@@ -238,41 +205,37 @@ function ProductBrand() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataBrands(keyword)
+    fetchDataNewsCategory(keyword)
   }
 
   const items =
-    dataBrands && dataBrands?.length > 0
-      ? dataBrands.map((item) => ({
+    dataNewsCategory && dataNewsCategory?.length > 0
+      ? dataNewsCategory.map((item) => ({
           id: (
             <CFormCheck
-              id={item.brandId}
-              checked={selectedCheckbox.includes(item.brandId)}
-              value={item.brandId}
+              key={item?.cat_id}
+              aria-label="Default select example"
+              defaultChecked={item?.cat_id}
+              id={`flexCheckDefault_${item?.cat_id}`}
+              value={item?.cat_id}
+              checked={selectedCheckbox.includes(item?.cat_id)}
               onChange={(e) => {
-                const idx = item.brandId
+                const categoriesId = item?.cat_id
                 const isChecked = e.target.checked
                 if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, idx])
+                  setSelectedCheckbox([...selectedCheckbox, categoriesId])
                 } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== idx))
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== categoriesId))
                 }
               }}
             />
           ),
-          title: item.title,
-          image: (
-            <CImage
-              src={`${imageBaseUrl}${item.picture}`}
-              alt={`Ảnh thương hiệu ${item.title}`}
-              width={50}
-            />
-          ),
-          url: item.friendlyUrl,
+          title: item?.news_category_desc?.cat_name,
+          url: item?.news_category_desc?.friendly_url,
           actions: (
             <div>
               <button
-                onClick={() => handleEditClick(item.brandId)}
+                onClick={() => handleEditClick(item.cat_id)}
                 className="button-action mr-2 bg-info"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
@@ -280,7 +243,7 @@ function ProductBrand() {
               <button
                 onClick={() => {
                   setVisible(true)
-                  setDeletedId(item.brandId)
+                  setDeletedId(item.cat_id)
                 }}
                 className="button-action bg-danger"
               >
@@ -303,11 +266,7 @@ function ProductBrand() {
       label: 'Tiêu đề',
       _props: { scope: 'col' },
     },
-    {
-      key: 'image',
-      label: 'Hình ảnh',
-      _props: { scope: 'col' },
-    },
+
     {
       key: 'url',
       label: 'Chuỗi đường dẫn',
@@ -325,7 +284,7 @@ function ProductBrand() {
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CCol md={6}>
-          <h2>THƯƠNG HIỆU SẢN PHẨM</h2>
+          <h3>DANH MỤC TIN TỨC</h3>
         </CCol>
         <CCol md={6}>
           <div className="d-flex justify-content-end">
@@ -349,7 +308,7 @@ function ProductBrand() {
 
       <CRow>
         <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm thương hiệu mới' : 'Cập nhật thương hiệu'}</h6>
+          <h6>{!isEditing ? 'Thêm danh mục mới' : 'Cập nhật danh mục'}</h6>
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
@@ -377,35 +336,7 @@ function ProductBrand() {
                     <ErrorMessage name="title" component="div" className="text-danger" />
                   </CCol>
                   <br />
-                  <CCol md={12}>
-                    <CFormInput
-                      name="avatar"
-                      type="file"
-                      id="formFile"
-                      label="Ảnh đại diện"
-                      size="sm"
-                      onChange={(e) => onFileChange(e)}
-                    />
-                    <br />
-                    <ErrorMessage name="avatar" component="div" className="text-danger" />
 
-                    <div>
-                      {file.length == 0 ? (
-                        <div>
-                          <CImage
-                            className="border"
-                            src={`${imageBaseUrl}${selectedFile}`}
-                            width={200}
-                          />
-                        </div>
-                      ) : (
-                        file.map((item, index) => (
-                          <CImage className="border" key={index} src={item} width={200} />
-                        ))
-                      )}
-                    </div>
-                  </CCol>
-                  <br />
                   <CCol md={12}>
                     <label htmlFor="desc-input">Mô tả</label>
                     <Field
@@ -450,7 +381,7 @@ function ProductBrand() {
                     <Field
                       name="metaKeyword"
                       type="text"
-                      as={CFormInput}
+                      as={CFormTextarea}
                       id="metaKeyword-input"
                       text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                     />
@@ -462,7 +393,7 @@ function ProductBrand() {
                     <Field
                       name="metaDesc"
                       type="text"
-                      as={CFormInput}
+                      as={CFormTextarea}
                       id="metaDesc-input"
                       text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                     />
@@ -497,12 +428,12 @@ function ProductBrand() {
         </CCol>
 
         <CCol>
-          <Search count={countBrand} onSearchData={handleSearch} />
+          <Search count={dataNewsCategory?.length} onSearchData={handleSearch} />
           <CTable className="mt-2" columns={columns} items={items} />
 
           <div className="d-flex justify-content-end">
             <ReactPaginate
-              pageCount={Math.ceil(countBrand / 15)}
+              pageCount={Math.ceil(dataNewsCategory?.length / 15)}
               pageRangeDisplayed={3}
               marginPagesDisplayed={1}
               pageClassName="page-item"
@@ -527,4 +458,4 @@ function ProductBrand() {
   )
 }
 
-export default ProductBrand
+export default NewsCategory

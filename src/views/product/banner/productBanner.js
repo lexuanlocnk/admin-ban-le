@@ -26,6 +26,7 @@ import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function ProductBanner() {
   const location = useLocation()
@@ -96,8 +97,8 @@ function ProductBanner() {
 
   const fetchCategoriesData = async () => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
-      setCategories(response.data)
+      const response = await axiosClient.get('admin/category')
+      setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
     }
@@ -109,8 +110,8 @@ function ProductBanner() {
 
   const fetchDataBanner = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/product-advertise?data=${dataSearch}&page=${pageNumber}&cat_id=${selectedCate}`,
+      const response = await axiosClient.get(
+        `admin/product-advertise?data=${dataSearch}&page=${pageNumber}&cat_id=${selectedCate}`,
       )
       if (response.data.status === true) {
         setDataBanner(response.data.data)
@@ -127,9 +128,7 @@ function ProductBanner() {
   const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/product-advertise/${id}/edit`,
-      )
+      const response = await axiosClient.get(`admin/product-advertise/${id}/edit`)
       const data = response.data.data
       if (response.data.status === true) {
         setValues({
@@ -157,20 +156,17 @@ function ProductBanner() {
     if (isEditing) {
       //call api update data
       try {
-        const response = await axios.put(
-          `http://192.168.245.190:8000/api/product-advertise/${id}`,
-          {
-            title: values.title,
-            picture: selectedFile,
-            link: values.url,
-            target: values.destination,
-            cat_id: values.categories,
-            width: values.width,
-            height: values.height,
-            description: values.desc,
-            display: values.visible,
-          },
-        )
+        const response = await axiosClient.put(`admin/product-advertise/${id}`, {
+          title: values.title,
+          picture: selectedFile,
+          link: values.url,
+          target: values.destination,
+          cat_id: values.categories,
+          width: values.width,
+          height: values.height,
+          description: values.desc,
+          display: values.visible,
+        })
 
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công')
@@ -185,7 +181,7 @@ function ProductBanner() {
     } else {
       //call api post new data
       try {
-        const response = await axios.post('http://192.168.245.190:8000/api/product-advertise', {
+        const response = await axiosClient.post('admin/product-advertise', {
           title: values.title,
           picture: selectedFile,
           link: values.url,
@@ -220,9 +216,7 @@ function ProductBanner() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(
-        `http://192.168.245.190:8000/api/product-advertise/${deletedId}`,
-      )
+      const response = await axiosClient.delete(`admin/product-advertise/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataBanner()
@@ -307,7 +301,7 @@ function ProductBanner() {
     dataBanner?.data && dataBanner?.data.length > 0
       ? dataBanner?.data.map((item) => ({
           id: <CFormCheck id="flexCheckDefault" />,
-          images: <CImage fluid src={`http://192.168.245.190:8000/uploads/${item.picture}`} />,
+          images: <CImage className="border" fluid src={`${imageBaseUrl}${item.picture}`} />,
           url: item.link,
           dimensions: `${item.width}X${item.height}`,
           actions: (
@@ -353,10 +347,10 @@ function ProductBanner() {
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
-        <CCol>
-          <h3>BANNER SẢN PHẨM</h3>
+        <CCol md={6}>
+          <h2>BANNER SẢN PHẨM</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <CButton
               onClick={handleAddNewClick}
@@ -423,12 +417,15 @@ function ProductBanner() {
                       {file.length == 0 ? (
                         <div>
                           <CImage
-                            src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                            className="border"
+                            src={`${imageBaseUrl}${selectedFile}`}
                             width={300}
                           />
                         </div>
                       ) : (
-                        file.map((item, index) => <CImage key={index} src={item} fluid />)
+                        file.map((item, index) => (
+                          <CImage className="border" key={index} src={item} fluid />
+                        ))
                       )}
                     </div>
                   </CCol>
@@ -449,7 +446,7 @@ function ProductBanner() {
                   <CCol md={12}>
                     <label htmlFor="destination-select">Đích đến</label>
                     <Field
-                      className="component-size w-50"
+                      className="component-size"
                       name="destination"
                       as={CFormSelect}
                       id="destination-select"
@@ -468,7 +465,7 @@ function ProductBanner() {
                   <CCol md={12}>
                     <label htmlFor="categories-select">Danh mục đăng</label>
                     <Field
-                      className="component-size w-50"
+                      className="component-size"
                       name="categories"
                       as={CFormSelect}
                       id="categories-select"

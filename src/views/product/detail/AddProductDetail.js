@@ -21,6 +21,7 @@ import { formatNumber, unformatNumber } from '../../../helper/utils'
 import useDebounce from '../../../helper/debounce'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function AddProductDetail() {
   const [descEditor, setDescEditor] = useState('')
@@ -113,9 +114,9 @@ function AddProductDetail() {
   const fetchData = async () => {
     try {
       const [categoriesResult, brandsResult, statusResult] = await Promise.allSettled([
-        axios.get('http://192.168.245.190:8000/api/category'),
-        axios.get('http://192.168.245.190:8000/api/brand?type=all'),
-        axios.get('http://192.168.245.190:8000/api/productStatus'),
+        axiosClient.get('admin/category'),
+        axiosClient.get('admin/brand?type=all'),
+        axiosClient.get('admin/productStatus'),
       ])
 
       if (categoriesResult.status === 'fulfilled') {
@@ -146,9 +147,7 @@ function AddProductDetail() {
 
   const fetchProductProperties = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/cat-option?catId=${choosenCategory}`,
-      )
+      const response = await axiosClient.get(`admin/cat-option?catId=${choosenCategory}`)
       const data = response.data.listOption
 
       if (data) {
@@ -239,7 +238,7 @@ function AddProductDetail() {
     //api for submit
 
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/product', {
+      const response = await axiosClient.post('admin/product', {
         title: values.title,
         description: editorData,
         short: descEditor,
@@ -807,7 +806,7 @@ function AddProductDetail() {
                         <div>
                           <CImage
                             className="border"
-                            src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                            src={`${imageBaseUrl}${selectedFile}`}
                             width={200}
                           />
                         </div>

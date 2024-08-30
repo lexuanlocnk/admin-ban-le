@@ -16,6 +16,7 @@ import { ErrorMessage, Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../../axiosConfig'
 
 function AddProductProperties() {
   const location = useLocation()
@@ -43,7 +44,7 @@ function AddProductProperties() {
 
   const fetchDataCategoryChild = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/cat-option-child/${catId}`)
+      const response = await axiosClient.get(`admin/cat-option-child/${catId}`)
       const data = response.data.listOption
 
       if (data && response.data.status === true) {
@@ -62,7 +63,7 @@ function AddProductProperties() {
     console.log('>>>> cehck values', values)
     // api for submit
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/cat-option', {
+      const response = await axiosClient.post('admin/cat-option', {
         title: values.title,
         parentid: values.parentId,
         cat_id: catId,
@@ -83,10 +84,10 @@ function AddProductProperties() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol>
-          <h3>THÊM MỚI THUỘC TÍNH</h3>
+        <CCol md={6}>
+          <h2>THÊM MỚI THUỘC TÍNH</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <Link to={`/product/properties`}>
               <CButton color="primary" type="submit" size="sm">

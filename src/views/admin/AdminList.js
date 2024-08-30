@@ -117,14 +117,13 @@ function AdminList() {
 
   const fetchAdminGroupData = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/role`)
+      const response = await axiosClient.get(`admin/role`)
 
       if (response.data.status === true) {
         setDataRole(response.data.roles)
       }
     } catch (error) {
       console.error('Fetch role adminstrator data is error', error)
-      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
 

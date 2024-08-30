@@ -22,10 +22,12 @@ import Logo from '../../../assets/images/logo/logo CN.png'
 import { axiosClient } from '../../../axiosConfig'
 import { toast } from 'react-toastify'
 import axios from 'axios'
+import LoadingPage from '../../../components/loading/LoadingPage'
 
 const Login = () => {
   const [username, setUserName] = useState('')
   const [password, setPassWord] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
   const handleKeyDown = (e) => {
@@ -36,7 +38,8 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post('http://192.168.245.190:8000/api/admin-login', {
+      setIsLoading(true)
+      const res = await axiosClient.post('http://192.168.245.190:8000/api/admin-login', {
         username,
         password,
       })
@@ -44,6 +47,7 @@ const Login = () => {
       if (res.data.status === true) {
         localStorage.setItem('adminCN', res.data.token)
         localStorage.setItem('username', res.data.username)
+
         navigate('/')
       } else {
         if (res.data.mess == 'username') {
@@ -56,69 +60,74 @@ const Login = () => {
     } catch (error) {
       console.error('Post login data is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng kiểm tra lại thông tin!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={4}>
-            <CCardGroup>
-              <CCard className="p-4">
-                <CCardBody>
-                  <CForm onKeyDown={handleKeyDown}>
-                    <div style={{ width: '100%', marginBottom: 10 }}>
-                      <CImage align="center" rounded src={Logo} width={200} />
-                    </div>
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>
-                        <CIcon icon={cilUser} />
-                      </CInputGroupText>
-                      <CFormInput
-                        placeholder="Tài khoản"
-                        autoComplete="username"
-                        value={username}
-                        onChange={(e) => setUserName(e.target.value)}
-                      />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
-                      </CInputGroupText>
-                      <CFormInput
-                        type="password"
-                        placeholder="Mật khẩu"
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={(e) => setPassWord(e.target.value)}
-                      />
-                    </CInputGroup>
-                    <CRow className="justify-content-md-center">
-                      <CCol xs={12}>
-                        <CButton
-                          onKeyDown={handleKeyDown}
-                          onClick={handleLogin}
-                          color="primary"
-                          className="px-4 w-100"
-                        >
-                          Đăng nhập
-                        </CButton>
-                      </CCol>
-                      <CCol xs={12} className="text-right mt-2">
-                        <CButton color="link" className="px-0">
-                          Quên mật khẩu?
-                        </CButton>
-                      </CCol>
-                    </CRow>
-                  </CForm>
-                </CCardBody>
-              </CCard>
-            </CCardGroup>
-          </CCol>
-        </CRow>
-      </CContainer>
-    </div>
+    <>
+      {isLoading && <LoadingPage />}
+      <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
+        <CContainer>
+          <CRow className="justify-content-center">
+            <CCol md={4}>
+              <CCardGroup>
+                <CCard className="p-4">
+                  <CCardBody>
+                    <CForm onKeyDown={handleKeyDown}>
+                      <div style={{ width: '100%', marginBottom: 10 }}>
+                        <CImage align="center" rounded src={Logo} width={200} />
+                      </div>
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilUser} />
+                        </CInputGroupText>
+                        <CFormInput
+                          placeholder="Tài khoản"
+                          autoComplete="username"
+                          value={username}
+                          onChange={(e) => setUserName(e.target.value)}
+                        />
+                      </CInputGroup>
+                      <CInputGroup className="mb-4">
+                        <CInputGroupText>
+                          <CIcon icon={cilLockLocked} />
+                        </CInputGroupText>
+                        <CFormInput
+                          type="password"
+                          placeholder="Mật khẩu"
+                          autoComplete="current-password"
+                          value={password}
+                          onChange={(e) => setPassWord(e.target.value)}
+                        />
+                      </CInputGroup>
+                      <CRow className="justify-content-md-center">
+                        <CCol xs={12}>
+                          <CButton
+                            onKeyDown={handleKeyDown}
+                            onClick={handleLogin}
+                            color="primary"
+                            className="px-4 w-100"
+                          >
+                            Đăng nhập
+                          </CButton>
+                        </CCol>
+                        <CCol xs={12} className="text-right mt-2">
+                          <CButton color="link" className="px-0">
+                            Quên mật khẩu?
+                          </CButton>
+                        </CCol>
+                      </CRow>
+                    </CForm>
+                  </CCardBody>
+                </CCard>
+              </CCardGroup>
+            </CCol>
+          </CRow>
+        </CContainer>
+      </div>
+    </>
   )
 }
 

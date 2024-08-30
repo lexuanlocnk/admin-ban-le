@@ -39,7 +39,7 @@ function EditComment() {
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`/comment/${id}/edit`)
+      const response = await axiosClient.get(`admin/comment/${id}/edit`)
       const data = response.data.listComment
 
       if (data && response.data.status === true) {
@@ -63,7 +63,7 @@ function EditComment() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axiosClient.put(`/comment/${id}`, {
+      const response = await axiosClient.put(`admin/comment/${id}`, {
         reply: values.adminReply,
         display: values.visible,
       })

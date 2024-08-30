@@ -24,6 +24,7 @@ import useDebounce from '../../../helper/debounce'
 import axios from 'axios'
 
 import { toast } from 'react-toastify'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function EditProductDetail() {
   const location = useLocation()
@@ -57,7 +58,7 @@ function EditProductDetail() {
   const [selectedCategory, setSelectedCategory] = useState([])
   const [selectedChildCate, setSelectedChildCate] = useState([])
 
-  const [selectedStatus, setSelectedStatus] = useState([])
+  const [selectedStatus, setSelectedStatus] = useState([0])
 
   const [activeTab, setActiveTab] = useState('tab1')
 
@@ -107,9 +108,9 @@ function EditProductDetail() {
   const fetchData = async () => {
     try {
       const [categoriesResult, brandsResult, statusResult] = await Promise.allSettled([
-        axios.get('http://192.168.245.190:8000/api/category'),
-        axios.get('http://192.168.245.190:8000/api/brand?type=all'),
-        axios.get('http://192.168.245.190:8000/api/productStatus'),
+        axiosClient.get('admin/category'),
+        axiosClient.get('admin/brand?type=all'),
+        axiosClient.get('admin/productStatus'),
       ])
 
       if (categoriesResult.status === 'fulfilled') {
@@ -140,7 +141,7 @@ function EditProductDetail() {
 
   const fetchProductData = async (setValues) => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/product/${id}/edit`)
+      const response = await axiosClient.get(`admin/product/${id}/edit`)
       const data = response.data.product
 
       // const productPictures = data.product_picture
@@ -187,9 +188,7 @@ function EditProductDetail() {
 
   const fetchProductProperties = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/cat-option?catId=${choosenCategory}`,
-      )
+      const response = await axiosClient.get(`admin/cat-option?catId=${choosenCategory}`)
       const data = response.data.listOption
 
       if (data) {
@@ -276,7 +275,7 @@ function EditProductDetail() {
     //api for submit
 
     try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/product/${id}`, {
+      const response = await axiosClient.put(`admin/product/${id}`, {
         title: values.title,
         description: editorData,
         short: descEditor,
@@ -497,7 +496,7 @@ function EditProductDetail() {
                               imagesDetail.map((image) => (
                                 <CImage
                                   key={image.id}
-                                  src={`http://192.168.245.190:8000/uploads/${image.picture}`}
+                                  src={`${imageBaseUrl}${image.picture}`}
                                   fluid
                                   width={130}
                                 />
@@ -834,11 +833,11 @@ function EditProductDetail() {
                     <br />
 
                     <CCol md={12}>
-                      <label htmlFor="status-select">Tình trạng</label>
+                      <label htmlFor="stock-select">Tình trạng</label>
                       <Field
-                        name="status"
+                        name="stock"
                         as={CFormSelect}
-                        id="status-select"
+                        id="stock-select"
                         className="select-input"
                         options={[
                           { label: 'Còn hàng', value: 0 },
@@ -846,7 +845,7 @@ function EditProductDetail() {
                           { label: 'Hàng đang về', value: 2 },
                         ]}
                       />
-                      <ErrorMessage name="status" component="div" className="text-danger" />
+                      <ErrorMessage name="stock" component="div" className="text-danger" />
                     </CCol>
                     <br />
 
@@ -867,7 +866,7 @@ function EditProductDetail() {
                           <div>
                             <CImage
                               className="border"
-                              src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                              src={`${imageBaseUrl}${selectedFile}`}
                               width={200}
                             />
                           </div>

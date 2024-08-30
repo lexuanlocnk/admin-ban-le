@@ -14,7 +14,8 @@ import {
 } from '@coreui/react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { axiosClient } from '../../../axiosConfig'
 
 function EditProductCategory() {
   const location = useLocation()
@@ -65,16 +66,26 @@ function EditProductCategory() {
 
   const fetchCategoriesData = async (setValues) => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/category/${id}/edit`)
-      const data = response.data
+      const response = await axiosClient.get(`admin/category/${id}/edit`)
+      const data = response.data.category
+      console.log('>>>> checkj data', data)
+
       if (response.data.status === true) {
         setValues({
-          title: values.title,
-          parentid: values.parentId,
-          cat_id: catId,
-          slug: values.friendlyUrl,
-          description: values.desc,
-          display: values.visible,
+          title: data.category_desc?.cat_name,
+          homeTitle: data.category_desc.home_title,
+          friendlyUrl: data.category_desc.friendly_url,
+          parentId: data.parentid,
+          color: data.color,
+          // visibleBrands: [],
+          // visibleSupport: [],
+          description: data.category_desc.description,
+          scriptCode: data.category_desc.script_code,
+          pageTitle: data.category_desc.friendly_title,
+          metaDesc: data.category_desc.metadesc,
+          metaKeyword: data.category_desc.metakey,
+          visible: data.display,
+          showHome: data.show_home,
         })
         setSelectedFile(data.picture)
         setSelectedFileBackground(data.background)
@@ -145,9 +156,8 @@ function EditProductCategory() {
   const handleSubmit = async (values) => {
     console.log('>>>check values', values)
     // async requets fetch
-
     try {
-      const response = await axios.put(`http://192.168.245.190:8000/api/category/${id}`, {
+      const response = await axiosClient.put(`admin/category/${id}`, {
         cat_name: values.title,
         friendly_url: values.friendlyUrl,
         parentid: values.parentId,
@@ -175,14 +185,16 @@ function EditProductCategory() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol>
-          <h5>CHỈNH SỬA DANH MỤC</h5>
+        <CCol md={6}>
+          <h2>CHỈNH SỬA DANH MỤC</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
-            <CButton color="primary" type="submit" size="sm">
-              Danh sách
-            </CButton>
+            <Link to="/product/category">
+              <CButton color="primary" type="submit" size="sm">
+                Danh sách
+              </CButton>
+            </Link>
           </div>
         </CCol>
       </CRow>
@@ -275,11 +287,11 @@ function EditProductCategory() {
                         <div>
                           <CImage
                             src={`http://192.168.245.190:8000/uploads/` + selectedFile}
-                            width={370}
+                            width={200}
                           />
                         </div>
                       ) : (
-                        file.map((item, index) => <CImage key={index} src={item} width={370} />)
+                        file.map((item, index) => <CImage key={index} src={item} width={200} />)
                       )}
                     </div>
                   </CCol>
@@ -301,12 +313,12 @@ function EditProductCategory() {
                         <div>
                           <CImage
                             src={`http://192.168.245.190:8000/uploads/` + selectedFileBackground}
-                            width={370}
+                            width={200}
                           />
                         </div>
                       ) : (
                         fileBackground.map((item, index) => (
-                          <CImage key={index} src={item} width={370} />
+                          <CImage key={index} src={item} width={200} />
                         ))
                       )}
                     </div>

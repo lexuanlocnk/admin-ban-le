@@ -111,6 +111,14 @@ const Spinners = React.lazy(() => import('./views/base/spinners/Spinners'))
 const Tables = React.lazy(() => import('./views/base/tables/Tables'))
 const Tooltips = React.lazy(() => import('./views/base/tooltips/Tooltips'))
 
+// NEWS CATEGORY
+const NewsCategory = React.lazy(() => import('./views/news/category/NewsCategory'))
+
+// NEWS DETAIL
+const News = React.lazy(() => import('./views/news/detail/News'))
+const AddNews = React.lazy(() => import('./views/news/detail/AddNews'))
+const EditNews = React.lazy(() => import('./views/news/detail/EditNews'))
+
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
 const ButtonGroups = React.lazy(() => import('./views/buttons/button-groups/ButtonGroups'))
@@ -404,6 +412,29 @@ const routes = [
     path: 'comment/edit',
     name: 'EditComment',
     element: EditComment,
+    exact: true,
+  },
+
+  // news
+  { path: '/news', name: 'News', element: News, exact: true },
+  {
+    path: 'news/add',
+    name: 'AddNews',
+    element: AddNews,
+    exact: true,
+  },
+  {
+    path: 'news/edit',
+    name: 'EditNews',
+    element: EditNews,
+    exact: true,
+  },
+
+  // category
+  {
+    path: 'news/category',
+    name: 'NewsCategory',
+    element: NewsCategory,
     exact: true,
   },
 

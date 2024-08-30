@@ -25,6 +25,7 @@ import moment from 'moment'
 
 import './css/productDetail.css'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function ProductDetail() {
   const navigate = useNavigate()
@@ -84,13 +85,13 @@ function ProductDetail() {
   const fetchData = async () => {
     try {
       const [categoriesResult, brandsResult, statusResult] = await Promise.allSettled([
-        axios.get('http://192.168.245.190:8000/api/category'),
-        axios.get('http://192.168.245.190:8000/api/brand?type=all'),
-        axios.get('http://192.168.245.190:8000/api/productStatus'),
+        axiosClient.get('admin/category'),
+        axiosClient.get('admin/brand?type=all'),
+        axiosClient.get('admin/productStatus'),
       ])
 
       if (categoriesResult.status === 'fulfilled') {
-        setCategories(categoriesResult.value.data)
+        setCategories(categoriesResult.value.data.data)
       } else {
         console.error('Fetch categories data error', categoriesResult.reason)
       }
@@ -117,8 +118,8 @@ function ProductDetail() {
 
   const fetchProductData = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
+      const response = await axiosClient.get(
+        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
       )
       if (response.data.status === true) {
         setDataProductList(response.data.product)
@@ -148,7 +149,7 @@ function ProductDetail() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(`http://192.168.245.190:8000/api/product/${deletedId}`)
+      const response = await axiosClient.delete(`admin/product/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchProductData()
@@ -209,7 +210,7 @@ function ProductDetail() {
             <CImage
               className="d-flex justify-content-center align-items-center"
               width={50}
-              src={`http://192.168.245.190:8000/uploads/${item.picture}`}
+              src={`${imageBaseUrl}${item.picture}`}
               alt={`image_${item?.macn}`}
             />
           ),
@@ -220,7 +221,7 @@ function ProductDetail() {
           status: (
             <>
               <span>
-                {item.stock > 0 ? (item.stock === 1 ? 'Còn hàng' : 'Ngừng kinh doanh') : 'Hết hàng'}
+                {item.stock > 0 ? (item.stock === 1 ? 'Hết hàng' : 'Ngừng kinh doanh') : 'Còn hàng'}
               </span>
               <p>{item.display === 1 ? 'Hiển thị' : 'Ẩn'}</p>
             </>
@@ -276,10 +277,10 @@ function ProductDetail() {
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
 
       <CRow className="mb-3">
-        <CCol>
-          <h3>QUẢN LÝ SẢN PHẨM</h3>
+        <CCol md={6}>
+          <h2>QUẢN LÝ SẢN PHẨM</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <CButton
               onClick={handleAddNewClick}

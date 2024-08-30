@@ -23,6 +23,7 @@ import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
 import { unformatNumber, formatNumber } from '../../../helper/utils'
 
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../../axiosConfig'
 
 function AddPromotionDetail() {
   const [categories, setCategories] = useState([])
@@ -67,7 +68,7 @@ function AddPromotionDetail() {
 
   const fetchCategoriesData = async () => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      const response = await axiosClient.get('admin/category')
       setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
@@ -82,7 +83,7 @@ function AddPromotionDetail() {
     console.log('>>> check gift promotion values,', values)
     setIsLoading(true)
     try {
-      const response = await axios.post('http://192.168.245.190:8000/api/gift-promotion', {
+      const response = await axiosClient.post('admin/gift-promotion', {
         title: values.title,
         code: values.releaseCode,
         cat_parent_id: values.industry.split(','),
@@ -117,10 +118,10 @@ function AddPromotionDetail() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol>
-          <h3>THÊM MỚI KHUYẾN MÃI</h3>
+        <CCol md={6}>
+          <h2>THÊM MỚI KHUYẾN MÃI</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <Link to={`/promotion-detail`}>
               <CButton color="primary" type="submit" size="sm">

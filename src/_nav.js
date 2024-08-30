@@ -19,13 +19,14 @@ import {
   cilPeople,
   cilGift,
   cilCommentBubble,
+  cilNewspaper,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = [
   {
     component: CNavItem,
-    name: 'Bảng điều khiển',
+    name: 'BẢNG ĐIỀU KHIỂN',
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
@@ -45,10 +46,10 @@ const _nav = [
   //   to: '/theme/typography',
   //   icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
   // },
-  {
-    component: CNavTitle,
-    name: 'Tab Quản trị',
-  },
+  // {
+  //   component: CNavTitle,
+  //   name: 'Tab Quản trị',
+  // },
   {
     component: CNavGroup,
     name: 'THÔNG TIN QUẢN TRỊ',
@@ -271,6 +272,30 @@ const _nav = [
         component: CNavItem,
         name: 'Quản lý bình luận',
         to: '/comment',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ TIN TỨC',
+    to: '/news',
+    icon: <CIcon icon={cilNewspaper} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý danh mục',
+        to: '/news/category',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý tin tức',
+        to: '/news',
+      },
+      {
+        component: CNavItem,
+        name: 'Thêm tin tức mới',
+        to: '/news/add',
       },
     ],
   },

@@ -25,6 +25,7 @@ import '../css/orderList.scss'
 import axios from 'axios'
 import moment from 'moment'
 import ReactPaginate from 'react-paginate'
+import { axiosClient } from '../../../axiosConfig'
 
 function OrderList() {
   const navigate = useNavigate()
@@ -104,7 +105,7 @@ function OrderList() {
 
   const fetchDataStatusOrder = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/order-status`)
+      const response = await axiosClient.get(`admin/order-status`)
       if (response.data.status === true) {
         const orderStatus = response.data.orderStatus.data
         setDataStatus(orderStatus)
@@ -129,8 +130,8 @@ function OrderList() {
 
   const fetchOrderListData = async () => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/order?name=${dataSearch}&status=${choosenStatus}&typeMember=${typeMember}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
+      const response = await axiosClient.get(
+        `admin/order?name=${dataSearch}&status=${choosenStatus}&typeMember=${typeMember}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
       )
 
       const orderData = response.data.data

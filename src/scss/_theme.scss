@@ -1,3 +1,6 @@
+
+$enable-dark-mode: false; // Đảm bảo rằng dark mode bị vô hiệu hóa
+
 body {
   background-color: var(--cui-tertiary-bg);
 }
@@ -50,6 +53,7 @@ body {
 .footer {
   min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
 }
+
 
 @if $enable-dark-mode {
   @include color-mode(dark) {

@@ -6,6 +6,7 @@ import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../../axiosConfig'
 
 function ProductProperties() {
   const navigate = useNavigate()
@@ -32,7 +33,7 @@ function ProductProperties() {
 
   const fetchCategoriesData = async () => {
     try {
-      const response = await axios.get('http://192.168.245.190:8000/api/category')
+      const response = await axiosClient.get('admin/category')
       setCategories(response.data.data)
     } catch (error) {
       console.error('Fetch categories data error', error)
@@ -45,8 +46,8 @@ function ProductProperties() {
 
   const fetchProductProperties = async (dataSearch = '') => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/cat-option?data=${dataSearch}&catId=${choosenCategory}`,
+      const response = await axiosClient.get(
+        `admin/cat-option?data=${dataSearch}&catId=${choosenCategory}`,
       )
       const data = response.data.listOption
 
@@ -80,7 +81,7 @@ function ProductProperties() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(`http://192.168.245.190:8000/api/cat-option/${deletedId}`)
+      const response = await axiosClient.delete(`admin/cat-option/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchProductProperties()
@@ -108,14 +109,14 @@ function ProductProperties() {
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
-        <CCol>
+        <CCol md={6}>
           <h3>
             {selectedCategory !== null
               ? `THUỘC TÍNH ${selectedCategory.toUpperCase()}`
               : `THUỘC TÍNH SẢN PHẨM`}
           </h3>
         </CCol>
-        <CCol md={{ span: 6, offset: 6 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
             <CButton
               onClick={handleAddNewClick}

@@ -55,7 +55,7 @@ function AdminLog() {
   const fetchAdminLogData = async (dataSearch = '') => {
     try {
       const response = await axiosClient.get(
-        `/admin-log?page=${pageNumber}&data=${dataSearch}&username=${selectedUsername}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}`,
+        `admin/admin-log?page=${pageNumber}&data=${dataSearch}&username=${selectedUsername}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}`,
       )
 
       if (response.data.status === true) {
@@ -72,7 +72,7 @@ function AdminLog() {
 
   const fetchUserNameData = async () => {
     try {
-      const response = await axiosClient.get('select-name-admin')
+      const response = await axiosClient.get('admin/select-name-admin')
       if (response.data.status === true) {
         setUserNameData(response.data.data)
       }
@@ -178,6 +178,11 @@ function AdminLog() {
 
   return (
     <CContainer>
+      <CRow className="mb-3">
+        <CCol md={6}>
+          <h2>LỊCH SỬ HOẠT ĐỘNG ADMIN</h2>
+        </CCol>
+      </CRow>
       <CRow>
         <table className="filter-table">
           <thead>
@@ -246,16 +251,10 @@ function AdminLog() {
               <tr>
                 <td>Tìm kiếm</td>
                 <td>
-                  {/* <CFormSelect
-                    className="component-size w-25"
-                    aria-label="Chọn yêu cầu lọc"
-                    options={[
-                      'Pages',
-                      { label: 'product', value: '1' },
-                      { label: 'order', value: '2' },
-                    ]}
-                  /> */}
                   <div className="mt-2">
+                    <strong>
+                      <em>Tìm kiếm theo tên Danh mục quản trị</em>
+                    </strong>
                     <input
                       type="text"
                       className="search-input"

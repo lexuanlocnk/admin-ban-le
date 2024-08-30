@@ -138,7 +138,7 @@ function AdminInfo() {
               <div>
                 {file.length == 0 ? (
                   <div>
-                    <CImage src={`${imageBaseUrl}` + selectedFile} width={370} />
+                    <CImage src={`${imageBaseUrl}${selectedFile}`} width={370} />
                   </div>
                 ) : (
                   file.map((item, index) => <CImage key={index} src={item} width={370} />)

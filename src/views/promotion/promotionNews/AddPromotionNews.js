@@ -14,23 +14,36 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Link } from 'react-router-dom'
 import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
-import { axiosClient } from '../../../axiosConfig'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { toast } from 'react-toastify'
 
 function AddPromotionNews() {
   const [editorData, setEditorData] = useState('')
 
   const initialValues = {
     title: '',
-    // description: '',
     friendlyUrl: '',
     pageTitle: '',
     metaKeyword: '',
     metaDesc: '',
-    visible: '',
+    startDate: new Date(),
+    endDate: new Date(),
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
     // title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    startDate: Yup.date().required('Thời gian bắt đầu là bắt buộc.'),
+    endDate: Yup.date()
+      .required('Thời gian kết thúc là bắt buộc.')
+      .test('is-greater', 'Ngày kết thúc không được nhỏ hơn ngày bắt đầu!', function (value) {
+        const { startDate } = this.parent
+        return value && startDate ? value > startDate : true
+      }),
+
     // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
     // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
     // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
@@ -39,12 +52,29 @@ function AddPromotionNews() {
   })
 
   const handleSubmit = async (values) => {
-    // try {
-    //   const response = await axiosClient.post('/', {
-    //   })
-    // } catch (error) {
-    //   console.error('Post data promotion news is error', error)
-    // }
+    console.log('>>> check values', values)
+
+    try {
+      const response = await axiosClient.post('admin/promotion', {
+        title: values.title,
+        description: editorData,
+        friendly_url: values.friendlyUrl,
+        friendly_title: values.pageTitle,
+        metakey: values.metaKeyword,
+        metadesc: values.metaDesc,
+        selectedFile: selectedFile,
+        date_start_promotion: values.startDate,
+        date_end_promotion: values.endDate,
+        display: values.visible,
+      })
+
+      if (response.data.status === true) {
+        toast.success('Thêm tin khuyến mãi thành công!')
+      }
+    } catch (error) {
+      console.error('Post data promotion news is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   // upload image and show image
@@ -102,7 +132,7 @@ function AddPromotionNews() {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ setFieldValue, setValues }) => {
+            {({ setFieldValue, setValues, values }) => {
               return (
                 <Form>
                   <CRow>
@@ -201,14 +231,41 @@ function AddPromotionNews() {
                           {file.length == 0 ? (
                             <div>
                               <CImage
-                                src={`http://192.168.245.190:8000/uploads/` + selectedFile}
-                                width={370}
+                                className="border"
+                                src={`${imageBaseUrl}${selectedFile}`}
+                                width={200}
                               />
                             </div>
                           ) : (
-                            file.map((item, index) => <CImage key={index} src={item} width={370} />)
+                            file.map((item, index) => (
+                              <CImage className="border" key={index} src={item} width={200} />
+                            ))
                           )}
                         </div>
+                      </CCol>
+                      <br />
+
+                      <CCol>
+                        <label>Thời gian áp dụng từ</label>
+                        <div className="d-flex flex-column gap-2">
+                          <DatePicker
+                            dateFormat={'dd-MM-yyyy'}
+                            showIcon
+                            selected={values.startDate}
+                            onChange={(date) => setFieldValue('startDate', date)}
+                          />
+
+                          {'đến ngày'}
+
+                          <DatePicker
+                            dateFormat={'dd-MM-yyyy'}
+                            showIcon
+                            selected={values.endDate}
+                            onChange={(date) => setFieldValue('endDate', date)}
+                          />
+                        </div>
+                        <ErrorMessage name="startDate" component="p" className="text-danger" />
+                        <ErrorMessage name="endDate" component="p" className="text-danger" />
                       </CCol>
                       <br />
 

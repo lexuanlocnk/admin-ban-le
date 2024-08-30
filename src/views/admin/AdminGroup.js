@@ -3,9 +3,8 @@ import {
   CCol,
   CContainer,
   CForm,
+  CFormCheck,
   CFormInput,
-  CPagination,
-  CPaginationItem,
   CRow,
   CTable,
 } from '@coreui/react'
@@ -17,10 +16,9 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import './css/adminGroup.css'
 import Search from '../../components/search/Search'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../axiosConfig'
 
 function AdminGroup() {
   const location = useLocation()
@@ -38,11 +36,12 @@ function AdminGroup() {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
+  // checkbox selected
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
+  const [selectedCheckbox, setSelectedCheckbox] = useState([])
+
   // search input
   const [dataSearch, setDataSearch] = useState('')
-
-  //pagination state
-  const [pageNumber, setPageNumber] = useState(1)
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -63,7 +62,7 @@ function AdminGroup() {
 
   const fetchAdminGroupData = async (dataSearch = '') => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/role?data=${dataSearch}`)
+      const response = await axiosClient.get(`admin/role?data=${dataSearch}`)
 
       if (response.data.status === true) {
         setAdminGroupData(response.data.roles)
@@ -80,7 +79,7 @@ function AdminGroup() {
 
   const fetchDataById = async () => {
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/role/${id}/edit`)
+      const response = await axiosClient.get(`admin/role/${id}/edit`)
       const data = response.data.role
       if (response.data.status === true) {
         setTitle(data?.title)
@@ -100,7 +99,7 @@ function AdminGroup() {
     if (isEditing) {
       //call api update data
       try {
-        const response = await axios.put(`http://192.168.245.190:8000/api/role/${id}`, {
+        const response = await axiosClient.put(`admin/role/${id}`, {
           title: title,
           name: role,
         })
@@ -116,7 +115,7 @@ function AdminGroup() {
     } else {
       //call api post new data
       try {
-        const response = await axios.post(`http://192.168.245.190:8000/api/role`, {
+        const response = await axiosClient.post(`admin/role`, {
           title: title,
           name: role,
         })
@@ -144,7 +143,7 @@ function AdminGroup() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(`http://192.168.245.190:8000/api/role/${deletedId}`)
+      const response = await axiosClient.delete(`admin/role/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchAdminGroupData()
@@ -159,7 +158,24 @@ function AdminGroup() {
   const columns = [
     {
       key: 'id',
-      label: '#',
+      label: (
+        <>
+          <CFormCheck
+            aria-label="Select all"
+            checked={isAllCheckbox}
+            onChange={(e) => {
+              const isChecked = e.target.checked
+              setIsAllCheckbox(isChecked)
+              if (isChecked) {
+                const allIds = adminGroupData?.map((item) => item.id) || []
+                setSelectedCheckbox(allIds)
+              } else {
+                setSelectedCheckbox([])
+              }
+            }}
+          />
+        </>
+      ),
       _props: { scope: 'col' },
     },
     {
@@ -187,7 +203,25 @@ function AdminGroup() {
   const items =
     adminGroupData && adminGroupData?.length > 0
       ? adminGroupData?.map((item, index) => ({
-          id: index + 1,
+          id: (
+            <CFormCheck
+              key={item?.id}
+              aria-label="Default select example"
+              defaultChecked={item?.id}
+              id={`flexCheckDefault_${item?.id}`}
+              value={item?.id}
+              checked={selectedCheckbox.includes(item?.id)}
+              onChange={(e) => {
+                const commentId = item?.id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, commentId])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== commentId))
+                }
+              }}
+            />
+          ),
           title: item.title,
           role: item.name,
           permission: (
@@ -220,15 +254,27 @@ function AdminGroup() {
     fetchAdminGroupData(keyword)
   }
 
+  const handleDeleteSelectedCheckbox = async () => {
+    console.log('>>> selectedCheckbox', selectedCheckbox)
+
+    // try {
+    //   const response = await axiosClient.post('/delete-all-comment', {
+    //     data: selectedCheckbox,
+    //   })
+    // } catch (error) {
+    //   console.error('Delete selected checkbox is error', error)
+    // }
+  }
+
   return (
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CRow>
-          <CCol>
-            <h4>QUẢN LÝ NHÓM ADMIN</h4>
+          <CCol md={6}>
+            <h2>QUẢN LÝ NHÓM ADMIN</h2>
           </CCol>
-          <CCol md={{ span: 4, offset: 4 }}>
+          <CCol md={6}>
             <div className="d-flex justify-content-end">
               <CButton
                 onClick={handleAddNewClick}
@@ -283,6 +329,11 @@ function AdminGroup() {
             onSearchData={handleSearch}
             count={adminGroupData && adminGroupData.length > 0 ? adminGroupData.length : 0}
           />
+          <CCol md={12} className="mt-3">
+            <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+              Xóa vĩnh viễn
+            </CButton>
+          </CCol>
           <CTable hover className="mt-3" columns={columns} items={items} />
         </CCol>
       </CRow>

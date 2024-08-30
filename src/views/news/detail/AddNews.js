@@ -2,6 +2,7 @@ import {
   CButton,
   CCol,
   CContainer,
+  CFormCheck,
   CFormInput,
   CFormSelect,
   CFormTextarea,
@@ -12,43 +13,29 @@ import React, { useEffect, useState } from 'react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
-import moment from 'moment'
 
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
 import { toast } from 'react-toastify'
 
-function EditPromotionNews() {
-  const location = useLocation()
-  const searchParams = new URLSearchParams(location.search)
-  const id = searchParams.get('id')
-
+function AddNews() {
   const [editorData, setEditorData] = useState('')
+  const [dataNewsCategory, setDataNewsCategroy] = useState([])
+  const [selectedCateCheckbox, setSelectedCateCheckbox] = useState([])
 
   const initialValues = {
     title: '',
+    desc: '',
     friendlyUrl: '',
     pageTitle: '',
     metaKeyword: '',
     metaDesc: '',
-    startDate: new Date(),
-    endDate: new Date(),
     visible: 0,
   }
 
   const validationSchema = Yup.object({
     // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    startDate: Yup.date().required('Thời gian bắt đầu là bắt buộc.'),
-    endDate: Yup.date()
-      .required('Thời gian kết thúc là bắt buộc.')
-      .test('is-greater', 'Ngày kết thúc không được nhỏ hơn ngày bắt đầu!', function (value) {
-        const { startDate } = this.parent
-        return value && startDate ? value > startDate : true
-      }),
-
     // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
     // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
     // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
@@ -56,53 +43,43 @@ function EditPromotionNews() {
     // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
 
-  const fetchDataById = async (setValues) => {
+  const fetchDataNewsCategory = async () => {
     try {
-      const response = await axiosClient.get(`admin/promotion/${id}/edit`)
-      const data = response.data.promotion
-      if (data && response.data.status === true) {
-        setValues({
-          title: data?.promotion_desc?.title,
-          friendlyUrl: data?.promotion_desc?.friendly_url,
-          pageTitle: data?.promotion_desc?.friendly_title,
-          metaKeyword: data?.promotion_desc?.metadesc,
-          metaDesc: data?.promotion_desc?.metakey,
-          startDate: new Date(moment.unix(data?.date_start_promotion)),
-          endDate: new Date(moment.unix(data?.date_end_promotion)),
-          visible: data?.display,
-        })
-        setSelectedFile(
-          data.picture !== '' && data.picture !== null ? data?.picture : 'no-image.png',
-        )
-        setEditorData(data?.promotion_desc?.description)
-      } else {
-        console.error('No data found for the given ID.')
+      const response = await axiosClient.get(`admin/news-category`)
+      if (response.data.status === true) {
+        setDataNewsCategroy(response.data.list)
       }
     } catch (error) {
-      console.error('Fetch data id promotion news is error', error.message)
+      console.error('Fetch data news is error', error)
     }
   }
 
+  useEffect(() => {
+    fetchDataNewsCategory()
+  }, [])
+
   const handleSubmit = async (values) => {
     console.log('>>> check values', values)
+
     try {
-      const response = await axiosClient.put(`admin/promotion/${id}`, {
+      const response = await axiosClient.post('admin/news', {
         title: values.title,
         description: editorData,
+        short: values.desc,
         friendly_url: values.friendlyUrl,
         friendly_title: values.pageTitle,
         metakey: values.metaKeyword,
         metadesc: values.metaDesc,
-        selectedFile: selectedFile,
-        date_start_promotion: values.startDate,
-        date_end_promotion: values.endDate,
+        cat_id: selectedCateCheckbox,
+        picture: selectedFile,
         display: values.visible,
       })
+
       if (response.data.status === true) {
-        toast.success('Cập nhật tin khuyến mãi thành công!')
+        toast.success('Thêm tin tức thành công!')
       }
     } catch (error) {
-      console.error('Put data promotion news is error', error)
+      console.error('Post data news is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
@@ -142,11 +119,11 @@ function EditPromotionNews() {
     <CContainer>
       <CRow className="mb-3">
         <CCol>
-          <h3>CHỈNH SỬA TIN KHUYẾN MÃI</h3>
+          <h3>THÊM MỚI TIN TỨC</h3>
         </CCol>
         <CCol md={6}>
           <div className="d-flex justify-content-end">
-            <Link to={'/promotion-news'}>
+            <Link to={'/news'}>
               <CButton color="primary" type="button" size="sm">
                 Danh sách
               </CButton>
@@ -163,9 +140,6 @@ function EditPromotionNews() {
             onSubmit={handleSubmit}
           >
             {({ setFieldValue, setValues, values }) => {
-              useEffect(() => {
-                fetchDataById(setValues)
-              }, [setValues, id])
               return (
                 <Form>
                   <CRow>
@@ -192,6 +166,19 @@ function EditPromotionNews() {
                           data={editorData}
                           onChangeData={(data) => setEditorData(data)}
                         />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="desc-input">Mô tả ngắn</label>
+                        <Field
+                          name="desc"
+                          type="text"
+                          as={CFormTextarea}
+                          id="desc-input"
+                          style={{ height: 100 }}
+                        />
+                        <ErrorMessage name="desc" component="div" className="text-danger" />
                       </CCol>
                       <br />
 
@@ -226,7 +213,7 @@ function EditPromotionNews() {
                         <Field
                           name="metaKeyword"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaKeyword-input"
                           text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                         />
@@ -238,7 +225,7 @@ function EditPromotionNews() {
                         <Field
                           name="metaDesc"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaDesc-input"
                           text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                         />
@@ -248,6 +235,50 @@ function EditPromotionNews() {
                     </CCol>
 
                     <CCol md={4}>
+                      <CCol
+                        md={12}
+                        className="border bg-white p-2 overflow-scroll"
+                        style={{ height: 'auto' }}
+                      >
+                        <label
+                          className="pb-2 mb-2 w-100"
+                          style={{
+                            fontWeight: 500,
+                            fontSize: 16,
+                            borderBottom: '1px solid #ddd',
+                          }}
+                          htmlFor="visible-input"
+                        >
+                          Danh mục bài viết
+                        </label>
+
+                        {dataNewsCategory &&
+                          dataNewsCategory?.length > 0 &&
+                          dataNewsCategory.map((item) => (
+                            <CFormCheck
+                              key={item?.cat_id}
+                              aria-label="Default select example"
+                              defaultChecked={item?.cat_id}
+                              id={`flexCheckDefault_${item?.cat_id}`}
+                              value={item?.cat_id}
+                              checked={selectedCateCheckbox.includes(item?.cat_id)}
+                              label={item?.news_category_desc?.cat_name}
+                              onChange={(e) => {
+                                const catId = item?.cat_id
+                                const isChecked = e.target.checked
+                                if (isChecked) {
+                                  setSelectedCateCheckbox([...selectedCateCheckbox, catId])
+                                } else {
+                                  setSelectedCateCheckbox(
+                                    selectedCateCheckbox.filter((id) => id !== catId),
+                                  )
+                                }
+                              }}
+                            />
+                          ))}
+                      </CCol>
+                      <br />
+
                       <CCol md={12}>
                         <CFormInput
                           name="avatar"
@@ -278,30 +309,6 @@ function EditPromotionNews() {
                       </CCol>
                       <br />
 
-                      <CCol>
-                        <label>Thời gian áp dụng từ</label>
-                        <div className="d-flex flex-column gap-2">
-                          <DatePicker
-                            dateFormat={'dd-MM-yyyy'}
-                            showIcon
-                            selected={values.startDate}
-                            onChange={(date) => setFieldValue('startDate', date)}
-                          />
-
-                          {'đến ngày'}
-
-                          <DatePicker
-                            dateFormat={'dd-MM-yyyy'}
-                            showIcon
-                            selected={values.endDate}
-                            onChange={(date) => setFieldValue('endDate', date)}
-                          />
-                        </div>
-                        <ErrorMessage name="startDate" component="p" className="text-danger" />
-                        <ErrorMessage name="endDate" component="p" className="text-danger" />
-                      </CCol>
-                      <br />
-
                       <CCol md={12}>
                         <label htmlFor="visible-select">Hiển thị</label>
                         <Field
@@ -319,7 +326,7 @@ function EditPromotionNews() {
 
                       <CCol xs={12}>
                         <CButton color="primary" type="submit" size="sm">
-                          {'Cập nhật'}
+                          {'Thêm mới'}
                         </CButton>
                       </CCol>
                     </CCol>
@@ -334,4 +341,4 @@ function EditPromotionNews() {
   )
 }
 
-export default EditPromotionNews
+export default AddNews

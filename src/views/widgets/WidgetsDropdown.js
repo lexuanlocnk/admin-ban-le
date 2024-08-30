@@ -13,8 +13,18 @@ import {
 import { getStyle } from '@coreui/utils'
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
-import { cilArrowBottom, cilArrowTop, cilMoney, cilOptions } from '@coreui/icons'
+import {
+  cilArrowBottom,
+  cilArrowTop,
+  cilBarChart,
+  cilCart,
+  cilList,
+  cilMoney,
+  cilOptions,
+  cilUser,
+} from '@coreui/icons'
 import { Link } from 'react-router-dom'
+import './css/widgetDropdown.css'
 
 const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
@@ -42,11 +52,12 @@ const WidgetsDropdown = (props) => {
     <CRow className={props.className} xs={{ gutter: 4 }}>
       <CCol sm={6} xl={3} xxl={3}>
         <CWidgetStatsA
-          style={{ paddingBottom: 16 }}
+          style={{ paddingBottom: 16, backgroundImage: '' }}
           color="primary"
           value={
             <div className="d-flex justify-content-between align-items-center">
-              <span>26K </span>
+              <span style={{ fontSize: 32 }}>{props?.dashBoardData.order} </span>
+              <CIcon icon={cilMoney} size="3xl" />
             </div>
           }
           title="Tổng đơn hàng"
@@ -68,7 +79,12 @@ const WidgetsDropdown = (props) => {
         <CWidgetStatsA
           style={{ paddingBottom: 16 }}
           color="info"
-          value={<>$6.200 </>}
+          value={
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontSize: 32 }}>{props?.dashBoardData.product}</span>
+              <CIcon icon={cilCart} size="3xl" />
+            </div>
+          }
           title="Tổng sản phẩm"
           action={
             <CDropdown alignment="end">
@@ -84,12 +100,18 @@ const WidgetsDropdown = (props) => {
           }
         />
       </CCol>
+
       <CCol sm={6} xl={3} xxl={3}>
         <CWidgetStatsA
           style={{ paddingBottom: 16 }}
-          color="warning"
-          value={<>2.49% </>}
-          title="Lượt truy cập"
+          color="danger"
+          value={
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontSize: 32 }}>{props?.dashBoardData.member}</span>
+              <CIcon icon={cilUser} size="3xl" />
+            </div>
+          }
+          title="Tổng thành viên"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -104,12 +126,18 @@ const WidgetsDropdown = (props) => {
           }
         />
       </CCol>
+
       <CCol sm={6} xl={3} xxl={3}>
         <CWidgetStatsA
           style={{ paddingBottom: 16 }}
-          color="danger"
-          value={<>44K</>}
-          title="Tổng thành viên"
+          color="warning"
+          value={
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontSize: 32 }}>{props?.dashBoardData.statistics}</span>
+              <CIcon icon={cilBarChart} size="3xl" />
+            </div>
+          }
+          title="Lượt truy cập"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">

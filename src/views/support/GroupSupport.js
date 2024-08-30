@@ -55,7 +55,7 @@ function GroupSupport() {
 
   const fetchDataSupportGroup = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(`/support-group?data=${dataSearch}`)
+      const response = await axiosClient.get(`admin/support-group?data=${dataSearch}`)
       if (response.data.status === true) {
         setDataSupportGroup(response.data.data)
       }
@@ -70,7 +70,7 @@ function GroupSupport() {
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`/support-group/${id}/edit`)
+      const response = await axiosClient.get(`admin/support-group/${id}/edit`)
       const data = response.data.data
       if (data && response.data.status === true) {
         setValues({
@@ -89,7 +89,7 @@ function GroupSupport() {
     if (isEditing) {
       //call api update data
       try {
-        const response = await axiosClient.put(`/support-group/${id}`, {
+        const response = await axiosClient.put(`admin/support-group/${id}`, {
           title: values.title,
           name: values.name,
         })
@@ -106,7 +106,7 @@ function GroupSupport() {
     } else {
       //call api post new data
       try {
-        const response = await axiosClient.post('/support-group', {
+        const response = await axiosClient.post('admin/support-group', {
           title: values.title,
           name: values.name,
         })
@@ -133,7 +133,7 @@ function GroupSupport() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`/support-group/${deletedId}`)
+      const response = await axiosClient.delete(`admin/support-group/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataSupportGroup()

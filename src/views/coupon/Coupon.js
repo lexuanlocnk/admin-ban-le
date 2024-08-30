@@ -26,6 +26,7 @@ import axios from 'axios'
 import moment from 'moment/moment'
 import ReactPaginate from 'react-paginate'
 import { convertStringToTimeStamp } from '../../helper/utils'
+import { axiosClient } from '../../axiosConfig'
 
 function Coupon() {
   const navigate = useNavigate()
@@ -118,8 +119,8 @@ function Coupon() {
 
   const fetchDataCoupon = async (dataSearch) => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/coupon?data=${dataSearch}&StartCouponDate=${convertStringToTimeStamp(startDate)}&EndCouponDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
+      const response = await axiosClient.get(
+        `admin/coupon?data=${dataSearch}&StartCouponDate=${convertStringToTimeStamp(startDate)}&EndCouponDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
       )
       setDataCoupon(response.data.listCoupon)
       setCountCoupon(response.data.countCoupon)
@@ -193,7 +194,7 @@ function Coupon() {
     <CContainer>
       <CRow className="mb-3">
         <CCol>
-          <h3>QUẢN LÝ COUPON</h3>
+          <h2>QUẢN LÝ COUPON</h2>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">

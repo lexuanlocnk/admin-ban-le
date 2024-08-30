@@ -33,6 +33,7 @@ import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { CKEditor } from 'ckeditor4-react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { axiosClient } from '../../axiosConfig'
 
 function PaymentMethod() {
   const location = useLocation()
@@ -93,8 +94,8 @@ function PaymentMethod() {
 
   const fetchDataPaymentMethod = async (dataSearch) => {
     try {
-      const response = await axios.get(
-        `http://192.168.245.190:8000/api/payment-method?data=${dataSearch}&page=${pageNumber}`,
+      const response = await axiosClient.get(
+        `admin/payment-method?data=${dataSearch}&page=${pageNumber}`,
       )
       const paymentMethodData = response.data
       if (paymentMethodData.status === true) {
@@ -112,7 +113,7 @@ function PaymentMethod() {
   const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
     try {
-      const response = await axios.get(`http://192.168.245.190:8000/api/payment-method/${id}/edit`)
+      const response = await axiosClient.get(`admin/payment-method/${id}/edit`)
       const paymentMethodData = response.data.data
       if (paymentMethodData) {
         setValues({
@@ -136,7 +137,7 @@ function PaymentMethod() {
       //call api update data
       try {
         setIsLoading(true)
-        const response = await axios.put(`http://192.168.245.190:8000/api/payment-method/${id}`, {
+        const response = await axiosClient.put(`admin/payment-method/${id}`, {
           title: values.title,
           display: values.visible,
           name: values.name,
@@ -159,7 +160,7 @@ function PaymentMethod() {
     } else {
       //call api post new data
       try {
-        const response = await axios.post('http://192.168.245.190:8000/api/payment-method ', {
+        const response = await axiosClient.post('admin/payment-method ', {
           title: values.title,
           display: values.visible,
           name: values.name,
@@ -190,9 +191,7 @@ function PaymentMethod() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axios.delete(
-        `http://192.168.245.190:8000/api/payment-method/${deletedId}`,
-      )
+      const response = await axiosClient.delete(`admin/payment-method/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataPaymentMethod()
@@ -307,10 +306,10 @@ function PaymentMethod() {
         <CContainer>
           <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
           <CRow className="mb-3">
-            <CCol>
-              <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+            <CCol md={6}>
+              <h2>PHƯƠNG THỨC THANH TOÁN</h2>
             </CCol>
-            <CCol md={{ span: 6, offset: 6 }}>
+            <CCol md={6}>
               <div className="d-flex justify-content-end">
                 <CButton
                   onClick={handleAddNewClick}
