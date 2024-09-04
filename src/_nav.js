@@ -20,6 +20,7 @@ import {
   cilGift,
   cilCommentBubble,
   cilNewspaper,
+  cilImage,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -296,6 +297,49 @@ const _nav = [
         component: CNavItem,
         name: 'Thêm tin tức mới',
         to: '/news/add',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ ADVERTISE',
+    to: '/advertise',
+    icon: <CIcon icon={cilImage} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý vị trí',
+        to: '/advertise/category',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý advertise',
+        to: '/advertise',
+      },
+      {
+        component: CNavItem,
+        name: 'Thêm mới advertise',
+        to: '/advertise/add',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ GIỚI THIỆU',
+    to: '/introduce',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý giới thiệu',
+        to: '/introduce',
+      },
+      {
+        component: CNavItem,
+        name: 'Thêm mới giới thiệu',
+        to: '/introduce/add',
       },
     ],
   },

@@ -119,6 +119,22 @@ const News = React.lazy(() => import('./views/news/detail/News'))
 const AddNews = React.lazy(() => import('./views/news/detail/AddNews'))
 const EditNews = React.lazy(() => import('./views/news/detail/EditNews'))
 
+// ADVERTISE
+
+// advertise category
+const AdvertiseCategory = React.lazy(() => import('./views/advertise/category/AdvertiseCategory'))
+
+// advertise detail
+const Advertise = React.lazy(() => import('./views/advertise/detail/Advertise'))
+const AddAdvertise = React.lazy(() => import('./views/advertise/detail/AddAdvertise'))
+const EditAdvertise = React.lazy(() => import('./views/advertise/detail/EditAdvertise'))
+
+// INTRODUCE
+const Introduce = React.lazy(() => import('./views/introduce/Introduce'))
+const AddIntroduce = React.lazy(() => import('./views/introduce/AddIntroduce'))
+const EditIntroduce = React.lazy(() => import('./views/introduce/EditIntroduce'))
+
+/** ------------------------------------------------------------------------------------------------------------------ */
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
 const ButtonGroups = React.lazy(() => import('./views/buttons/button-groups/ButtonGroups'))
@@ -437,6 +453,46 @@ const routes = [
     element: NewsCategory,
     exact: true,
   },
+
+  // advertise category
+  {
+    path: 'advertise/category',
+    name: 'AdvertiseCategory',
+    element: AdvertiseCategory,
+    exact: true,
+  },
+
+  // advertise
+  { path: '/advertise', name: 'Advertise', element: Advertise, exact: true },
+  {
+    path: 'advertise/add',
+    name: 'AddAdvertise',
+    element: AddAdvertise,
+    exact: true,
+  },
+  {
+    path: 'advertise/edit',
+    name: 'EditAdvertise',
+    element: EditAdvertise,
+    exact: true,
+  },
+
+  // introduce
+  { path: '/introduce', name: 'Introduce', element: Introduce, exact: true },
+  {
+    path: 'introduce/add',
+    name: 'AddIntroduce',
+    element: AddIntroduce,
+    exact: true,
+  },
+  {
+    path: 'introduce/edit',
+    name: 'EditIntroduce',
+    element: EditIntroduce,
+    exact: true,
+  },
+
+  /** ------------------------------------------------------------------------------------------------------ */
 
   { path: '/base', name: 'Base', element: Cards, exact: true },
   { path: '/base/accordion', name: 'Accordion', element: Accordion },

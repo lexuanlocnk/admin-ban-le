@@ -27,7 +27,6 @@ import LoadingPage from '../../../components/loading/LoadingPage'
 const Login = () => {
   const [username, setUserName] = useState('')
   const [password, setPassWord] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
   const handleKeyDown = (e) => {
@@ -38,7 +37,6 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      setIsLoading(true)
       const res = await axiosClient.post('http://192.168.245.190:8000/api/admin-login', {
         username,
         password,
@@ -47,8 +45,8 @@ const Login = () => {
       if (res.data.status === true) {
         localStorage.setItem('adminCN', res.data.token)
         localStorage.setItem('username', res.data.username)
-
         navigate('/')
+        window.location.reload()
       } else {
         if (res.data.mess == 'username') {
           toast.error('Sai tên đăng nhập!. Vui lòng kiểm tra lại!')
@@ -60,14 +58,11 @@ const Login = () => {
     } catch (error) {
       console.error('Post login data is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng kiểm tra lại thông tin!')
-    } finally {
-      setIsLoading(false)
     }
   }
 
   return (
     <>
-      {isLoading && <LoadingPage />}
       <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
         <CContainer>
           <CRow className="justify-content-center">
