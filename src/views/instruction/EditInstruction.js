@@ -14,23 +14,20 @@ import React, { useEffect, useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Link, useLocation } from 'react-router-dom'
-import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
-import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
 import { toast } from 'react-toastify'
+import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 
-function EditNews() {
+function EditInstruction() {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
 
   const [editorData, setEditorData] = useState('')
-  const [dataNewsCategory, setDataNewsCategroy] = useState([])
-  const [selectedCateCheckbox, setSelectedCateCheckbox] = useState([])
 
   const initialValues = {
     title: '',
-    desc: '',
     friendlyUrl: '',
     pageTitle: '',
     metaKeyword: '',
@@ -39,80 +36,55 @@ function EditNews() {
   }
 
   const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
+    metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
+    metaDesc: Yup.string().required('Meta description là bắt buộc.'),
+    visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
-
-  const fetchDataNewsCategory = async () => {
-    try {
-      const response = await axiosClient.get(`admin/news-category`)
-      if (response.data.status === true) {
-        setDataNewsCategroy(response.data.list)
-      }
-    } catch (error) {
-      console.error('Fetch data news is error', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchDataNewsCategory()
-  }, [])
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/news/${id}/edit`)
-      const data = response.data.news
+      const response = await axiosClient.get(`admin/guide/${id}/edit`)
+      const data = response.data.guide
       if (data && response.data.status === true) {
         setValues({
-          title: data?.news_desc?.title,
-          desc: data?.news_desc?.short,
-          friendlyUrl: data?.news_desc?.friendly_url,
-          pageTitle: data?.news_desc?.friendly_title,
-          metaKeyword: data?.news_desc?.metakey,
-          metaDesc: data?.news_desc?.metadesc,
+          title: data?.guide_desc?.title,
+          friendlyUrl: data?.guide_desc?.friendly_url,
+          pageTitle: data?.guide_desc?.friendly_title,
+          metaKeyword: data?.guide_desc?.metakey,
+          metaDesc: data?.guide_desc?.metadesc,
           visible: data?.display,
         })
-        setSelectedFile(
-          data.picture !== '' && data.picture !== null ? data?.picture : '66c854a8eb10e.png',
-        )
-        setEditorData(data?.news_desc?.description)
-        setSelectedCateCheckbox(data?.list_cate)
+        setEditorData(data?.guide_desc?.description)
+        setSelectedFile(data?.picture)
       } else {
         console.error('No data found for the given ID.')
       }
     } catch (error) {
-      console.error('Fetch data id news is error', error.message)
+      console.error('Fetch data id instruct is error', error.message)
     }
   }
 
-  useEffect(() => {
-    fetchDataById()
-  }, [])
-
   const handleSubmit = async (values) => {
     try {
-      const response = await axiosClient.put(`admin/news/${id}`, {
+      const response = await axiosClient.put(`admin/guide/${id}`, {
         title: values.title,
         description: editorData,
-        short: values.desc,
+        picture: selectedFile,
         friendly_url: values.friendlyUrl,
         friendly_title: values.pageTitle,
         metakey: values.metaKeyword,
         metadesc: values.metaDesc,
-        cat_id: selectedCateCheckbox,
-        picture: selectedFile,
         display: values.visible,
       })
 
-      if (response.data.status === 'success') {
-        toast.success('Chỉnh sửa tin tức thành công!')
+      if (response.data.status === true) {
+        toast.success('Cập nhật hướng dẫn thành công!')
       }
     } catch (error) {
-      console.error('Post data news is error', error)
+      console.error('Put data instruct is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
@@ -152,11 +124,12 @@ function EditNews() {
     <CContainer>
       <CRow className="mb-3">
         <CCol>
-          <h3>CHỈNH SỬA TIN TỨC</h3>
+          <h2>CHỈNH SỬA HƯỚNG DẪN</h2>
         </CCol>
+
         <CCol md={6}>
           <div className="d-flex justify-content-end">
-            <Link to={'/news'}>
+            <Link to={'/instruction'}>
               <CButton color="primary" type="button" size="sm">
                 Danh sách
               </CButton>
@@ -188,7 +161,7 @@ function EditNews() {
                               {...field}
                               type="text"
                               id="title-input"
-                              text="Tên riêng sẽ hiển thị lên trang web của bạn."
+                              placeholder="Nhập tiêu đề ở đây"
                             />
                           )}
                         </Field>
@@ -202,19 +175,6 @@ function EditNews() {
                           data={editorData}
                           onChangeData={(data) => setEditorData(data)}
                         />
-                      </CCol>
-                      <br />
-
-                      <CCol md={12}>
-                        <label htmlFor="desc-input">Mô tả ngắn</label>
-                        <Field
-                          name="desc"
-                          type="text"
-                          as={CFormTextarea}
-                          id="desc-input"
-                          style={{ height: 100 }}
-                        />
-                        <ErrorMessage name="desc" component="div" className="text-danger" />
                       </CCol>
                       <br />
 
@@ -271,50 +231,6 @@ function EditNews() {
                     </CCol>
 
                     <CCol md={4}>
-                      <CCol
-                        md={12}
-                        className="border bg-white p-2 overflow-scroll"
-                        style={{ height: 'auto' }}
-                      >
-                        <label
-                          className="pb-2 mb-2 w-100"
-                          style={{
-                            fontWeight: 500,
-                            fontSize: 16,
-                            borderBottom: '1px solid #ddd',
-                          }}
-                          htmlFor="visible-input"
-                        >
-                          Danh mục bài viết
-                        </label>
-
-                        {dataNewsCategory &&
-                          dataNewsCategory?.length > 0 &&
-                          dataNewsCategory.map((item) => (
-                            <CFormCheck
-                              key={item?.cat_id}
-                              aria-label="Default select example"
-                              defaultChecked={item?.cat_id}
-                              id={`flexCheckDefault_${item?.cat_id}`}
-                              value={item?.cat_id}
-                              checked={selectedCateCheckbox.includes(item?.cat_id)}
-                              label={item?.news_category_desc?.cat_name}
-                              onChange={(e) => {
-                                const catId = item?.cat_id
-                                const isChecked = e.target.checked
-                                if (isChecked) {
-                                  setSelectedCateCheckbox([...selectedCateCheckbox, catId])
-                                } else {
-                                  setSelectedCateCheckbox(
-                                    selectedCateCheckbox.filter((id) => id !== catId),
-                                  )
-                                }
-                              }}
-                            />
-                          ))}
-                      </CCol>
-                      <br />
-
                       <CCol md={12}>
                         <CFormInput
                           name="avatar"
@@ -334,18 +250,11 @@ function EditNews() {
                                 className="border"
                                 src={`${imageBaseUrl}${selectedFile}`}
                                 width={200}
-                                loading="lazy"
                               />
                             </div>
                           ) : (
                             file.map((item, index) => (
-                              <CImage
-                                className="border"
-                                key={index}
-                                src={item}
-                                width={200}
-                                loading="lazy"
-                              />
+                              <CImage className="border" key={index} src={item} width={200} />
                             ))
                           )}
                         </div>
@@ -384,4 +293,4 @@ function EditNews() {
   )
 }
 
-export default EditNews
+export default EditInstruction

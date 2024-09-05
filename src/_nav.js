@@ -21,6 +21,10 @@ import {
   cilCommentBubble,
   cilNewspaper,
   cilImage,
+  cilSettings,
+  cilBook,
+  cilInfo,
+  cilPhone,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -340,6 +344,67 @@ const _nav = [
         component: CNavItem,
         name: 'Thêm mới giới thiệu',
         to: '/introduce/add',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ DỊCH VỤ',
+    to: '/service',
+    icon: <CIcon icon={cilSettings} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý dịch vụ',
+        to: '/service',
+      },
+      {
+        component: CNavItem,
+        name: 'Thêm mới dịch vụ',
+        to: '/service/add',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ HƯỚNG DẪN',
+    to: '/instruction',
+    icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý hướng dẫn',
+        to: '/instruction',
+      },
+      {
+        component: CNavItem,
+        name: 'Thêm mới hướng dẫn',
+        to: '/instruction/add',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ TƯ VẤN',
+    to: '/consultant',
+    icon: <CIcon icon={cilPhone} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý danh mục',
+        to: '/consultant/category',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý tư vấn',
+        to: '/consultant',
+      },
+      {
+        component: CNavItem,
+        name: 'Thêm tư vấn mới',
+        to: '/consultant/add',
       },
     ],
   },

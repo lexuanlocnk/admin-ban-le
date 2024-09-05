@@ -1,35 +1,19 @@
 import { cilColorBorder, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import {
-  CButton,
-  CCol,
-  CContainer,
-  CFormCheck,
-  CFormSelect,
-  CImage,
-  CRow,
-  CTable,
-} from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CImage, CRow, CTable } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Search from '../../../components/search/Search'
-import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
-import moment from 'moment/moment'
+import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
 import ReactPaginate from 'react-paginate'
-import DeletedModal from '../../../components/deletedModal/DeletedModal'
+import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
+import moment from 'moment'
 
-import './css/news.scss'
-import LoadingPage from '../../../components/loading/LoadingPage'
-
-function News() {
+function Service() {
   const navigate = useNavigate()
 
-  const [dataNews, setDataNews] = useState([])
-
-  const [dataNewsCategory, setDataNewsCategroy] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [dataService, setDataService] = useState([])
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -45,57 +29,37 @@ function News() {
     setIsCollapse((prevState) => !prevState)
   }
 
-  //pagination state
-  const [pageNumber, setPageNumber] = useState(1)
-
   // search input
   const [dataSearch, setDataSearch] = useState('')
 
   const handleAddNewClick = () => {
-    navigate('/news/add')
+    navigate('/service/add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/news/edit?id=${id}`)
+    navigate(`/service/edit?id=${id}`)
   }
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchPromotionNewsData(keyword)
+    fetchDataService(keyword)
   }
 
-  const fetchDataNewsCategory = async () => {
+  const fetchDataService = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(`admin/news-category`)
+      const response = await axiosClient.get(`admin/service?data=${dataSearch}`)
+
       if (response.data.status === true) {
-        setDataNewsCategroy(response.data.list)
+        setDataService(response.data.list)
       }
     } catch (error) {
-      console.error('Fetch data news is error', error)
+      console.error('Fetch intro data is error', error)
     }
   }
 
   useEffect(() => {
-    fetchDataNewsCategory()
+    fetchDataService()
   }, [])
-
-  const fetchDataNews = async (dataSearch = '') => {
-    try {
-      const response = await axiosClient.get(
-        `admin/news?data=${dataSearch}&page=${pageNumber}&category=${selectedCategory}`,
-      )
-
-      if (response.data.status === true) {
-        setDataNews(response.data.list)
-      }
-    } catch (error) {
-      console.error('Fetch promotion news data is error', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchDataNews()
-  }, [pageNumber, selectedCategory])
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -111,90 +75,87 @@ function News() {
 
   // delete row
   const handleDelete = async () => {
-    console.log('>>>>check deledte:', deletedId)
-
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/news/${deletedId}`)
+      const response = await axiosClient.delete(`admin/service/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
-        fetchDataNews()
+        fetchDataService()
       }
     } catch (error) {
-      console.error('Delete news id is error', error)
+      console.error('Delete service id is error', error)
       toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
     }
   }
 
-  // Long làm liền
+  // deleted all checkbox
   const handleDeleteSelectedCheckbox = async () => {
-    try {
-      const response = await axiosClient.post('admin/delete-all-news', {
-        data: selectedCheckbox,
-      })
-      if (response.data.status === true) {
-        toast.success('Xóa tất cả các mục thành công!')
-        fetchDataNews()
-        setSelectedCheckbox([])
-      }
-    } catch (error) {
-      console.error('Deleted all id checkbox is error', error)
-    }
+    // try {
+    //   const response = await axiosClient.post('admin/delete-all-about', {
+    //     data: selectedCheckbox,
+    //   })
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả các mục thành công!')
+    //     fetchDataNews()
+    //     setSelectedCheckbox([])
+    //   }
+    // } catch (error) {
+    //   console.error('Deleted all id checkbox is error', error)
+    // }
   }
 
   const items =
-    dataNews?.data && dataNews?.data?.length > 0
-      ? dataNews?.data.map((item) => ({
+    dataService?.data && dataService?.data?.length > 0
+      ? dataService?.data.map((item) => ({
           id: (
             <CFormCheck
-              key={item?.news_id}
+              key={item?.service_id}
               aria-label="Default select example"
-              defaultChecked={item?.news_id}
-              id={`flexCheckDefault_${item?.news_id}`}
-              value={item?.news_id}
-              checked={selectedCheckbox.includes(item?.news_id)}
+              defaultChecked={item?.service_id}
+              id={`flexCheckDefault_${item?.service_id}`}
+              value={item?.service_id}
+              checked={selectedCheckbox.includes(item?.service_id)}
               onChange={(e) => {
-                const newsId = item?.news_id
+                const serviceId = item?.service_id
                 const isChecked = e.target.checked
                 if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, newsId])
+                  setSelectedCheckbox([...selectedCheckbox, serviceId])
                 } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== newsId))
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== serviceId))
                 }
               }}
             />
           ),
           title: (
             <div
-              className="title-color"
               style={{
                 width: 300,
               }}
+              className="blue-txt"
             >
-              {item?.news_desc?.title}
+              {item?.service_desc?.title}
             </div>
           ),
           image: (
             <CImage
               className="border"
               src={`${imageBaseUrl}${item.picture}`}
-              alt={`Ảnh tin k/m ${item?.news_desc?.id}`}
+              alt={`Ảnh intro ${item?.service_id}`}
               width={100}
               height={80}
               loading="lazy"
             />
           ),
-          cate: <div className="cate-color">{item?.category_desc?.[0].cat_name}</div>,
-          info: (
-            <div>
-              <span>{item?.views} lượt xem</span>
-              <div>{moment.unix(item?.date_post).format('DD-MM-YYYY')}</div>
-            </div>
-          ),
+          url: <div>{item?.service_desc?.friendly_url}</div>,
+          create: moment.unix(item?.date_post).format('hh:mm A, DD/MM/YYYY'),
           actions: (
-            <div>
+            <div
+              style={{
+                width: 100,
+              }}
+            >
               <button
-                onClick={() => handleEditClick(item.news_id)}
+                onClick={() => handleEditClick(item.service_id)}
                 className="button-action mr-2 bg-info"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
@@ -202,7 +163,7 @@ function News() {
               <button
                 onClick={() => {
                   setVisible(true)
-                  setDeletedId(item.news_id)
+                  setDeletedId(item.service_id)
                 }}
                 className="button-action bg-danger"
               >
@@ -226,7 +187,7 @@ function News() {
               const isChecked = e.target.checked
               setIsAllCheckbox(isChecked)
               if (isChecked) {
-                const allIds = dataNews?.data.map((item) => item.news_id) || []
+                const allIds = dataService?.data.map((item) => item.service_id) || []
                 setSelectedCheckbox(allIds)
               } else {
                 setSelectedCheckbox([])
@@ -237,26 +198,31 @@ function News() {
       ),
       _props: { scope: 'col' },
     },
+
     {
       key: 'title',
       label: 'Tiêu đề',
       _props: { scope: 'col' },
     },
+
     {
       key: 'image',
       label: 'Hình ảnh',
       _props: { scope: 'col' },
     },
+
     {
-      key: 'cate',
-      label: 'Danh mục',
+      key: 'url',
+      label: 'Chuỗi đường dẫn',
       _props: { scope: 'col' },
     },
+
     {
-      key: 'info',
-      label: 'Thông tin',
+      key: 'create',
+      label: 'Ngày khởi tạo',
       _props: { scope: 'col' },
     },
+
     {
       key: 'actions',
       label: 'Tác vụ',
@@ -270,7 +236,7 @@ function News() {
 
       <CRow className="mb-3">
         <CCol>
-          <h3>QUẢN LÝ TIN TỨC</h3>
+          <h2>QUẢN LÝ DỊCH VỤ</h2>
         </CCol>
         <CCol md={6}>
           <div className="d-flex justify-content-end">
@@ -283,7 +249,7 @@ function News() {
             >
               Thêm mới
             </CButton>
-            <Link to={'/promotion-news'}>
+            <Link to={'/introduce'}>
               <CButton color="primary" type="submit" size="sm">
                 Danh sách
               </CButton>
@@ -293,8 +259,6 @@ function News() {
       </CRow>
 
       <CRow>
-        {/* <Search count={dataNews?.total} onSearchData={handleSearch} /> */}
-
         <CCol>
           <table className="filter-table">
             <thead>
@@ -313,27 +277,7 @@ function News() {
               <tbody>
                 <tr>
                   <td>Tổng cộng</td>
-                  <td className="total-count">{dataNews?.total}</td>
-                </tr>
-                <tr>
-                  <td>Lọc theo vị trí</td>
-                  <td>
-                    <CFormSelect
-                      className="component-size w-50"
-                      aria-label="Chọn yêu cầu lọc"
-                      options={[
-                        { label: 'Chọn danh mục', value: '' },
-                        ...(dataNewsCategory && dataNewsCategory.length > 0
-                          ? dataNewsCategory.map((group) => ({
-                              label: group?.news_category_desc?.cat_name,
-                              value: group.cat_id,
-                            }))
-                          : []),
-                      ]}
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                    />
-                  </td>
+                  <td className="total-count">{dataService?.total}</td>
                 </tr>
                 <tr>
                   <td>Tìm kiếm</td>
@@ -362,32 +306,31 @@ function News() {
 
         <CCol>
           <CTable hover className="mt-3" columns={columns} items={items} />
+          <div className="d-flex justify-content-end">
+            <ReactPaginate
+              pageCount={Math.ceil(dataService?.total / dataService?.per_page)}
+              pageRangeDisplayed={3}
+              marginPagesDisplayed={1}
+              pageClassName="page-item"
+              pageLinkClassName="page-link"
+              previousClassName="page-item"
+              previousLinkClassName="page-link"
+              nextClassName="page-item"
+              nextLinkClassName="page-link"
+              breakLabel="..."
+              breakClassName="page-item"
+              breakLinkClassName="page-link"
+              onPageChange={handlePageChange}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+              previousLabel={'<<'}
+              nextLabel={'>>'}
+            />
+          </div>
         </CCol>
-
-        <div className="d-flex justify-content-end">
-          <ReactPaginate
-            pageCount={Math.ceil(dataNews?.total / dataNews?.per_page)}
-            pageRangeDisplayed={3}
-            marginPagesDisplayed={1}
-            pageClassName="page-item"
-            pageLinkClassName="page-link"
-            previousClassName="page-item"
-            previousLinkClassName="page-link"
-            nextClassName="page-item"
-            nextLinkClassName="page-link"
-            breakLabel="..."
-            breakClassName="page-item"
-            breakLinkClassName="page-link"
-            onPageChange={handlePageChange}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-            previousLabel={'<<'}
-            nextLabel={'>>'}
-          />
-        </div>
       </CRow>
     </CContainer>
   )
 }
 
-export default News
+export default Service

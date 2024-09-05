@@ -114,10 +114,6 @@ function EditAdvertise() {
     }
   }
 
-  useEffect(() => {
-    fetchDataById()
-  }, [])
-
   const handleSubmit = async (values) => {
     try {
       const response = await axiosClient.put(`admin/advertise/${id}`, {

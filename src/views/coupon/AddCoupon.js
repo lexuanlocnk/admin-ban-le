@@ -306,17 +306,19 @@ function AddCoupon() {
                       id="industry-select"
                       options={[
                         { label: 'Tất cả', value: 'all' },
-                        ...categories?.map((item) => ({
-                          label: item.category_desc?.cat_name,
-                          value: item.parenty.map((sub) => sub.cat_id),
-                        })),
+                        ...(categories && categories.length > 0
+                          ? categories?.map((item) => ({
+                              label: item.category_desc?.cat_name,
+                              value: item?.parenty?.map((sub) => sub.cat_id),
+                            }))
+                          : []),
                       ]}
                     />
                     <ErrorMessage name="industry" component="div" className="text-danger" />
                   </CCol>
                   <br />
                   <CCol md={12} className="overflow-scroll" style={{ height: 'auto' }}>
-                    {categories.map((category) => (
+                    {categories?.map((category) => (
                       <div key={category?.cat_id}>
                         {category?.parenty &&
                           category?.parenty

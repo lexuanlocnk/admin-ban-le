@@ -134,6 +134,22 @@ const Introduce = React.lazy(() => import('./views/introduce/Introduce'))
 const AddIntroduce = React.lazy(() => import('./views/introduce/AddIntroduce'))
 const EditIntroduce = React.lazy(() => import('./views/introduce/EditIntroduce'))
 
+// SERVICE
+const Service = React.lazy(() => import('./views/services/Service'))
+const AddService = React.lazy(() => import('./views/services/AddService'))
+const EditService = React.lazy(() => import('./views/services/EditService'))
+
+// INSTRUCTION
+const Instruction = React.lazy(() => import('./views/instruction/Instruction'))
+const AddInstruction = React.lazy(() => import('./views/instruction/AddInstruction'))
+const EditInstruction = React.lazy(() => import('./views/instruction/EditInstruction'))
+
+// CONSULTANT
+
+const ConsultantCategory = React.lazy(
+  () => import('./views/consultant/category/ConsultantCategory'),
+)
+
 /** ------------------------------------------------------------------------------------------------------------------ */
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
@@ -489,6 +505,46 @@ const routes = [
     path: 'introduce/edit',
     name: 'EditIntroduce',
     element: EditIntroduce,
+    exact: true,
+  },
+
+  // service
+  { path: '/service', name: 'Service', element: Service, exact: true },
+  {
+    path: 'service/add',
+    name: 'AddService',
+    element: AddService,
+    exact: true,
+  },
+  {
+    path: 'service/edit',
+    name: 'EditService',
+    element: EditService,
+    exact: true,
+  },
+
+  // instruction
+  { path: '/instruction', name: 'Instruction', element: Instruction, exact: true },
+  {
+    path: 'instruction/add',
+    name: 'AddInstruction',
+    element: AddInstruction,
+    exact: true,
+  },
+  {
+    path: 'instruction/edit',
+    name: 'EditInstruction',
+    element: EditInstruction,
+    exact: true,
+  },
+
+  // consultant
+
+  // category
+  {
+    path: 'consultant/category',
+    name: 'ConsultantCategory',
+    element: ConsultantCategory,
     exact: true,
   },
 

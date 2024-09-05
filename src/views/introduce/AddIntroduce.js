@@ -21,8 +21,6 @@ import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 
 function AddIntroduce() {
   const [editorData, setEditorData] = useState('')
-  const [dataNewsCategory, setDataNewsCategroy] = useState([])
-  const [selectedCateCheckbox, setSelectedCateCheckbox] = useState([])
 
   const initialValues = {
     title: '',
@@ -34,53 +32,36 @@ function AddIntroduce() {
   }
 
   const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
+    metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
+    metaDesc: Yup.string().required('Meta description là bắt buộc.'),
+    visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
-
-  const fetchDataNewsCategory = async () => {
-    try {
-      const response = await axiosClient.get(`admin/news-category`)
-      if (response.data.status === true) {
-        setDataNewsCategroy(response.data.list)
-      }
-    } catch (error) {
-      console.error('Fetch data news is error', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchDataNewsCategory()
-  }, [])
 
   const handleSubmit = async (values) => {
     console.log('>>> check values', values, editorData)
 
-    // try {
-    //   const response = await axiosClient.post('admin/news', {
-    //     title: values.title,
-    //     description: editorData,
-    //     short: values.desc,
-    //     friendly_url: values.friendlyUrl,
-    //     friendly_title: values.pageTitle,
-    //     metakey: values.metaKeyword,
-    //     metadesc: values.metaDesc,
-    //     cat_id: selectedCateCheckbox,
-    //     picture: selectedFile,
-    //     display: values.visible,
-    //   })
+    try {
+      const response = await axiosClient.post('admin/about', {
+        title: values.title,
+        description: editorData,
+        picture: selectedFile,
+        friendly_url: values.friendlyUrl,
+        friendly_title: values.pageTitle,
+        metakey: values.metaKeyword,
+        metadesc: values.metaDesc,
+        display: values.visible,
+      })
 
-    //   if (response.data.status === true) {
-    //     toast.success('Thêm tin tức thành công!')
-    //   }
-    // } catch (error) {
-    //   console.error('Post data news is error', error)
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+      if (response.data.status === true) {
+        toast.success('Thêm bài giới thiệu thành công!')
+      }
+    } catch (error) {
+      console.error('Post data introduce is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   // upload image and show image
@@ -258,8 +239,8 @@ function AddIntroduce() {
                           as={CFormSelect}
                           id="visible-select"
                           options={[
-                            { label: 'Không', value: '0' },
-                            { label: 'Có', value: '1' },
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
                           ]}
                         />
                         <ErrorMessage name="visible" component="div" className="text-danger" />
