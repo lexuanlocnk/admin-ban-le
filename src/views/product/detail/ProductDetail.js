@@ -30,6 +30,9 @@ import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 function ProductDetail() {
   const navigate = useNavigate()
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [dataProductList, setDataProductList] = useState([])
 
   // category
@@ -123,6 +126,10 @@ function ProductDetail() {
       )
       if (response.data.status === true) {
         setDataProductList(response.data.product)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
       }
     } catch (error) {
       console.error('Fetch product data list is error', error.message)
@@ -274,210 +281,220 @@ function ProductDetail() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <h2>QUẢN LÝ SẢN PHẨM</h2>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <Link to={`/product`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <h2>QUẢN LÝ SẢN PHẨM</h2>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={`/product`}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        <CCol md={12}>
-          <table className="filter-table">
-            <thead>
-              <tr>
-                <th colSpan="2">
-                  <div className="d-flex justify-content-between">
-                    <span>Bộ lọc tìm kiếm</span>
-                    <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                      {isCollapse ? '▼' : '▲'}
-                    </span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            {!isCollapse && (
-              <tbody>
-                <tr>
-                  <td>Tổng cộng</td>
-                  <td className="total-count">{dataProductList?.total}</td>
-                </tr>
-                <tr>
-                  <td>Lọc</td>
-                  <td>
-                    <div
-                      className="d-flex"
-                      style={{
-                        columnGap: 10,
-                      }}
-                    >
-                      <CFormSelect
-                        className="component-size w-25"
-                        aria-label="Chọn yêu cầu lọc"
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        options={[
-                          { label: 'Chọn danh mục', value: '' },
-                          ...(categories && categories.length > 0
-                            ? categories.map((cate) => ({
-                                label: cate.category_desc.cat_name,
-                                value: cate.cat_id,
-                              }))
-                            : []),
-                        ]}
-                      />
-                      <CFormSelect
-                        className="component-size w-25"
-                        aria-label="Chọn thương hiệu"
-                        value={selectedBrand}
-                        onChange={(e) => setSelectedBrand(e.target.value)}
-                        options={[
-                          { label: 'Chọn thương hiệu', value: '' },
-                          ...(brands && brands.length > 0
-                            ? brands.map((brand) => ({
-                                label: brand.title,
-                                value: brand.brandId,
-                              }))
-                            : []),
-                        ]}
-                      />
-                      <CFormSelect
-                        className="component-size w-25"
-                        aria-label="Chọn trạng thái"
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                        options={[
-                          { label: 'Chọn trạng thái', value: '' },
-                          ...(status && status.length > 0
-                            ? status.map((status) => ({
-                                label: status.name,
-                                value: status.status_id,
-                              }))
-                            : []),
-                        ]}
-                      />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Xem từ ngày</td>
-                  <td>
-                    <div className="custom-datepicker-wrapper">
-                      <DatePicker
-                        className="custom-datepicker"
-                        showIcon
-                        dateFormat={'dd-MM-yyyy'}
-                        selected={startDate}
-                        onChange={handleStartDateChange}
-                      />
-                      <p className="datepicker-label">{'đến ngày'}</p>
-                      <DatePicker
-                        className="custom-datepicker"
-                        showIcon
-                        dateFormat={'dd-MM-yyyy'}
-                        selected={endDate}
-                        onChange={handleEndDateChange}
-                      />
-                    </div>
-                    {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                    {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Tìm kiếm</td>
-                  <td>
-                    <strong>
-                      <em>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</em>
-                    </strong>
-                    <input
-                      type="text"
-                      className="search-input"
-                      value={dataSearch}
-                      onChange={(e) => setDataSearch(e.target.value)}
-                    />
-                    <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                      Submit
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            )}
-          </table>
-        </CCol>
+          <CRow>
+            <CCol md={12}>
+              <table className="filter-table">
+                <thead>
+                  <tr>
+                    <th colSpan="2">
+                      <div className="d-flex justify-content-between">
+                        <span>Bộ lọc tìm kiếm</span>
+                        <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                          {isCollapse ? '▼' : '▲'}
+                        </span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                {!isCollapse && (
+                  <tbody>
+                    <tr>
+                      <td>Tổng cộng</td>
+                      <td className="total-count">{dataProductList?.total}</td>
+                    </tr>
+                    <tr>
+                      <td>Lọc</td>
+                      <td>
+                        <div
+                          className="d-flex"
+                          style={{
+                            columnGap: 10,
+                          }}
+                        >
+                          <CFormSelect
+                            className="component-size w-25"
+                            aria-label="Chọn yêu cầu lọc"
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            options={[
+                              { label: 'Chọn danh mục', value: '' },
+                              ...(categories && categories.length > 0
+                                ? categories.map((cate) => ({
+                                    label: cate.category_desc.cat_name,
+                                    value: cate.cat_id,
+                                  }))
+                                : []),
+                            ]}
+                          />
+                          <CFormSelect
+                            className="component-size w-25"
+                            aria-label="Chọn thương hiệu"
+                            value={selectedBrand}
+                            onChange={(e) => setSelectedBrand(e.target.value)}
+                            options={[
+                              { label: 'Chọn thương hiệu', value: '' },
+                              ...(brands && brands.length > 0
+                                ? brands.map((brand) => ({
+                                    label: brand.title,
+                                    value: brand.brandId,
+                                  }))
+                                : []),
+                            ]}
+                          />
+                          <CFormSelect
+                            className="component-size w-25"
+                            aria-label="Chọn trạng thái"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            options={[
+                              { label: 'Chọn trạng thái', value: '' },
+                              ...(status && status.length > 0
+                                ? status.map((status) => ({
+                                    label: status.name,
+                                    value: status.status_id,
+                                  }))
+                                : []),
+                            ]}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Xem từ ngày</td>
+                      <td>
+                        <div className="custom-datepicker-wrapper">
+                          <DatePicker
+                            className="custom-datepicker"
+                            showIcon
+                            dateFormat={'dd-MM-yyyy'}
+                            selected={startDate}
+                            onChange={handleStartDateChange}
+                          />
+                          <p className="datepicker-label">{'đến ngày'}</p>
+                          <DatePicker
+                            className="custom-datepicker"
+                            showIcon
+                            dateFormat={'dd-MM-yyyy'}
+                            selected={endDate}
+                            onChange={handleEndDateChange}
+                          />
+                        </div>
+                        {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                        {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Tìm kiếm</td>
+                      <td>
+                        <strong>
+                          <em>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</em>
+                        </strong>
+                        <input
+                          type="text"
+                          className="search-input"
+                          value={dataSearch}
+                          onChange={(e) => setDataSearch(e.target.value)}
+                        />
+                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                          Submit
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                )}
+              </table>
+            </CCol>
 
-        <CCol>
-          <CTable hover className="mt-3 border">
-            <thead>
-              <tr>
-                {columns.map((column) => (
-                  <CTableHeaderCell
-                    key={column.key}
-                    onClick={() => handleSort(column.key)}
-                    className="prevent-select"
-                  >
-                    {column.label}
-                    {sortConfig.key === column.key
-                      ? sortConfig.direction === 'ascending'
-                        ? ' ▼'
-                        : ' ▲'
-                      : ''}
-                  </CTableHeaderCell>
-                ))}
-              </tr>
-            </thead>
-            <CTableBody>
-              {sortedItems.map((item, index) => (
-                <CTableRow key={index}>
-                  {columns.map((column) => (
-                    <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+            <CCol>
+              <CTable hover className="mt-3 border">
+                <thead>
+                  <tr>
+                    {columns.map((column) => (
+                      <CTableHeaderCell
+                        key={column.key}
+                        onClick={() => handleSort(column.key)}
+                        className="prevent-select"
+                      >
+                        {column.label}
+                        {sortConfig.key === column.key
+                          ? sortConfig.direction === 'ascending'
+                            ? ' ▼'
+                            : ' ▲'
+                          : ''}
+                      </CTableHeaderCell>
+                    ))}
+                  </tr>
+                </thead>
+                <CTableBody>
+                  {sortedItems.map((item, index) => (
+                    <CTableRow key={index}>
+                      {columns.map((column) => (
+                        <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                      ))}
+                    </CTableRow>
                   ))}
-                </CTableRow>
-              ))}
-            </CTableBody>
-          </CTable>
+                </CTableBody>
+              </CTable>
 
-          <div className="d-flex justify-content-end">
-            <ReactPaginate
-              pageCount={Math.ceil(dataProductList?.total / dataProductList?.per_page)}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={1}
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakLabel="..."
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-              onPageChange={handlePageChange}
-              containerClassName={'pagination'}
-              activeClassName={'active'}
-              previousLabel={'<<'}
-              nextLabel={'>>'}
-            />
-          </div>
-        </CCol>
-      </CRow>
+              <div className="d-flex justify-content-end">
+                <ReactPaginate
+                  pageCount={Math.ceil(dataProductList?.total / dataProductList?.per_page)}
+                  pageRangeDisplayed={3}
+                  marginPagesDisplayed={1}
+                  pageClassName="page-item"
+                  pageLinkClassName="page-link"
+                  previousClassName="page-item"
+                  previousLinkClassName="page-link"
+                  nextClassName="page-item"
+                  nextLinkClassName="page-link"
+                  breakLabel="..."
+                  breakClassName="page-item"
+                  breakLinkClassName="page-link"
+                  onPageChange={handlePageChange}
+                  containerClassName={'pagination'}
+                  activeClassName={'active'}
+                  previousLabel={'<<'}
+                  nextLabel={'>>'}
+                />
+              </div>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

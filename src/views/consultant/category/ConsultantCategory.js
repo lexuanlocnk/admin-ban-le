@@ -21,7 +21,6 @@ import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
 
@@ -32,8 +31,6 @@ function ConsultantCategory() {
   const params = new URLSearchParams(location.search)
   const id = params.get('id')
   const sub = params.get('sub')
-
-  console.log('>>>> hgeck id', id)
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
@@ -62,12 +59,12 @@ function ConsultantCategory() {
   }
 
   const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
+    metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
+    metaDesc: Yup.string().required('Meta description là bắt buộc.'),
+    visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -90,7 +87,7 @@ function ConsultantCategory() {
         setDataConsultantCate(response.data.list)
       }
     } catch (error) {
-      console.error('Fetch data product brand is error', error)
+      console.error('Fetch data faqs cate is error', error)
     }
   }
 
@@ -100,33 +97,31 @@ function ConsultantCategory() {
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/news-category/${id}/edit`)
-      const data = response.data.newsCategory
+      const response = await axiosClient.get(`admin/faqs-category/${id}/edit`)
+      const data = response.data.faqsCategory
       if (data) {
         setValues({
-          title: data?.news_category_desc.cat_name,
-          description: data?.news_category_desc.description,
-          friendlyUrl: data?.news_category_desc.friendly_url,
-          pageTitle: data?.news_category_desc.friendly_title,
-          metaKeyword: data?.news_category_desc.metakey,
-          metaDesc: data?.news_category_desc.metadesc,
+          title: data?.faqs_category_desc.cat_name,
+          description: data?.faqs_category_desc.description,
+          friendlyUrl: data?.faqs_category_desc.friendly_url,
+          pageTitle: data?.faqs_category_desc.friendly_title,
+          metaKeyword: data?.faqs_category_desc.metakey,
+          metaDesc: data?.faqs_category_desc.metadesc,
           visible: data.display,
         })
       } else {
         console.error('No data found for the given ID.')
       }
     } catch (error) {
-      console.error('Fetch data id news category is error', error.message)
+      console.error('Fetch data id faqs category is error', error.message)
     }
   }
 
   const handleSubmit = async (values) => {
-    console.log('>>>> check values', values)
-
     if (isEditing) {
       //call api update data
       try {
-        const response = await axiosClient.put(`admin/news-category/${id}`, {
+        const response = await axiosClient.put(`admin/faqs-category/${id}`, {
           cat_name: values.title,
           description: values.description,
           friendly_url: values.friendlyUrl,
@@ -136,13 +131,13 @@ function ConsultantCategory() {
           display: values.visible,
         })
         if (response.data.status === true) {
-          toast.success('Cập nhật danh mục thành công')
-          fetchDataNewsCategory()
+          toast.success('Cập nhật danh mục tư vấn thành công')
+          fetchDataConsultantCate()
         } else {
           console.error('No data found for the given ID.')
         }
       } catch (error) {
-        console.error('Put data id news category is error', error.message)
+        console.error('Put data id faqs category is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
     } else {
@@ -160,7 +155,7 @@ function ConsultantCategory() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới danh mục tư vấn thành công!')
-          // fetchDataNewsCategory()
+          fetchDataConsultantCate()
         }
       } catch (error) {
         console.error('Post data consultant category is error', error)
@@ -181,10 +176,10 @@ function ConsultantCategory() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/news-category/${deletedId}`)
+      const response = await axiosClient.delete(`admin/faqs-category/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
-        fetchDataNewsCategory()
+        fetchDataConsultantCate()
       }
     } catch (error) {
       console.error('Delete brand id is error', error)

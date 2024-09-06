@@ -40,6 +40,9 @@ function ProductStatus() {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [dataProductStatus, setDataProductStatus] = useState([])
 
   // selected checkbox
@@ -95,7 +98,7 @@ function ProductStatus() {
     }
   }, [location.search])
 
-  const fetchDataStaus = async (dataSearch = '') => {
+  const fetchDataStatus = async (dataSearch = '') => {
     try {
       const response = await axiosClient.get(
         `admin/productStatus?data=${dataSearch}&page=${pageNumber}`,
@@ -103,13 +106,17 @@ function ProductStatus() {
       if (response.data.status === 'success') {
         setDataProductStatus(response.data.list)
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
     } catch (error) {
       console.error('Fetch data product brand is error', error)
     }
   }
 
   useEffect(() => {
-    fetchDataStaus()
+    fetchDataStatus()
   }, [pageNumber])
 
   const fetchDataById = async (setValues) => {
@@ -337,272 +344,283 @@ function ProductStatus() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <h2>TRẠNG THÁI SẢN PHẨM</h2>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <Link to={`/product/category`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
 
-      <CRow>
-        {/* Form add/ edit */}
-        <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm mới trạng thái' : 'Cập nhật trạng thái'}</h6>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ setFieldValue, setValues }) => {
-              useEffect(() => {
-                fetchDataById(setValues)
-              }, [setValues, id])
-              return (
-                <Form>
-                  <CCol md={12}>
-                    <label htmlFor="title-input">Tiêu đề</label>
-                    <Field name="title">
-                      {({ field }) => (
-                        <CFormInput
-                          {...field}
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <h2>TRẠNG THÁI SẢN PHẨM</h2>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={`/product/category`}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
+
+          <CRow>
+            {/* Form add/ edit */}
+            <CCol md={4}>
+              <h6>{!isEditing ? 'Thêm mới trạng thái' : 'Cập nhật trạng thái'}</h6>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ setFieldValue, setValues }) => {
+                  useEffect(() => {
+                    fetchDataById(setValues)
+                  }, [setValues, id])
+                  return (
+                    <Form>
+                      <CCol md={12}>
+                        <label htmlFor="title-input">Tiêu đề</label>
+                        <Field name="title">
+                          {({ field }) => (
+                            <CFormInput
+                              {...field}
+                              type="text"
+                              id="title-input"
+                              ref={inputRef}
+                              text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+                            />
+                          )}
+                        </Field>
+                        <ErrorMessage name="title" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="name-input">Name</label>
+                        <Field
+                          name="name"
                           type="text"
-                          id="title-input"
-                          ref={inputRef}
-                          text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+                          as={CFormInput}
+                          id="name-input"
+                          text="Name là bắt buộc và duy nhất."
                         />
-                      )}
-                    </Field>
-                    <ErrorMessage name="title" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                        <ErrorMessage name="name" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="name-input">Name</label>
-                    <Field
-                      name="name"
-                      type="text"
-                      as={CFormInput}
-                      id="name-input"
-                      text="Name là bắt buộc và duy nhất."
-                    />
-                    <ErrorMessage name="name" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <CFormInput
+                          name="image"
+                          type="file"
+                          id="formFile"
+                          label="Ảnh đại diện"
+                          size="sm"
+                          onChange={(e) => onFileChange(e)}
+                        />
+                        <br />
+                        <ErrorMessage name="image" component="div" className="text-danger" />
 
-                  <CCol md={12}>
-                    <CFormInput
-                      name="image"
-                      type="file"
-                      id="formFile"
-                      label="Ảnh đại diện"
-                      size="sm"
-                      onChange={(e) => onFileChange(e)}
-                    />
-                    <br />
-                    <ErrorMessage name="image" component="div" className="text-danger" />
-
-                    <div>
-                      {file.length == 0 ? (
                         <div>
-                          <CImage src={`${imageBaseUrl}${selectedFile}`} width={200} />
+                          {file.length == 0 ? (
+                            <div>
+                              <CImage src={`${imageBaseUrl}${selectedFile}`} width={200} />
+                            </div>
+                          ) : (
+                            file.map((item, index) => <CImage key={index} src={item} fluid />)
+                          )}
                         </div>
-                      ) : (
-                        file.map((item, index) => <CImage key={index} src={item} fluid />)
-                      )}
-                    </div>
-                  </CCol>
-                  <br />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="width-input">Chiều rộng</label>
-                    <Field
-                      name="width"
-                      type="width"
-                      as={CFormInput}
-                      id="width-input"
-                      text="Đơn vị chiều rộng được sử dụng đơn vị pixel."
-                    />
-                    <ErrorMessage name="width" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="height-input">Chiều cao</label>
-                    <Field
-                      name="height"
-                      type="text"
-                      as={CFormInput}
-                      id="height-input"
-                      text="Đơn vị chiều cao được sử dụng đơn vị pixel."
-                    />
-                    <ErrorMessage name="height" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="desc-input">Mô tả</label>
-                    <Field
-                      name="desc"
-                      type="text"
-                      as={CFormTextarea}
-                      id="desc-input"
-                      text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
-                    />
-                    <ErrorMessage name="desc" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="width-input">Chiều rộng</label>
+                        <Field
+                          name="width"
+                          type="width"
+                          as={CFormInput}
+                          id="width-input"
+                          text="Đơn vị chiều rộng được sử dụng đơn vị pixel."
+                        />
+                        <ErrorMessage name="width" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="height-input">Chiều cao</label>
+                        <Field
+                          name="height"
+                          type="text"
+                          as={CFormInput}
+                          id="height-input"
+                          text="Đơn vị chiều cao được sử dụng đơn vị pixel."
+                        />
+                        <ErrorMessage name="height" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="desc-input">Mô tả</label>
+                        <Field
+                          name="desc"
+                          type="text"
+                          as={CFormTextarea}
+                          id="desc-input"
+                          text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
+                        />
+                        <ErrorMessage name="desc" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <h6>Search Engine Optimization</h6>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="url-input">Chuỗi đường dẫn</label>
-                    <Field
-                      name="friendlyUrl"
-                      type="text"
-                      as={CFormInput}
-                      id="url-input"
-                      text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
-                    />
-                    <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="pageTitle-input">Tiêu đề trang</label>
-                    <Field
-                      name="pageTitle"
-                      type="text"
-                      as={CFormInput}
-                      id="pageTitle-input"
-                      text="Độ dài của tiêu đề trang tối đa 60 ký tự."
-                    />
-                    <ErrorMessage name="pageTitle" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="metaKeyword-input">Meta keywords</label>
-                    <Field
-                      name="metaKeyword"
-                      type="text"
-                      as={CFormInput}
-                      id="metaKeyword-input"
-                      text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
-                    />
-                    <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="metaDesc-input">Meta description</label>
-                    <Field
-                      name="metaDesc"
-                      type="text"
-                      as={CFormInput}
-                      id="metaDesc-input"
-                      text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
-                    />
-                    <ErrorMessage name="metaDesc" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="visible-select">Hiển thị</label>
-                    <Field
-                      className="component-size w-50"
-                      name="visible"
-                      as={CFormSelect}
-                      id="visible-select"
-                      options={[
-                        { label: 'Không', value: '0' },
-                        { label: 'Có', value: '1' },
-                      ]}
-                    />
-                    <ErrorMessage name="visible" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <h6>Search Engine Optimization</h6>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="url-input">Chuỗi đường dẫn</label>
+                        <Field
+                          name="friendlyUrl"
+                          type="text"
+                          as={CFormInput}
+                          id="url-input"
+                          text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
+                        />
+                        <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="pageTitle-input">Tiêu đề trang</label>
+                        <Field
+                          name="pageTitle"
+                          type="text"
+                          as={CFormInput}
+                          id="pageTitle-input"
+                          text="Độ dài của tiêu đề trang tối đa 60 ký tự."
+                        />
+                        <ErrorMessage name="pageTitle" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="metaKeyword-input">Meta keywords</label>
+                        <Field
+                          name="metaKeyword"
+                          type="text"
+                          as={CFormInput}
+                          id="metaKeyword-input"
+                          text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
+                        />
+                        <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="metaDesc-input">Meta description</label>
+                        <Field
+                          name="metaDesc"
+                          type="text"
+                          as={CFormInput}
+                          id="metaDesc-input"
+                          text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
+                        />
+                        <ErrorMessage name="metaDesc" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="visible-select">Hiển thị</label>
+                        <Field
+                          className="component-size w-50"
+                          name="visible"
+                          as={CFormSelect}
+                          id="visible-select"
+                          options={[
+                            { label: 'Không', value: '0' },
+                            { label: 'Có', value: '1' },
+                          ]}
+                        />
+                        <ErrorMessage name="visible" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                    </CButton>
-                  </CCol>
-                </Form>
-              )
-            }}
-          </Formik>
-        </CCol>
-        <CCol md={8}>
-          <Search count={dataProductStatus?.total} onSearchData={handleSearch} />
-          <CCol className="mt-4">
-            <CTable hover>
-              <thead>
-                <tr>
-                  {columns.map((column) => (
-                    <CTableHeaderCell
-                      style={{ whiteSpace: 'nowrap' }}
-                      key={column.key}
-                      onClick={() => handleSort(column.key)}
-                      className="prevent-select"
-                    >
-                      {column.label}
-                      {sortConfig.key === column.key
-                        ? sortConfig.direction === 'ascending'
-                          ? ' ▼'
-                          : ' ▲'
-                        : ''}
-                    </CTableHeaderCell>
-                  ))}
-                </tr>
-              </thead>
-              <CTableBody>
-                {sortedItems.map((item, index) => (
-                  <CTableRow key={index}>
-                    {columns.map((column) => (
-                      <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                      <CCol xs={12}>
+                        <CButton color="primary" type="submit" size="sm">
+                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        </CButton>
+                      </CCol>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </CCol>
+            <CCol md={8}>
+              <Search count={dataProductStatus?.total} onSearchData={handleSearch} />
+              <CCol className="mt-4">
+                <CTable hover>
+                  <thead>
+                    <tr>
+                      {columns.map((column) => (
+                        <CTableHeaderCell
+                          style={{ whiteSpace: 'nowrap' }}
+                          key={column.key}
+                          onClick={() => handleSort(column.key)}
+                          className="prevent-select"
+                        >
+                          {column.label}
+                          {sortConfig.key === column.key
+                            ? sortConfig.direction === 'ascending'
+                              ? ' ▼'
+                              : ' ▲'
+                            : ''}
+                        </CTableHeaderCell>
+                      ))}
+                    </tr>
+                  </thead>
+                  <CTableBody>
+                    {sortedItems.map((item, index) => (
+                      <CTableRow key={index}>
+                        {columns.map((column) => (
+                          <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                        ))}
+                      </CTableRow>
                     ))}
-                  </CTableRow>
-                ))}
-              </CTableBody>
-            </CTable>
+                  </CTableBody>
+                </CTable>
 
-            <div className="d-flex justify-content-end">
-              <ReactPaginate
-                pageCount={Math.round(dataProductStatus?.total / dataProductStatus?.per_page)}
-                pageRangeDisplayed={3}
-                marginPagesDisplayed={1}
-                pageClassName="page-item"
-                pageLinkClassName="page-link"
-                previousClassName="page-item"
-                previousLinkClassName="page-link"
-                nextClassName="page-item"
-                nextLinkClassName="page-link"
-                breakLabel="..."
-                breakClassName="page-item"
-                breakLinkClassName="page-link"
-                onPageChange={handlePageChange}
-                containerClassName={'pagination'}
-                activeClassName={'active'}
-                previousLabel={'<<'}
-                nextLabel={'>>'}
-              />
-            </div>
-          </CCol>
-        </CCol>
-      </CRow>
+                <div className="d-flex justify-content-end">
+                  <ReactPaginate
+                    pageCount={Math.round(dataProductStatus?.total / dataProductStatus?.per_page)}
+                    pageRangeDisplayed={3}
+                    marginPagesDisplayed={1}
+                    pageClassName="page-item"
+                    pageLinkClassName="page-link"
+                    previousClassName="page-item"
+                    previousLinkClassName="page-link"
+                    nextClassName="page-item"
+                    nextLinkClassName="page-link"
+                    breakLabel="..."
+                    breakClassName="page-item"
+                    breakLinkClassName="page-link"
+                    onPageChange={handlePageChange}
+                    containerClassName={'pagination'}
+                    activeClassName={'active'}
+                    previousLabel={'<<'}
+                    nextLabel={'>>'}
+                  />
+                </div>
+              </CCol>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

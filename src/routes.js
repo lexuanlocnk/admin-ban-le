@@ -150,6 +150,11 @@ const ConsultantCategory = React.lazy(
   () => import('./views/consultant/category/ConsultantCategory'),
 )
 
+// consultant detail
+const Consultant = React.lazy(() => import('./views/consultant/detail/Consultant'))
+const AddConsultant = React.lazy(() => import('./views/consultant/detail/AddConsultant'))
+const EditConsultant = React.lazy(() => import('./views/consultant/detail/EditConsultant'))
+
 /** ------------------------------------------------------------------------------------------------------------------ */
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
@@ -545,6 +550,22 @@ const routes = [
     path: 'consultant/category',
     name: 'ConsultantCategory',
     element: ConsultantCategory,
+    exact: true,
+  },
+
+  //detail
+
+  { path: '/consultant', name: 'Consultant', element: Consultant, exact: true },
+  {
+    path: 'consultant/add',
+    name: 'AddConsultant',
+    element: AddConsultant,
+    exact: true,
+  },
+  {
+    path: 'consultant/edit',
+    name: 'EditConsultant',
+    element: EditConsultant,
     exact: true,
   },
 

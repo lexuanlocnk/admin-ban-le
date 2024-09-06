@@ -29,6 +29,9 @@ import './css/productFlashSale.css'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function ProductFlashSale() {
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [dataProductList, setDataProductList] = useState([])
   const [flashSaleData, setFlashSaleData] = useState([])
 
@@ -146,6 +149,10 @@ function ProductFlashSale() {
       const response = await axiosClient.get(`admin/product-flash-sale`)
       if (response.data.status === true) {
         setFlashSaleData(response.data.list)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
       }
     } catch (error) {
       console.error('Fetch flash sale data is error', error)
@@ -321,369 +328,383 @@ function ProductFlashSale() {
 
   return (
     <CContainer>
-      <CRow className="my-3">
-        <CCol md={6}>
-          <h2>SẢN PHẨM FLASH SALE</h2>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <Link to={`/product`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <CRow className="my-3">
+            <CCol md={6}>
+              <h2>SẢN PHẨM FLASH SALE</h2>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <Link to={`/product`}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        <CCol className="d-flex gap-3 mb-2" md={12}>
-          <CButton onClick={handleSubmitUndeal} size="sm" color="primary">
-            Bỏ set deal các mục đã chọn
-          </CButton>
-        </CCol>
-        <CCol>
-          <CTable className="border">
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell scope="col">
-                  <CFormCheck
-                    aria-label="Select all"
-                    checked={isAllUnDealCheckbox}
-                    onChange={(e) => {
-                      const isChecked = e.target.checked
-                      setIsAllUnDealCheckbox(isChecked)
-                      if (isChecked) {
-                        const allIds = flashSaleData?.map((item) => item.product_id) || []
-                        setSelectedUnDealCheckbox(allIds)
-                      } else {
-                        setSelectedUnDealCheckbox([])
-                      }
-                    }}
-                  />
-                </CTableHeaderCell>
-                <CTableHeaderCell scope="col">Tiêu đề</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Hình ảnh</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Thời gian bắt đầu</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Thời gian kết thúc</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Giá gốc</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Giá bán</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Tác vụ</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>
-              {flashSaleData &&
-                flashSaleData.length > 0 &&
-                flashSaleData.map((item) => (
-                  <CTableRow key={item.id}>
-                    <CTableHeaderCell scope="row">
+          <CRow>
+            <CCol className="d-flex gap-3 mb-2" md={12}>
+              <CButton onClick={handleSubmitUndeal} size="sm" color="primary">
+                Bỏ set deal các mục đã chọn
+              </CButton>
+            </CCol>
+            <CCol>
+              <CTable className="border">
+                <CTableHead>
+                  <CTableRow>
+                    <CTableHeaderCell scope="col">
                       <CFormCheck
-                        key={item?.id}
-                        aria-label="Default select example"
-                        defaultChecked={item?.product_id}
-                        id={`flexCheckDefault_${item?.id}`}
-                        value={item?.product_id}
-                        checked={selectedUnDealCheckbox.includes(item?.product_id)}
+                        aria-label="Select all"
+                        checked={isAllUnDealCheckbox}
                         onChange={(e) => {
-                          const undealId = item?.product_id
                           const isChecked = e.target.checked
+                          setIsAllUnDealCheckbox(isChecked)
                           if (isChecked) {
-                            setSelectedUnDealCheckbox([...selectedUnDealCheckbox, undealId])
+                            const allIds = flashSaleData?.map((item) => item.product_id) || []
+                            setSelectedUnDealCheckbox(allIds)
                           } else {
-                            setSelectedUnDealCheckbox(
-                              selectedUnDealCheckbox.filter((id) => id !== undealId),
-                            )
+                            setSelectedUnDealCheckbox([])
                           }
                         }}
                       />
                     </CTableHeaderCell>
-                    <CTableDataCell
-                      style={{
-                        width: '30%',
-                      }}
-                    >
-                      <Link to={`/product/edit?id=${item?.product?.product_id}`}>
-                        {item?.product?.product_desc?.title}
-                      </Link>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CImage
-                        className="d-flex justify-content-center align-items-center"
-                        width={50}
-                        src={`${imageBaseUrl}${item?.product?.picture}`}
-                        alt={`image_1`}
-                      />
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      {isEditDeal === item?.id ? (
-                        <React.Fragment>
-                          <DatePicker
-                            className="custom-datepicker"
-                            showIcon
-                            dateFormat={'dd-MM-yyyy'}
-                            selected={startDate}
-                            onChange={handleStartDateChange}
-                          />
-                          {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                        </React.Fragment>
-                      ) : (
-                        <DatePicker
-                          className="custom-datepicker"
-                          showIcon
-                          dateFormat={'dd-MM-yyyy'}
-                          selected={
-                            item?.start_time !== null && !isNaN(item?.start_time)
-                              ? moment.unix(Number(item?.start_time)).isValid()
-                                ? moment.unix(Number(item?.start_time)).toDate()
-                                : ''
-                              : ''
-                          }
-                        />
-                      )}
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      {isEditDeal === item?.id ? (
-                        <React.Fragment>
-                          <DatePicker
-                            className="custom-datepicker"
-                            showIcon
-                            dateFormat={'dd-MM-yyyy'}
-                            selected={endDate}
-                            onChange={handleEndDateChange}
-                          />
-                          {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
-                        </React.Fragment>
-                      ) : (
-                        <DatePicker
-                          className="custom-datepicker"
-                          showIcon
-                          dateFormat={'dd-MM-yyyy'}
-                          selected={
-                            item?.end_time !== null && !isNaN(item?.end_time)
-                              ? moment.unix(Number(item?.end_time)).isValid()
-                                ? moment.unix(Number(item?.end_time)).toDate()
-                                : ''
-                              : ''
-                          }
-                        />
-                      )}
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      {isEditDeal === item?.id ? (
-                        <CFormInput
-                          style={{
-                            width: '100px',
-                            fontSize: 13,
-                          }}
-                          type="text"
-                          id="price-input"
-                          value={formatNumber(editedPrice)}
-                          onChange={(e) => {
-                            const rawValue = unformatNumber(e.target.value)
-                            setEditedPrice(rawValue)
-                          }}
-                        />
-                      ) : (
-                        <CFormInput
-                          style={{
-                            width: '100px',
-                            fontSize: 13,
-                          }}
-                          type="text"
-                          id="price-input"
-                          value={formatNumber(item?.discount_price)}
-                        />
-                      )}
-                    </CTableDataCell>
-                    <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
-                      {(item?.price).toLocaleString('vi-VN')}đ
-                    </CTableDataCell>
-
-                    <CTableDataCell>
-                      <div>
-                        {isEditDeal === item?.id ? (
-                          <CButton
-                            size="sm"
-                            color={'success'}
-                            onClick={() => handleEditDeal(item?.product_id)}
-                            className="button-action mr-2 bg-info"
-                          >
-                            Cập nhật
-                          </CButton>
-                        ) : (
-                          <CButton
-                            size="sm"
-                            color={'info'}
-                            onClick={() => {
-                              setIsEditDeal(item?.id)
-                              setEditedPrice(item.discount_price)
-                            }}
-                            className="button-action mr-2 bg-info"
-                          >
-                            Chỉnh sửa
-                          </CButton>
-                        )}
-                      </div>
-                    </CTableDataCell>
+                    <CTableHeaderCell scope="col">Tiêu đề</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Hình ảnh</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Thời gian bắt đầu</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Thời gian kết thúc</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Giá gốc</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Giá bán</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Tác vụ</CTableHeaderCell>
                   </CTableRow>
-                ))}
-            </CTableBody>
-          </CTable>
-        </CCol>
-      </CRow>
-
-      <CRow>
-        <CCol md={12}>
-          <table className="filter-table">
-            <thead>
-              <tr>
-                <th colSpan="2">
-                  <div className="d-flex justify-content-between">
-                    <span>Bộ lọc tìm kiếm</span>
-                    <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                      {isCollapse ? '▼' : '▲'}
-                    </span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            {!isCollapse && (
-              <tbody>
-                <tr>
-                  <td>Tổng cộng</td>
-                  <td className="total-count">{dataProductList?.total}</td>
-                </tr>
-                <tr>
-                  <td>Lọc</td>
-                  <td>
-                    <div
-                      className="d-flex"
-                      style={{
-                        columnGap: 10,
-                      }}
-                    >
-                      <CFormSelect
-                        className="component-size w-25"
-                        aria-label="Chọn yêu cầu lọc"
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                      >
-                        <option value={''}>Chọn danh mục</option>
-                        {categories &&
-                          categories?.map((category) => (
-                            <React.Fragment key={category.cat_id}>
-                              <option value={category.cat_id}>
-                                {category?.category_desc?.cat_name} ({category.cat_id})
-                              </option>
-                              {category.parenty &&
-                                category.parenty.map((subCategory) => (
-                                  <React.Fragment key={subCategory.cat_id}>
-                                    <option value={subCategory.cat_id}>
-                                      &nbsp;&nbsp;&nbsp;{'|--'}
-                                      {subCategory?.category_desc?.cat_name} ({subCategory.cat_id})
-                                    </option>
-
-                                    {subCategory.parentx &&
-                                      subCategory.parentx.map((subSubCategory) => (
-                                        <option
-                                          key={subSubCategory.cat_id}
-                                          value={subSubCategory.cat_id}
-                                        >
-                                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'|--'}
-                                          {subSubCategory?.category_desc?.cat_name}(
-                                          {subSubCategory.cat_id})
-                                        </option>
-                                      ))}
-                                  </React.Fragment>
-                                ))}
+                </CTableHead>
+                <CTableBody>
+                  {flashSaleData &&
+                    flashSaleData.length > 0 &&
+                    flashSaleData.map((item) => (
+                      <CTableRow key={item.id}>
+                        <CTableHeaderCell scope="row">
+                          <CFormCheck
+                            key={item?.id}
+                            aria-label="Default select example"
+                            defaultChecked={item?.product_id}
+                            id={`flexCheckDefault_${item?.id}`}
+                            value={item?.product_id}
+                            checked={selectedUnDealCheckbox.includes(item?.product_id)}
+                            onChange={(e) => {
+                              const undealId = item?.product_id
+                              const isChecked = e.target.checked
+                              if (isChecked) {
+                                setSelectedUnDealCheckbox([...selectedUnDealCheckbox, undealId])
+                              } else {
+                                setSelectedUnDealCheckbox(
+                                  selectedUnDealCheckbox.filter((id) => id !== undealId),
+                                )
+                              }
+                            }}
+                          />
+                        </CTableHeaderCell>
+                        <CTableDataCell
+                          style={{
+                            width: '30%',
+                          }}
+                        >
+                          <Link to={`/product/edit?id=${item?.product?.product_id}`}>
+                            {item?.product?.product_desc?.title}
+                          </Link>
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          <CImage
+                            className="d-flex justify-content-center align-items-center"
+                            width={50}
+                            src={`${imageBaseUrl}${item?.product?.picture}`}
+                            alt={`image_1`}
+                          />
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {isEditDeal === item?.id ? (
+                            <React.Fragment>
+                              <DatePicker
+                                className="custom-datepicker"
+                                showIcon
+                                dateFormat={'dd-MM-yyyy'}
+                                selected={startDate}
+                                onChange={handleStartDateChange}
+                              />
+                              {errors.startDate && (
+                                <p className="text-danger">{errors.startDate}</p>
+                              )}
                             </React.Fragment>
-                          ))}
-                      </CFormSelect>
+                          ) : (
+                            <DatePicker
+                              className="custom-datepicker"
+                              showIcon
+                              dateFormat={'dd-MM-yyyy'}
+                              selected={
+                                item?.start_time !== null && !isNaN(item?.start_time)
+                                  ? moment.unix(Number(item?.start_time)).isValid()
+                                    ? moment.unix(Number(item?.start_time)).toDate()
+                                    : ''
+                                  : ''
+                              }
+                            />
+                          )}
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {isEditDeal === item?.id ? (
+                            <React.Fragment>
+                              <DatePicker
+                                className="custom-datepicker"
+                                showIcon
+                                dateFormat={'dd-MM-yyyy'}
+                                selected={endDate}
+                                onChange={handleEndDateChange}
+                              />
+                              {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                            </React.Fragment>
+                          ) : (
+                            <DatePicker
+                              className="custom-datepicker"
+                              showIcon
+                              dateFormat={'dd-MM-yyyy'}
+                              selected={
+                                item?.end_time !== null && !isNaN(item?.end_time)
+                                  ? moment.unix(Number(item?.end_time)).isValid()
+                                    ? moment.unix(Number(item?.end_time)).toDate()
+                                    : ''
+                                  : ''
+                              }
+                            />
+                          )}
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {isEditDeal === item?.id ? (
+                            <CFormInput
+                              style={{
+                                width: '100px',
+                                fontSize: 13,
+                              }}
+                              type="text"
+                              id="price-input"
+                              value={formatNumber(editedPrice)}
+                              onChange={(e) => {
+                                const rawValue = unformatNumber(e.target.value)
+                                setEditedPrice(rawValue)
+                              }}
+                            />
+                          ) : (
+                            <CFormInput
+                              style={{
+                                width: '100px',
+                                fontSize: 13,
+                              }}
+                              type="text"
+                              id="price-input"
+                              value={formatNumber(item?.discount_price)}
+                            />
+                          )}
+                        </CTableDataCell>
+                        <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
+                          {(item?.price).toLocaleString('vi-VN')}đ
+                        </CTableDataCell>
 
-                      <CFormSelect
-                        className="component-size w-25"
-                        aria-label="Chọn thương hiệu"
-                        value={selectedBrand}
-                        onChange={(e) => setSelectedBrand(e.target.value)}
-                        options={[
-                          { label: 'Chọn thương hiệu', value: '' },
-                          ...(brands && brands.length > 0
-                            ? brands.map((brand) => ({
-                                label: brand.title,
-                                value: brand.brandId,
-                              }))
-                            : []),
-                        ]}
-                      />
-                      <CFormSelect
-                        className="component-size w-25"
-                        aria-label="Chọn trạng thái"
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                        options={[
-                          { label: 'Chọn trạng thái', value: '' },
-                          ...(status && status.length > 0
-                            ? status.map((status) => ({
-                                label: status.name,
-                                value: status.status_id,
-                              }))
-                            : []),
-                        ]}
-                      />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Tìm kiếm</td>
-                  <td>
-                    <strong>
-                      <em>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</em>
-                    </strong>
-                    <input
-                      type="text"
-                      className="search-input"
-                      value={dataSearch}
-                      onChange={(e) => setDataSearch(e.target.value)}
-                    />
-                    <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                      Submit
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            )}
-          </table>
-        </CCol>
+                        <CTableDataCell>
+                          <div>
+                            {isEditDeal === item?.id ? (
+                              <CButton
+                                size="sm"
+                                color={'success'}
+                                onClick={() => handleEditDeal(item?.product_id)}
+                                className="button-action mr-2 bg-info"
+                              >
+                                Cập nhật
+                              </CButton>
+                            ) : (
+                              <CButton
+                                size="sm"
+                                color={'info'}
+                                onClick={() => {
+                                  setIsEditDeal(item?.id)
+                                  setEditedPrice(item.discount_price)
+                                }}
+                                className="button-action mr-2 bg-info"
+                              >
+                                Chỉnh sửa
+                              </CButton>
+                            )}
+                          </div>
+                        </CTableDataCell>
+                      </CTableRow>
+                    ))}
+                </CTableBody>
+              </CTable>
+            </CCol>
+          </CRow>
 
-        <CCol className="mt-3">
-          <CButton onClick={handleSubmitDeal} color="primary" size="sm">
-            Set deal các mục đã chọn
-          </CButton>
-          <CTable hover className="mt-2 border" columns={columns} items={items} />
+          <CRow>
+            <CCol md={12}>
+              <table className="filter-table">
+                <thead>
+                  <tr>
+                    <th colSpan="2">
+                      <div className="d-flex justify-content-between">
+                        <span>Bộ lọc tìm kiếm</span>
+                        <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                          {isCollapse ? '▼' : '▲'}
+                        </span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                {!isCollapse && (
+                  <tbody>
+                    <tr>
+                      <td>Tổng cộng</td>
+                      <td className="total-count">{dataProductList?.total}</td>
+                    </tr>
+                    <tr>
+                      <td>Lọc</td>
+                      <td>
+                        <div
+                          className="d-flex"
+                          style={{
+                            columnGap: 10,
+                          }}
+                        >
+                          <CFormSelect
+                            className="component-size w-25"
+                            aria-label="Chọn yêu cầu lọc"
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                          >
+                            <option value={''}>Chọn danh mục</option>
+                            {categories &&
+                              categories?.map((category) => (
+                                <React.Fragment key={category.cat_id}>
+                                  <option value={category.cat_id}>
+                                    {category?.category_desc?.cat_name} ({category.cat_id})
+                                  </option>
+                                  {category.parenty &&
+                                    category.parenty.map((subCategory) => (
+                                      <React.Fragment key={subCategory.cat_id}>
+                                        <option value={subCategory.cat_id}>
+                                          &nbsp;&nbsp;&nbsp;{'|--'}
+                                          {subCategory?.category_desc?.cat_name} (
+                                          {subCategory.cat_id})
+                                        </option>
 
-          <div className="d-flex justify-content-end">
-            <ReactPaginate
-              pageCount={Math.ceil(dataProductList?.total / dataProductList?.per_page)}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={1}
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakLabel="..."
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-              onPageChange={handlePageChange}
-              containerClassName={'pagination'}
-              activeClassName={'active'}
-              previousLabel={'<<'}
-              nextLabel={'>>'}
-            />
-          </div>
-        </CCol>
-      </CRow>
+                                        {subCategory.parentx &&
+                                          subCategory.parentx.map((subSubCategory) => (
+                                            <option
+                                              key={subSubCategory.cat_id}
+                                              value={subSubCategory.cat_id}
+                                            >
+                                              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'|--'}
+                                              {subSubCategory?.category_desc?.cat_name}(
+                                              {subSubCategory.cat_id})
+                                            </option>
+                                          ))}
+                                      </React.Fragment>
+                                    ))}
+                                </React.Fragment>
+                              ))}
+                          </CFormSelect>
+
+                          <CFormSelect
+                            className="component-size w-25"
+                            aria-label="Chọn thương hiệu"
+                            value={selectedBrand}
+                            onChange={(e) => setSelectedBrand(e.target.value)}
+                            options={[
+                              { label: 'Chọn thương hiệu', value: '' },
+                              ...(brands && brands.length > 0
+                                ? brands.map((brand) => ({
+                                    label: brand.title,
+                                    value: brand.brandId,
+                                  }))
+                                : []),
+                            ]}
+                          />
+                          <CFormSelect
+                            className="component-size w-25"
+                            aria-label="Chọn trạng thái"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            options={[
+                              { label: 'Chọn trạng thái', value: '' },
+                              ...(status && status.length > 0
+                                ? status.map((status) => ({
+                                    label: status.name,
+                                    value: status.status_id,
+                                  }))
+                                : []),
+                            ]}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Tìm kiếm</td>
+                      <td>
+                        <strong>
+                          <em>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</em>
+                        </strong>
+                        <input
+                          type="text"
+                          className="search-input"
+                          value={dataSearch}
+                          onChange={(e) => setDataSearch(e.target.value)}
+                        />
+                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                          Submit
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                )}
+              </table>
+            </CCol>
+
+            <CCol className="mt-3">
+              <CButton onClick={handleSubmitDeal} color="primary" size="sm">
+                Set deal các mục đã chọn
+              </CButton>
+              <CTable hover className="mt-2 border" columns={columns} items={items} />
+
+              <div className="d-flex justify-content-end">
+                <ReactPaginate
+                  pageCount={Math.ceil(dataProductList?.total / dataProductList?.per_page)}
+                  pageRangeDisplayed={3}
+                  marginPagesDisplayed={1}
+                  pageClassName="page-item"
+                  pageLinkClassName="page-link"
+                  previousClassName="page-item"
+                  previousLinkClassName="page-link"
+                  nextClassName="page-item"
+                  nextLinkClassName="page-link"
+                  breakLabel="..."
+                  breakClassName="page-item"
+                  breakLinkClassName="page-link"
+                  onPageChange={handlePageChange}
+                  containerClassName={'pagination'}
+                  activeClassName={'active'}
+                  previousLabel={'<<'}
+                  nextLabel={'>>'}
+                />
+              </div>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }
