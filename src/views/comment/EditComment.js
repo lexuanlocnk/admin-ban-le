@@ -24,6 +24,9 @@ function EditComment() {
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [customerComment, setCustomerComment] = useState('')
   const [adminComment, setAdminComment] = useState('')
   const [responseFor, setResponseFor] = useState('')
@@ -56,6 +59,10 @@ function EditComment() {
       } else {
         console.error('No data found for the given ID.')
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
     } catch (error) {
       console.error('Fetch data id comment is error', error.message)
     }
@@ -81,123 +88,134 @@ function EditComment() {
 
   return (
     <CContainer>
-      <CRow className="mb-3">
-        <CCol>
-          <h2>TRẢ LỜI BÌNH LUẬN</h2>
-        </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
-          <div className="d-flex justify-content-end">
-            <Link to={`/comment`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <CRow className="mb-3">
+            <CCol>
+              <h2>TRẢ LỜI BÌNH LUẬN</h2>
+            </CCol>
+            <CCol md={{ span: 4, offset: 4 }}>
+              <div className="d-flex justify-content-end">
+                <Link to={`/comment`}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        <CCol md={8}>
-          <h6>{'Trả lời bình luận'}</h6>
-          <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-            {({ setFieldValue, setValues }) => {
-              useEffect(() => {
-                fetchDataById(setValues)
-              }, [setValues])
-              return (
-                <Form>
-                  <CCol md={12}>
-                    <label htmlFor="name-input">Tác giả</label>
-                    <Field name="name">
-                      {({ field }) => (
-                        <CFormInput {...field} type="text" id="name-input" disabled />
-                      )}
-                    </Field>
-                    <ErrorMessage name="name" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+          <CRow>
+            <CCol md={8}>
+              <h6>{'Trả lời bình luận'}</h6>
+              <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+                {({ setFieldValue, setValues }) => {
+                  useEffect(() => {
+                    fetchDataById(setValues)
+                  }, [setValues])
+                  return (
+                    <Form>
+                      <CCol md={12}>
+                        <label htmlFor="name-input">Tác giả</label>
+                        <Field name="name">
+                          {({ field }) => (
+                            <CFormInput {...field} type="text" id="name-input" disabled />
+                          )}
+                        </Field>
+                        <ErrorMessage name="name" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="email-input">Thư điện tử</label>
-                    <Field name="email" type="text" as={CFormInput} id="email-input" disabled />
-                    <ErrorMessage name="email" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="email-input">Thư điện tử</label>
+                        <Field name="email" type="text" as={CFormInput} id="email-input" disabled />
+                        <ErrorMessage name="email" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <CImage rounded thumbnail src={Avatar} width={100} height={100} />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <CImage rounded thumbnail src={Avatar} width={100} height={100} />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="responseFor-input">Trả lời cho: </label>
-                    <Link
-                      to={`http://192.168.245.154:3000/detail-product/${responseFor?.friendly_url}`}
-                    >
-                      {responseFor?.title}
-                    </Link>
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="dateSend-input">Ngày gửi</label>
-                    <Field
-                      name="dateSend"
-                      type="text"
-                      as={CFormInput}
-                      id="dateSend-input"
-                      disabled
-                    />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="responseFor-input">Trả lời cho: </label>
+                        <Link
+                          to={`http://192.168.245.154:3000/detail-product/${responseFor?.friendly_url}`}
+                        >
+                          {responseFor?.title}
+                        </Link>
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="dateSend-input">Ngày gửi</label>
+                        <Field
+                          name="dateSend"
+                          type="text"
+                          as={CFormInput}
+                          id="dateSend-input"
+                          disabled
+                        />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <CFormLabel>Nội dung bình luận</CFormLabel>
-                    <CKedtiorCustom
-                      data={customerComment}
-                      onChangeData={(data) => setCustomerComment(data)}
-                    />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <CFormLabel>Nội dung bình luận</CFormLabel>
+                        <CKedtiorCustom
+                          data={customerComment}
+                          onChangeData={(data) => setCustomerComment(data)}
+                        />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="adminReply-input">Admin trả lời</label>
-                    <Field
-                      style={{ height: '200px' }}
-                      name="adminReply"
-                      type="text"
-                      as={CFormTextarea}
-                      id="adminReply-input"
-                    />
-                    <ErrorMessage name="adminReply" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="adminReply-input">Admin trả lời</label>
+                        <Field
+                          style={{ height: '200px' }}
+                          name="adminReply"
+                          type="text"
+                          as={CFormTextarea}
+                          id="adminReply-input"
+                        />
+                        <ErrorMessage name="adminReply" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="visible-select">Hiển thị</label>
-                    <Field
-                      name="visible"
-                      as={CFormSelect}
-                      id="visible-select"
-                      options={[
-                        { label: 'Không', value: '0' },
-                        { label: 'Có', value: '1' },
-                      ]}
-                    />
-                    <ErrorMessage name="visible" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="visible-select">Hiển thị</label>
+                        <Field
+                          name="visible"
+                          as={CFormSelect}
+                          id="visible-select"
+                          options={[
+                            { label: 'Không', value: '0' },
+                            { label: 'Có', value: '1' },
+                          ]}
+                        />
+                        <ErrorMessage name="visible" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      Cập nhật
-                    </CButton>
-                  </CCol>
-                </Form>
-              )
-            }}
-          </Formik>
-        </CCol>
-      </CRow>
+                      <CCol xs={12}>
+                        <CButton color="primary" type="submit" size="sm">
+                          Cập nhật
+                        </CButton>
+                      </CCol>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

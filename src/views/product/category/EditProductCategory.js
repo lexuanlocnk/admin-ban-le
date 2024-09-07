@@ -22,6 +22,9 @@ function EditProductCategory() {
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [categories, setCategories] = useState([])
 
   // const [brands, setBrands] = useState([])
@@ -89,6 +92,10 @@ function EditProductCategory() {
         })
         setSelectedFile(data.picture)
         setSelectedFileBackground(data.background)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
       }
     } catch (error) {
       console.error('Fetch categories data error', error)
@@ -177,6 +184,10 @@ function EditProductCategory() {
       if (response.data.status === true) {
         toast.success('Cập nhật danh mục thành công.')
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Put product category data error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
@@ -184,168 +195,183 @@ function EditProductCategory() {
   }
   return (
     <CContainer>
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <h2>CHỈNH SỬA DANH MỤC</h2>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <Link to="/product/category">
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
-      <CRow>
-        <CCol md={8}>
-          <h6></h6>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ setFieldValue, values, setValues }) => {
-              useEffect(() => {
-                fetchCategoriesData(setValues)
-              }, [setValues])
-              return (
-                <Form>
-                  <CCol md={12}>
-                    <label htmlFor="title-input">Tên danh mục</label>
-                    <Field name="title">
-                      {({ field }) => (
-                        <CFormInput
-                          {...field}
+        </h5>
+      ) : (
+        <>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <h2>CHỈNH SỬA DANH MỤC</h2>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <Link to="/product/category">
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
+          <CRow>
+            <CCol md={8}>
+              <h6></h6>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ setFieldValue, values, setValues }) => {
+                  useEffect(() => {
+                    fetchCategoriesData(setValues)
+                  }, [setValues])
+                  return (
+                    <Form>
+                      <CCol md={12}>
+                        <label htmlFor="title-input">Tên danh mục</label>
+                        <Field name="title">
+                          {({ field }) => (
+                            <CFormInput
+                              {...field}
+                              type="text"
+                              id="title-input"
+                              text="Tên riêng sẽ hiển thị lên trang web của bạn."
+                            />
+                          )}
+                        </Field>
+                        <ErrorMessage name="title" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="url-input">Chuỗi đường dẫn</label>
+                        <Field
+                          name="friendlyUrl"
                           type="text"
-                          id="title-input"
-                          text="Tên riêng sẽ hiển thị lên trang web của bạn."
+                          as={CFormInput}
+                          id="url-input"
+                          text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
                         />
-                      )}
-                    </Field>
-                    <ErrorMessage name="title" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                        <ErrorMessage name="email" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="url-input">Chuỗi đường dẫn</label>
-                    <Field
-                      name="friendlyUrl"
-                      type="text"
-                      as={CFormInput}
-                      id="url-input"
-                      text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
-                    />
-                    <ErrorMessage name="email" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <label htmlFor="category-select">Là con của</label>
-                    <Field
-                      name="parentId"
-                      as={CFormSelect}
-                      id="category-select"
-                      onChange={(e) => setFieldValue('parentId', e.target.value)}
-                      className="select-input"
-                      text="Chuyên mục khác với thẻ, bạn có thể sử dụng nhiều cấp chuyên mục. Ví dụ: Trong chuyên mục nhạc, bạn có chuyên mục con là nhạc Pop, nhạc Jazz. Việc này hoàn toàn là tùy theo ý bạn."
-                    >
-                      <option value="0">Trống (0)</option>
-                      {categories &&
-                        categories.map((item) => (
-                          <optgroup key={item.category_desc.cat_id}>
-                            <option value={item.category_desc.cat_id}>
-                              {item.category_desc.cat_name} ({item.category_desc.cat_id})
-                            </option>
-                            {item.sub_categories &&
-                              item.sub_categories.map((subItem) => (
-                                <option key={subItem.cat_id} value={subItem.cat_id}>
-                                  + {subItem.category_desc.cat_name} ({subItem?.cat_id})
+                      <CCol md={12}>
+                        <label htmlFor="category-select">Là con của</label>
+                        <Field
+                          name="parentId"
+                          as={CFormSelect}
+                          id="category-select"
+                          onChange={(e) => setFieldValue('parentId', e.target.value)}
+                          className="select-input"
+                          text="Chuyên mục khác với thẻ, bạn có thể sử dụng nhiều cấp chuyên mục. Ví dụ: Trong chuyên mục nhạc, bạn có chuyên mục con là nhạc Pop, nhạc Jazz. Việc này hoàn toàn là tùy theo ý bạn."
+                        >
+                          <option value="0">Trống (0)</option>
+                          {categories &&
+                            categories.map((item) => (
+                              <optgroup key={item.category_desc.cat_id}>
+                                <option value={item.category_desc.cat_id}>
+                                  {item.category_desc.cat_name} ({item.category_desc.cat_id})
                                 </option>
-                              ))}
-                          </optgroup>
-                        ))}
-                    </Field>
-                    <ErrorMessage name="parentId" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                                {item.sub_categories &&
+                                  item.sub_categories.map((subItem) => (
+                                    <option key={subItem.cat_id} value={subItem.cat_id}>
+                                      + {subItem.category_desc.cat_name} ({subItem?.cat_id})
+                                    </option>
+                                  ))}
+                              </optgroup>
+                            ))}
+                        </Field>
+                        <ErrorMessage name="parentId" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <CFormInput
-                      name="picture"
-                      type="file"
-                      id="formFile"
-                      label="Hình ảnh danh mục"
-                      onChange={(e) => onFileChange(e)}
-                    />
-                    <br />
-                    <ErrorMessage name="picture" component="div" className="text-danger" />
+                      <CCol md={12}>
+                        <CFormInput
+                          name="picture"
+                          type="file"
+                          id="formFile"
+                          label="Hình ảnh danh mục"
+                          onChange={(e) => onFileChange(e)}
+                        />
+                        <br />
+                        <ErrorMessage name="picture" component="div" className="text-danger" />
 
-                    <div>
-                      {file.length == 0 ? (
                         <div>
-                          <CImage
-                            src={`http://192.168.245.190:8000/uploads/` + selectedFile}
-                            width={200}
-                          />
+                          {file.length == 0 ? (
+                            <div>
+                              <CImage
+                                src={`http://192.168.245.190:8000/uploads/` + selectedFile}
+                                width={200}
+                              />
+                            </div>
+                          ) : (
+                            file.map((item, index) => <CImage key={index} src={item} width={200} />)
+                          )}
                         </div>
-                      ) : (
-                        file.map((item, index) => <CImage key={index} src={item} width={200} />)
-                      )}
-                    </div>
-                  </CCol>
-                  <br />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <CFormInput
-                      name="backgroundImage"
-                      type="file"
-                      id="formFile"
-                      label="Hình ảnh background"
-                      onChange={(e) => onFileChangeBackground(e)}
-                    />
-                    <br />
-                    <ErrorMessage name="backgroundImage" component="div" className="text-danger" />
+                      <CCol md={12}>
+                        <CFormInput
+                          name="backgroundImage"
+                          type="file"
+                          id="formFile"
+                          label="Hình ảnh background"
+                          onChange={(e) => onFileChangeBackground(e)}
+                        />
+                        <br />
+                        <ErrorMessage
+                          name="backgroundImage"
+                          component="div"
+                          className="text-danger"
+                        />
 
-                    <div>
-                      {fileBackground.length == 0 ? (
                         <div>
-                          <CImage
-                            src={`http://192.168.245.190:8000/uploads/` + selectedFileBackground}
-                            width={200}
-                          />
+                          {fileBackground.length == 0 ? (
+                            <div>
+                              <CImage
+                                src={
+                                  `http://192.168.245.190:8000/uploads/` + selectedFileBackground
+                                }
+                                width={200}
+                              />
+                            </div>
+                          ) : (
+                            fileBackground.map((item, index) => (
+                              <CImage key={index} src={item} width={200} />
+                            ))
+                          )}
                         </div>
-                      ) : (
-                        fileBackground.map((item, index) => (
-                          <CImage key={index} src={item} width={200} />
-                        ))
-                      )}
-                    </div>
-                  </CCol>
-                  <br />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="color-input">Màu sắc</label>
-                    <Field name="color" type="text" as={CFormInput} id="color-input" />
-                    <ErrorMessage name="color" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="color-input">Màu sắc</label>
+                        <Field name="color" type="text" as={CFormInput} id="color-input" />
+                        <ErrorMessage name="color" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="homeTitle-input">Tiêu đề trang chủ</label>
-                    <Field
-                      name="homeTitle"
-                      type="text"
-                      as={CFormInput}
-                      id="homeTitle-input"
-                      text="Áp dụng cho danh mục được hiển thị ngoài trang chủ."
-                    />
-                    <ErrorMessage name="homeTitle" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="homeTitle-input">Tiêu đề trang chủ</label>
+                        <Field
+                          name="homeTitle"
+                          type="text"
+                          as={CFormInput}
+                          id="homeTitle-input"
+                          text="Áp dụng cho danh mục được hiển thị ngoài trang chủ."
+                        />
+                        <ErrorMessage name="homeTitle" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  {/* <CCol md={12} className="overflow-scroll" style={{ height: '300px' }}>
+                      {/* <CCol md={12} className="overflow-scroll" style={{ height: '300px' }}>
                     <label htmlFor="visible-select">Thương hiệu</label>
                     {brands &&
                       brands.length > 0 &&
@@ -372,7 +398,7 @@ function EditProductCategory() {
                   </CCol>
                   <br /> */}
 
-                  {/* <CCol md={12}>
+                      {/* <CCol md={12}>
                     <label htmlFor="visible-select">Nhân viên kinh doanh</label>
                     {dataCustomerSupport &&
                       dataCustomerSupport.length > 0 &&
@@ -399,118 +425,120 @@ function EditProductCategory() {
                   </CCol>
                   <br /> */}
 
-                  <CCol md={12}>
-                    <label htmlFor="scriptCode-input">Script code</label>
-                    <Field
-                      style={{ height: '100px' }}
-                      name="scriptCode"
-                      type="text"
-                      as={CFormTextarea}
-                      id="scriptCode-input"
-                      text="Mã Script Code."
-                    />
-                    <ErrorMessage name="scriptCode" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="scriptCode-input">Script code</label>
+                        <Field
+                          style={{ height: '100px' }}
+                          name="scriptCode"
+                          type="text"
+                          as={CFormTextarea}
+                          id="scriptCode-input"
+                          text="Mã Script Code."
+                        />
+                        <ErrorMessage name="scriptCode" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="desc-input">Mô tả</label>
-                    <Field
-                      style={{ height: '100px' }}
-                      name="description"
-                      type="text"
-                      as={CFormTextarea}
-                      id="desc-input"
-                      text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
-                    />
-                    <ErrorMessage name="description" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="desc-input">Mô tả</label>
+                        <Field
+                          style={{ height: '100px' }}
+                          name="description"
+                          type="text"
+                          as={CFormTextarea}
+                          id="desc-input"
+                          text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
+                        />
+                        <ErrorMessage name="description" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <h6>Search Engine Optimization</h6>
-                  <br />
+                      <h6>Search Engine Optimization</h6>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="pageTitle-input">Tiêu đề trang</label>
-                    <Field
-                      name="pageTitle"
-                      type="text"
-                      as={CFormInput}
-                      id="pageTitle-input"
-                      text="Độ dài của tiêu đề trang tối đa 60 ký tự."
-                    />
-                    <ErrorMessage name="pageTitle" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="metaKeyword-input">Meta keywords</label>
-                    <Field
-                      name="metaKeyword"
-                      type="text"
-                      as={CFormInput}
-                      id="metaKeyword-input"
-                      text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
-                    />
-                    <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="metaDesc-input">Meta description</label>
-                    <Field
-                      name="metaDesc"
-                      type="text"
-                      as={CFormInput}
-                      id="metaDesc-input"
-                      text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
-                    />
-                    <ErrorMessage name="metaDesc" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="pageTitle-input">Tiêu đề trang</label>
+                        <Field
+                          name="pageTitle"
+                          type="text"
+                          as={CFormInput}
+                          id="pageTitle-input"
+                          text="Độ dài của tiêu đề trang tối đa 60 ký tự."
+                        />
+                        <ErrorMessage name="pageTitle" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="metaKeyword-input">Meta keywords</label>
+                        <Field
+                          name="metaKeyword"
+                          type="text"
+                          as={CFormInput}
+                          id="metaKeyword-input"
+                          text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
+                        />
+                        <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="metaDesc-input">Meta description</label>
+                        <Field
+                          name="metaDesc"
+                          type="text"
+                          as={CFormInput}
+                          id="metaDesc-input"
+                          text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
+                        />
+                        <ErrorMessage name="metaDesc" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="showHome-select">Hiển thị ở trang chủ</label>
-                    <Field
-                      name="showHome"
-                      as={CFormSelect}
-                      id="showHome-select"
-                      className="select-input"
-                      options={[
-                        { label: 'Không', value: 0 },
-                        { label: 'Có', value: 1 },
-                      ]}
-                      text="Cho phép danh mục hiển thị ở trang chủ, bên ngoài web"
-                    />
-                    <ErrorMessage name="showHome" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="showHome-select">Hiển thị ở trang chủ</label>
+                        <Field
+                          name="showHome"
+                          as={CFormSelect}
+                          id="showHome-select"
+                          className="select-input"
+                          options={[
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
+                          ]}
+                          text="Cho phép danh mục hiển thị ở trang chủ, bên ngoài web"
+                        />
+                        <ErrorMessage name="showHome" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="visible-select">Hiển thị</label>
-                    <Field
-                      name="visible"
-                      as={CFormSelect}
-                      id="visible-select"
-                      className="select-input"
-                      options={[
-                        { label: 'Không', value: 0 },
-                        { label: 'Có', value: 1 },
-                      ]}
-                    />
-                    <ErrorMessage name="visible" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="visible-select">Hiển thị</label>
+                        <Field
+                          name="visible"
+                          as={CFormSelect}
+                          id="visible-select"
+                          className="select-input"
+                          options={[
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
+                          ]}
+                        />
+                        <ErrorMessage name="visible" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      Cập nhật
-                    </CButton>
-                  </CCol>
-                </Form>
-              )
-            }}
-          </Formik>
-        </CCol>
-      </CRow>
+                      <CCol xs={12}>
+                        <CButton color="primary" type="submit" size="sm">
+                          Cập nhật
+                        </CButton>
+                      </CCol>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

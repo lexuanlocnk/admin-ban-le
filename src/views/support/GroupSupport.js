@@ -20,6 +20,9 @@ function GroupSupport() {
   const id = params.get('id')
   const sub = params.get('sub')
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
@@ -59,6 +62,10 @@ function GroupSupport() {
       if (response.data.status === true) {
         setDataSupportGroup(response.data.data)
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
     } catch (error) {
       console.error('Fetch data support group is error', error)
     }
@@ -80,6 +87,14 @@ function GroupSupport() {
       } else {
         console.error('No data found for the given ID.')
       }
+
+      if (
+        sub == 'edit' &&
+        response.data.status === false &&
+        response.data.mess == 'no permission'
+      ) {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Fetch data id group support is error', error.message)
     }
@@ -99,6 +114,10 @@ function GroupSupport() {
         } else {
           console.error('No data found for the given ID.')
         }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
       } catch (error) {
         console.error('Put data id group support is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
@@ -113,6 +132,10 @@ function GroupSupport() {
         if (response.data.status === true) {
           toast.success('Thêm mới nhóm support thành công!')
           fetchDataSupportGroup()
+        }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
         console.error('Post data group support is error', error)
@@ -137,6 +160,10 @@ function GroupSupport() {
       if (response.data.status === true) {
         setVisible(false)
         fetchDataSupportGroup()
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete support group id is error', error)
@@ -219,79 +246,90 @@ function GroupSupport() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <h2>QUẢN LÝ NHÓM SUPPORT</h2>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <Link to={'/group-support'}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <h2>QUẢN LÝ NHÓM SUPPORT</h2>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={'/group-support'}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm nhóm support' : 'Cập nhật nhóm support'}</h6>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ setFieldValue, setValues }) => {
-              useEffect(() => {
-                fetchDataById(setValues)
-              }, [setValues, id])
-              return (
-                <Form>
-                  <CCol md={12}>
-                    <label htmlFor="title-input">Tiêu đề </label>
-                    <Field name="title">
-                      {({ field }) => (
-                        <CFormInput {...field} type="text" id="title-input" ref={inputRef} />
-                      )}
-                    </Field>
-                    <ErrorMessage name="title" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+          <CRow>
+            <CCol md={4}>
+              <h6>{!isEditing ? 'Thêm nhóm support' : 'Cập nhật nhóm support'}</h6>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ setFieldValue, setValues }) => {
+                  useEffect(() => {
+                    fetchDataById(setValues)
+                  }, [setValues, id])
+                  return (
+                    <Form>
+                      <CCol md={12}>
+                        <label htmlFor="title-input">Tiêu đề </label>
+                        <Field name="title">
+                          {({ field }) => (
+                            <CFormInput {...field} type="text" id="title-input" ref={inputRef} />
+                          )}
+                        </Field>
+                        <ErrorMessage name="title" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="name-input">Name</label>
-                    <Field name="name" type="text" as={CFormInput} id="name-input" />
-                    <ErrorMessage name="name" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="name-input">Name</label>
+                        <Field name="name" type="text" as={CFormInput} id="name-input" />
+                        <ErrorMessage name="name" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                    </CButton>
-                  </CCol>
-                </Form>
-              )
-            }}
-          </Formik>
-        </CCol>
+                      <CCol xs={12}>
+                        <CButton color="primary" type="submit" size="sm">
+                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        </CButton>
+                      </CCol>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </CCol>
 
-        <CCol>
-          <Search count={dataSupportGroup?.length} onSearchData={handleSearch} />
-          <CTable className="mt-2" columns={columns} items={items} />
-        </CCol>
-      </CRow>
+            <CCol>
+              <Search count={dataSupportGroup?.length} onSearchData={handleSearch} />
+              <CTable className="mt-2" columns={columns} items={items} />
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

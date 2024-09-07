@@ -34,6 +34,9 @@ function Support() {
   const id = params.get('id')
   const sub = params.get('sub')
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
@@ -92,6 +95,10 @@ function Support() {
       if (response.data.status === true) {
         setSupportGroup(response.data.data)
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
     } catch (error) {
       console.error('Fetch categories data error', error)
     }
@@ -138,6 +145,14 @@ function Support() {
       } else {
         console.error('No data found for the given ID.')
       }
+
+      if (
+        sub == 'edit' &&
+        response.data.status === false &&
+        response.data.mess == 'no permission'
+      ) {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Fetch data id support is error', error.message)
     }
@@ -164,6 +179,9 @@ function Support() {
         } else {
           console.error('No data found for the given ID.')
         }
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
       } catch (error) {
         console.error('Put data support is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
@@ -183,6 +201,10 @@ function Support() {
         if (response.data.status === true) {
           toast.success('Thêm mới support thành công!')
           // fetchDataBanner()
+        }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
         console.error('Post data support is error', error)
@@ -209,6 +231,10 @@ function Support() {
         fetchSupportData()
       } else {
         console.error('ID not found for deleting support')
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete support id is error', error)
@@ -309,245 +335,256 @@ function Support() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <h2>QUẢN LÝ SUPPORT</h2>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <Link to={`/support`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <h2>QUẢN LÝ SUPPORT</h2>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={`/support`}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        {/* Form add/ edit */}
-        <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm mới banner' : 'Cập nhật banner'}</h6>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ setFieldValue, setValues }) => {
-              useEffect(() => {
-                fetchDataById(setValues)
-              }, [setValues, id])
-              return (
-                <Form>
-                  <CCol md={12}>
-                    <label htmlFor="name-input">Tên</label>
-                    <Field name="name">
-                      {({ field }) => (
-                        <CFormInput
-                          {...field}
-                          type="text"
-                          id="name-input"
-                          ref={inputRef}
-                          text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+          <CRow>
+            {/* Form add/ edit */}
+            <CCol md={4}>
+              <h6>{!isEditing ? 'Thêm mới banner' : 'Cập nhật banner'}</h6>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ setFieldValue, setValues }) => {
+                  useEffect(() => {
+                    fetchDataById(setValues)
+                  }, [setValues, id])
+                  return (
+                    <Form>
+                      <CCol md={12}>
+                        <label htmlFor="name-input">Tên</label>
+                        <Field name="name">
+                          {({ field }) => (
+                            <CFormInput
+                              {...field}
+                              type="text"
+                              id="name-input"
+                              ref={inputRef}
+                              text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
+                            />
+                          )}
+                        </Field>
+                        <ErrorMessage name="name" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="phone-input">Điện thoại</label>
+                        <Field name="phone" type="phone" as={CFormInput} id="phone-input" />
+                        <ErrorMessage name="phone" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="email-input">Thư điện tử</label>
+                        <Field name="email" type="email" as={CFormInput} id="email-input" />
+                        <ErrorMessage name="email" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="skyName-input">Skyke name</label>
+                        <Field name="skyName" type="text" as={CFormInput} id="skyName-input" />
+                        <ErrorMessage name="skyName" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="type-select">Loại</label>
+                        <Field
+                          className="component-size w-50"
+                          name="type"
+                          as={CFormSelect}
+                          id="type-select"
+                          options={[
+                            { label: 'Chat', value: 'chat' },
+                            { label: 'Call', value: 'call' },
+                          ]}
                         />
-                      )}
-                    </Field>
-                    <ErrorMessage name="name" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                        <ErrorMessage name="type" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="phone-input">Điện thoại</label>
-                    <Field name="phone" type="phone" as={CFormInput} id="phone-input" />
-                    <ErrorMessage name="phone" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="groupType-select">Nhóm Support</label>
+                        <Field
+                          className="component-size "
+                          name="groupType"
+                          as={CFormSelect}
+                          id="groupType-select"
+                          options={[
+                            { label: 'Chọn nhóm support', value: '' },
+                            ...(supportGroup && supportGroup.length > 0
+                              ? supportGroup.map((group) => ({
+                                  label: group.title,
+                                  value: group.name,
+                                }))
+                              : []),
+                          ]}
+                        />
+                        <ErrorMessage name="groupType" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="email-input">Thư điện tử</label>
-                    <Field name="email" type="email" as={CFormInput} id="email-input" />
-                    <ErrorMessage name="email" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol xs={12}>
+                        <CButton color="primary" type="submit" size="sm">
+                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        </CButton>
+                      </CCol>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </CCol>
+            <CCol md={8}>
+              <table className="filter-table">
+                <thead>
+                  <tr>
+                    <th colSpan="2">
+                      <div className="d-flex justify-content-between">
+                        <span>Bộ lọc tìm kiếm</span>
+                        <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                          {isCollapse ? '▼' : '▲'}
+                        </span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                {!isCollapse && (
+                  <tbody>
+                    <tr>
+                      <td>Tổng cộng</td>
+                      <td className="total-count">{dataSupport?.total}</td>
+                    </tr>
+                    <tr>
+                      <td>Lọc theo vị trí</td>
+                      <td>
+                        <CFormSelect
+                          className="component-size w-75"
+                          aria-label="Chọn yêu cầu lọc"
+                          options={[
+                            { label: 'Chọn nhóm support', value: '' },
+                            ...(supportGroup && supportGroup.length > 0
+                              ? supportGroup.map((group) => ({
+                                  label: group.title,
+                                  value: group.name,
+                                }))
+                              : []),
+                          ]}
+                          value={selectedGroup}
+                          onChange={(e) => setSelectedGroup(e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Tìm kiếm</td>
+                      <td>
+                        <input
+                          type="text"
+                          className="search-input"
+                          value={dataSearch}
+                          onChange={(e) => setDataSearch(e.target.value)}
+                        />
+                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                          Submit
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                )}
+              </table>
 
-                  <CCol md={12}>
-                    <label htmlFor="skyName-input">Skyke name</label>
-                    <Field name="skyName" type="text" as={CFormInput} id="skyName-input" />
-                    <ErrorMessage name="skyName" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <label htmlFor="type-select">Loại</label>
-                    <Field
-                      className="component-size w-50"
-                      name="type"
-                      as={CFormSelect}
-                      id="type-select"
-                      options={[
-                        { label: 'Chat', value: 'chat' },
-                        { label: 'Call', value: 'call' },
-                      ]}
-                    />
-                    <ErrorMessage name="type" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <label htmlFor="groupType-select">Nhóm Support</label>
-                    <Field
-                      className="component-size "
-                      name="groupType"
-                      as={CFormSelect}
-                      id="groupType-select"
-                      options={[
-                        { label: 'Chọn nhóm support', value: '' },
-                        ...(supportGroup && supportGroup.length > 0
-                          ? supportGroup.map((group) => ({
-                              label: group.title,
-                              value: group.name,
-                            }))
-                          : []),
-                      ]}
-                    />
-                    <ErrorMessage name="groupType" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                    </CButton>
-                  </CCol>
-                </Form>
-              )
-            }}
-          </Formik>
-        </CCol>
-        <CCol md={8}>
-          <table className="filter-table">
-            <thead>
-              <tr>
-                <th colSpan="2">
-                  <div className="d-flex justify-content-between">
-                    <span>Bộ lọc tìm kiếm</span>
-                    <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                      {isCollapse ? '▼' : '▲'}
-                    </span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            {!isCollapse && (
-              <tbody>
-                <tr>
-                  <td>Tổng cộng</td>
-                  <td className="total-count">{dataSupport?.total}</td>
-                </tr>
-                <tr>
-                  <td>Lọc theo vị trí</td>
-                  <td>
-                    <CFormSelect
-                      className="component-size w-75"
-                      aria-label="Chọn yêu cầu lọc"
-                      options={[
-                        { label: 'Chọn nhóm support', value: '' },
-                        ...(supportGroup && supportGroup.length > 0
-                          ? supportGroup.map((group) => ({
-                              label: group.title,
-                              value: group.name,
-                            }))
-                          : []),
-                      ]}
-                      value={selectedGroup}
-                      onChange={(e) => setSelectedGroup(e.target.value)}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>Tìm kiếm</td>
-                  <td>
-                    <input
-                      type="text"
-                      className="search-input"
-                      value={dataSearch}
-                      onChange={(e) => setDataSearch(e.target.value)}
-                    />
-                    <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                      Submit
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            )}
-          </table>
-
-          <CCol className="mt-4">
-            <CTable>
-              <thead>
-                <tr>
-                  {columns.map((column) => (
-                    <CTableHeaderCell
-                      style={{ whiteSpace: 'nowrap' }}
-                      key={column.key}
-                      onClick={() => handleSort(column.key)}
-                      className="prevent-select"
-                    >
-                      {column.label}
-                      {sortConfig.key === column.key
-                        ? sortConfig.direction === 'ascending'
-                          ? ' ▼'
-                          : ' ▲'
-                        : ''}
-                    </CTableHeaderCell>
-                  ))}
-                </tr>
-              </thead>
-              <CTableBody>
-                {sortedItems.map((item, index) => (
-                  <CTableRow key={index}>
-                    {columns.map((column) => (
-                      <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+              <CCol className="mt-4">
+                <CTable>
+                  <thead>
+                    <tr>
+                      {columns.map((column) => (
+                        <CTableHeaderCell
+                          style={{ whiteSpace: 'nowrap' }}
+                          key={column.key}
+                          onClick={() => handleSort(column.key)}
+                          className="prevent-select"
+                        >
+                          {column.label}
+                          {sortConfig.key === column.key
+                            ? sortConfig.direction === 'ascending'
+                              ? ' ▼'
+                              : ' ▲'
+                            : ''}
+                        </CTableHeaderCell>
+                      ))}
+                    </tr>
+                  </thead>
+                  <CTableBody>
+                    {sortedItems.map((item, index) => (
+                      <CTableRow key={index}>
+                        {columns.map((column) => (
+                          <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                        ))}
+                      </CTableRow>
                     ))}
-                  </CTableRow>
-                ))}
-              </CTableBody>
-            </CTable>
+                  </CTableBody>
+                </CTable>
 
-            <div className="d-flex justify-content-end">
-              <ReactPaginate
-                pageCount={Math.ceil(dataSupport?.total / dataSupport?.per_page)}
-                pageRangeDisplayed={3}
-                marginPagesDisplayed={1}
-                pageClassName="page-item"
-                pageLinkClassName="page-link"
-                previousClassName="page-item"
-                previousLinkClassName="page-link"
-                nextClassName="page-item"
-                nextLinkClassName="page-link"
-                breakLabel="..."
-                breakClassName="page-item"
-                breakLinkClassName="page-link"
-                onPageChange={handlePageChange}
-                containerClassName={'pagination'}
-                activeClassName={'active'}
-                previousLabel={'<<'}
-                nextLabel={'>>'}
-              />
-            </div>
-          </CCol>
-        </CCol>
-      </CRow>
+                <div className="d-flex justify-content-end">
+                  <ReactPaginate
+                    pageCount={Math.ceil(dataSupport?.total / dataSupport?.per_page)}
+                    pageRangeDisplayed={3}
+                    marginPagesDisplayed={1}
+                    pageClassName="page-item"
+                    pageLinkClassName="page-link"
+                    previousClassName="page-item"
+                    previousLinkClassName="page-link"
+                    nextClassName="page-item"
+                    nextLinkClassName="page-link"
+                    breakLabel="..."
+                    breakClassName="page-item"
+                    breakLinkClassName="page-link"
+                    onPageChange={handlePageChange}
+                    containerClassName={'pagination'}
+                    activeClassName={'active'}
+                    previousLabel={'<<'}
+                    nextLabel={'>>'}
+                  />
+                </div>
+              </CCol>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

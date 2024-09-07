@@ -75,7 +75,7 @@ function ProductBrand() {
     pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
     metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
     metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -128,6 +128,14 @@ function ProductBrand() {
       } else {
         console.error('No data found for the given ID.')
       }
+
+      if (
+        sub == 'edit' &&
+        response.data.status === false &&
+        response.data.mess == 'no permission'
+      ) {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Fetch data id product brand is error', error.message)
     }
@@ -152,6 +160,10 @@ function ProductBrand() {
           toast.success('Cập nhật thương hiệu thành công')
         } else {
           console.error('No data found for the given ID.')
+        }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
         console.error('Put data id product brand is error', error.message)
@@ -229,6 +241,10 @@ function ProductBrand() {
       if (response.data.status === true) {
         setVisible(false)
         fetchDataBrands()
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete brand id is error', error)

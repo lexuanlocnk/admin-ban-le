@@ -141,6 +141,14 @@ function ProductStatus() {
       } else {
         console.error('No data found for the given ID.')
       }
+
+      if (
+        sub == 'edit' &&
+        response.data.status === false &&
+        response.data.mess == 'no permission'
+      ) {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Fetch data id product brand is error', error.message)
     }
@@ -166,8 +174,13 @@ function ProductStatus() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công')
+          fetchDataStatus()
         } else {
           console.error('No data found for the given ID.')
+        }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
         console.error('Put data product status is error', error.message)
@@ -192,7 +205,11 @@ function ProductStatus() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới trạng thái thành công!')
-          fetchDataStaus()
+          fetchDataStatus()
+        }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
         console.error('Post data product status is error', error)
@@ -243,9 +260,13 @@ function ProductStatus() {
       const response = await axiosClient.delete(`admin/productStatus/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
-        fetchDataStaus()
+        fetchDataStatus()
       } else {
         console.error('ID not found for deleting product status')
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete product status id is error', error)
@@ -273,7 +294,7 @@ function ProductStatus() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataStaus(keyword)
+    fetchDataStatus(keyword)
   }
 
   const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })

@@ -101,6 +101,8 @@ function AddGift() {
 
       if (response.data.status === true) {
         toast.success('Thêm mới quà tặng thành công!')
+      } else if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       } else {
         toast.error('Thêm mới quà tặng thất bại! Vui lòng thử lại!')
       }

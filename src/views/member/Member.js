@@ -36,6 +36,9 @@ function Member() {
   // show deleted Modal
   const [visible, setVisible] = useState(false)
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
   }
@@ -46,6 +49,10 @@ function Member() {
 
       if (response.data.status === true) {
         setMemberData(response.data.data)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
       }
     } catch (error) {
       console.error('Fetch member data is error', error)
@@ -178,95 +185,105 @@ function Member() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} />
-
-      <CRow className="mb-3">
-        <CCol>
-          <h3>QUẢN LÝ THÀNH VIÊN</h3>
-        </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
-          <div className="d-flex justify-content-end">
-            <Link to={`/member`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} />
+          <CRow className="mb-3">
+            <CCol>
+              <h3>QUẢN LÝ THÀNH VIÊN</h3>
+            </CCol>
+            <CCol md={{ span: 4, offset: 4 }}>
+              <div className="d-flex justify-content-end">
+                <Link to={`/member`}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        <table className="filter-table">
-          <thead>
-            <tr>
-              <th colSpan="2">
-                <div className="d-flex justify-content-between">
-                  <span>Bộ lọc tìm kiếm</span>
-                  <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                    {isCollapse ? '▼' : '▲'}
-                  </span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          {!isCollapse && (
-            <tbody>
-              <tr>
-                <td>Tổng cộng</td>
-                <td className="total-count">6</td>
-              </tr>
-              <tr>
-                <td>Tìm kiếm</td>
-                <td>
-                  <div className="mt-2">
-                    <input
-                      type="text"
-                      className="search-input"
-                      value={dataSearch}
-                      onChange={(e) => setDataSearch(e.target.value)}
-                    />
-                    <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                      Submit
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          )}
-        </table>
-      </CRow>
+          <CRow>
+            <table className="filter-table">
+              <thead>
+                <tr>
+                  <th colSpan="2">
+                    <div className="d-flex justify-content-between">
+                      <span>Bộ lọc tìm kiếm</span>
+                      <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                        {isCollapse ? '▼' : '▲'}
+                      </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              {!isCollapse && (
+                <tbody>
+                  <tr>
+                    <td>Tổng cộng</td>
+                    <td className="total-count">6</td>
+                  </tr>
+                  <tr>
+                    <td>Tìm kiếm</td>
+                    <td>
+                      <div className="mt-2">
+                        <input
+                          type="text"
+                          className="search-input"
+                          value={dataSearch}
+                          onChange={(e) => setDataSearch(e.target.value)}
+                        />
+                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                          Submit
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+            </table>
+          </CRow>
 
-      <CRow className="mt-3">
-        <CTable>
-          <thead>
-            <tr>
-              {columns.map((column) => (
-                <CTableHeaderCell
-                  key={column.key}
-                  onClick={() => handleSort(column.key)}
-                  className="prevent-select"
-                >
-                  {column.label}
-                  {sortConfig.key === column.key
-                    ? sortConfig.direction === 'ascending'
-                      ? ' ▼'
-                      : ' ▲'
-                    : ''}
-                </CTableHeaderCell>
-              ))}
-            </tr>
-          </thead>
-          <CTableBody>
-            {sortedItems.map((item, index) => (
-              <CTableRow key={index}>
-                {columns.map((column) => (
-                  <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+          <CRow className="mt-3">
+            <CTable>
+              <thead>
+                <tr>
+                  {columns.map((column) => (
+                    <CTableHeaderCell
+                      key={column.key}
+                      onClick={() => handleSort(column.key)}
+                      className="prevent-select"
+                    >
+                      {column.label}
+                      {sortConfig.key === column.key
+                        ? sortConfig.direction === 'ascending'
+                          ? ' ▼'
+                          : ' ▲'
+                        : ''}
+                    </CTableHeaderCell>
+                  ))}
+                </tr>
+              </thead>
+              <CTableBody>
+                {sortedItems.map((item, index) => (
+                  <CTableRow key={index}>
+                    {columns.map((column) => (
+                      <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                    ))}
+                  </CTableRow>
                 ))}
-              </CTableRow>
-            ))}
-          </CTableBody>
-        </CTable>
-      </CRow>
+              </CTableBody>
+            </CTable>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import axios from 'axios'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import { toast } from 'react-toastify'
 
 function ProductCategory() {
   const navigate = useNavigate()
@@ -64,6 +65,10 @@ function ProductCategory() {
       if (response.data.status === true) {
         setVisible(false)
         fetchDataCategories()
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete category id is error', error)

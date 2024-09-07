@@ -195,6 +195,10 @@ function ProductFlashSale() {
         fetchFlashSaleData()
         setSelectedDealCheckbox([])
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Post set deal data is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
@@ -216,6 +220,10 @@ function ProductFlashSale() {
         setStartDate('')
         setEndDate('')
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Update product flash-sale is error', error)
       toast.error('Đã xảy ra lỗi khi cập nhật. Vui lòng thử lại!')
@@ -233,6 +241,10 @@ function ProductFlashSale() {
         toast.success('Set undeal các mục thành công!')
         fetchFlashSaleData()
         setSelectedUnDealCheckbox([])
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Post set undeal data is error', error)

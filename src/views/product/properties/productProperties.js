@@ -93,6 +93,10 @@ function ProductProperties() {
         setVisible(false)
         fetchProductProperties()
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Delete properties id is error', error)
       toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')

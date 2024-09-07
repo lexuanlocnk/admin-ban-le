@@ -266,6 +266,10 @@ function AddProductDetail() {
       if (response.data.status === true) {
         toast.success('Thêm sản phẩm mới thành công!')
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Post product data is error', error)
       toast.error('Đã xảy ra lỗi. Xin vui lòng thử lại!')

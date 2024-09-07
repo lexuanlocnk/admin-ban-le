@@ -26,6 +26,7 @@ import moment from 'moment'
 import './css/productDetail.css'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import { toast } from 'react-toastify'
 
 function ProductDetail() {
   const navigate = useNavigate()
@@ -160,6 +161,10 @@ function ProductDetail() {
       if (response.data.status === true) {
         setVisible(false)
         fetchProductData()
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete product id is error', error)

@@ -15,6 +15,7 @@ import {
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import { Link } from 'react-router-dom'
 
 function AddProductCategory() {
   const [categories, setCategories] = useState([])
@@ -150,6 +151,10 @@ function AddProductCategory() {
       if (response.data.status === true) {
         toast.success('Thêm mới danh mục thành công.')
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Post product category data error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
@@ -158,14 +163,16 @@ function AddProductCategory() {
   return (
     <CContainer>
       <CRow className="mb-3">
-        <CCol>
-          <h5>THÊM DANH MỤC MỚI</h5>
+        <CCol md={6}>
+          <h2>THÊM DANH MỤC MỚI</h2>
         </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
+        <CCol md={6}>
           <div className="d-flex justify-content-end">
-            <CButton color="primary" type="submit" size="sm">
-              Danh sách
-            </CButton>
+            <Link to={'/product/category'}>
+              <CButton color="primary" type="submit" size="sm">
+                Danh sách
+              </CButton>
+            </Link>
           </div>
         </CCol>
       </CRow>
