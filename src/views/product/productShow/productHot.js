@@ -336,7 +336,7 @@ function ProductHot() {
         <>
           <CRow className="my-3">
             <CCol>
-              <h2>SẢN PHẨM HOT</h2>
+              <h2>SẢN PHẨM HOT 111111</h2>
             </CCol>
             <CCol md={{ span: 4, offset: 4 }}>
               <div className="d-flex justify-content-end">
