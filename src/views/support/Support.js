@@ -46,6 +46,7 @@ function Support() {
   const [selectedGroup, setSelectedGroup] = useState('')
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const [isCollapse, setIsCollapse] = useState(false)
@@ -114,6 +115,8 @@ function Support() {
         `admin/support?data=${dataSearch}&page=${pageNumber}&group=${selectedGroup}`,
       )
       const data = response.data.data
+
+     
 
       if (response.data.status === true) {
         setDataSupport(data)
@@ -276,7 +279,25 @@ function Support() {
   }
 
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      // label: (
+      //   <CFormCheck
+      //     aria-label="Select all"
+      //     checked={isAllCheckbox}
+      //     onChange={(e) => {
+      //       const isChecked = e.target.checked
+      //       setIsAllCheckbox(isChecked)
+      //       if (isChecked) {
+      //         const allIds = dataSupport?.data.map((item) => item.product_id) || []
+      //         setSelectedCheckbox(allIds)
+      //       } else {
+      //         setSelectedCheckbox([])
+      //       }
+      //     }}
+      //   />
+      // ),
+    },
     { key: 'name', label: 'Tên' },
     { key: 'phone', label: 'Điện thoại' },
     { key: 'email', label: 'Thư điện tử' },

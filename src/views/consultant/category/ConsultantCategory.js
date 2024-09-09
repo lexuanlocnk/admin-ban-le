@@ -204,6 +204,50 @@ function ConsultantCategory() {
     fetchDataConsultantCate(keyword)
   }
 
+  const fetchCategory = async () => {
+    try {
+      const response = await axiosClient.get(`admin/delete`)
+
+      if (response.data.status === true) {
+        setProductHotData(response.data.list)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
+    } catch (error) {
+      console.error('Fetch flash sale data is error', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategory()
+  }, [])
+
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    // alert('Chức năng đang thực hiện...')
+    try {
+      const response = await axiosClient.post(`admin/delete `, {
+        data: selectedCheckbox,
+      })
+
+      if (response.data.status === true) {
+        toast.success('...!')
+        fetchCategory()
+        setSelectedCheckbox([])
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      console.error('xóa lỗi error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
+  }
+  console.log('>>>>cehck data', dataConsultantCate)
+
   const items =
     dataConsultantCate && dataConsultantCate?.length > 0
       ? dataConsultantCate.map((item) => ({
@@ -254,8 +298,22 @@ function ConsultantCategory() {
   const columns = [
     {
       key: 'id',
-      label: '#',
-      _props: { scope: 'col' },
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataConsultantCate?.map((item) => item.cat_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
     },
     {
       key: 'title',
@@ -274,7 +332,7 @@ function ConsultantCategory() {
       _props: { scope: 'col' },
     },
   ]
-
+  console.log('>>>>cehck data', selectedCheckbox)
   return (
     <CContainer>
       <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
@@ -422,9 +480,13 @@ function ConsultantCategory() {
             }}
           </Formik>
         </CCol>
-
         <CCol>
           <Search count={dataConsultantCate?.length} onSearchData={handleSearch} />
+          <CCol md={12} className="mt-3">
+            <CButton onClick={handleDeleteAll} color="primary" size="sm">
+              Xóa vĩnh viễn
+            </CButton>
+          </CCol>
           <CTable className="mt-2" columns={columns} items={items} />
 
           <div className="d-flex justify-content-end">

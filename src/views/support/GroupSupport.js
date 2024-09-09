@@ -33,6 +33,7 @@ function GroupSupport() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const initialValues = {
@@ -223,8 +224,22 @@ function GroupSupport() {
   const columns = [
     {
       key: 'id',
-      label: '#',
-      _props: { scope: 'col' },
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataSupportGroup?.map((item) => item.cat_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
     },
     {
       key: 'title',
