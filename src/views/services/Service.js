@@ -15,6 +15,9 @@ function Service() {
 
   const [dataService, setDataService] = useState([])
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   // show deleted Modal
   const [visible, setVisible] = useState(false)
   const [deletedId, setDeletedId] = useState(null)
@@ -52,6 +55,10 @@ function Service() {
       if (response.data.status === true) {
         setDataService(response.data.list)
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
     } catch (error) {
       console.error('Fetch intro data is error', error)
     }
@@ -81,6 +88,10 @@ function Service() {
       if (response.data.status === true) {
         setVisible(false)
         fetchDataService()
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete service id is error', error)
@@ -232,103 +243,114 @@ function Service() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
+          </div>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
 
-      <CRow className="mb-3">
-        <CCol>
-          <h2>QUẢN LÝ DỊCH VỤ</h2>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <Link to={'/introduce'}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
+          <CRow className="mb-3">
+            <CCol>
+              <h2>QUẢN LÝ DỊCH VỤ</h2>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={'/introduce'}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
+
+          <CRow>
+            <CCol>
+              <table className="filter-table">
+                <thead>
+                  <tr>
+                    <th colSpan="2">
+                      <div className="d-flex justify-content-between">
+                        <span>Bộ lọc tìm kiếm</span>
+                        <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                          {isCollapse ? '▼' : '▲'}
+                        </span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                {!isCollapse && (
+                  <tbody>
+                    <tr>
+                      <td>Tổng cộng</td>
+                      <td className="total-count">{dataService?.total}</td>
+                    </tr>
+                    <tr>
+                      <td>Tìm kiếm</td>
+                      <td>
+                        <input
+                          type="text"
+                          className="search-input"
+                          value={dataSearch}
+                          onChange={(e) => setDataSearch(e.target.value)}
+                        />
+                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                          Submit
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                )}
+              </table>
+            </CCol>
+
+            <CCol md={12} className="mt-3">
+              <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+                Xóa vĩnh viễn
               </CButton>
-            </Link>
-          </div>
-        </CCol>
-      </CRow>
+            </CCol>
 
-      <CRow>
-        <CCol>
-          <table className="filter-table">
-            <thead>
-              <tr>
-                <th colSpan="2">
-                  <div className="d-flex justify-content-between">
-                    <span>Bộ lọc tìm kiếm</span>
-                    <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                      {isCollapse ? '▼' : '▲'}
-                    </span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            {!isCollapse && (
-              <tbody>
-                <tr>
-                  <td>Tổng cộng</td>
-                  <td className="total-count">{dataService?.total}</td>
-                </tr>
-                <tr>
-                  <td>Tìm kiếm</td>
-                  <td>
-                    <input
-                      type="text"
-                      className="search-input"
-                      value={dataSearch}
-                      onChange={(e) => setDataSearch(e.target.value)}
-                    />
-                    <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                      Submit
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            )}
-          </table>
-        </CCol>
-
-        <CCol md={12} className="mt-3">
-          <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
-            Xóa vĩnh viễn
-          </CButton>
-        </CCol>
-
-        <CCol>
-          <CTable hover className="mt-3" columns={columns} items={items} />
-          <div className="d-flex justify-content-end">
-            <ReactPaginate
-              pageCount={Math.ceil(dataService?.total / dataService?.per_page)}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={1}
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakLabel="..."
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-              onPageChange={handlePageChange}
-              containerClassName={'pagination'}
-              activeClassName={'active'}
-              previousLabel={'<<'}
-              nextLabel={'>>'}
-            />
-          </div>
-        </CCol>
-      </CRow>
+            <CCol>
+              <CTable hover className="mt-3" columns={columns} items={items} />
+              <div className="d-flex justify-content-end">
+                <ReactPaginate
+                  pageCount={Math.ceil(dataService?.total / dataService?.per_page)}
+                  pageRangeDisplayed={3}
+                  marginPagesDisplayed={1}
+                  pageClassName="page-item"
+                  pageLinkClassName="page-link"
+                  previousClassName="page-item"
+                  previousLinkClassName="page-link"
+                  nextClassName="page-item"
+                  nextLinkClassName="page-link"
+                  breakLabel="..."
+                  breakClassName="page-item"
+                  breakLinkClassName="page-link"
+                  onPageChange={handlePageChange}
+                  containerClassName={'pagination'}
+                  activeClassName={'active'}
+                  previousLabel={'<<'}
+                  nextLabel={'>>'}
+                />
+              </div>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

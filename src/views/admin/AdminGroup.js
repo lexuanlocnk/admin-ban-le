@@ -28,6 +28,9 @@ function AdminGroup() {
   const id = params.get('id')
   const sub = params.get('sub')
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [title, setTitle] = useState('')
   const [role, setRole] = useState('')
 
@@ -66,6 +69,10 @@ function AdminGroup() {
 
       if (response.data.status === true) {
         setAdminGroupData(response.data.roles)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
       }
     } catch (error) {
       console.error('Fetch role adminstrator data is error', error)
@@ -108,6 +115,10 @@ function AdminGroup() {
           toast.success('Cập nhật vai trò thành công!')
           fetchAdminGroupData()
         }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
       } catch (error) {
         console.error('Put role adminstrator data is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
@@ -123,6 +134,10 @@ function AdminGroup() {
         if (response.data.status === true) {
           toast.success('Thêm mới vai trò thành công!')
           fetchAdminGroupData()
+        }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
         console.error('Post role adminstrator data is error', error)
@@ -147,6 +162,10 @@ function AdminGroup() {
       if (response.data.status === true) {
         setVisible(false)
         fetchAdminGroupData()
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete admin role is error', error)
@@ -268,75 +287,86 @@ function AdminGroup() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-      <CRow className="mb-3">
-        <CRow>
-          <CCol md={6}>
-            <h2>QUẢN LÝ NHÓM ADMIN</h2>
-          </CCol>
-          <CCol md={6}>
-            <div className="d-flex justify-content-end">
-              <CButton
-                onClick={handleAddNewClick}
-                color="primary"
-                type="submit"
-                size="sm"
-                className="button-add"
-              >
-                Thêm mới
-              </CButton>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </div>
-          </CCol>
-        </CRow>
-      </CRow>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
+          </div>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+          <CRow className="mb-3">
+            <CRow>
+              <CCol md={6}>
+                <h2>QUẢN LÝ NHÓM ADMIN</h2>
+              </CCol>
+              <CCol md={6}>
+                <div className="d-flex justify-content-end">
+                  <CButton
+                    onClick={handleAddNewClick}
+                    color="primary"
+                    type="submit"
+                    size="sm"
+                    className="button-add"
+                  >
+                    Thêm mới
+                  </CButton>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </div>
+              </CCol>
+            </CRow>
+          </CRow>
 
-      <CRow>
-        <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm nhóm admin mới' : 'Chỉnh sửa nhóm admin'}</h6>
-          <CForm className="row gy-3">
-            <CCol md={12}>
-              <CFormInput
-                ref={inputRef}
-                id="inputTitle"
-                label="Tiêu đề"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+          <CRow>
+            <CCol md={4}>
+              <h6>{!isEditing ? 'Thêm nhóm admin mới' : 'Chỉnh sửa nhóm admin'}</h6>
+              <CForm className="row gy-3">
+                <CCol md={12}>
+                  <CFormInput
+                    ref={inputRef}
+                    id="inputTitle"
+                    label="Tiêu đề"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                </CCol>
+
+                <CCol md={12}>
+                  <CFormInput
+                    id="inputPassword"
+                    label="Role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                  />
+                </CCol>
+
+                <CCol xs={12}>
+                  <CButton onClick={handleSubmit} color="primary" type="submit" size="sm">
+                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                  </CButton>
+                </CCol>
+              </CForm>
+            </CCol>
+
+            <CCol md={8}>
+              <Search
+                onSearchData={handleSearch}
+                count={adminGroupData && adminGroupData.length > 0 ? adminGroupData.length : 0}
               />
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
+              <CTable hover className="mt-3" columns={columns} items={items} />
             </CCol>
-
-            <CCol md={12}>
-              <CFormInput
-                id="inputPassword"
-                label="Role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              />
-            </CCol>
-
-            <CCol xs={12}>
-              <CButton onClick={handleSubmit} color="primary" type="submit" size="sm">
-                {isEditing ? 'Cập nhật' : 'Thêm mới'}
-              </CButton>
-            </CCol>
-          </CForm>
-        </CCol>
-
-        <CCol md={8}>
-          <Search
-            onSearchData={handleSearch}
-            count={adminGroupData && adminGroupData.length > 0 ? adminGroupData.length : 0}
-          />
-          <CCol md={12} className="mt-3">
-            <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
-              Xóa vĩnh viễn
-            </CButton>
-          </CCol>
-          <CTable hover className="mt-3" columns={columns} items={items} />
-        </CCol>
-      </CRow>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

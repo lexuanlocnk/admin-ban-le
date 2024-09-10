@@ -32,6 +32,9 @@ function Coupon() {
   const navigate = useNavigate()
   const [isCollapse, setIsCollapse] = useState(false)
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [dataCoupon, setDataCoupon] = useState([])
   const [countCoupon, setCountCoupon] = useState(null)
 
@@ -124,6 +127,10 @@ function Coupon() {
       )
       setDataCoupon(response.data.listCoupon)
       setCountCoupon(response.data.countCoupon)
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
     } catch (error) {
       console.error('Fetch coupon data is error', error)
     }
@@ -192,156 +199,167 @@ function Coupon() {
 
   return (
     <CContainer>
-      <CRow className="mb-3">
-        <CCol>
-          <h2>QUẢN LÝ COUPON</h2>
-        </CCol>
-        <CCol md={{ span: 4, offset: 4 }}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <Link to={`/coupon`}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <CRow className="mb-3">
+            <CCol>
+              <h2>QUẢN LÝ COUPON</h2>
+            </CCol>
+            <CCol md={{ span: 4, offset: 4 }}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={`/coupon`}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        <CCol md={12}>
-          <table className="filter-table">
-            <thead>
-              <tr>
-                <th colSpan="2">
-                  <div className="d-flex justify-content-between">
-                    <span>Bộ lọc tìm kiếm</span>
-                    <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                      {isCollapse ? '▼' : '▲'}
-                    </span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            {!isCollapse && (
-              <tbody>
-                <tr>
-                  <td>Tổng cộng</td>
-                  <td className="total-count">{countCoupon}</td>
-                </tr>
+          <CRow>
+            <CCol md={12}>
+              <table className="filter-table">
+                <thead>
+                  <tr>
+                    <th colSpan="2">
+                      <div className="d-flex justify-content-between">
+                        <span>Bộ lọc tìm kiếm</span>
+                        <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                          {isCollapse ? '▼' : '▲'}
+                        </span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                {!isCollapse && (
+                  <tbody>
+                    <tr>
+                      <td>Tổng cộng</td>
+                      <td className="total-count">{countCoupon}</td>
+                    </tr>
 
-                <tr>
-                  <td>Tạo từ ngày</td>
-                  <td>
-                    <div className="custom-datepicker-wrapper">
-                      <DatePicker
-                        className="custom-datepicker"
-                        showIcon
-                        dateFormat={'dd-MM-yyyy'}
-                        selected={startDate}
-                        onChange={handleStartDateChange}
-                      />
-                      <p className="datepicker-label">{'đến ngày'}</p>
-                      <DatePicker
-                        className="custom-datepicker"
-                        showIcon
-                        dateFormat={'dd-MM-yyyy'}
-                        selected={endDate}
-                        onChange={handleEndDateChange}
-                      />
-                    </div>
-                    {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                    {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Tìm kiếm</td>
-                  <td>
-                    <CFormSelect
-                      className="component-size w-25"
-                      aria-label="Chọn yêu cầu lọc"
-                      options={[{ label: 'Mã đợt phát hành', value: '1' }]}
-                    />
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        className="search-input"
-                        value={dataSearch}
-                        onChange={(e) => setDataSearch(e.target.value)}
-                      />
-                      <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                        Submit
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            )}
-          </table>
-        </CCol>
+                    <tr>
+                      <td>Tạo từ ngày</td>
+                      <td>
+                        <div className="custom-datepicker-wrapper">
+                          <DatePicker
+                            className="custom-datepicker"
+                            showIcon
+                            dateFormat={'dd-MM-yyyy'}
+                            selected={startDate}
+                            onChange={handleStartDateChange}
+                          />
+                          <p className="datepicker-label">{'đến ngày'}</p>
+                          <DatePicker
+                            className="custom-datepicker"
+                            showIcon
+                            dateFormat={'dd-MM-yyyy'}
+                            selected={endDate}
+                            onChange={handleEndDateChange}
+                          />
+                        </div>
+                        {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                        {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Tìm kiếm</td>
+                      <td>
+                        <CFormSelect
+                          className="component-size w-25"
+                          aria-label="Chọn yêu cầu lọc"
+                          options={[{ label: 'Mã đợt phát hành', value: '1' }]}
+                        />
+                        <div className="mt-2">
+                          <input
+                            type="text"
+                            className="search-input"
+                            value={dataSearch}
+                            onChange={(e) => setDataSearch(e.target.value)}
+                          />
+                          <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                            Submit
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                )}
+              </table>
+            </CCol>
 
-        <CCol>
-          <CTable hover className="mt-3 border">
-            <thead>
-              <tr>
-                {columns.map((column) => (
-                  <CTableHeaderCell
-                    key={column.key}
-                    onClick={() => handleSort(column.key)}
-                    className="prevent-select"
-                  >
-                    {column.label}
-                    {sortConfig.key === column.key
-                      ? sortConfig.direction === 'ascending'
-                        ? ' ▼'
-                        : ' ▲'
-                      : ''}
-                  </CTableHeaderCell>
-                ))}
-              </tr>
-            </thead>
-            <CTableBody>
-              {sortedItems.map((item, index) => (
-                <CTableRow key={index}>
-                  {columns.map((column) => (
-                    <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+            <CCol>
+              <CTable hover className="mt-3 border">
+                <thead>
+                  <tr>
+                    {columns.map((column) => (
+                      <CTableHeaderCell
+                        key={column.key}
+                        onClick={() => handleSort(column.key)}
+                        className="prevent-select"
+                      >
+                        {column.label}
+                        {sortConfig.key === column.key
+                          ? sortConfig.direction === 'ascending'
+                            ? ' ▼'
+                            : ' ▲'
+                          : ''}
+                      </CTableHeaderCell>
+                    ))}
+                  </tr>
+                </thead>
+                <CTableBody>
+                  {sortedItems.map((item, index) => (
+                    <CTableRow key={index}>
+                      {columns.map((column) => (
+                        <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                      ))}
+                    </CTableRow>
                   ))}
-                </CTableRow>
-              ))}
-            </CTableBody>
-          </CTable>
+                </CTableBody>
+              </CTable>
 
-          <div className="d-flex justify-content-end">
-            <ReactPaginate
-              pageCount={Math.ceil(countCoupon / 10)}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={1}
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakLabel="..."
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-              onPageChange={handlePageChange}
-              containerClassName={'pagination'}
-              activeClassName={'active'}
-              previousLabel={'<<'}
-              nextLabel={'>>'}
-            />
-          </div>
-        </CCol>
-      </CRow>
+              <div className="d-flex justify-content-end">
+                <ReactPaginate
+                  pageCount={Math.ceil(countCoupon / 10)}
+                  pageRangeDisplayed={3}
+                  marginPagesDisplayed={1}
+                  pageClassName="page-item"
+                  pageLinkClassName="page-link"
+                  previousClassName="page-item"
+                  previousLinkClassName="page-link"
+                  nextClassName="page-item"
+                  nextLinkClassName="page-link"
+                  breakLabel="..."
+                  breakClassName="page-item"
+                  breakLinkClassName="page-link"
+                  onPageChange={handlePageChange}
+                  containerClassName={'pagination'}
+                  activeClassName={'active'}
+                  previousLabel={'<<'}
+                  nextLabel={'>>'}
+                />
+              </div>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }
