@@ -35,6 +35,9 @@ function AdminList() {
   const id = params.get('id')
   const sub = params.get('sub')
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   console.log('>>>cehck id', id)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -138,6 +141,10 @@ function AdminList() {
       if (response.data.status === true) {
         setAdminListData(response.data.adminList)
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
     } catch (error) {
       console.error('Fetch admin list data is error', error)
     }
@@ -164,6 +171,10 @@ function AdminList() {
           toast.success('Cập nhật thông tin admin thành công!')
           fetchAdminListData()
         }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
       } catch (error) {
         console.error('Put data admin is error', error)
         toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
@@ -184,6 +195,10 @@ function AdminList() {
         if (response.data.status === true) {
           toast.success('Thêm mới thông tin admin thành công!')
           fetchAdminListData()
+        }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
         console.error('Post data admin is error', error)
@@ -341,221 +356,242 @@ function AdminList() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <h2>QUẢN LÝ TÀI KHOẢN AMDIN</h2>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <CButton color="primary" type="submit" size="sm">
-              Danh sách
-            </CButton>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
-
-      <CRow>
-        {/* Form add/ edit */}
-        <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm admin mới' : 'Cập nhật tài khoản admin'}</h6>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ setFieldValue, setValues }) => {
-              useEffect(() => {
-                fetchDataById(setValues)
-              }, [setValues, id])
-              return (
-                <Form>
-                  <CCol md={12}>
-                    <label htmlFor="username-input">Tên đăng nhập</label>
-                    <Field name="username">
-                      {({ field }) => (
-                        <CFormInput {...field} type="text" id="username-input" ref={inputRef} />
-                      )}
-                    </Field>
-                    <ErrorMessage name="username" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <label htmlFor="password-input">Mật khẩu</label>
-                    <Field name="password" type="password" as={CFormInput} id="password-input" />
-                    <ErrorMessage name="password" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <label htmlFor="email-input">Thư điện tử</label>
-                    <Field name="email" type="email" as={CFormInput} id="email-input" />
-                    <ErrorMessage name="email" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <label htmlFor="phone-input">Số điện thoại</label>
-                    <Field name="phone" type="text" as={CFormInput} id="phone-input" />
-                    <ErrorMessage name="phone" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <label htmlFor="display-name-input">Tên hiển thị</label>
-                    <Field name="displayName" type="text" as={CFormInput} id="display-name-input" />
-                    <ErrorMessage name="displayName" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <CFormInput
-                      name="avatar"
-                      type="file"
-                      id="formFile"
-                      label="Ảnh đại diện"
-                      size="sm"
-                      onChange={(e) => onFileChange(e)}
-                    />
-                    <br />
-                    <ErrorMessage name="avatar" component="div" className="text-danger" />
-
-                    <div>
-                      {file.length == 0 ? (
-                        <div>
-                          <CImage src={`${imageBaseUrl}` + selectedFile} width={370} />
-                        </div>
-                      ) : (
-                        file.map((item, index) => <CImage key={index} src={item} width={370} />)
-                      )}
-                    </div>
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
-                    <label htmlFor="role-select">Vai trò</label>
-                    <Field
-                      name="role"
-                      as={CFormSelect}
-                      id="role-select"
-                      options={
-                        dataRole && dataRole?.length > 0
-                          ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
-                          : []
-                      }
-                    />
-                    <ErrorMessage name="role" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                    </CButton>
-                  </CCol>
-                </Form>
-              )
-            }}
-          </Formik>
-        </CCol>
-
-        {/* search, table view */}
-        <CCol md={8}>
-          <CRow>
-            <table className="filter-table">
-              <thead>
-                <tr>
-                  <th colSpan="2">
-                    <div className="d-flex justify-content-between">
-                      <span>Bộ lọc tìm kiếm</span>
-                      <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                        {isCollapse ? '▼' : '▲'}
-                      </span>
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              {!isCollapse && (
-                <tbody>
-                  <tr>
-                    <td>Tổng cộng</td>
-                    <td className="total-count">{adminListData?.total}</td>
-                  </tr>
-                  <tr>
-                    <td>Lọc</td>
-                    <td>
-                      <CFormSelect
-                        className="component-size w-50"
-                        aria-label="Chọn yêu cầu lọc"
-                        options={
-                          dataRole && dataRole?.length > 0
-                            ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
-                            : []
-                        }
-                      />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Tìm kiếm</td>
-                    <td>
-                      <input
-                        type="text"
-                        className="search-input"
-                        value={dataSearch}
-                        onChange={(e) => setDataSearch(e.target.value)}
-                      />
-                      <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                        Submit
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              )}
-            </table>
-          </CRow>
-          <CRow>
-            <CCol className="my-2" md={4}>
-              <CButton color="primary" size="sm">
-                Xóa vĩnh viễn
-              </CButton>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <h2>QUẢN LÝ TÀI KHOẢN AMDIN</h2>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <CButton color="primary" type="submit" size="sm">
+                  Danh sách
+                </CButton>
+              </div>
             </CCol>
           </CRow>
+
           <CRow>
-            <CTable className="mt-2" columns={columns} items={items} />
-            <div className="d-flex justify-content-end">
-              <ReactPaginate
-                pageCount={Math.ceil(adminListData?.total / adminListData?.per_page)}
-                pageRangeDisplayed={3}
-                marginPagesDisplayed={1}
-                pageClassName="page-item"
-                pageLinkClassName="page-link"
-                previousClassName="page-item"
-                previousLinkClassName="page-link"
-                nextClassName="page-item"
-                nextLinkClassName="page-link"
-                breakLabel="..."
-                breakClassName="page-item"
-                breakLinkClassName="page-link"
-                onPageChange={handlePageChange}
-                containerClassName={'pagination'}
-                activeClassName={'active'}
-                previousLabel={'<<'}
-                nextLabel={'>>'}
-              />
-            </div>
+            {/* Form add/ edit */}
+            <CCol md={4}>
+              <h6>{!isEditing ? 'Thêm admin mới' : 'Cập nhật tài khoản admin'}</h6>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ setFieldValue, setValues }) => {
+                  useEffect(() => {
+                    fetchDataById(setValues)
+                  }, [setValues, id])
+                  return (
+                    <Form>
+                      <CCol md={12}>
+                        <label htmlFor="username-input">Tên đăng nhập</label>
+                        <Field name="username">
+                          {({ field }) => (
+                            <CFormInput {...field} type="text" id="username-input" ref={inputRef} />
+                          )}
+                        </Field>
+                        <ErrorMessage name="username" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="password-input">Mật khẩu</label>
+                        <Field
+                          name="password"
+                          type="password"
+                          as={CFormInput}
+                          id="password-input"
+                        />
+                        <ErrorMessage name="password" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="email-input">Thư điện tử</label>
+                        <Field name="email" type="email" as={CFormInput} id="email-input" />
+                        <ErrorMessage name="email" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="phone-input">Số điện thoại</label>
+                        <Field name="phone" type="text" as={CFormInput} id="phone-input" />
+                        <ErrorMessage name="phone" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="display-name-input">Tên hiển thị</label>
+                        <Field
+                          name="displayName"
+                          type="text"
+                          as={CFormInput}
+                          id="display-name-input"
+                        />
+                        <ErrorMessage name="displayName" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <CFormInput
+                          name="avatar"
+                          type="file"
+                          id="formFile"
+                          label="Ảnh đại diện"
+                          size="sm"
+                          onChange={(e) => onFileChange(e)}
+                        />
+                        <br />
+                        <ErrorMessage name="avatar" component="div" className="text-danger" />
+
+                        <div>
+                          {file.length == 0 ? (
+                            <div>
+                              <CImage src={`${imageBaseUrl}` + selectedFile} width={370} />
+                            </div>
+                          ) : (
+                            file.map((item, index) => <CImage key={index} src={item} width={370} />)
+                          )}
+                        </div>
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="role-select">Vai trò</label>
+                        <Field
+                          name="role"
+                          as={CFormSelect}
+                          id="role-select"
+                          options={
+                            dataRole && dataRole?.length > 0
+                              ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
+                              : []
+                          }
+                        />
+                        <ErrorMessage name="role" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol xs={12}>
+                        <CButton color="primary" type="submit" size="sm">
+                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        </CButton>
+                      </CCol>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </CCol>
+
+            {/* search, table view */}
+            <CCol md={8}>
+              <CRow>
+                <table className="filter-table">
+                  <thead>
+                    <tr>
+                      <th colSpan="2">
+                        <div className="d-flex justify-content-between">
+                          <span>Bộ lọc tìm kiếm</span>
+                          <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                            {isCollapse ? '▼' : '▲'}
+                          </span>
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  {!isCollapse && (
+                    <tbody>
+                      <tr>
+                        <td>Tổng cộng</td>
+                        <td className="total-count">{adminListData?.total}</td>
+                      </tr>
+                      <tr>
+                        <td>Lọc</td>
+                        <td>
+                          <CFormSelect
+                            className="component-size w-50"
+                            aria-label="Chọn yêu cầu lọc"
+                            options={
+                              dataRole && dataRole?.length > 0
+                                ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
+                                : []
+                            }
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Tìm kiếm</td>
+                        <td>
+                          <input
+                            type="text"
+                            className="search-input"
+                            value={dataSearch}
+                            onChange={(e) => setDataSearch(e.target.value)}
+                          />
+                          <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                            Submit
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  )}
+                </table>
+              </CRow>
+              <CRow>
+                <CCol className="my-2" md={4}>
+                  <CButton color="primary" size="sm">
+                    Xóa vĩnh viễn
+                  </CButton>
+                </CCol>
+              </CRow>
+              <CRow>
+                <CTable className="mt-2" columns={columns} items={items} />
+                <div className="d-flex justify-content-end">
+                  <ReactPaginate
+                    pageCount={Math.ceil(adminListData?.total / adminListData?.per_page)}
+                    pageRangeDisplayed={3}
+                    marginPagesDisplayed={1}
+                    pageClassName="page-item"
+                    pageLinkClassName="page-link"
+                    previousClassName="page-item"
+                    previousLinkClassName="page-link"
+                    nextClassName="page-item"
+                    nextLinkClassName="page-link"
+                    breakLabel="..."
+                    breakClassName="page-item"
+                    breakLinkClassName="page-link"
+                    onPageChange={handlePageChange}
+                    containerClassName={'pagination'}
+                    activeClassName={'active'}
+                    previousLabel={'<<'}
+                    nextLabel={'>>'}
+                  />
+                </div>
+              </CRow>
+            </CCol>
           </CRow>
-        </CCol>
-      </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

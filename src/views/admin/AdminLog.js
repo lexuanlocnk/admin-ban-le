@@ -18,9 +18,13 @@ import moment from 'moment/moment'
 // import './css/adminLog.css'
 
 import { convertStringToTimeStamp } from '../../helper/utils'
+import { Link } from 'react-router-dom'
 
 function AdminLog() {
   const [isCollapse, setIsCollapse] = useState(false)
+
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
@@ -60,6 +64,10 @@ function AdminLog() {
 
       if (response.data.status === true) {
         setAdminLogData(response.data.listLog)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
       }
     } catch (error) {
       console.error('Fetch admin log data is error', error)
@@ -178,132 +186,143 @@ function AdminLog() {
 
   return (
     <CContainer>
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <h2>LỊCH SỬ HOẠT ĐỘNG ADMIN</h2>
-        </CCol>
-      </CRow>
-      <CRow>
-        <table className="filter-table">
-          <thead>
-            <tr>
-              <th colSpan="2">
-                <div className="d-flex justify-content-between">
-                  <span>Bộ lọc tìm kiếm</span>
-                  <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                    {isCollapse ? '▼' : '▲'}
-                  </span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          {!isCollapse && (
-            <tbody>
-              <tr>
-                <td>Tổng cộng</td>
-                <td className="total-count">{adminLogData?.total}</td>
-              </tr>
-              <tr>
-                <td>Lọc</td>
-                <td>
-                  <CFormSelect
-                    className="component-size w-25"
-                    aria-label="Chọn yêu cầu lọc"
-                    value={selectedUsername}
-                    onChange={(e) => setSelectedUsername(e.target.value)}
-                    options={[
-                      { label: 'Tất cả username', value: '' },
-                      ...(userNameData && userNameData?.length > 0
-                        ? userNameData?.map((item) => ({
-                            label: item.username,
-                            value: item.username,
-                          }))
-                        : []),
-                    ]}
-                  />
-                </td>
-              </tr>
-
-              <tr>
-                <td>Theo ngày</td>
-                <td>
-                  <div>
-                    <div className="d-flex align-items-center">
-                      <DatePicker
-                        dateFormat={'dd-MM-yyyy'}
-                        showIcon
-                        selected={startDate}
-                        onChange={handleStartDateChange}
-                      />
-                      <p className="m-2">{'đến ngày'}</p>
-                      <DatePicker
-                        dateFormat={'dd-MM-yyyy'}
-                        showIcon
-                        selected={endDate}
-                        onChange={handleEndDateChange}
-                      />
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
+          </div>
+        </h5>
+      ) : (
+        <>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <h2>LỊCH SỬ HOẠT ĐỘNG ADMIN</h2>
+            </CCol>
+          </CRow>
+          <CRow>
+            <table className="filter-table">
+              <thead>
+                <tr>
+                  <th colSpan="2">
+                    <div className="d-flex justify-content-between">
+                      <span>Bộ lọc tìm kiếm</span>
+                      <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                        {isCollapse ? '▼' : '▲'}
+                      </span>
                     </div>
-                    {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                    {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Tìm kiếm</td>
-                <td>
-                  <div className="mt-2">
-                    <strong>
-                      <em>Tìm kiếm theo tên Danh mục quản trị</em>
-                    </strong>
-                    <input
-                      type="text"
-                      className="search-input"
-                      value={dataSearch}
-                      onChange={(e) => setDataSearch(e.target.value)}
-                    />
-                    <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                      Submit
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          )}
-        </table>
-      </CRow>
+                  </th>
+                </tr>
+              </thead>
+              {!isCollapse && (
+                <tbody>
+                  <tr>
+                    <td>Tổng cộng</td>
+                    <td className="total-count">{adminLogData?.total}</td>
+                  </tr>
+                  <tr>
+                    <td>Lọc</td>
+                    <td>
+                      <CFormSelect
+                        className="component-size w-25"
+                        aria-label="Chọn yêu cầu lọc"
+                        value={selectedUsername}
+                        onChange={(e) => setSelectedUsername(e.target.value)}
+                        options={[
+                          { label: 'Tất cả username', value: '' },
+                          ...(userNameData && userNameData?.length > 0
+                            ? userNameData?.map((item) => ({
+                                label: item.username,
+                                value: item.username,
+                              }))
+                            : []),
+                        ]}
+                      />
+                    </td>
+                  </tr>
 
-      <CRow>
-        <CCol className="my-2" md={4}>
-          <CButton color="primary" size="sm">
-            Xóa vĩnh viễn
-          </CButton>
-        </CCol>
-      </CRow>
+                  <tr>
+                    <td>Theo ngày</td>
+                    <td>
+                      <div>
+                        <div className="d-flex align-items-center">
+                          <DatePicker
+                            dateFormat={'dd-MM-yyyy'}
+                            showIcon
+                            selected={startDate}
+                            onChange={handleStartDateChange}
+                          />
+                          <p className="m-2">{'đến ngày'}</p>
+                          <DatePicker
+                            dateFormat={'dd-MM-yyyy'}
+                            showIcon
+                            selected={endDate}
+                            onChange={handleEndDateChange}
+                          />
+                        </div>
+                        {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                        {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Tìm kiếm</td>
+                    <td>
+                      <div className="mt-2">
+                        <strong>
+                          <em>Tìm kiếm theo tên Danh mục quản trị</em>
+                        </strong>
+                        <input
+                          type="text"
+                          className="search-input"
+                          value={dataSearch}
+                          onChange={(e) => setDataSearch(e.target.value)}
+                        />
+                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                          Submit
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+            </table>
+          </CRow>
 
-      <CRow>
-        <CTable className="mt-2" columns={columns} items={items} />
-        <div className="d-flex justify-content-end">
-          <ReactPaginate
-            pageCount={Math.ceil(adminLogData?.total / adminLogData?.per_page)}
-            pageRangeDisplayed={3}
-            marginPagesDisplayed={1}
-            pageClassName="page-item"
-            pageLinkClassName="page-link"
-            previousClassName="page-item"
-            previousLinkClassName="page-link"
-            nextClassName="page-item"
-            nextLinkClassName="page-link"
-            breakLabel="..."
-            breakClassName="page-item"
-            breakLinkClassName="page-link"
-            onPageChange={handlePageChange}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-            previousLabel={'<<'}
-            nextLabel={'>>'}
-          />
-        </div>
-      </CRow>
+          <CRow>
+            <CCol className="my-2" md={4}>
+              <CButton color="primary" size="sm">
+                Xóa vĩnh viễn
+              </CButton>
+            </CCol>
+          </CRow>
+
+          <CRow>
+            <CTable className="mt-2" columns={columns} items={items} />
+            <div className="d-flex justify-content-end">
+              <ReactPaginate
+                pageCount={Math.ceil(adminLogData?.total / adminLogData?.per_page)}
+                pageRangeDisplayed={3}
+                marginPagesDisplayed={1}
+                pageClassName="page-item"
+                pageLinkClassName="page-link"
+                previousClassName="page-item"
+                previousLinkClassName="page-link"
+                nextClassName="page-item"
+                nextLinkClassName="page-link"
+                breakLabel="..."
+                breakClassName="page-item"
+                breakLinkClassName="page-link"
+                onPageChange={handlePageChange}
+                containerClassName={'pagination'}
+                activeClassName={'active'}
+                previousLabel={'<<'}
+                nextLabel={'>>'}
+              />
+            </div>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }

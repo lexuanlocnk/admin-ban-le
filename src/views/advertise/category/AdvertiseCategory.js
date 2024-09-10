@@ -31,6 +31,9 @@ function AdvertiseCategory() {
   const id = params.get('id')
   const sub = params.get('sub')
 
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
@@ -85,6 +88,10 @@ function AdvertiseCategory() {
       if (response.data.status === 'success') {
         setDataAdvertiseCategroy(response.data.list)
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
     } catch (error) {
       console.error('Fetch data product brand is error', error)
     }
@@ -111,6 +118,14 @@ function AdvertiseCategory() {
       } else {
         console.error('No data found for the given ID.')
       }
+
+      if (
+        sub == 'edit' &&
+        response.data.status === false &&
+        response.data.mess == 'no permission'
+      ) {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Fetch data id advertise category is error', error.message)
     }
@@ -135,6 +150,10 @@ function AdvertiseCategory() {
         } else {
           console.error('No data found for the given ID.')
         }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
       } catch (error) {
         console.error('Put data id advertise category is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
@@ -154,6 +173,10 @@ function AdvertiseCategory() {
         if (response.data.status === true) {
           toast.success('Thêm mới vị trí thành công!')
           fetchDataAdvertiseCategory()
+        }
+
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
         console.error('Post data advertise category is error', error)
@@ -178,6 +201,10 @@ function AdvertiseCategory() {
       if (response.data.status === true) {
         setVisible(false)
         fetchDataAdvertiseCategory()
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
       console.error('Delete advertise id is error', error)
@@ -313,187 +340,202 @@ function AdvertiseCategory() {
 
   return (
     <CContainer>
-      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <h3>QUẢN LÝ VỊ TRÍ</h3>
-        </CCol>
-        <CCol md={6}>
-          <div className="d-flex justify-content-end">
-            <CButton
-              onClick={handleAddNewClick}
-              color="primary"
-              type="submit"
-              size="sm"
-              className="button-add"
-            >
-              Thêm mới
-            </CButton>
-            <Link to={'/advertise/category'}>
-              <CButton color="primary" type="submit" size="sm">
-                Danh sách
-              </CButton>
-            </Link>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
           </div>
-        </CCol>
-      </CRow>
+        </h5>
+      ) : (
+        <>
+          <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <h3>QUẢN LÝ VỊ TRÍ</h3>
+            </CCol>
+            <CCol md={6}>
+              <div className="d-flex justify-content-end">
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={'/advertise/category'}>
+                  <CButton color="primary" type="submit" size="sm">
+                    Danh sách
+                  </CButton>
+                </Link>
+              </div>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        <CCol md={4}>
-          <h6>{!isEditing ? 'Thêm danh mục mới' : 'Cập nhật danh mục'}</h6>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            {({ setFieldValue, setValues }) => {
-              useEffect(() => {
-                fetchDataById(setValues)
-              }, [setValues, id])
-              return (
-                <Form>
-                  <CCol md={12}>
-                    <label htmlFor="title-input">Tiêu đề </label>
-                    <Field name="title">
-                      {({ field }) => (
-                        <CFormInput
-                          {...field}
+          <CRow>
+            <CCol md={4}>
+              <h6>{!isEditing ? 'Thêm danh mục mới' : 'Cập nhật danh mục'}</h6>
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ setFieldValue, setValues }) => {
+                  useEffect(() => {
+                    fetchDataById(setValues)
+                  }, [setValues, id])
+                  return (
+                    <Form>
+                      <CCol md={12}>
+                        <label htmlFor="title-input">Tiêu đề </label>
+                        <Field name="title">
+                          {({ field }) => (
+                            <CFormInput
+                              {...field}
+                              type="text"
+                              id="title-input"
+                              ref={inputRef}
+                              text="Tiêu đề sẽ hiển thị trên trang mạng của bạn."
+                            />
+                          )}
+                        </Field>
+                        <ErrorMessage name="title" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="name-input">Name</label>
+                        <Field
+                          name="name"
                           type="text"
-                          id="title-input"
-                          ref={inputRef}
-                          text="Tiêu đề sẽ hiển thị trên trang mạng của bạn."
+                          as={CFormInput}
+                          id="name-input"
+                          text="Name là bắt buộc và duy nhất."
                         />
-                      )}
-                    </Field>
-                    <ErrorMessage name="title" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                        <ErrorMessage name="name" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="name-input">Name</label>
-                    <Field
-                      name="name"
-                      type="text"
-                      as={CFormInput}
-                      id="name-input"
-                      text="Name là bắt buộc và duy nhất."
-                    />
-                    <ErrorMessage name="name" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="width-input">Chiều rộng</label>
+                        <Field
+                          name="width"
+                          type="text"
+                          as={CFormInput}
+                          id="width-input"
+                          text="Sử dụng đơn vị pixel (px)."
+                        />
+                        <ErrorMessage name="width" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="width-input">Chiều rộng</label>
-                    <Field
-                      name="width"
-                      type="text"
-                      as={CFormInput}
-                      id="width-input"
-                      text="Sử dụng đơn vị pixel (px)."
-                    />
-                    <ErrorMessage name="width" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="height-input">Chiều cao</label>
+                        <Field
+                          name="height"
+                          type="text"
+                          as={CFormInput}
+                          id="height-input"
+                          text="Sử dụng đơn vị pixel (px)."
+                        />
+                        <ErrorMessage name="height" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="height-input">Chiều cao</label>
-                    <Field
-                      name="height"
-                      type="text"
-                      as={CFormInput}
-                      id="height-input"
-                      text="Sử dụng đơn vị pixel (px)."
-                    />
-                    <ErrorMessage name="height" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="numberOfBanner-input">Số banner hiển thị</label>
+                        <Field
+                          name="numberOfBanner"
+                          type="number"
+                          as={CFormInput}
+                          id="numberOfBanner-input"
+                          text="Số banner hiển thị của vị trí."
+                        />
+                        <ErrorMessage
+                          name="numberOfBanner"
+                          component="div"
+                          className="text-danger"
+                        />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="numberOfBanner-input">Số banner hiển thị</label>
-                    <Field
-                      name="numberOfBanner"
-                      type="number"
-                      as={CFormInput}
-                      id="numberOfBanner-input"
-                      text="Số banner hiển thị của vị trí."
-                    />
-                    <ErrorMessage name="numberOfBanner" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="desc-input">Mô tả</label>
+                        <Field
+                          style={{ height: '100px' }}
+                          name="description"
+                          type="text"
+                          as={CFormTextarea}
+                          id="desc-input"
+                          text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
+                        />
+                        <ErrorMessage name="description" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="desc-input">Mô tả</label>
-                    <Field
-                      style={{ height: '100px' }}
-                      name="description"
-                      type="text"
-                      as={CFormTextarea}
-                      id="desc-input"
-                      text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
-                    />
-                    <ErrorMessage name="description" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol md={12}>
+                        <label htmlFor="visible-select">Hiển thị</label>
+                        <Field
+                          name="visible"
+                          as={CFormSelect}
+                          id="visible-select"
+                          options={[
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
+                          ]}
+                        />
+                        <ErrorMessage name="visible" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="visible-select">Hiển thị</label>
-                    <Field
-                      name="visible"
-                      as={CFormSelect}
-                      id="visible-select"
-                      options={[
-                        { label: 'Không', value: 0 },
-                        { label: 'Có', value: 1 },
-                      ]}
-                    />
-                    <ErrorMessage name="visible" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                      <CCol xs={12}>
+                        <CButton color="primary" type="submit" size="sm">
+                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        </CButton>
+                      </CCol>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </CCol>
 
-                  <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {isEditing ? 'Cập nhật' : 'Thêm mới'}
-                    </CButton>
-                  </CCol>
-                </Form>
-              )
-            }}
-          </Formik>
-        </CCol>
+            <CCol>
+              <Search count={dataAdvertiseCategory?.length} onSearchData={handleSearch} />
 
-        <CCol>
-          <Search count={dataAdvertiseCategory?.length} onSearchData={handleSearch} />
+              <CCol className="my-3">
+                <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
+              <CTable className="mt-2" columns={columns} items={items} />
 
-          <CCol className="my-3">
-            <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
-              Xóa vĩnh viễn
-            </CButton>
-          </CCol>
-          <CTable className="mt-2" columns={columns} items={items} />
-
-          <div className="d-flex justify-content-end">
-            <ReactPaginate
-              pageCount={Math.ceil(dataAdvertiseCategory?.length / 15)}
-              pageRangeDisplayed={3}
-              marginPagesDisplayed={1}
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakLabel="..."
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-              onPageChange={handlePageChange}
-              containerClassName={'pagination'}
-              activeClassName={'active'}
-              previousLabel={'<<'}
-              nextLabel={'>>'}
-            />
-          </div>
-        </CCol>
-      </CRow>
+              <div className="d-flex justify-content-end">
+                <ReactPaginate
+                  pageCount={Math.ceil(dataAdvertiseCategory?.length / 15)}
+                  pageRangeDisplayed={3}
+                  marginPagesDisplayed={1}
+                  pageClassName="page-item"
+                  pageLinkClassName="page-link"
+                  previousClassName="page-item"
+                  previousLinkClassName="page-link"
+                  nextClassName="page-item"
+                  nextLinkClassName="page-link"
+                  breakLabel="..."
+                  breakClassName="page-item"
+                  breakLinkClassName="page-link"
+                  onPageChange={handlePageChange}
+                  containerClassName={'pagination'}
+                  activeClassName={'active'}
+                  previousLabel={'<<'}
+                  nextLabel={'>>'}
+                />
+              </div>
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CContainer>
   )
 }
