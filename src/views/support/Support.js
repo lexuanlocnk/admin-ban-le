@@ -66,7 +66,7 @@ function Support() {
     phone: '',
     email: '',
     skyName: '',
-    type: 'chat',
+    type: '',
     groupType: '',
   }
 
@@ -416,7 +416,7 @@ function Support() {
                       <br />
 
                       <CCol md={12}>
-                        <label htmlFor="skyName-input">Skyke name</label>
+                        <label htmlFor="skyName-input">Skype name</label>
                         <Field name="skyName" type="text" as={CFormInput} id="skyName-input" />
                         <ErrorMessage name="skyName" component="div" className="text-danger" />
                       </CCol>
@@ -430,23 +430,7 @@ function Support() {
                           as={CFormSelect}
                           id="type-select"
                           options={[
-                            { label: 'Loại support', value: '' },
-                            { label: 'Chat', value: 'chat' },
-                            { label: 'Call', value: 'call' },
-                          ]}
-                        />
-                        <ErrorMessage name="type" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="type-select">Loại</label>
-                        <Field
-                          className="component-size w-50"
-                          name="type"
-                          as={CFormSelect}
-                          id="type-select"
-                          options={[
-                            { label: 'Loại support', value: '' },
+                            { label: 'Chọn loại support', value: '' },
                             { label: 'Chat', value: 'chat' },
                             { label: 'Call', value: 'call' },
                           ]}
