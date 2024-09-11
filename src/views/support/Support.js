@@ -115,9 +115,6 @@ function Support() {
         `admin/support?data=${dataSearch}&page=${pageNumber}&group=${selectedGroup}`,
       )
       const data = response.data.data
-
-     
-
       if (response.data.status === true) {
         setDataSupport(data)
       }
