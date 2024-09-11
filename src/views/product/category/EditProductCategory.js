@@ -15,7 +15,7 @@ import {
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { Link, useLocation } from 'react-router-dom'
-import { axiosClient } from '../../../axiosConfig'
+import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 function EditProductCategory() {
   const location = useLocation()
@@ -305,10 +305,7 @@ function EditProductCategory() {
                         <div>
                           {file.length == 0 ? (
                             <div>
-                              <CImage
-                                src={`http://192.168.245.190:8000/uploads/` + selectedFile}
-                                width={200}
-                              />
+                              <CImage src={`${imageBaseUrl}` + selectedFile} width={200} />
                             </div>
                           ) : (
                             file.map((item, index) => <CImage key={index} src={item} width={200} />)
@@ -336,9 +333,7 @@ function EditProductCategory() {
                           {fileBackground.length == 0 ? (
                             <div>
                               <CImage
-                                src={
-                                  `http://192.168.245.190:8000/uploads/` + selectedFileBackground
-                                }
+                                src={`${imageBaseUrl}` + selectedFileBackground}
                                 width={200}
                               />
                             </div>
