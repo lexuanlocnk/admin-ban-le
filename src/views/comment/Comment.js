@@ -111,6 +111,7 @@ function Comment() {
       const response = await axiosClient.post('admin/delete-all-comment', {
         data: selectedCheckbox,
       })
+      fetchCommentData()
     } catch (error) {
       console.error('Delete selected checkbox is error', error)
     }

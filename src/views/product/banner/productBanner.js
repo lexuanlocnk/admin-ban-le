@@ -48,6 +48,7 @@ function ProductBanner() {
   const [selectedCate, setSelectedCate] = useState('')
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   // upload image and show image
@@ -316,8 +317,48 @@ function ProductBanner() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả các danh mục thành công!')
+    //     fetchDataBanner()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataBanner?.data.map((item) => item.id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'images', label: 'Hình ảnh' },
     { key: 'url', label: 'Liên kết' },
     { key: 'dimensions', label: 'Kích thước' },
@@ -327,7 +368,25 @@ function ProductBanner() {
   const items =
     dataBanner?.data && dataBanner?.data.length > 0
       ? dataBanner?.data.map((item) => ({
-          id: <CFormCheck id="flexCheckDefault" />,
+          id: (
+            <CFormCheck
+              key={item?.id}
+              aria-label="Default select example"
+              defaultChecked={item?.id}
+              id={`flexCheckDefault_${item?.id}`}
+              value={item?.id}
+              checked={selectedCheckbox.includes(item?.id)}
+              onChange={(e) => {
+                const bannerID = item?.id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, bannerID])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== bannerID))
+                }
+              }}
+            />
+          ),
           images: <CImage className="border" fluid src={`${imageBaseUrl}${item.picture}`} />,
           url: item.link,
           dimensions: `${item.width}X${item.height}`,
@@ -649,6 +708,11 @@ function ProductBanner() {
               </table>
 
               <CCol className="mt-4">
+                <CCol md={12} className="mt-3">
+                  <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                    Xóa vĩnh viễn
+                  </CButton>
+                </CCol>
                 <CTable>
                   <thead>
                     <tr>

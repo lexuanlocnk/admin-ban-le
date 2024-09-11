@@ -232,6 +232,27 @@ function NewsCategory() {
   const handleSearch = (keyword) => {
     fetchDataNewsCategory(keyword)
   }
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả danh mục thành công!')
+    //     fetchDataNewsCategory()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
 
   const items =
     dataNewsCategory && dataNewsCategory?.length > 0
@@ -477,6 +498,11 @@ function NewsCategory() {
 
             <CCol>
               <Search count={dataNewsCategory?.length} onSearchData={handleSearch} />
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CTable className="mt-2" columns={columns} items={items} />
 
               <div className="d-flex justify-content-end">

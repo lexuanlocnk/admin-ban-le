@@ -231,26 +231,6 @@ function ConsultantCategory() {
     fetchDataConsultantCate(keyword)
   }
 
-  const fetchCategory = async () => {
-    try {
-      const response = await axiosClient.get(`admin/delete`)
-
-      if (response.data.status === true) {
-        setProductHotData(response.data.list)
-      }
-
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        setIsPermissionCheck(false)
-      }
-    } catch (error) {
-      console.error('Fetch flash sale data is error', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchCategory()
-  }, [])
-
   const handleDeleteAll = async () => {
     console.log('>>> check undeal', selectedCheckbox)
     // alert('Chức năng đang thực hiện...')
@@ -260,8 +240,8 @@ function ConsultantCategory() {
       })
 
       if (response.data.status === true) {
-        toast.success('...!')
-        fetchCategory()
+        toast.success('Xóa tất cả danh mục thành công!')
+        fetchDataConsultantCate()
         setSelectedCheckbox([])
       }
 
@@ -273,7 +253,6 @@ function ConsultantCategory() {
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
-  console.log('>>>>cehck data', dataConsultantCate)
 
   const items =
     dataConsultantCate && dataConsultantCate?.length > 0
@@ -519,12 +498,12 @@ function ConsultantCategory() {
 
             <CCol>
               <Search count={dataConsultantCate?.length} onSearchData={handleSearch} />
-              <CTable className="mt-2" columns={columns} items={items} />
               <CCol md={12} className="mt-3">
                 <CButton onClick={handleDeleteAll} color="primary" size="sm">
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
+              <CTable className="mt-2" columns={columns} items={items} />
               <div className="d-flex justify-content-end">
                 <ReactPaginate
                   pageCount={Math.ceil(dataConsultantCate?.length / 15)}

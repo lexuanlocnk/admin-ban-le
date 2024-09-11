@@ -47,6 +47,7 @@ function ProductBrand() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   // upload image and show image
@@ -269,6 +270,28 @@ function ProductBrand() {
     fetchDataBrands(keyword)
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    // alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả các danh mục thành công!')
+    //     fetchDataBrands()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const items =
     dataBrands && dataBrands?.length > 0
       ? dataBrands.map((item) => ({
@@ -323,8 +346,22 @@ function ProductBrand() {
   const columns = [
     {
       key: 'id',
-      label: '#',
-      _props: { scope: 'col' },
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataBrands?.map((item) => item.brandId) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
     },
     {
       key: 'title',
@@ -535,6 +572,11 @@ function ProductBrand() {
 
             <CCol>
               <Search count={countBrand} onSearchData={handleSearch} />
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CTable className="mt-2" columns={columns} items={items} />
 
               <div className="d-flex justify-content-end">

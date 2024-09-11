@@ -34,6 +34,7 @@ function OrderList() {
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const [dataOrderList, setDataOrderList] = useState([])
@@ -169,8 +170,48 @@ function OrderList() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả thành công!')
+    //     fetch
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataOrderList?.data.map((item) => item.order_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'orderCode', label: 'Mã đơn hàng' },
     { key: 'customerInfo', label: 'Thông tin khách hàng' },
     { key: 'orderDate', label: 'Ngày đặt hàng' },
@@ -182,7 +223,22 @@ function OrderList() {
   const items =
     dataOrderList?.data && dataOrderList?.data.length > 0
       ? dataOrderList?.data.map((order) => ({
-          id: <CFormCheck id="flexCheckDefault" />,
+          id: (
+            <CFormCheck
+              id={order.order_id}
+              checked={selectedCheckbox.includes(order.order_id)}
+              value={order.order_id}
+              onChange={(e) => {
+                const orderId = order.order_id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, orderId])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== orderId))
+                }
+              }}
+            />
+          ),
           orderCode: <span className="order-code">{order.order_code}</span>,
           customerInfo: (
             <React.Fragment>
@@ -378,6 +434,11 @@ function OrderList() {
           </CRow>
 
           <CRow className="mt-3">
+            <CCol md={12} className="mt-3">
+              <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                Xóa vĩnh viễn
+              </CButton>
+            </CCol>
             <CTable>
               <thead>
                 <tr>

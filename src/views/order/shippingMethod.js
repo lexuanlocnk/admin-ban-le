@@ -57,6 +57,7 @@ function ShippingMethod() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const [isCollapse, setIsCollapse] = useState(false)
@@ -263,8 +264,48 @@ function ShippingMethod() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả thành công!')
+    //     fetchDataShippingMethod()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataShippingMethod?.data.map((item) => item.shipping_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'name', label: 'Name' },
     { key: 'charge', label: 'Mức phí' },
@@ -273,7 +314,24 @@ function ShippingMethod() {
 
   const items = dataShippingMethod?.data
     ? dataShippingMethod?.data.map((method) => ({
-        id: <CFormCheck id="flexCheckDefault" />,
+        id: (
+          <CFormCheck
+            key={method?.shipping_id}
+            defaultChecked={method?.shipping_id}
+            id={`flexCheckDefault_${method?.shipping_id}`}
+            value={method?.shipping_id}
+            checked={selectedCheckbox.includes(method?.shipping_id)}
+            onChange={(e) => {
+              const shippingId = method?.shipping_id
+              const isChecked = e.target.checked
+              if (isChecked) {
+                setSelectedCheckbox([...selectedCheckbox, shippingId])
+              } else {
+                setSelectedCheckbox(selectedCheckbox.filter((id) => id !== shippingId))
+              }
+            }}
+          />
+        ),
         title: <span className="blue-txt">{method.title}</span>,
         name: method.name,
         charge: (
@@ -460,6 +518,11 @@ function ShippingMethod() {
                 </CCol>
                 <CCol md={8}>
                   <Search count={dataShippingMethod?.total} onSearchData={handleSearch} />
+                  <CCol md={12} className="mt-3">
+                    <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                      Xóa vĩnh viễn
+                    </CButton>
+                  </CCol>
                   <CCol className="mt-4">
                     <CTable hover={true} className="border">
                       <thead>

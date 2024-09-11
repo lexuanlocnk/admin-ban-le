@@ -50,7 +50,8 @@ function OrderStatus() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
-  const [selectedCheckbox, setSelectedCheckbox] = useState([]) === 0 ? 'No' : 'Yes'
+  const [isAllcheckbox, setIsAllCheckbox] = useState(false)
+  const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const [isCollapse, setIsCollapse] = useState(false)
 
@@ -256,9 +257,48 @@ function OrderStatus() {
     }
     setSortConfig({ key: columnKey, direction })
   }
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    //   try {
+    //     const response = await axiosClient.post(`admin/delete `, {
+    //       data: selectedCheckbox,
+    //     })
+
+    //     if (response.data.status === true) {
+    //       toast.success('Xóa tất cả danh mục thành công!')
+    //       fetchDataStatusOrder()
+    //       setSelectedCheckbox([])
+    //     }
+
+    //     if (response.data.status === false && response.data.mess == 'no permission') {
+    //       toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //     }
+    //   } catch (error) {
+    //     toast.error('Đã xảy ra lỗi. Vui long thử lại!')
+    //   }
+  }
 
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllcheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataStatus?.data.map((item) => item.status_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'default', label: 'Default' },
     { key: 'payment', label: 'Payment' },
@@ -270,7 +310,24 @@ function OrderStatus() {
 
   const items = dataStatus?.data
     ? dataStatus?.data.map((status) => ({
-        id: <CFormCheck id="flexCheckDefault" />,
+        id: (
+          <CFormCheck
+            key={status?.status_id}
+            defaultChecked={status?.status_id}
+            id={`flexCheckDefault_${status?.status_id}`}
+            value={status?.status_id}
+            checked={selectedCheckbox.includes(status?.status_id)}
+            onChange={(e) => {
+              const giftId = status?.status_id
+              const isChecked = e.target.checked
+              if (isChecked) {
+                setSelectedCheckbox([...selectedCheckbox, giftId])
+              } else {
+                setSelectedCheckbox(selectedCheckbox.filter((id) => id !== giftId))
+              }
+            }}
+          />
+        ),
         title: (
           <span
             style={{
@@ -511,6 +568,11 @@ function OrderStatus() {
             </CCol>
             <CCol md={8}>
               <Search count={dataStatus?.total} onSearchData={handleSearch} />
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CCol className="mt-4">
                 <CTable hover={true}>
                   <thead>
