@@ -56,6 +56,10 @@ function AddInstruction() {
       if (response.data.status === 'success') {
         toast.success('Thêm mới hướng dẫn thành công!')
       }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
     } catch (error) {
       console.error('Post data instruction is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')

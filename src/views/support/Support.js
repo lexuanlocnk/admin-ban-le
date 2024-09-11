@@ -200,7 +200,7 @@ function Support() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới support thành công!')
-          // fetchDataBanner()
+          fetchSupportData()
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -448,6 +448,23 @@ function Support() {
                           as={CFormSelect}
                           id="type-select"
                           options={[
+                            { label: 'Loại support', value: '' },
+                            { label: 'Chat', value: 'chat' },
+                            { label: 'Call', value: 'call' },
+                          ]}
+                        />
+                        <ErrorMessage name="type" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="type-select">Loại</label>
+                        <Field
+                          className="component-size w-50"
+                          name="type"
+                          as={CFormSelect}
+                          id="type-select"
+                          options={[
+                            { label: 'Loại support', value: '' },
                             { label: 'Chat', value: 'chat' },
                             { label: 'Call', value: 'call' },
                           ]}

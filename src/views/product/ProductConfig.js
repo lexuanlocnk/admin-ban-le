@@ -23,6 +23,7 @@ function ProductConfig() {
 
   const initialValues = {
     point: '10000',
+    pointUsed: '5000',
     productPerPage: '10',
     widthImage: '300',
     pageTitle: '',
@@ -189,7 +190,7 @@ function ProductConfig() {
 
                   <CCol md={12}>
                     <label htmlFor="point-input">
-                      Điểm (Quy đổi 1 điểm bằng bao nhiêu tiền, đơn vị vnđ)
+                      Điểm tích lũy áp dụng cho đơn hàng (đơn vị VND)
                     </label>
                     <Field name="point">
                       {({ field }) => (
@@ -197,8 +198,8 @@ function ProductConfig() {
                           {...field}
                           type="text"
                           id="point-input"
+                          text={'Thành viên tích luỹ điểm khi đơn hàng ở trạng thái hoàn tất.'}
                           value={formatNumber(field.value)}
-                          label="Giá thị trường"
                           onChange={(e) => {
                             const rawValue = unformatNumber(e.target.value)
                             setFieldValue(field.name, rawValue)
@@ -207,6 +208,29 @@ function ProductConfig() {
                       )}
                     </Field>
                     <ErrorMessage name="point" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
+                  <CCol md={12}>
+                    <label htmlFor="pointUsed-input">
+                      Giá trị sử dụng điểm thưởng (đơn vị VND)
+                    </label>
+                    <Field name="pointUsed">
+                      {({ field }) => (
+                        <CFormInput
+                          {...field}
+                          type="text"
+                          id="pointUsed-input"
+                          text={'Điểm thưởng sử dụng khi thanh toán đơn hàng.'}
+                          value={formatNumber(field.value)}
+                          onChange={(e) => {
+                            const rawValue = unformatNumber(e.target.value)
+                            setFieldValue(field.name, rawValue)
+                          }}
+                        />
+                      )}
+                    </Field>
+                    <ErrorMessage name="pointUsed" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
