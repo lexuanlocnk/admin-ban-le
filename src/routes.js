@@ -155,6 +155,14 @@ const Consultant = React.lazy(() => import('./views/consultant/detail/Consultant
 const AddConsultant = React.lazy(() => import('./views/consultant/detail/AddConsultant'))
 const EditConsultant = React.lazy(() => import('./views/consultant/detail/EditConsultant'))
 
+// CONTACT
+
+// PRICE MANAGEMENT
+const PriceManagement = React.lazy(() => import('./views/contact/priceManagement/priceManagement'))
+const EditPriceManagement = React.lazy(
+  () => import('./views/contact/priceManagement/EditPriceManagement'),
+)
+
 /** ------------------------------------------------------------------------------------------------------------------ */
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
@@ -566,6 +574,15 @@ const routes = [
     path: 'consultant/edit',
     name: 'EditConsultant',
     element: EditConsultant,
+    exact: true,
+  },
+
+  // contact
+  { path: '/price-management', name: 'PriceManagement', element: PriceManagement, exact: true },
+  {
+    path: 'price-management/edit',
+    name: 'EditPriceManagement',
+    element: EditPriceManagement,
     exact: true,
   },
 

@@ -25,6 +25,7 @@ import {
   cilBook,
   cilInfo,
   cilPhone,
+  cilEnvelopeClosed,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -405,6 +406,30 @@ const _nav = [
         component: CNavItem,
         name: 'Thêm tư vấn mới',
         to: '/consultant/add',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ LIÊN HỆ',
+    to: '/contact',
+    icon: <CIcon icon={cilEnvelopeClosed} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý báo giá',
+        to: '/price-management',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý liên hệ',
+        to: '/contact',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý sổ địa chỉ',
+        to: '/address',
       },
     ],
   },
