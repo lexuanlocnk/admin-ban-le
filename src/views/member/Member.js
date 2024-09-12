@@ -26,6 +26,9 @@ function Member() {
 
   const [memberData, setMemberData] = useState([])
 
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
+  const [selectedCheckbox, setSelectedCheckbox] = useState([])
+
   const [isCollapse, setIsCollapse] = useState(false)
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -36,7 +39,7 @@ function Member() {
   // show deleted Modal
   const [visible, setVisible] = useState(false)
 
-  // check permission state
+  // check permission stateq
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const handleToggleCollapse = () => {
@@ -100,7 +103,24 @@ function Member() {
   }
 
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allChecks = memberData?.map((item) => item.id) || []
+              setSelectedCheckbox(allChecks)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'username', label: 'Username' },
     { key: 'customerInfo', label: 'Thông tin khách hàng' },
     { key: 'orderYet', label: 'Đơn hàng' },
@@ -113,12 +133,23 @@ function Member() {
   const items =
     memberData && memberData?.length > 0
       ? memberData?.map((customer) => ({
-          id: <CFormCheck id="flexCheckDefault" />,
-          username: (
-            <>
-              <div className="customer-username">{customer?.username}</div>
-              {/* <div className="customer-userid">{`#KH-${customer.id}`}</div> */}
-            </>
+          id: (
+            <CFormCheck
+              key={customer?.id}
+              defaultChecked={customer?.id}
+              id={`flexCheckDefault_${customer?.id}`}
+              value={customer?.id}
+              checked={selectedCheckbox.includes(customer?.id)}
+              onChange={(e) => {
+                const giftId = customer?.id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, giftId])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== giftId))
+                }
+              }}
+            />
           ),
           customerInfo: (
             <React.Fragment>

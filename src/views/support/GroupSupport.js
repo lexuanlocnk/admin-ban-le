@@ -33,6 +33,7 @@ function GroupSupport() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const initialValues = {
@@ -176,16 +177,41 @@ function GroupSupport() {
     fetchDataSupportGroup(keyword)
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả danh mục đã chọn thành công!')
+    //     fetchDataSupportGroup()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const items =
     dataSupportGroup && dataSupportGroup?.length > 0
       ? dataSupportGroup.map((item) => ({
           id: (
             <CFormCheck
-              id={item.brandId}
-              checked={selectedCheckbox.includes(item.brandId)}
-              value={item.brandId}
+              key={item?.id}
+              aria-label="Default select example"
+              defaultChecked={item?.id}
+              id={`flexCheckDefault_${item?.id}`}
+              checked={selectedCheckbox.includes(item?.id)}
+              value={item.id}
               onChange={(e) => {
-                const idx = item.brandId
+                const idx = item.id
                 const isChecked = e.target.checked
                 if (isChecked) {
                   setSelectedCheckbox([...selectedCheckbox, idx])
@@ -223,8 +249,22 @@ function GroupSupport() {
   const columns = [
     {
       key: 'id',
-      label: '#',
-      _props: { scope: 'col' },
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataSupportGroup?.map((item) => item.id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
     },
     {
       key: 'title',
@@ -325,6 +365,11 @@ function GroupSupport() {
 
             <CCol>
               <Search count={dataSupportGroup?.length} onSearchData={handleSearch} />
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CTable className="mt-2" columns={columns} items={items} />
             </CCol>
           </CRow>

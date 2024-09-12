@@ -46,6 +46,7 @@ function ProductStatus() {
   const [dataProductStatus, setDataProductStatus] = useState([])
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   // upload image and show image
@@ -307,8 +308,48 @@ function ProductStatus() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    // alert('chức năng đang thừc hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả danh mục thành công!')
+    //     fetchDataStatus()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataProductStatus?.data.map((item) => item.status_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'images', label: 'Hình ảnh' },
     { key: 'name', label: 'Name' },
@@ -318,7 +359,25 @@ function ProductStatus() {
   const items =
     dataProductStatus?.data && dataProductStatus?.data.length > 0
       ? dataProductStatus?.data.map((item) => ({
-          id: <CFormCheck id="flexCheckDefault" />,
+          id: (
+            <CFormCheck
+              key={item.status_id}
+              aria-label="Default select example"
+              defaultChecked={item?.status_id}
+              id={`flexCheckDefault_${item?.status_id}`}
+              value={item?.status_id}
+              checked={selectedCheckbox.includes(item?.status_id)}
+              onChange={(e) => {
+                const statusID = item?.status_id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, statusID])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== statusID))
+                }
+              }}
+            />
+          ),
           title: item.product_status_desc?.title,
           images: (
             <CImage fluid src={`http://192.168.245.190:8000/uploads/${item.picture}`} width={80} />
@@ -584,6 +643,11 @@ function ProductStatus() {
             </CCol>
             <CCol md={8}>
               <Search count={dataProductStatus?.total} onSearchData={handleSearch} />
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CCol className="mt-4">
                 <CTable hover>
                   <thead>
