@@ -81,6 +81,7 @@ function ProductConfig() {
           metaKeyword: data.metaKeywords,
           metaDesc: data.metaDescription,
           visible: data.displayPicture,
+          pointUsed: data.valueOfPoint,
         })
         setSelectedFile(data.picture)
       } else {
@@ -102,6 +103,7 @@ function ProductConfig() {
         metaKeywords: values.metaKeyword,
         metaDescription: values.metaDesc,
         priceOfPoint: values.point,
+        valueOfPoint: values.pointUsed,
         productOfPage: values.productPerPage,
         width: values.widthImage,
         display: values.visible,
