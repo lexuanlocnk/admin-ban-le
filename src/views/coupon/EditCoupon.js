@@ -7,6 +7,7 @@ import './css/editCoupon.css'
 import axios from 'axios'
 import { axiosClient } from '../../axiosConfig'
 
+import { useNavigate } from 'react-router-dom'
 const fakeData = [
   {
     couponCode: 'NKDRVMCP',
@@ -32,6 +33,11 @@ function EditCoupon() {
 
   const [dataCoupon, setDataCoupon] = useState([])
   const [dataCouponDetail, setDataCouponDetail] = useState([])
+  const navigate = useNavigate()
+
+  const handleDetailClick = (MaCouponDes) => {
+    navigate(`/detail-coupon?coupon_code=${MaCouponDes}`)
+  }
 
   const fetchCouponDetailData = async () => {
     try {
@@ -59,7 +65,11 @@ function EditCoupon() {
       couponId: item.MaCouponDes,
       used: item.SoLanSuDungDes,
       remain: item.SoLanConLaiDes,
-      detail: <Link to={item.idCouponDes}>Xem chi tiết</Link>,
+      detail: (
+        <Link onClick={() => handleDetailClick(item.MaCouponDes)} to={item.idCouponDes}>
+          Xem chi tiết
+        </Link>
+      ),
       _cellProps: { id: { scope: 'row' } },
     }))
 

@@ -58,6 +58,10 @@ const Coupon = React.lazy(() => import('./views/coupon/Coupon'))
 const AddCoupon = React.lazy(() => import('./views/coupon/AddCoupon'))
 const EditCoupon = React.lazy(() => import('./views/coupon/EditCoupon'))
 
+const DetailCoupon = React.lazy(() => import('./views/coupon/DetailCoupon'))
+
+const Text = React.lazy(() => import('./views/coupon/Text'))
+
 // GIFT
 const Gift = React.lazy(() => import('./views/gift/Gift'))
 const AddGift = React.lazy(() => import('./views/gift/AddGift'))
@@ -332,6 +336,12 @@ const routes = [
     element: EditCoupon,
     exact: true,
   },
+
+  // detail coupon
+
+  { path: '/detail-coupon', name: 'DetailCoupon', element: DetailCoupon, exact: true },
+
+  { path: '/text', name: 'Text', element: Text, exact: true },
 
   // gift
   { path: '/gift', name: 'Gift', element: Gift, exact: true },
