@@ -142,7 +142,7 @@ function ProductBanner() {
           title: data.title,
           url: data.link,
           destination: data.target,
-          categories: data.cat_id,
+          categories: data.pos,
           width: data.width,
           height: data.height,
           desc: data.description,
@@ -176,7 +176,7 @@ function ProductBanner() {
           picture: selectedFile,
           link: values.url,
           target: values.destination,
-          cat_id: values.categories,
+          pos: values.categories,
           width: values.width,
           height: values.height,
           description: values.desc,
@@ -205,7 +205,7 @@ function ProductBanner() {
           picture: selectedFile,
           link: values.url,
           target: values.destination,
-          cat_id: values.categories,
+          pos: values.categories,
           width: values.width,
           height: values.height,
           description: values.desc,
@@ -511,7 +511,7 @@ function ProductBanner() {
                             categories.length > 0 &&
                             categories.map((cate) => ({
                               label: cate.category_desc.cat_name,
-                              value: cate.cat_id,
+                              value: cate.cat_name,
                             }))
                           }
                         />
@@ -668,6 +668,7 @@ function ProductBanner() {
                         </CTableHeaderCell>
                       ))}
                     </tr>
+                    3
                   </thead>
                   <CTableBody>
                     {sortedItems.map((item, index) => (
