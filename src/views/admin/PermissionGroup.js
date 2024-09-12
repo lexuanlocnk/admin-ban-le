@@ -124,6 +124,7 @@ function PermissionGroup() {
   const handleAddNewClick = () => {
     navigate('/admin/permissions-group?sub=add')
   }
+
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
   }
