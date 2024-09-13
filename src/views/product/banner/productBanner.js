@@ -668,7 +668,6 @@ function ProductBanner() {
                         </CTableHeaderCell>
                       ))}
                     </tr>
-                    3
                   </thead>
                   <CTableBody>
                     {sortedItems.map((item, index) => (

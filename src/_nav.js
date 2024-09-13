@@ -418,6 +418,16 @@ const _nav = [
     items: [
       {
         component: CNavItem,
+        name: 'Quản lý phòng ban',
+        to: '/department',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý sổ địa chỉ',
+        to: '/address',
+      },
+      {
+        component: CNavItem,
         name: 'Quản lý báo giá',
         to: '/price-management',
       },
@@ -425,11 +435,6 @@ const _nav = [
         component: CNavItem,
         name: 'Quản lý liên hệ',
         to: '/contact',
-      },
-      {
-        component: CNavItem,
-        name: 'Quản lý sổ địa chỉ',
-        to: '/address',
       },
     ],
   },
