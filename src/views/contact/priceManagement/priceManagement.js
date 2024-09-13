@@ -177,9 +177,14 @@ function PriceManagement() {
             />
           ),
 
-          unit: <div style={{ width: 80 }}>LXDX-{item?.id}</div>,
+          unit: <div>LXDX-{item?.id}</div>,
           fullName: (
-            <div style={{ width: 150 }} className="blue-txt">
+            <div
+              style={{
+                minWidth: 120,
+              }}
+              className="blue-txt"
+            >
               {item?.name}
             </div>
           ),
@@ -198,7 +203,7 @@ function PriceManagement() {
               <CIcon icon={cilEnvelopeClosed} className="text-warning" />
             ),
           actions: (
-            <div style={{ width: 100 }}>
+            <div style={{ width: 80 }}>
               <button
                 onClick={() => handleEditClick(item?.id)}
                 className="button-action mr-2 bg-info"
