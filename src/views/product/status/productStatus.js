@@ -320,9 +320,7 @@ function ProductStatus() {
       ? dataProductStatus?.data.map((item) => ({
           id: <CFormCheck id="flexCheckDefault" />,
           title: item.product_status_desc?.title,
-          images: (
-            <CImage fluid src={`http://192.168.245.190:8000/uploads/${item.picture}`} width={80} />
-          ),
+          images: <CImage fluid src={`${imageBaseUrl}${item.picture}`} width={80} />,
           name: item.name,
           actions: (
             <div>

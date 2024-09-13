@@ -199,7 +199,7 @@ function EditOrder() {
                         Email: <span>{dataOrderDetail?.d_email}</span>
                       </p>
                       <strong>Phương thức giao hàng:</strong>
-                      <p>{dataOrderDetail?.shipping_method?.title}</p>
+                      <p>{dataOrderDetail?.shipping_method}</p>
                     </div>
                   </div>
                 </CCol>
