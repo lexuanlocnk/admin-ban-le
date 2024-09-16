@@ -39,10 +39,19 @@ function EditAddressManagement() {
   }
 
   const validationSchema = Yup.object({
-    // question: Yup.string().required('Nội dung câu hỏi là bắt buộc.'),
-    // name: Yup.string().required('Tên người hỏi là bắt buộc.'),
-    // category: Yup.string().required('Danh mục tư vấn là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    title: Yup.string().required('Tiêu đề là bắt buộc.').min(5, 'Tiêu đề phải có ít nhất 5 ký tự.'),
+    companyName: Yup.string()
+      .required('Tên công ty là bắt buộc.')
+      .min(3, 'Tên công ty phải có ít nhất 3 ký tự.'),
+    address: Yup.string()
+      .required('Địa chỉ là bắt buộc.')
+      .min(10, 'Địa chỉ phải có ít nhất 10 ký tự.'),
+    phone: Yup.string().required('Số điện thoại là bắt buộc.'),
+    mail: Yup.string().required('Email là bắt buộc.').email('Email không hợp lệ.'),
+    workTime: Yup.string().required('Thời gian làm việc là bắt buộc.'),
+    visible: Yup.number()
+      .required('Trường hiển thị là bắt buộc.')
+      .oneOf([0, 1], 'Giá trị phải là 0 hoặc 1.'),
   })
 
   const fetchDataById = async (setValues) => {

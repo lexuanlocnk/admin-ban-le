@@ -1,15 +1,6 @@
 import { cilColorBorder, cilEnvelopeClosed, cilEnvelopeOpen, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import {
-  CButton,
-  CCol,
-  CContainer,
-  CFormCheck,
-  CFormSelect,
-  CImage,
-  CRow,
-  CTable,
-} from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CRow, CTable } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient } from '../../../axiosConfig'
