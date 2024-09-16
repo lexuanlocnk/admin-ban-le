@@ -163,6 +163,25 @@ const EditPriceManagement = React.lazy(
   () => import('./views/contact/priceManagement/EditPriceManagement'),
 )
 
+// ADDRESS MANAGEMENT
+const AddressManagement = React.lazy(
+  () => import('./views/contact/addressManagement/addressManagement'),
+)
+const EditAddressManagement = React.lazy(
+  () => import('./views/contact/addressManagement/EditAddressManagement'),
+)
+
+// CONTACT MANAGEMENT
+const ContactManagement = React.lazy(
+  () => import('./views/contact/contactManagement/contactManagement'),
+)
+const EditContactManagement = React.lazy(
+  () => import('./views/contact/contactManagement/EditContactManagement'),
+)
+
+// DEPARTMENT
+const Department = React.lazy(() => import('./views/contact/department/department'))
+
 /** ------------------------------------------------------------------------------------------------------------------ */
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
@@ -578,11 +597,51 @@ const routes = [
   },
 
   // contact
+
+  // bao gia
   { path: '/price-management', name: 'PriceManagement', element: PriceManagement, exact: true },
   {
     path: 'price-management/edit',
     name: 'EditPriceManagement',
     element: EditPriceManagement,
+    exact: true,
+  },
+
+  // so dia chi
+  {
+    path: '/address',
+    name: 'AddressManagement',
+    element: AddressManagement,
+    exact: true,
+  },
+  {
+    path: 'address/edit',
+    name: 'EditAddressManagement',
+    element: EditAddressManagement,
+    exact: true,
+  },
+
+  // lien he
+
+  {
+    path: '/contact',
+    name: 'ContactManagement',
+    element: ContactManagement,
+    exact: true,
+  },
+  {
+    path: 'contact/edit',
+    name: 'EditContactManagement',
+    element: EditContactManagement,
+    exact: true,
+  },
+
+  // phong ban
+
+  {
+    path: '/department',
+    name: 'Department',
+    element: Department,
     exact: true,
   },
 
