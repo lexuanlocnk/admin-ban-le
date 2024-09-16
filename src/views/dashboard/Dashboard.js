@@ -10,6 +10,7 @@ import {
   CCardFooter,
   CCardHeader,
   CCol,
+  CContainer,
   CFormCheck,
   CProgress,
   CRow,
@@ -241,7 +242,7 @@ const Dashboard = () => {
   }
 
   return (
-    <>
+    <CContainer>
       <CRow className="mb-3">
         <CCol md={6}>
           <h2>BẢNG ĐIỀU KHIỂN</h2>
@@ -366,7 +367,7 @@ const Dashboard = () => {
           </div>
         </CCol>
       </CRow>
-    </>
+    </CContainer>
   )
 }
 

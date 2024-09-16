@@ -7,7 +7,6 @@ import {
   CFormInput,
   CFormSelect,
   CFormTextarea,
-  CImage,
   CRow,
   CTable,
 } from '@coreui/react'
@@ -22,7 +21,7 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
-import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import { axiosClient } from '../../../axiosConfig'
 
 function Department() {
   const location = useLocation()
@@ -48,9 +47,6 @@ function Department() {
   const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  // search input
-  // const [dataSearch, setDataSearch] = useState('')
-
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
 
@@ -58,13 +54,16 @@ function Department() {
     title: '',
     email: '',
     phone: '',
-    desc: '',
+    description: '',
     visible: 0,
   }
 
   const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    title: Yup.string().required('Tiêu đề là bắt buộc.').min(5, 'Tiêu đề phải có ít nhất 5 ký tự.'),
+    email: Yup.string().required('Email là bắt buộc.').email('Email không hợp lệ.'),
+    visible: Yup.number()
+      .required('Trường này là bắt buộc.')
+      .oneOf([0, 1], 'Giá trị phải là 0 hoặc 1.'),
   })
 
   useEffect(() => {
@@ -117,6 +116,7 @@ function Department() {
         console.error('No data found for the given ID.')
       }
 
+      // phân quyền tác vụ edit
       if (
         sub == 'edit' &&
         response.data.status === false &&
@@ -129,7 +129,7 @@ function Department() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -142,9 +142,14 @@ function Department() {
         })
         if (response.data.status === true) {
           toast.success('Cập nhật phòng ban thành công')
+          resetForm()
+          navigate('/department')
+          fetchDataDepartment()
         } else {
           console.error('No data found for the given ID.')
         }
+
+        // phân quyền tác vụ update
         if (response.data.status === false && response.data.mess == 'no permission') {
           toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
@@ -166,8 +171,11 @@ function Department() {
         if (response.data.status === true) {
           toast.success('Thêm mới phòng ban thành công!')
           fetchDataDepartment()
+          resetForm()
+          navigate('/department?sub=add')
         }
 
+        // phân quyền tác vụ add
         if (response.data.status === false && response.data.mess == 'no permission') {
           toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
@@ -196,6 +204,7 @@ function Department() {
         fetchDataDepartment()
       }
 
+      // phân quyền tác vụ delete
       if (response.data.status === false && response.data.mess == 'no permission') {
         toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
@@ -308,7 +317,6 @@ function Department() {
 
   const handleDeleteSelectedCheckbox = async () => {
     console.log('>>> selectedCheckbox', selectedCheckbox)
-
     // try {
     //   const response = await axiosClient.post('admin/delete-all-comment', {
     //     data: selectedCheckbox,

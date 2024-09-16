@@ -26,6 +26,7 @@ import {
   cilInfo,
   cilPhone,
   cilEnvelopeClosed,
+  cilCog,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -438,6 +439,66 @@ const _nav = [
       },
     ],
   },
+
+  {
+    component: CNavGroup,
+    name: 'THÔNG TIN HỆ THỐNG',
+    to: '/system',
+    icon: <CIcon icon={cilCog} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Cấu hình hệ thống',
+        to: '/system-config',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý dữ liệu',
+        to: '/system-data',
+      },
+      {
+        component: CNavItem,
+        name: 'Backup dữ liệu',
+        to: '/system-backup',
+      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Cấu hỉnh API MXH',
+      //   to: '/system-socials',
+      // },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'HÌNH THỨC, NỘI DUNG',
+    to: '/system',
+    icon: <CIcon icon={cilCog} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Cấu hình hệ thống',
+        to: '/system-config',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý dữ liệu',
+        to: '/system-data',
+      },
+      {
+        component: CNavItem,
+        name: 'Backup dữ liệu',
+        to: '/system-backup',
+      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Cấu hỉnh API MXH',
+      //   to: '/system-socials',
+      // },
+    ],
+  },
+
+  ///////////////////////////////////////////////////////////////////////////////////////
 
   // {
   //   component: CNavGroup,
