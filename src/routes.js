@@ -182,6 +182,17 @@ const EditContactManagement = React.lazy(
 // DEPARTMENT
 const Department = React.lazy(() => import('./views/contact/department/department'))
 
+// SYSTEMS
+const SystemConfig = React.lazy(() => import('./views/system/SystemConfig'))
+const SystemData = React.lazy(() => import('./views/system/SystemData'))
+const SystemBackup = React.lazy(() => import('./views/system/SystemBackup'))
+
+// CONTENT & FORM
+const Menu = React.lazy(() => import('./views/content/Menu'))
+const MailTemp = React.lazy(() => import('./views/content/mailTemp/MailTemplate'))
+const AddMailTemp = React.lazy(() => import('./views/content/mailTemp/AddMailTemplate'))
+const EditMailTemp = React.lazy(() => import('./views/content/mailTemp/EditMailTemplate'))
+
 /** ------------------------------------------------------------------------------------------------------------------ */
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
@@ -642,6 +653,53 @@ const routes = [
     path: '/department',
     name: 'Department',
     element: Department,
+    exact: true,
+  },
+
+  // he thong
+  {
+    path: '/system-config',
+    name: 'SystemConfig',
+    element: SystemConfig,
+    exact: true,
+  },
+  {
+    path: '/system-data',
+    name: 'SystemData',
+    element: SystemData,
+    exact: true,
+  },
+  {
+    path: '/system-backup',
+    name: 'SystemBackup',
+    element: SystemBackup,
+    exact: true,
+  },
+
+  // hinh thuc noi dung
+  {
+    path: '/content/menu',
+    name: 'Menu',
+    element: Menu,
+    exact: true,
+  },
+
+  {
+    path: '/content/mail-temp',
+    name: 'MailTemp',
+    element: MailTemp,
+    exact: true,
+  },
+  {
+    path: '/content/mail-temp/add',
+    name: 'AddMailTemp',
+    element: AddMailTemp,
+    exact: true,
+  },
+  {
+    path: '/content/mail-temp/edit',
+    name: 'EditMailTemp',
+    element: EditMailTemp,
     exact: true,
   },
 

@@ -7,6 +7,7 @@ import {
   CFormInput,
   CFormSelect,
   CFormTextarea,
+  CImage,
   CRow,
   CTable,
 } from '@coreui/react'
@@ -14,16 +15,100 @@ import {
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import Search from '../../../components/search/Search'
+import Search from '../../components/search/Search'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
-import DeletedModal from '../../../components/deletedModal/DeletedModal'
+import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
-import { axiosClient } from '../../../axiosConfig'
+import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
-function Department() {
+const menuData = [
+  {
+    id: 1,
+    title: 'Tin tức',
+    link: 'tin-tuc',
+  },
+  {
+    id: 2,
+    title: 'Laptop',
+    link: 'laptop',
+    children: [
+      {
+        id: 3,
+        title: 'Thương hiệu',
+        link: 'laptop',
+        children: [
+          {
+            id: 4,
+            title: 'Apple Macbook',
+            link: 'macbook-apple',
+          },
+          {
+            id: 5,
+            title: 'HP',
+            link: 'laptop/hp',
+          },
+          {
+            id: 6,
+            title: 'Dell',
+            link: 'laptop/dell',
+          },
+          {
+            id: 7,
+            title: 'Asus',
+            link: 'laptop/asus',
+          },
+          {
+            id: 8,
+            title: 'Acer',
+            link: 'laptop/acer',
+          },
+          {
+            id: 9,
+            title: 'Lenovo',
+            link: 'laptop/lenovo',
+          },
+          {
+            id: 10,
+            title: 'LG',
+            link: 'laptop-lg',
+          },
+        ],
+      },
+      {
+        id: 11,
+        title: 'Nhu cầu sử dụng',
+        link: './',
+        children: [
+          {
+            id: 12,
+            title: 'Laptop cho doanh nhân',
+            link: '/laptop?op_id=49&price=10000000-100000000',
+          },
+          {
+            id: 13,
+            title: 'Laptop cho kỹ thuật viên',
+            link: '/laptop?op_id=49,182&price=0-100000000',
+          },
+          {
+            id: 14,
+            title: 'Laptop cho văn phòng',
+            link: '/laptop?price=0-4500000',
+          },
+          {
+            id: 15,
+            title: 'Laptop cho sinh viên',
+            link: '/laptop?price=0-2500000',
+          },
+        ],
+      },
+    ],
+  },
+]
+
+function Menu() {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -47,24 +132,70 @@ function Department() {
   const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
+  // upload image and show image
+  const [selectedFile, setSelectedFile] = useState('')
+  const [file, setFile] = useState([])
+
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
 
   const initialValues = {
     title: '',
-    email: '',
-    phone: '',
-    description: '',
+    url: '',
+    name: '',
+    target: '',
+    childOf: '',
     visible: 0,
   }
 
-  const validationSchema = Yup.object({
-    title: Yup.string().required('Tiêu đề là bắt buộc.').min(5, 'Tiêu đề phải có ít nhất 5 ký tự.'),
-    email: Yup.string().required('Email là bắt buộc.').email('Email không hợp lệ.'),
+  const validationSchema = Yup.object().shape({
+    title: Yup.string()
+      .required('Tiêu đề là bắt buộc.')
+      .min(3, 'Tiêu đề phải có ít nhất 3 ký tự.')
+      .max(100, 'Tiêu đề không được vượt quá 100 ký tự.'),
+
+    url: Yup.string().required('Liên kết là bắt buộc.').url('Liên kết không hợp lệ.'),
+
+    name: Yup.string()
+      .required('Tên action là bắt buộc.')
+      .min(3, 'Tên action phải có ít nhất 3 ký tự.')
+      .max(50, 'Tên action không được vượt quá 50 ký tự.'),
+
+    target: Yup.string()
+      .required('Đích đến là bắt buộc.')
+      .oneOf(['_self', '_blank', '_parent', '_top'], 'Đích đến không hợp lệ.'),
+
     visible: Yup.number()
-      .required('Trường này là bắt buộc.')
-      .oneOf([0, 1], 'Giá trị phải là 0 hoặc 1.'),
+      .required('Trường hiển thị là bắt buộc.')
+      .oneOf([0, 1], 'Giá trị hiển thị phải là 0 hoặc 1.'),
   })
+
+  //set img avatar
+  function onFileChange(e) {
+    const files = e.target.files
+    const selectedFiles = []
+    const fileUrls = []
+
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
+
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
+
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFile(selectedFiles)
+        }
+      }
+    })
+
+    // Set file URLs for immediate preview
+    setFile(fileUrls)
+  }
 
   useEffect(() => {
     if (sub === 'add') {
@@ -130,68 +261,70 @@ function Department() {
   }
 
   const handleSubmit = async (values, { resetForm }) => {
-    if (isEditing) {
-      //call api update data
-      try {
-        const response = await axiosClient.put(`admin/contact-staff/${id}`, {
-          title: values.title,
-          email: values.email,
-          phone: values.phone,
-          description: values.description,
-          display: values.visible,
-        })
-        if (response.data.status === true) {
-          toast.success('Cập nhật phòng ban thành công')
-          resetForm()
-          navigate('/department')
-          fetchDataDepartment()
-        } else {
-          console.error('No data found for the given ID.')
-        }
+    console.log('>>> check values', values)
 
-        // phân quyền tác vụ update
-        if (response.data.status === false && response.data.mess == 'no permission') {
-          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-        }
-      } catch (error) {
-        console.error('Put data id department is error', error.message)
-        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-      }
-    } else {
-      //call api post new data
-      try {
-        const response = await axiosClient.post('admin/contact-staff', {
-          title: values.title,
-          email: values.email,
-          phone: values.phone,
-          description: values.description,
-          display: values.visible,
-        })
+    // if (isEditing) {
+    //   //call api update data
+    //   try {
+    //     const response = await axiosClient.put(`admin/contact-staff/${id}`, {
+    //       title: values.title,
+    //       email: values.email,
+    //       phone: values.phone,
+    //       description: values.description,
+    //       display: values.visible,
+    //     })
+    //     if (response.data.status === true) {
+    //       toast.success('Cập nhật phòng ban thành công')
+    //       resetForm()
+    //       navigate('/department')
+    //       fetchDataDepartment()
+    //     } else {
+    //       console.error('No data found for the given ID.')
+    //     }
 
-        if (response.data.status === true) {
-          toast.success('Thêm mới phòng ban thành công!')
-          fetchDataDepartment()
-          resetForm()
-          navigate('/department?sub=add')
-        }
+    //     // phân quyền tác vụ update
+    //     if (response.data.status === false && response.data.mess == 'no permission') {
+    //       toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //     }
+    //   } catch (error) {
+    //     console.error('Put data id department is error', error.message)
+    //     toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    //   }
+    // } else {
+    //   //call api post new data
+    //   try {
+    //     const response = await axiosClient.post('admin/contact-staff', {
+    //       title: values.title,
+    //       email: values.email,
+    //       phone: values.phone,
+    //       description: values.description,
+    //       display: values.visible,
+    //     })
 
-        // phân quyền tác vụ add
-        if (response.data.status === false && response.data.mess == 'no permission') {
-          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-        }
-      } catch (error) {
-        console.error('Post data department is error', error)
-        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-      }
-    }
+    //     if (response.data.status === true) {
+    //       toast.success('Thêm mới phòng ban thành công!')
+    //       fetchDataDepartment()
+    //       resetForm()
+    //       navigate('/department?sub=add')
+    //     }
+
+    //     // phân quyền tác vụ add
+    //     if (response.data.status === false && response.data.mess == 'no permission') {
+    //       toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //     }
+    //   } catch (error) {
+    //     console.error('Post data department is error', error)
+    //     toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    //   }
+    // }
   }
 
   const handleAddNewClick = () => {
-    navigate('/department?sub=add')
+    navigate('/content/menu?sub=add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/department?id=${id}&sub=edit`)
+    navigate(`/content/menu?id=${id}&sub=edit`)
   }
 
   // delete row
@@ -340,7 +473,7 @@ function Department() {
           <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
           <CRow className="mb-3">
             <CCol md={6}>
-              <h2>QUẢN LÝ PHÒNG BAN</h2>
+              <h2>QUẢN LÝ MENU</h2>
             </CCol>
             <CCol md={6}>
               <div className="d-flex justify-content-end">
@@ -353,7 +486,7 @@ function Department() {
                 >
                   Thêm mới
                 </CButton>
-                <Link to={'/department'}>
+                <Link to={'/menu'}>
                   <CButton color="primary" type="submit" size="sm">
                     Danh sách
                   </CButton>
@@ -364,7 +497,7 @@ function Department() {
 
           <CRow>
             <CCol md={4}>
-              <h6>{!isEditing ? 'Thêm thương hiệu mới' : 'Cập nhật thương hiệu'}</h6>
+              <h6>{!isEditing ? 'Thêm menu mới' : 'Cập nhật menu'}</h6>
               <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
@@ -394,29 +527,105 @@ function Department() {
                       <br />
 
                       <CCol md={12}>
-                        <label htmlFor="email-input">Thư điện tử</label>
-                        <Field name="email" type="email" as={CFormInput} id="email-input" />
-                        <ErrorMessage name="email" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="phone-input">Điện thoại</label>
-                        <Field name="phone" type="number" as={CFormInput} id="phone-input" />
-                        <ErrorMessage name="phone" component="div" className="text-danger" />
+                        <label htmlFor="url-input">Liên kết</label>
+                        <Field name="url" type="text" as={CFormInput} id="url-input" />
+                        <ErrorMessage name="url" component="div" className="text-danger" />
                       </CCol>
                       <br />
 
                       <CCol md={12}>
-                        <label htmlFor="desc-input">Mô tả</label>
+                        <label htmlFor="name-input">Name action</label>
+                        <Field name="name" type="text" as={CFormInput} id="name-input" />
+                        <ErrorMessage name="name" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="target-select">Đích đến</label>
                         <Field
-                          style={{ height: '100px' }}
-                          name="description"
-                          type="text"
-                          as={CFormTextarea}
-                          id="desc-input"
-                          text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
+                          className="component-size"
+                          name="target"
+                          as={CFormSelect}
+                          id="target-select"
+                          text="Loại hiển thị của liên kết. Mặc định liên kết tại trang (_self)."
+                          options={[
+                            { label: 'Chọn đích đến', value: '' },
+                            { label: 'Tại trang (_self)', value: '_self' },
+                            { label: 'Cửa sổ mới (_blank)', value: '_blank' },
+                            { label: 'Cửa sổ cha (_parent)', value: '_parent' },
+                            { label: 'Cửa sổ trên cùng (_top)', value: '_top' },
+                          ]}
                         />
-                        <ErrorMessage name="description" component="div" className="text-danger" />
+                        <ErrorMessage name="target" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="childOf-select">Là con của</label>
+                        <CFormSelect
+                          className="component-size"
+                          aria-label="Chọn yêu cầu lọc"
+                          name="childOf"
+                          onChange={(e) => setFieldValue('childOf', e.target.value)}
+                        >
+                          <option value={''}>None</option>
+                          {menuData &&
+                            menuData?.map((item) => (
+                              <React.Fragment key={item.id}>
+                                <option value={item.id}>
+                                  {item?.title} ({item?.id})
+                                </option>
+                                {item?.children &&
+                                  item?.children.map((subItem) => (
+                                    <React.Fragment key={subItem.id}>
+                                      <option value={subItem.id}>
+                                        &nbsp;&nbsp;&nbsp;{'|--'}
+                                        {subItem?.title} ({subItem.id})
+                                      </option>
+
+                                      {subItem?.children &&
+                                        subItem?.children.map((subSubItem) => (
+                                          <option key={subSubItem.id} value={subSubItem.id}>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'|--'}
+                                            {subSubItem?.title}({subSubItem.id})
+                                          </option>
+                                        ))}
+                                    </React.Fragment>
+                                  ))}
+                              </React.Fragment>
+                            ))}
+                        </CFormSelect>
+                        <ErrorMessage name="childOf" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <CFormInput
+                          name="avatar"
+                          type="file"
+                          id="formFile"
+                          label="Ảnh đại diện"
+                          size="sm"
+                          onChange={(e) => onFileChange(e)}
+                        />
+                        <br />
+                        <ErrorMessage name="avatar" component="div" className="text-danger" />
+
+                        <div>
+                          {file.length == 0 ? (
+                            <div>
+                              <CImage
+                                className="border"
+                                src={`${imageBaseUrl}${selectedFile}`}
+                                width={200}
+                              />
+                            </div>
+                          ) : (
+                            file.map((item, index) => (
+                              <CImage className="border" key={index} src={item} width={200} />
+                            ))
+                          )}
+                        </div>
                       </CCol>
                       <br />
 
@@ -484,4 +693,4 @@ function Department() {
   )
 }
 
-export default Department
+export default Menu
