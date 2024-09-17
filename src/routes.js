@@ -58,6 +58,15 @@ const Coupon = React.lazy(() => import('./views/coupon/Coupon'))
 const AddCoupon = React.lazy(() => import('./views/coupon/AddCoupon'))
 const EditCoupon = React.lazy(() => import('./views/coupon/EditCoupon'))
 
+const DetailCoupon = React.lazy(() => import('./views/coupon/DetailCoupon'))
+
+const Text = React.lazy(() => import('./views/coupon/Text'))
+
+// NEWSLETTER
+const Newsletter = React.lazy(() => import('./views/newsletter/Newsletter'))
+const AddNewsletter = React.lazy(() => import('./views/newsletter/AddNewsletter'))
+const EditNewsletter = React.lazy(() => import('./views/newsletter/EditNewsletter'))
+
 // GIFT
 const Gift = React.lazy(() => import('./views/gift/Gift'))
 const AddGift = React.lazy(() => import('./views/gift/AddGift'))
@@ -362,6 +371,16 @@ const routes = [
     element: EditCoupon,
     exact: true,
   },
+
+  // detail coupon
+  { path: '/detail-coupon', name: 'DetailCoupon', element: DetailCoupon, exact: true },
+
+  // Newsletter
+  { path: '/newsletter', name: 'Newsletter', element: Newsletter, exact: true },
+  { path: '/newsletter/add', name: 'AddNewsletter', element: AddNewsletter, exact: true },
+  { path: '/newsletter/edit', name: 'EditNewsletter', element: EditNewsletter, exact: true },
+
+  { path: '/text', name: 'Text', element: Text, exact: true },
 
   // gift
   { path: '/gift', name: 'Gift', element: Gift, exact: true },
