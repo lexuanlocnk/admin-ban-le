@@ -18,6 +18,7 @@ import { axiosClient } from '../../axiosConfig'
 import { toast } from 'react-toastify'
 import CIcon from '@coreui/icons-react'
 import { cilColorBorder, cilTrash } from '@coreui/icons'
+import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 function Newsletter() {
   const navigate = useNavigate()
@@ -26,8 +27,53 @@ function Newsletter() {
   const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  const handleEditClick = () => {
-    navigate(`/newsletter/edit`)
+  const handleEditClick = (id) => {
+    navigate(`/newsletter/edit?id=${id}`)
+  }
+
+  const fetchDataNewsletter = async (data) => {
+    // try {
+    //   const response = await axiosClient.get(
+    //     `admin/order-status?data=${dataSearch}&page=${pageNumber}`,
+    //   )
+    //   if (response.data.status === true) {
+    //     const orderStatus = response.data.orderStatus
+    //     setDataStatus(orderStatus)
+    //   }
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     setIsPermissionCheck(false)
+    //   }
+    // } catch (error) {
+    //   console.error('Fetch data order status is error', error)
+    // }
+  }
+
+  useEffect(() => {
+    fetchDataNewsletter()
+  }, [])
+
+  // show deleted Modal
+  const [visible, setVisible] = useState(false)
+
+  //delete row
+  const handleDelete = async () => {
+    setVisible(true)
+
+    // setVisible(true)
+    // try {
+    //   const response = await axiosClient.delete(`admin/`)
+    //   if (response.data.status === true) {
+    //     setVisible(false)
+    //     fetchDataNewsletter()
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   console.error('Delete status order is error', error)
+    //   toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    // }
   }
 
   const items = [
@@ -55,6 +101,7 @@ function Newsletter() {
 
   return (
     <CContainer>
+      <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
       <CRow className="mb-3">
         <CCol md={6}>
           <h2>QUẢN LÝ NEWSLETTER</h2>
@@ -127,17 +174,16 @@ function Newsletter() {
                   <CTableDataCell style={{ width: 100 }} className="orange-txt">
                     <div>
                       <button
-                        onClick={() => handleEditClick()}
+                        onClick={() => handleEditClick(item.id)}
                         className="button-action mr-2 bg-info"
                       >
                         <CIcon icon={cilColorBorder} className="text-white" />
                       </button>
 
                       <button
-                        // onClick={() => {
-                        //   setVisible(true)
-                        //   setDeletedId(item.comment_id)
-                        // }}
+                        onClick={() => {
+                          setVisible(true)
+                        }}
                         className="button-action bg-danger"
                       >
                         <CIcon icon={cilTrash} className="text-white" />
