@@ -11,19 +11,22 @@ import {
   CTableDataCell,
   CTableHead,
 } from '@coreui/react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { axiosClient } from '../../axiosConfig'
+import moment from 'moment'
 
 function DetailCoupon() {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const coupon_code = searchParams.get('coupon_code')
-  const [dataCoupon, setDataCoupon] = useState(null)
+  const [dataDetailCoupon, setDataDetailCoupon] = useState([])
+
+  // const [dataCouponDetail, setDataCouponDetail] = useState([])
 
   const fetchCouponDetailData = async () => {
     try {
       const response = await axiosClient.get(`admin/get-detail-coupon/${coupon_code}`)
-      setDataCoupon(response.data.listCoupon)
+      setDataDetailCoupon(response.data.data)
     } catch (error) {
       console.error('Fetch coupon data error', error)
     }
@@ -33,15 +36,27 @@ function DetailCoupon() {
     fetchCouponDetailData()
   }, [])
 
-  const column = [
-    { key: 'stt', label: 'STT', _props: { scope: 'col' } },
-    { key: 'ma', label: 'Mã Coupon', _props: { scope: 'col' } },
-    { key: 'thoiGian', label: 'Thời gian sử dụng', _props: { scope: 'col' } },
+  const items =
+    dataDetailCoupon &&
+    dataDetailCoupon.length > 0 &&
+    dataDetailCoupon.map((item, index) => ({
+      id: index + 1,
+      maCouponUSer: item.MaCouponUSer,
+      dateUsingCode: item.DateUsingCode,
+      idUser: item.IDuser,
+      iDOrderCode: item.IDOrderCode,
+      _cellProps: { id: { scope: 'row' } },
+    }))
+
+  const columns = [
+    { key: 'id', label: 'STT', _props: { scope: 'col' } },
+    { key: 'maCouponUSer', label: 'Mã Coupon', _props: { scope: 'col' } },
+    { key: 'dateUsingCode', label: 'Thời gian sử dụng', _props: { scope: 'col' } },
     { key: 'idUser', label: 'ID USER', _props: { scope: 'col' } },
-    { key: 'maDonhang', label: 'Mã đơn hàng', _props: { scope: 'col' } },
+    { key: 'iDOrderCode', label: 'Mã đơn hàng', _props: { scope: 'col' } },
   ]
 
-  const items = [
+  const item = [
     {
       ma: 'DH001',
       id: 1,
@@ -92,19 +107,23 @@ function DetailCoupon() {
         </CCol>
         <CCol md={6}>
           <div className="d-flex justify-content-end">
-            <CButton color="primary" size="sm" className="button-add">
-              Thêm mới
-            </CButton>
+            <Link to={`/coupon/add`}>
+              <CButton color="primary" size="sm" className="button-add">
+                Thêm mới
+              </CButton>
+            </Link>
 
-            <CButton color="primary" size="sm">
-              Danh sách
-            </CButton>
+            <Link to={`/coupon`}>
+              <CButton color="primary" size="sm">
+                Danh sách
+              </CButton>
+            </Link>
           </div>
         </CCol>
       </CRow>
 
       <CCol md={12} className="d-flex justify-content-between border p-3 mb-3 bg-white">
-        <div className="">
+        <div>
           <strong>
             Mã Đợt Phát Hành:{' '}
             <strong
@@ -120,45 +139,25 @@ function DetailCoupon() {
 
         <div>
           <strong>Trạng thái: </strong>
-          <span
-            style={{
-              fontSize: 18,
-              color: dataCoupon?.IDCouponUs === 2 ? 'red' : 'green', // thay idcoupon
-            }}
-          >
-            {dataCoupon?.IDCouponUs === 2 ? 'Ngừng Phát Hành' : 'Đang Phát Hành'}
-          </span>
+          <span style={{ fontSize: 18 }}>Đang...</span>
         </div>
 
         <div>
-          <strong>
-            Ngày tạo:{' '}
-            {/* {moment.unix(Number(dataCoupon?.StartCouponDate)).format('DD-MM-YYYY, hh:mm:ss A')} */}
-          </strong>
+          <strong>Ngày tạo: DD-MM-YYYY</strong>
           <span></span>
         </div>
       </CCol>
-      <h6>Danh sách Mã Coupon đã sử dụng</h6>
-      <CTable hover>
-        <CTableHead>
-          <CTableRow>
-            {column.map((col) => (
-              <CTableHeaderCell key={col.key}>{col.label}</CTableHeaderCell>
-            ))}
-          </CTableRow>
-        </CTableHead>
-        <CTableBody>
-          {items.map((item, index) => (
-            <CTableRow key={item.id}>
-              <CTableDataCell>{item.stt}</CTableDataCell>
-              <CTableDataCell>{item.ma}</CTableDataCell>
-              <CTableDataCell>{item.thoiGian}</CTableDataCell>
-              <CTableDataCell>{item.idUser}</CTableDataCell>
-              <CTableDataCell>{item.maDonhang}</CTableDataCell>
-            </CTableRow>
-          ))}
-        </CTableBody>
-      </CTable>
+
+      <CCol className="mt-3">
+        <h6>Danh sách Mã Coupon đã sử dụng</h6>
+
+        {/* Kiểm tra nếu items có dữ liệu */}
+        {items && items.length > 0 ? (
+          <CTable className="mt-2" columns={columns} items={items} />
+        ) : (
+          <p>Không có coupon đã sử dụng</p>
+        )}
+      </CCol>
     </CContainer>
   )
 }
