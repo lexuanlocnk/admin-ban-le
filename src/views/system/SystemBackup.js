@@ -68,7 +68,6 @@ const SystemBackup = () => {
             <CFormLabel htmlFor="tableSelect" className="custom-label">
               Chọn bảng dữ liệu
             </CFormLabel>
-
             <CFormSelect
               multiple
               size="10"
