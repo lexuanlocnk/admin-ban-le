@@ -1,4 +1,4 @@
-import { cilColorBorder, cilEnvelopeClosed, cilEnvelopeOpen, cilTrash } from '@coreui/icons'
+import { cilColorBorder, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
   CButton,
@@ -13,48 +13,15 @@ import {
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient } from '../../../axiosConfig'
-import moment from 'moment/moment'
-
-import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import { toast } from 'react-toastify'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
 
-import '../css/priceManagement.css'
-
-function PriceManagement() {
+function MailTemplate() {
   const navigate = useNavigate()
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
-  const [dataPriceManagement, setDataPriceManagement] = useState([])
-
-  // date picker
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [errors, setErrors] = useState({ startDate: '', endDate: '' })
-
-  // validate for date start - date end
-  const validateDates = (start, end) => {
-    const newErrors = { startDate: '', endDate: '' }
-    if (start && end && start > end) {
-      newErrors.startDate = 'Ngày bắt đầu không được sau ngày kết thúc'
-      newErrors.endDate = 'Ngày kết thúc không được trước ngày bắt đầu'
-    }
-    setErrors(newErrors)
-  }
-
-  const handleStartDateChange = (date) => {
-    setStartDate(date)
-    validateDates(date, endDate)
-  }
-
-  const handleEndDateChange = (date) => {
-    setEndDate(date)
-    validateDates(startDate, date)
-  }
+  const [dataAddress, setDataAddress] = useState([])
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -76,23 +43,25 @@ function PriceManagement() {
   // search input
   const [dataSearch, setDataSearch] = useState('')
 
+  const handleAddNewClick = () => {
+    navigate('/content/mail-temp/add')
+  }
+
   const handleEditClick = (id) => {
-    navigate(`/price-management/edit?id=${id}`)
+    navigate(`/content/mail-temp/edit?id=${id}`)
   }
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataPriceMamagement(keyword)
+    fetchDataAddress(keyword)
   }
 
-  const fetchDataPriceMamagement = async (dataSearch = '') => {
+  const fetchDataAddress = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(
-        `admin/contact-qoute?page=${pageNumber}&data=${dataSearch}`,
-      )
+      const response = await axiosClient.get(`admin/contact-config`)
 
       if (response.data.status === true) {
-        setDataPriceManagement(response.data.list)
+        setDataAddress(response.data.list)
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
@@ -104,38 +73,26 @@ function PriceManagement() {
   }
 
   useEffect(() => {
-    fetchDataPriceMamagement()
+    fetchDataAddress()
   }, [pageNumber])
-
-  // pagination data
-  const handlePageChange = ({ selected }) => {
-    const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
-    setPageNumber(newPage)
-  }
 
   // delete row
   const handleDelete = async () => {
     setVisible(true)
-    try {
-      const response = await axiosClient.delete(`admin/faqs/${deletedId}`)
-      if (response.data.status === true) {
-        setVisible(false)
-        fetchDataPriceMamagement()
-      }
+    // try {
+    //   const response = await axiosClient.delete(`admin/faqs/${deletedId}`)
+    //   if (response.data.status === true) {
+    //     setVisible(false)
+    //     fetchDataAddress()
+    //   }
 
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-      }
-    } catch (error) {
-      console.error('Delete consultant id is error', error)
-      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
-    }
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   console.error('Delete consultant id is error', error)
+    //   toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    // }
   }
 
   const handleDeleteSelectedCheckbox = async () => {
@@ -155,57 +112,45 @@ function PriceManagement() {
   }
 
   const items =
-    dataPriceManagement?.data && dataPriceManagement?.data?.length > 0
-      ? dataPriceManagement?.data.map((item) => ({
+    dataAddress && dataAddress?.length > 0
+      ? dataAddress.map((item) => ({
           id: (
             <CFormCheck
-              key={item?.id}
+              key={item?.contact_id}
               aria-label="Default select example"
-              defaultChecked={item?.id}
-              id={`flexCheckDefault_${item?.id}`}
-              value={item?.id}
-              checked={selectedCheckbox.includes(item?.id)}
+              defaultChecked={item?.contact_id}
+              id={`flexCheckDefault_${item?.contact_id}`}
+              value={item?.contact_id}
+              checked={selectedCheckbox.includes(item?.contact_id)}
               onChange={(e) => {
-                const quotesId = item?.id
+                const contactId = item?.contact_id
                 const isChecked = e.target.checked
                 if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, quotesId])
+                  setSelectedCheckbox([...selectedCheckbox, contactId])
                 } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== quotesId))
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== contactId))
                 }
               }}
             />
           ),
 
-          unit: <div>LXDX-{item?.id}</div>,
-          fullName: (
+          title: (
             <div
               style={{
                 minWidth: 120,
               }}
               className="blue-txt"
             >
-              {item?.name}
+              {item?.title}
             </div>
           ),
 
-          mail: <div className="cate-color">{item?.email}</div>,
-          company: (
-            <div>
-              <span>{item?.company} lượt xem</span>
-            </div>
-          ),
-          post: <div>{moment.unix(item?.date_post).format('hh:mm:ss A, DD/MM/YYYY')}</div>,
-          seen:
-            item?.display === 1 ? (
-              <CIcon icon={cilEnvelopeOpen} />
-            ) : (
-              <CIcon icon={cilEnvelopeClosed} className="text-warning" />
-            ),
+          name: <div className="cate-color">{item?.email}</div>,
+
           actions: (
-            <div style={{ width: 80 }}>
+            <div>
               <button
-                onClick={() => handleEditClick(item?.id)}
+                onClick={() => handleEditClick(item?.contact_id)}
                 className="button-action mr-2 bg-info"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
@@ -213,7 +158,7 @@ function PriceManagement() {
               <button
                 onClick={() => {
                   setVisible(true)
-                  setDeletedId(item?.id)
+                  setDeletedId(item?.contact_id)
                 }}
                 className="button-action bg-danger"
               >
@@ -237,7 +182,7 @@ function PriceManagement() {
               const isChecked = e.target.checked
               setIsAllCheckbox(isChecked)
               if (isChecked) {
-                const allIds = dataPriceManagement?.data.map((item) => item.id) || []
+                const allIds = dataAddress?.data.map((item) => item.id) || []
                 setSelectedCheckbox(allIds)
               } else {
                 setSelectedCheckbox([])
@@ -248,36 +193,18 @@ function PriceManagement() {
       ),
       _props: { scope: 'col' },
     },
+
     {
-      key: 'unit',
-      label: 'ID',
+      key: 'title',
+      label: 'Tiêu đề',
       _props: { scope: 'col' },
     },
     {
-      key: 'fullName',
-      label: 'Họ tên',
+      key: 'name',
+      label: 'Name',
       _props: { scope: 'col' },
     },
-    {
-      key: 'mail',
-      label: 'Thư điện tử',
-      _props: { scope: 'col' },
-    },
-    {
-      key: 'company',
-      label: 'Tên công ty',
-      _props: { scope: 'col' },
-    },
-    {
-      key: 'post',
-      label: 'Ngày gửi',
-      _props: { scope: 'col' },
-    },
-    {
-      key: 'seen',
-      label: <CIcon icon={cilEnvelopeClosed} />,
-      _props: { scope: 'col' },
-    },
+
     {
       key: 'actions',
       label: 'Tác vụ',
@@ -300,11 +227,20 @@ function PriceManagement() {
 
           <CRow className="mb-3">
             <CCol>
-              <h2>QUẢN LÝ BÁO GIÁ</h2>
+              <h2>QUẢN LÝ MAIL TEMP</h2>
             </CCol>
             <CCol md={6}>
               <div className="d-flex justify-content-end">
-                <Link to={'/price-management'}>
+                <CButton
+                  onClick={handleAddNewClick}
+                  color="primary"
+                  type="submit"
+                  size="sm"
+                  className="button-add"
+                >
+                  Thêm mới
+                </CButton>
+                <Link to={'/content/mail-temp'}>
                   <CButton color="primary" type="submit" size="sm">
                     Danh sách
                   </CButton>
@@ -332,32 +268,9 @@ function PriceManagement() {
                   <tbody>
                     <tr>
                       <td>Tổng cộng</td>
-                      <td className="total-count">{dataPriceManagement?.total}</td>
+                      <td className="total-count">{dataAddress?.total}</td>
                     </tr>
-                    <tr>
-                      <td>Lọc theo vị trí</td>
-                      <td>
-                        <div className="custom-datepicker-wrapper">
-                          <DatePicker
-                            className="custom-datepicker"
-                            showIcon
-                            dateFormat={'dd-MM-yyyy'}
-                            selected={startDate}
-                            onChange={handleStartDateChange}
-                          />
-                          <p className="datepicker-label">{'đến ngày'}</p>
-                          <DatePicker
-                            className="custom-datepicker"
-                            showIcon
-                            dateFormat={'dd-MM-yyyy'}
-                            selected={endDate}
-                            onChange={handleEndDateChange}
-                          />
-                        </div>
-                        {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                        {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
-                      </td>
-                    </tr>
+
                     <tr>
                       <td>Tìm kiếm</td>
                       <td>
@@ -394,28 +307,6 @@ function PriceManagement() {
                 items={items}
               />
             </CCol>
-
-            <div className="d-flex justify-content-end">
-              <ReactPaginate
-                pageCount={Math.ceil(dataPriceManagement?.total / dataPriceManagement?.per_page)}
-                pageRangeDisplayed={3}
-                marginPagesDisplayed={1}
-                pageClassName="page-item"
-                pageLinkClassName="page-link"
-                previousClassName="page-item"
-                previousLinkClassName="page-link"
-                nextClassName="page-item"
-                nextLinkClassName="page-link"
-                breakLabel="..."
-                breakClassName="page-item"
-                breakLinkClassName="page-link"
-                onPageChange={handlePageChange}
-                containerClassName={'pagination'}
-                activeClassName={'active'}
-                previousLabel={'<<'}
-                nextLabel={'>>'}
-              />
-            </div>
           </CRow>
         </>
       )}
@@ -423,4 +314,4 @@ function PriceManagement() {
   )
 }
 
-export default PriceManagement
+export default MailTemplate

@@ -138,10 +138,10 @@ function AdminInfo() {
               <div>
                 {file.length == 0 ? (
                   <div>
-                    <CImage src={`${imageBaseUrl}${selectedFile}`} width={370} />
+                    <CImage src={`${imageBaseUrl}${selectedFile}`} width={200} />
                   </div>
                 ) : (
-                  file.map((item, index) => <CImage key={index} src={item} width={370} />)
+                  file.map((item, index) => <CImage key={index} src={item} width={200} />)
                 )}
               </div>
             </CCol>

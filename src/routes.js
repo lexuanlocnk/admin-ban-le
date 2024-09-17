@@ -172,6 +172,36 @@ const EditPriceManagement = React.lazy(
   () => import('./views/contact/priceManagement/EditPriceManagement'),
 )
 
+// ADDRESS MANAGEMENT
+const AddressManagement = React.lazy(
+  () => import('./views/contact/addressManagement/addressManagement'),
+)
+const EditAddressManagement = React.lazy(
+  () => import('./views/contact/addressManagement/EditAddressManagement'),
+)
+
+// CONTACT MANAGEMENT
+const ContactManagement = React.lazy(
+  () => import('./views/contact/contactManagement/contactManagement'),
+)
+const EditContactManagement = React.lazy(
+  () => import('./views/contact/contactManagement/EditContactManagement'),
+)
+
+// DEPARTMENT
+const Department = React.lazy(() => import('./views/contact/department/department'))
+
+// SYSTEMS
+const SystemConfig = React.lazy(() => import('./views/system/SystemConfig'))
+const SystemData = React.lazy(() => import('./views/system/SystemData'))
+const SystemBackup = React.lazy(() => import('./views/system/SystemBackup'))
+
+// CONTENT & FORM
+const Menu = React.lazy(() => import('./views/content/Menu'))
+const MailTemp = React.lazy(() => import('./views/content/mailTemp/MailTemplate'))
+const AddMailTemp = React.lazy(() => import('./views/content/mailTemp/AddMailTemplate'))
+const EditMailTemp = React.lazy(() => import('./views/content/mailTemp/EditMailTemplate'))
+
 /** ------------------------------------------------------------------------------------------------------------------ */
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
@@ -597,11 +627,98 @@ const routes = [
   },
 
   // contact
+
+  // bao gia
   { path: '/price-management', name: 'PriceManagement', element: PriceManagement, exact: true },
   {
     path: 'price-management/edit',
     name: 'EditPriceManagement',
     element: EditPriceManagement,
+    exact: true,
+  },
+
+  // so dia chi
+  {
+    path: '/address',
+    name: 'AddressManagement',
+    element: AddressManagement,
+    exact: true,
+  },
+  {
+    path: 'address/edit',
+    name: 'EditAddressManagement',
+    element: EditAddressManagement,
+    exact: true,
+  },
+
+  // lien he
+
+  {
+    path: '/contact',
+    name: 'ContactManagement',
+    element: ContactManagement,
+    exact: true,
+  },
+  {
+    path: 'contact/edit',
+    name: 'EditContactManagement',
+    element: EditContactManagement,
+    exact: true,
+  },
+
+  // phong ban
+
+  {
+    path: '/department',
+    name: 'Department',
+    element: Department,
+    exact: true,
+  },
+
+  // he thong
+  {
+    path: '/system-config',
+    name: 'SystemConfig',
+    element: SystemConfig,
+    exact: true,
+  },
+  {
+    path: '/system-data',
+    name: 'SystemData',
+    element: SystemData,
+    exact: true,
+  },
+  {
+    path: '/system-backup',
+    name: 'SystemBackup',
+    element: SystemBackup,
+    exact: true,
+  },
+
+  // hinh thuc noi dung
+  {
+    path: '/content/menu',
+    name: 'Menu',
+    element: Menu,
+    exact: true,
+  },
+
+  {
+    path: '/content/mail-temp',
+    name: 'MailTemp',
+    element: MailTemp,
+    exact: true,
+  },
+  {
+    path: '/content/mail-temp/add',
+    name: 'AddMailTemp',
+    element: AddMailTemp,
+    exact: true,
+  },
+  {
+    path: '/content/mail-temp/edit',
+    name: 'EditMailTemp',
+    element: EditMailTemp,
     exact: true,
   },
 

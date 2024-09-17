@@ -26,6 +26,12 @@ import {
   cilInfo,
   cilPhone,
   cilEnvelopeClosed,
+  cilCog,
+  cilShareAlt,
+  cilPaperPlane,
+  cilBarChart,
+  cilChart,
+  cilColorPalette,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -418,6 +424,16 @@ const _nav = [
     items: [
       {
         component: CNavItem,
+        name: 'Quản lý phòng ban',
+        to: '/department',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý sổ địa chỉ',
+        to: '/address',
+      },
+      {
+        component: CNavItem,
         name: 'Quản lý báo giá',
         to: '/price-management',
       },
@@ -426,13 +442,110 @@ const _nav = [
         name: 'Quản lý liên hệ',
         to: '/contact',
       },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'HÌNH THỨC, NỘI DUNG',
+    to: '/content',
+    icon: <CIcon icon={cilColorPalette} customClassName="nav-icon" />,
+    items: [
       {
         component: CNavItem,
-        name: 'Quản lý sổ địa chỉ',
-        to: '/address',
+        name: 'Quản lý Menu',
+        to: '/content/menu',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý mail template',
+        to: '/content/mail-temp',
       },
     ],
   },
+
+  {
+    component: CNavGroup,
+    name: 'SEO-MẠNG XÃ HỘI',
+    to: '/seo',
+    icon: <CIcon icon={cilShareAlt} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý Icon MXH',
+        to: '/seo/social-icons',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý link website',
+        to: '/seo/links',
+      },
+      {
+        component: CNavItem,
+        name: 'Sitemap XML website',
+        to: '/seo/sitemap',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ NEWSLETTER',
+    to: '/newsletter',
+    icon: <CIcon icon={cilPaperPlane} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý newsletter',
+        to: '/newsletter',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'THÔNG TIN HỆ THỐNG',
+    to: '/system',
+    icon: <CIcon icon={cilCog} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Cấu hình hệ thống',
+        to: '/system-config',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý dữ liệu',
+        to: '/system-data',
+      },
+      {
+        component: CNavItem,
+        name: 'Backup dữ liệu',
+        to: '/system-backup',
+      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Cấu hỉnh API MXH',
+      //   to: '/system-socials',
+      // },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'THỐNG KÊ TRUY CẬP',
+    to: '/access',
+    icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Thống kê truy cập',
+        to: '/access',
+      },
+    ],
+  },
+
+  ///////////////////////////////////////////////////////////////////////////////////////
 
   // {
   //   component: CNavGroup,

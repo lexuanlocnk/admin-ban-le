@@ -159,7 +159,7 @@ function Gift() {
 
   const handleDeleteAll = async () => {
     console.log('>>> check undeal', selectedCheckbox)
-    alert('Chức năng đang thực hiện...')
+    // alert('Chức năng đang thực hiện...')
     // try {
     //   const response = await axiosClient.post(`admin/delete `, {
     //     data: selectedCheckbox,
