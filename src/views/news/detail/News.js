@@ -64,7 +64,7 @@ function News() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchPromotionNewsData(keyword)
+    fetchDataNews(keyword)
   }
 
   const fetchDataNewsCategory = async () => {

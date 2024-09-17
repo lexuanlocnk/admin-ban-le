@@ -105,7 +105,7 @@ function SystemData() {
 
       <CRow>
         <h6>Thông tin dữ liệu</h6>
-        <CTable align="middle" className="mb-0 border" hover responsive>
+        <CTable hover align="middle" className="mb-0 border" responsive>
           <CTableHead color="light">
             <CTableRow>
               <CTableHeaderCell>Table</CTableHeaderCell>
