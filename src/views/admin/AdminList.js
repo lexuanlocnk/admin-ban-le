@@ -127,6 +127,13 @@ function AdminList() {
       }
     } catch (error) {
       console.error('Fetch role adminstrator data is error', error)
+      if (error.response) {
+        if (error.response.status === 500) {
+          navigate('/500')
+        } else if (error.response.status === 404) {
+          navigate('/404')
+        }
+      }
     }
   }
 
@@ -154,7 +161,7 @@ function AdminList() {
     fetchAdminListData()
   }, [])
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -169,6 +176,8 @@ function AdminList() {
         })
         if (response.data.status === true) {
           toast.success('Cập nhật thông tin admin thành công!')
+          resetForm()
+          navigate('/admin/list')
           fetchAdminListData()
         }
 
@@ -177,7 +186,15 @@ function AdminList() {
         }
       } catch (error) {
         console.error('Put data admin is error', error)
-        toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+        if (error.response) {
+          if (error.response.status === 500) {
+            navigate('/500')
+          } else if (error.response.status === 404) {
+            navigate('/404')
+          }
+        } else {
+          toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+        }
       }
     } else {
       //call api post new data
@@ -194,6 +211,8 @@ function AdminList() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới thông tin admin thành công!')
+          resetForm()
+          navigate('/admin/list?sub=add')
           fetchAdminListData()
         }
 
@@ -202,7 +221,15 @@ function AdminList() {
         }
       } catch (error) {
         console.error('Post data admin is error', error)
-        toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+        if (error.response) {
+          if (error.response.status === 500) {
+            navigate('/500')
+          } else if (error.response.status === 404) {
+            navigate('/404')
+          }
+        } else {
+          toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+        }
       }
     }
   }
@@ -297,7 +324,7 @@ function AdminList() {
               }}
             />
           ),
-          username: item.username,
+          username: <div className="blue-txt">{item.username}</div>,
           role: item.roles && item?.roles.length > 0 ? item.roles[0].title : 'Không',
           visited:
             item.lastlogin !== '0'

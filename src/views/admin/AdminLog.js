@@ -1,23 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import {
-  CButton,
-  CCol,
-  CContainer,
-  CFormCheck,
-  CFormSelect,
-  CPagination,
-  CPaginationItem,
-  CRow,
-  CTable,
-} from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow, CTable } from '@coreui/react'
 import ReactPaginate from 'react-paginate'
 import { axiosClient } from '../../axiosConfig'
 import moment from 'moment/moment'
-// import './css/adminLog.css'
+import './css/adminLog.css'
 
-import { convertStringToTimeStamp } from '../../helper/utils'
 import { Link } from 'react-router-dom'
 
 function AdminLog() {
@@ -136,7 +125,7 @@ function AdminLog() {
     adminLogData?.data && adminLogData?.data.length > 0
       ? adminLogData?.data.map((log) => ({
           id: <CFormCheck id="flexCheckDefault" />,
-          username: log?.username,
+          username: <div className="fw-bold">{log?.username}</div>,
           page: log?.cat,
           actions: log?.action,
           nameID: log?.display_name,
@@ -244,25 +233,25 @@ function AdminLog() {
                   <tr>
                     <td>Theo ngày</td>
                     <td>
-                      <div>
-                        <div className="d-flex align-items-center">
-                          <DatePicker
-                            dateFormat={'dd-MM-yyyy'}
-                            showIcon
-                            selected={startDate}
-                            onChange={handleStartDateChange}
-                          />
-                          <p className="m-2">{'đến ngày'}</p>
-                          <DatePicker
-                            dateFormat={'dd-MM-yyyy'}
-                            showIcon
-                            selected={endDate}
-                            onChange={handleEndDateChange}
-                          />
-                        </div>
-                        {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
-                        {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+                      <div className="custom-datepicker-wrapper">
+                        <DatePicker
+                          className="custom-datepicker"
+                          dateFormat={'dd-MM-yyyy'}
+                          showIcon
+                          selected={startDate}
+                          onChange={handleStartDateChange}
+                        />
+                        <p className="datepicker-label">{'đến ngày'}</p>
+                        <DatePicker
+                          className="custom-datepicker"
+                          dateFormat={'dd-MM-yyyy'}
+                          showIcon
+                          selected={endDate}
+                          onChange={handleEndDateChange}
+                        />
                       </div>
+                      {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
+                      {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
                     </td>
                   </tr>
                   <tr>

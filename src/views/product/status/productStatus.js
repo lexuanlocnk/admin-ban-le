@@ -53,11 +53,6 @@ function ProductStatus() {
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
 
-  const [isCollapse, setIsCollapse] = useState(false)
-
-  // search input
-  const [dataSearch, setDataSearch] = useState('')
-
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
 
@@ -155,7 +150,7 @@ function ProductStatus() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -175,6 +170,10 @@ function ProductStatus() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/status')
           fetchDataStatus()
         } else {
           console.error('No data found for the given ID.')
@@ -206,6 +205,10 @@ function ProductStatus() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới trạng thái thành công!')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/status?sub=add')
           fetchDataStatus()
         }
 
@@ -275,10 +278,6 @@ function ProductStatus() {
     } finally {
       setVisible(false)
     }
-  }
-
-  const handleToggleCollapse = () => {
-    setIsCollapse((prevState) => !prevState)
   }
 
   // pagination data

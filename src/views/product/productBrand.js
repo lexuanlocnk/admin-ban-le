@@ -12,7 +12,7 @@ import {
   CTable,
 } from '@coreui/react'
 
-import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { Formik, Form, Field, ErrorMessage, useFormik } from 'formik'
 import * as Yup from 'yup'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Search from '../../components/search/Search'
@@ -53,9 +53,6 @@ function ProductBrand() {
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
 
-  // search input
-  // const [dataSearch, setDataSearch] = useState('')
-
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
 
@@ -66,7 +63,7 @@ function ProductBrand() {
     pageTitle: '',
     metaKeyword: '',
     metaDesc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
@@ -141,7 +138,7 @@ function ProductBrand() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -158,6 +155,11 @@ function ProductBrand() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật thương hiệu thành công')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/brand')
+          fetchDataBrands()
         } else {
           console.error('No data found for the given ID.')
         }
@@ -185,6 +187,10 @@ function ProductBrand() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới thương hiệu thành công!')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/brand?sub=add')
           fetchDataBrands()
         }
 
@@ -550,8 +556,8 @@ function ProductBrand() {
                           as={CFormSelect}
                           id="visible-select"
                           options={[
-                            { label: 'Không', value: '0' },
-                            { label: 'Có', value: '1' },
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
                           ]}
                         />
                         <ErrorMessage name="visible" component="div" className="text-danger" />
