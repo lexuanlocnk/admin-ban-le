@@ -534,13 +534,13 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'THỐNG KÊ TRUY CẬP',
-    to: '/access',
+    to: '/access-statistics',
     icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
         name: 'Thống kê truy cập',
-        to: '/access',
+        to: '/access-statistics',
       },
     ],
   },
