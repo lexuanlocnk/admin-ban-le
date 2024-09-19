@@ -72,7 +72,6 @@ function ProductBrand() {
     pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
     metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
     metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -527,9 +526,10 @@ function ProductBrand() {
                       <CCol md={12}>
                         <label htmlFor="metaKeyword-input">Meta keywords</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaKeyword"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaKeyword-input"
                           text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                         />
@@ -539,9 +539,10 @@ function ProductBrand() {
                       <CCol md={12}>
                         <label htmlFor="metaDesc-input">Meta description</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaDesc"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaDesc-input"
                           text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                         />

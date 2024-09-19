@@ -22,7 +22,6 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import axios from 'axios'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 import moment from 'moment/moment'
 import { toast } from 'react-toastify'
@@ -37,8 +36,6 @@ function AdminList() {
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
-
-  console.log('>>>cehck id', id)
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
@@ -127,13 +124,6 @@ function AdminList() {
       }
     } catch (error) {
       console.error('Fetch role adminstrator data is error', error)
-      if (error.response) {
-        if (error.response.status === 500) {
-          navigate('/500')
-        } else if (error.response.status === 404) {
-          navigate('/404')
-        }
-      }
     }
   }
 
@@ -186,15 +176,6 @@ function AdminList() {
         }
       } catch (error) {
         console.error('Put data admin is error', error)
-        if (error.response) {
-          if (error.response.status === 500) {
-            navigate('/500')
-          } else if (error.response.status === 404) {
-            navigate('/404')
-          }
-        } else {
-          toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-        }
       }
     } else {
       //call api post new data
@@ -221,15 +202,6 @@ function AdminList() {
         }
       } catch (error) {
         console.error('Post data admin is error', error)
-        if (error.response) {
-          if (error.response.status === 500) {
-            navigate('/500')
-          } else if (error.response.status === 404) {
-            navigate('/404')
-          }
-        } else {
-          toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-        }
       }
     }
   }

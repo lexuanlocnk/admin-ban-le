@@ -6,8 +6,6 @@ import {
   CFormInput,
   CFormSelect,
   CFormText,
-  CFormTextarea,
-  CImage,
   CRow,
   CSpinner,
   CTable,
@@ -31,7 +29,6 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber, unformatNumber } from '../../helper/utils'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 
@@ -60,8 +57,6 @@ function ShippingMethod() {
   const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  const [isCollapse, setIsCollapse] = useState(false)
-
   // search input
   const [dataSearch, setDataSearch] = useState('')
 
@@ -76,7 +71,7 @@ function ShippingMethod() {
     title: '',
     name: '',
     charge: '0',
-    visible: '0',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
@@ -160,10 +155,11 @@ function ShippingMethod() {
         })
 
         if (response.data.status === true) {
-          // toast.success('Cập nhật phương thức thành công!')
-          // fetchDataShippingMethod()
-          navigate('/order/shipping-method')
+          toast.success('Cập nhật phương thức thành công!')
+          resetForm()
           setEditorData('')
+          fetchDataShippingMethod()
+          navigate('/order/shipping-method')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -178,6 +174,7 @@ function ShippingMethod() {
     } else {
       //call api post new data
       try {
+        setIsLoading(true)
         const response = await axiosClient.post('admin/shipping-method', {
           title: values.title,
           display: values.visible,
@@ -188,8 +185,10 @@ function ShippingMethod() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới phương thức thành công!')
-
+          resetForm()
+          setEditorData('')
           fetchDataShippingMethod()
+          navigate('/order/shipping-method?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -198,6 +197,8 @@ function ShippingMethod() {
       } catch (error) {
         console.error('Post data shipping method is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -390,13 +391,13 @@ function ShippingMethod() {
               </div>
             </h5>
           ) : (
-            <>
+            <CContainer>
               <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
               <CRow className="mb-3">
-                <CCol>
-                  <h3>PHƯƠNG THỨC VẬN CHUYỂN</h3>
+                <CCol md={6}>
+                  <h2>PHƯƠNG THỨC VẬN CHUYỂN</h2>
                 </CCol>
-                <CCol md={{ span: 6, offset: 6 }}>
+                <CCol md={6}>
                   <div className="d-flex justify-content-end">
                     <CButton
                       onClick={handleAddNewClick}
@@ -498,8 +499,8 @@ function ShippingMethod() {
                               as={CFormSelect}
                               id="visible-select"
                               options={[
-                                { label: 'Không', value: '0' },
-                                { label: 'Có', value: '1' },
+                                { label: 'Không', value: 0 },
+                                { label: 'Có', value: 1 },
                               ]}
                             />
                             <ErrorMessage name="visible" component="div" className="text-danger" />
@@ -581,7 +582,7 @@ function ShippingMethod() {
                   </CCol>
                 </CCol>
               </CRow>
-            </>
+            </CContainer>
           )}
         </div>
       )}

@@ -6,8 +6,6 @@ import {
   CFormInput,
   CFormSelect,
   CFormText,
-  CFormTextarea,
-  CImage,
   CRow,
   CSpinner,
   CTable,
@@ -30,8 +28,6 @@ import Search from '../../components/search/Search'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
-import { CKEditor } from 'ckeditor4-react'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 
@@ -60,8 +56,6 @@ function PaymentMethod() {
   // selected checkbox
   const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
-
-  const [isCollapse, setIsCollapse] = useState(false)
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -147,7 +141,7 @@ function PaymentMethod() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     console.log(values)
     if (isEditing) {
       //call api update data
@@ -162,10 +156,11 @@ function PaymentMethod() {
         })
 
         if (response.data.status === true) {
-          // toast.success('Cập nhật phương thức thành công!')
-          // fetchDataShippingMethod()
-          navigate('/order/payment-method')
+          toast.success('Cập nhật phương thức thành công!')
+          resetForm()
           setEditorData('')
+          fetchDataPaymentMethod()
+          navigate('/order/payment-method')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -180,6 +175,7 @@ function PaymentMethod() {
     } else {
       //call api post new data
       try {
+        setIsLoading(true)
         const response = await axiosClient.post('admin/payment-method ', {
           title: values.title,
           display: values.visible,
@@ -190,7 +186,10 @@ function PaymentMethod() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới phương thức thành công!')
+          resetForm()
+          setEditorData('')
           fetchDataPaymentMethod()
+          navigate('/order/payment-method?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -199,6 +198,8 @@ function PaymentMethod() {
       } catch (error) {
         console.error('Post data payment method is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }

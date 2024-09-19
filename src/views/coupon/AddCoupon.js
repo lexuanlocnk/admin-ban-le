@@ -18,7 +18,6 @@ import {
 import { Link } from 'react-router-dom'
 import './css/addCoupon.css'
 
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 
