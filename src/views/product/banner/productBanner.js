@@ -24,7 +24,6 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
@@ -48,6 +47,7 @@ function ProductBanner() {
   const [selectedCate, setSelectedCate] = useState('')
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   // upload image and show image
@@ -71,20 +71,21 @@ function ProductBanner() {
     title: '',
     image: '',
     url: '',
-    destination: '',
-    categories: '',
+    destination: '_self',
+    categories: 'Laptop',
     width: '',
     height: '',
     desc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    // url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    // destination: Yup.string().required('Chọn vị trí liên kết!'),
-    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
+    destination: Yup.string().required('Chọn vị trí liên kết!'),
+    categories: Yup.string().required('Danh mục đăng ảnh là bắt buộc!'),
+    width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
+    height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -165,9 +166,7 @@ function ProductBanner() {
     }
   }
 
-  const handleSubmit = async (values) => {
-    console.log(values)
-
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -185,6 +184,10 @@ function ProductBanner() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/banner')
           fetchDataBanner()
         } else {
           console.error('No data found for the given ID.')
@@ -214,6 +217,10 @@ function ProductBanner() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật banner sản phẩm thành công!')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/banner?sub=add')
           fetchDataBanner()
         }
 
@@ -316,8 +323,48 @@ function ProductBanner() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả các danh mục thành công!')
+    //     fetchDataBanner()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataBanner?.data.map((item) => item.id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'images', label: 'Hình ảnh' },
     { key: 'url', label: 'Liên kết' },
     { key: 'dimensions', label: 'Kích thước' },
@@ -327,10 +374,28 @@ function ProductBanner() {
   const items =
     dataBanner?.data && dataBanner?.data.length > 0
       ? dataBanner?.data.map((item) => ({
-          id: <CFormCheck id="flexCheckDefault" />,
+          id: (
+            <CFormCheck
+              key={item?.id}
+              aria-label="Default select example"
+              defaultChecked={item?.id}
+              id={`flexCheckDefault_${item?.id}`}
+              value={item?.id}
+              checked={selectedCheckbox.includes(item?.id)}
+              onChange={(e) => {
+                const bannerID = item?.id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, bannerID])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== bannerID))
+                }
+              }}
+            />
+          ),
           images: <CImage className="border" fluid src={`${imageBaseUrl}${item.picture}`} />,
           url: item.link,
-          dimensions: `${item.width}X${item.height}`,
+          dimensions: `${item.width}x${item.height}`,
           actions: (
             <div>
               <button
@@ -649,6 +714,11 @@ function ProductBanner() {
               </table>
 
               <CCol className="mt-4">
+                <CCol md={12} className="mt-3">
+                  <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                    Xóa vĩnh viễn
+                  </CButton>
+                </CCol>
                 <CTable>
                   <thead>
                     <tr>

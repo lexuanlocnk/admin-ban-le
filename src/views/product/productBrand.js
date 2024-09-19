@@ -12,7 +12,7 @@ import {
   CTable,
 } from '@coreui/react'
 
-import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { Formik, Form, Field, ErrorMessage, useFormik } from 'formik'
 import * as Yup from 'yup'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Search from '../../components/search/Search'
@@ -46,14 +46,12 @@ function ProductBrand() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
-
-  // search input
-  // const [dataSearch, setDataSearch] = useState('')
 
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
@@ -65,7 +63,7 @@ function ProductBrand() {
     pageTitle: '',
     metaKeyword: '',
     metaDesc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
@@ -74,7 +72,6 @@ function ProductBrand() {
     pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
     metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
     metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -140,7 +137,7 @@ function ProductBrand() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -157,6 +154,11 @@ function ProductBrand() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật thương hiệu thành công')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/brand')
+          fetchDataBrands()
         } else {
           console.error('No data found for the given ID.')
         }
@@ -184,6 +186,10 @@ function ProductBrand() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới thương hiệu thành công!')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/brand?sub=add')
           fetchDataBrands()
         }
 
@@ -268,6 +274,28 @@ function ProductBrand() {
     fetchDataBrands(keyword)
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    // alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả các danh mục thành công!')
+    //     fetchDataBrands()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const items =
     dataBrands && dataBrands?.length > 0
       ? dataBrands.map((item) => ({
@@ -322,8 +350,22 @@ function ProductBrand() {
   const columns = [
     {
       key: 'id',
-      label: '#',
-      _props: { scope: 'col' },
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataBrands?.map((item) => item.brandId) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
     },
     {
       key: 'title',
@@ -484,9 +526,10 @@ function ProductBrand() {
                       <CCol md={12}>
                         <label htmlFor="metaKeyword-input">Meta keywords</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaKeyword"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaKeyword-input"
                           text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                         />
@@ -496,9 +539,10 @@ function ProductBrand() {
                       <CCol md={12}>
                         <label htmlFor="metaDesc-input">Meta description</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaDesc"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaDesc-input"
                           text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                         />
@@ -513,8 +557,8 @@ function ProductBrand() {
                           as={CFormSelect}
                           id="visible-select"
                           options={[
-                            { label: 'Không', value: '0' },
-                            { label: 'Có', value: '1' },
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
                           ]}
                         />
                         <ErrorMessage name="visible" component="div" className="text-danger" />
@@ -534,6 +578,11 @@ function ProductBrand() {
 
             <CCol>
               <Search count={countBrand} onSearchData={handleSearch} />
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CTable className="mt-2" columns={columns} items={items} />
 
               <div className="d-flex justify-content-end">

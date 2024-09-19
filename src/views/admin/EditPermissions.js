@@ -48,6 +48,13 @@ function EditPermissions() {
       }
     } catch (error) {
       console.error('Fetch permissions data is error', error.message)
+      if (error.response) {
+        if (error.response.status === 500) {
+          navigate('/500')
+        } else if (error.response.status === 404) {
+          navigate('/404')
+        }
+      }
     }
   }
 
@@ -56,8 +63,6 @@ function EditPermissions() {
   }, [])
 
   const handleSubmit = async () => {
-    console.log('>>> cehck permissions arr', selectedPermissions)
-
     try {
       const response = await axiosClient.put(`admin/role/${id}`, {
         title: title,
@@ -71,7 +76,15 @@ function EditPermissions() {
       }
     } catch (error) {
       console.error('Put role adminstrator data is error', error)
-      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      if (error.response) {
+        if (error.response.status === 500) {
+          navigate('/500')
+        } else if (error.response.status === 404) {
+          navigate('/404')
+        }
+      } else {
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     }
   }
 

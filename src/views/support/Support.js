@@ -46,6 +46,7 @@ function Support() {
   const [selectedGroup, setSelectedGroup] = useState('')
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const [isCollapse, setIsCollapse] = useState(false)
@@ -114,7 +115,6 @@ function Support() {
         `admin/support?data=${dataSearch}&page=${pageNumber}&group=${selectedGroup}`,
       )
       const data = response.data.data
-
       if (response.data.status === true) {
         setDataSupport(data)
       }
@@ -275,8 +275,48 @@ function Support() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả danh mục thành công!')
+    //     fetchSupportData()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataSupport?.data.map((item) => item.id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'name', label: 'Tên' },
     { key: 'phone', label: 'Điện thoại' },
     { key: 'email', label: 'Thư điện tử' },
@@ -288,7 +328,25 @@ function Support() {
   const items =
     dataSupport?.data && dataSupport?.data.length > 0
       ? dataSupport?.data.map((item) => ({
-          id: <CFormCheck id="flexCheckDefault" />,
+          id: (
+            <CFormCheck
+              key={item?.id}
+              aria-label="Default select example"
+              defaultChecked={item?.id}
+              id={`flexCheckDefault_${item?.id}`}
+              checked={selectedCheckbox.includes(item?.id)}
+              value={item.id}
+              onChange={(e) => {
+                const supportId = item.id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, supportId])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== supportId))
+                }
+              }}
+            />
+          ),
           name: item?.title,
           phone: item.phone,
           email: item.email,
@@ -529,6 +587,11 @@ function Support() {
               </table>
 
               <CCol className="mt-4">
+                <CCol md={12} className="mt-3">
+                  <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                    Xóa vĩnh viễn
+                  </CButton>
+                </CCol>
                 <CTable>
                   <thead>
                     <tr>

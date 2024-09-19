@@ -38,6 +38,13 @@ function ProductCategory() {
       }
     } catch (error) {
       console.error('Fetch data categories is error', error)
+      if (error.response) {
+        if (error.response.status === 500) {
+          navigate('/500')
+        } else if (error.response.status === 404) {
+          navigate('/404')
+        }
+      }
     }
   }
 

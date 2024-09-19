@@ -25,7 +25,6 @@ import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
 import Search from '../../../components/search/Search'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
@@ -46,16 +45,12 @@ function ProductStatus() {
   const [dataProductStatus, setDataProductStatus] = useState([])
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
-
-  const [isCollapse, setIsCollapse] = useState(false)
-
-  // search input
-  const [dataSearch, setDataSearch] = useState('')
 
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
@@ -76,15 +71,18 @@ function ProductStatus() {
     pageTitle: '',
     metaKeyword: '',
     metaDesc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
     name: Yup.string().required('Name là bắt buộc!'),
-    // destination: Yup.string().required('Chọn vị trí liên kết!'),
-    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    width: Yup.string().required('Chiều rộng ảnh là bắt buộc!'),
+    height: Yup.string().required('Chiều cao ảnh là bắt buộc!'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    pageTitle: Yup.string().required('Tiêu đề trang là bắt buộc.'),
+    metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
+    metaDesc: Yup.string().required('Meta description là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -154,7 +152,7 @@ function ProductStatus() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -174,6 +172,10 @@ function ProductStatus() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/status')
           fetchDataStatus()
         } else {
           console.error('No data found for the given ID.')
@@ -205,6 +207,10 @@ function ProductStatus() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới trạng thái thành công!')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/status?sub=add')
           fetchDataStatus()
         }
 
@@ -276,10 +282,6 @@ function ProductStatus() {
     }
   }
 
-  const handleToggleCollapse = () => {
-    setIsCollapse((prevState) => !prevState)
-  }
-
   // pagination data
   const handlePageChange = ({ selected }) => {
     const newPage = selected + 1
@@ -307,8 +309,48 @@ function ProductStatus() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    // alert('chức năng đang thừc hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả danh mục thành công!')
+    //     fetchDataStatus()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataProductStatus?.data.map((item) => item.status_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'images', label: 'Hình ảnh' },
     { key: 'name', label: 'Name' },
@@ -318,7 +360,25 @@ function ProductStatus() {
   const items =
     dataProductStatus?.data && dataProductStatus?.data.length > 0
       ? dataProductStatus?.data.map((item) => ({
-          id: <CFormCheck id="flexCheckDefault" />,
+          id: (
+            <CFormCheck
+              key={item.status_id}
+              aria-label="Default select example"
+              defaultChecked={item?.status_id}
+              id={`flexCheckDefault_${item?.status_id}`}
+              value={item?.status_id}
+              checked={selectedCheckbox.includes(item?.status_id)}
+              onChange={(e) => {
+                const statusID = item?.status_id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, statusID])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== statusID))
+                }
+              }}
+            />
+          ),
           title: item.product_status_desc?.title,
           images: <CImage fluid src={`${imageBaseUrl}${item.picture}`} width={80} />,
           name: item.name,
@@ -533,9 +593,10 @@ function ProductStatus() {
                       <CCol md={12}>
                         <label htmlFor="metaKeyword-input">Meta keywords</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaKeyword"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaKeyword-input"
                           text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                         />
@@ -545,9 +606,10 @@ function ProductStatus() {
                       <CCol md={12}>
                         <label htmlFor="metaDesc-input">Meta description</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaDesc"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaDesc-input"
                           text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                         />
@@ -562,8 +624,8 @@ function ProductStatus() {
                           as={CFormSelect}
                           id="visible-select"
                           options={[
-                            { label: 'Không', value: '0' },
-                            { label: 'Có', value: '1' },
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
                           ]}
                         />
                         <ErrorMessage name="visible" component="div" className="text-danger" />
@@ -582,6 +644,11 @@ function ProductStatus() {
             </CCol>
             <CCol md={8}>
               <Search count={dataProductStatus?.total} onSearchData={handleSearch} />
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CCol className="mt-4">
                 <CTable hover>
                   <thead>

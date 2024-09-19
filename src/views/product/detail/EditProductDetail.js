@@ -452,10 +452,10 @@ function EditProductDetail() {
                                         <th>{prop.title}</th>
                                         <td>
                                           <CFormTextarea
-                                            id={`textarea_${prop.op_id}`}
-                                            value={tech[prop.op_id] || ''}
+                                            id={`textarea_${prop?.op_id}`}
+                                            value={tech?.[prop?.op_id] || ''}
                                             onChange={(e) =>
-                                              handleTextareaChange(prop.op_id, e.target.value)
+                                              handleTextareaChange(prop?.op_id, e.target.value)
                                             }
                                           ></CFormTextarea>
 

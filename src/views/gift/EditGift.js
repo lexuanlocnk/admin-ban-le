@@ -17,7 +17,6 @@ import {
 } from '@coreui/react'
 import { Link, useLocation } from 'react-router-dom'
 
-import axios from 'axios'
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber } from 'chart.js/helpers'
 import { unformatNumber } from '../../helper/utils'
@@ -147,8 +146,6 @@ function EditGift() {
   const handleEditorChange = (data) => {
     setEditorData(data)
   }
-
-  console.log('>>> cehck edit ', isPermissionCheck)
 
   return (
     <CContainer>

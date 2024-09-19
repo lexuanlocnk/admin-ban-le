@@ -22,7 +22,6 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import axios from 'axios'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 import moment from 'moment/moment'
 import { toast } from 'react-toastify'
@@ -37,8 +36,6 @@ function AdminList() {
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
-
-  console.log('>>>cehck id', id)
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
@@ -154,7 +151,7 @@ function AdminList() {
     fetchAdminListData()
   }, [])
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -169,6 +166,8 @@ function AdminList() {
         })
         if (response.data.status === true) {
           toast.success('Cập nhật thông tin admin thành công!')
+          resetForm()
+          navigate('/admin/list')
           fetchAdminListData()
         }
 
@@ -177,7 +176,6 @@ function AdminList() {
         }
       } catch (error) {
         console.error('Put data admin is error', error)
-        toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
       }
     } else {
       //call api post new data
@@ -194,6 +192,8 @@ function AdminList() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới thông tin admin thành công!')
+          resetForm()
+          navigate('/admin/list?sub=add')
           fetchAdminListData()
         }
 
@@ -202,7 +202,6 @@ function AdminList() {
         }
       } catch (error) {
         console.error('Post data admin is error', error)
-        toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
       }
     }
   }
@@ -297,7 +296,7 @@ function AdminList() {
               }}
             />
           ),
-          username: item.username,
+          username: <div className="blue-txt">{item.username}</div>,
           role: item.roles && item?.roles.length > 0 ? item.roles[0].title : 'Không',
           visited:
             item.lastlogin !== '0'

@@ -7,7 +7,6 @@ import {
   CFormInput,
   CFormSelect,
   CFormTextarea,
-  CImage,
   CRow,
   CTable,
 } from '@coreui/react'
@@ -21,11 +20,10 @@ import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
 
-function NewsCategory() {
+function Department() {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -39,8 +37,7 @@ function NewsCategory() {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
-  const [dataNewsCategory, setDataNewsCategroy] = useState([])
-  const [countNewsCategory, setCountNewsCategory] = useState(null)
+  const [dataDepartment, setDataDepartment] = useState([])
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -55,21 +52,18 @@ function NewsCategory() {
 
   const initialValues = {
     title: '',
+    email: '',
+    phone: '',
     description: '',
-    friendlyUrl: '',
-    pageTitle: '',
-    metaKeyword: '',
-    metaDesc: '',
     visible: 0,
   }
 
   const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    title: Yup.string().required('Tiêu đề là bắt buộc.').min(5, 'Tiêu đề phải có ít nhất 5 ký tự.'),
+    email: Yup.string().required('Email là bắt buộc.').email('Email không hợp lệ.'),
+    visible: Yup.number()
+      .required('Trường này là bắt buộc.')
+      .oneOf([0, 1], 'Giá trị phải là 0 hoặc 1.'),
   })
 
   useEffect(() => {
@@ -83,45 +77,46 @@ function NewsCategory() {
     }
   }, [location.search])
 
-  const fetchDataNewsCategory = async (dataSearch = '') => {
+  const fetchDataDepartment = async (dataSearch = '') => {
     try {
       const response = await axiosClient.get(
-        `admin/news-category?data=${dataSearch}&page=${pageNumber}`,
+        `admin/contact-staff?data=${dataSearch}&page=${pageNumber}`,
       )
+
       if (response.data.status === true) {
-        setDataNewsCategroy(response.data.list)
+        setDataDepartment(response.data.data)
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
         setIsPermissionCheck(false)
       }
     } catch (error) {
-      console.error('Fetch data product brand is error', error)
+      console.error('Fetch data department is error', error)
     }
   }
 
   useEffect(() => {
-    fetchDataNewsCategory()
+    fetchDataDepartment()
   }, [pageNumber])
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/news-category/${id}/edit`)
-      const data = response.data.newsCategory
+      const response = await axiosClient.get(`admin/contact-staff/${id}/edit`)
+      const data = response.data.contactStaff
       if (data) {
         setValues({
-          title: data?.news_category_desc.cat_name,
-          description: data?.news_category_desc.description,
-          friendlyUrl: data?.news_category_desc.friendly_url,
-          pageTitle: data?.news_category_desc.friendly_title,
-          metaKeyword: data?.news_category_desc.metakey,
-          metaDesc: data?.news_category_desc.metadesc,
-          visible: data.display,
+          title: data?.title,
+          email: data?.email,
+          phone: data?.phone,
+          description: data?.description,
+          visible: data?.display,
         })
+        setSelectedFile(data.picture)
       } else {
         console.error('No data found for the given ID.')
       }
 
+      // phân quyền tác vụ edit
       if (
         sub == 'edit' &&
         response.data.status === false &&
@@ -130,88 +125,91 @@ function NewsCategory() {
         toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
-      console.error('Fetch data id news category is error', error.message)
+      console.error('Fetch data id department is error', error.message)
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
-        const response = await axiosClient.put(`admin/news-category/${id}`, {
-          cat_name: values.title,
+        const response = await axiosClient.put(`admin/contact-staff/${id}`, {
+          title: values.title,
+          email: values.email,
+          phone: values.phone,
           description: values.description,
-          friendly_url: values.friendlyUrl,
-          friendly_title: values.pageTitle,
-          metakey: values.metaKeyword,
-          metadesc: values.metaDesc,
           display: values.visible,
         })
         if (response.data.status === true) {
-          toast.success('Cập nhật danh mục thành công')
-          fetchDataNewsCategory()
+          toast.success('Cập nhật phòng ban thành công')
+          resetForm()
+          navigate('/department')
+          fetchDataDepartment()
         } else {
           console.error('No data found for the given ID.')
         }
 
+        // phân quyền tác vụ update
         if (response.data.status === false && response.data.mess == 'no permission') {
           toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
-        console.error('Put data id news category is error', error.message)
+        console.error('Put data id department is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
     } else {
       //call api post new data
       try {
-        const response = await axiosClient.post('admin/news-category', {
-          cat_name: values.title,
+        const response = await axiosClient.post('admin/contact-staff', {
+          title: values.title,
+          email: values.email,
+          phone: values.phone,
           description: values.description,
-          friendly_url: values.friendlyUrl,
-          friendly_title: values.pageTitle,
-          metakey: values.metaKeyword,
-          metadesc: values.metaDesc,
           display: values.visible,
         })
 
         if (response.data.status === true) {
-          toast.success('Thêm mới danh mục thành công!')
-          fetchDataNewsCategory()
+          toast.success('Thêm mới phòng ban thành công!')
+          fetchDataDepartment()
+          resetForm()
+          navigate('/department?sub=add')
         }
 
+        // phân quyền tác vụ add
         if (response.data.status === false && response.data.mess == 'no permission') {
           toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
-        console.error('Post data news category is error', error)
+        console.error('Post data department is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
     }
   }
 
   const handleAddNewClick = () => {
-    navigate('/news/category?sub=add')
+    navigate('/department?sub=add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/news/category?id=${id}&sub=edit`)
+    navigate(`/department?id=${id}&sub=edit`)
   }
 
   // delete row
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/news-category/${deletedId}`)
+      const response = await axiosClient.delete(`admin/contact-staff/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
-        fetchDataNewsCategory()
+        fetchDataDepartment()
       }
 
+      // phân quyền tác vụ delete
       if (response.data.status === false && response.data.mess == 'no permission') {
         toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
-      console.error('Delete brand id is error', error)
+      console.error('Delete department id is error', error)
       toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
     }
   }
@@ -230,58 +228,35 @@ function NewsCategory() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataNewsCategory(keyword)
-  }
-  const handleDeleteAll = async () => {
-    console.log('>>> check undeal', selectedCheckbox)
-    alert('Chức năng đang thực hiện...')
-    // try {
-    //   const response = await axiosClient.post(`admin/delete `, {
-    //     data: selectedCheckbox,
-    //   })
-
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả danh mục thành công!')
-    //     fetchDataNewsCategory()
-    //     setSelectedCheckbox([])
-    //   }
-
-    //   if (response.data.status === false && response.data.mess == 'no permission') {
-    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //   }
-    // } catch (error) {
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+    fetchDataDepartment(keyword)
   }
 
   const items =
-    dataNewsCategory && dataNewsCategory?.length > 0
-      ? dataNewsCategory.map((item) => ({
+    dataDepartment?.data && dataDepartment?.data?.length > 0
+      ? dataDepartment?.data.map((item) => ({
           id: (
             <CFormCheck
-              key={item?.cat_id}
-              aria-label="Default select example"
-              defaultChecked={item?.cat_id}
-              id={`flexCheckDefault_${item?.cat_id}`}
-              value={item?.cat_id}
-              checked={selectedCheckbox.includes(item?.cat_id)}
+              id={item.staff_id}
+              checked={selectedCheckbox.includes(item.staff_id)}
+              value={item.staff_id}
               onChange={(e) => {
-                const categoriesId = item?.cat_id
+                const idx = item.staff_id
                 const isChecked = e.target.checked
                 if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, categoriesId])
+                  setSelectedCheckbox([...selectedCheckbox, idx])
                 } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== categoriesId))
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== idx))
                 }
               }}
             />
           ),
-          title: item?.news_category_desc?.cat_name,
-          url: item?.news_category_desc?.friendly_url,
+          title: item?.title,
+
+          mail: item?.email,
           actions: (
             <div>
               <button
-                onClick={() => handleEditClick(item.cat_id)}
+                onClick={() => handleEditClick(item.staff_id)}
                 className="button-action mr-2 bg-info"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
@@ -289,7 +264,7 @@ function NewsCategory() {
               <button
                 onClick={() => {
                   setVisible(true)
-                  setDeletedId(item.cat_id)
+                  setDeletedId(item.staff_id)
                 }}
                 className="button-action bg-danger"
               >
@@ -312,7 +287,7 @@ function NewsCategory() {
             const isChecked = e.target.checked
             setIsAllCheckbox(isChecked)
             if (isChecked) {
-              const allIds = dataNewsCategory?.map((item) => item.cat_id) || []
+              const allIds = dataDepartment?.data.map((item) => item.staff_id) || []
               setSelectedCheckbox(allIds)
             } else {
               setSelectedCheckbox([])
@@ -320,24 +295,36 @@ function NewsCategory() {
           }}
         />
       ),
+      _props: { scope: 'col' },
     },
     {
       key: 'title',
       label: 'Tiêu đề',
       _props: { scope: 'col' },
     },
-
     {
-      key: 'url',
-      label: 'Chuỗi đường dẫn',
+      key: 'mail',
+      label: 'Thư điện tử',
       _props: { scope: 'col' },
     },
+
     {
       key: 'actions',
       label: 'Tác vụ',
       _props: { scope: 'col' },
     },
   ]
+
+  const handleDeleteSelectedCheckbox = async () => {
+    console.log('>>> selectedCheckbox', selectedCheckbox)
+    // try {
+    //   const response = await axiosClient.post('admin/delete-all-comment', {
+    //     data: selectedCheckbox,
+    //   })
+    // } catch (error) {
+    //   console.error('Delete selected checkbox is error', error)
+    // }
+  }
 
   return (
     <CContainer>
@@ -353,7 +340,7 @@ function NewsCategory() {
           <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
           <CRow className="mb-3">
             <CCol md={6}>
-              <h3>DANH MỤC TIN TỨC</h3>
+              <h2>QUẢN LÝ PHÒNG BAN</h2>
             </CCol>
             <CCol md={6}>
               <div className="d-flex justify-content-end">
@@ -366,7 +353,7 @@ function NewsCategory() {
                 >
                   Thêm mới
                 </CButton>
-                <Link to={'/product/brand'}>
+                <Link to={'/department'}>
                   <CButton color="primary" type="submit" size="sm">
                     Danh sách
                   </CButton>
@@ -377,7 +364,7 @@ function NewsCategory() {
 
           <CRow>
             <CCol md={4}>
-              <h6>{!isEditing ? 'Thêm danh mục mới' : 'Cập nhật danh mục'}</h6>
+              <h6>{!isEditing ? 'Thêm thương hiệu mới' : 'Cập nhật thương hiệu'}</h6>
               <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
@@ -407,6 +394,19 @@ function NewsCategory() {
                       <br />
 
                       <CCol md={12}>
+                        <label htmlFor="email-input">Thư điện tử</label>
+                        <Field name="email" type="email" as={CFormInput} id="email-input" />
+                        <ErrorMessage name="email" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+                      <CCol md={12}>
+                        <label htmlFor="phone-input">Điện thoại</label>
+                        <Field name="phone" type="number" as={CFormInput} id="phone-input" />
+                        <ErrorMessage name="phone" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
                         <label htmlFor="desc-input">Mô tả</label>
                         <Field
                           style={{ height: '100px' }}
@@ -419,56 +419,6 @@ function NewsCategory() {
                         <ErrorMessage name="description" component="div" className="text-danger" />
                       </CCol>
                       <br />
-                      <h6>Search Engine Optimization</h6>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="url-input">Chuỗi đường dẫn</label>
-                        <Field
-                          name="friendlyUrl"
-                          type="text"
-                          as={CFormInput}
-                          id="url-input"
-                          text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
-                        />
-                        <ErrorMessage name="email" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="pageTitle-input">Tiêu đề trang</label>
-                        <Field
-                          name="pageTitle"
-                          type="text"
-                          as={CFormInput}
-                          id="pageTitle-input"
-                          text="Độ dài của tiêu đề trang tối đa 60 ký tự."
-                        />
-                        <ErrorMessage name="pageTitle" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="metaKeyword-input">Meta keywords</label>
-                        <Field
-                          name="metaKeyword"
-                          type="text"
-                          as={CFormTextarea}
-                          id="metaKeyword-input"
-                          text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
-                        />
-                        <ErrorMessage name="metaKeyword" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="metaDesc-input">Meta description</label>
-                        <Field
-                          name="metaDesc"
-                          type="text"
-                          as={CFormTextarea}
-                          id="metaDesc-input"
-                          text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
-                        />
-                        <ErrorMessage name="metaDesc" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
 
                       <CCol md={12}>
                         <label htmlFor="visible-select">Hiển thị</label>
@@ -477,8 +427,8 @@ function NewsCategory() {
                           as={CFormSelect}
                           id="visible-select"
                           options={[
-                            { label: 'Không', value: '0' },
-                            { label: 'Có', value: '1' },
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
                           ]}
                         />
                         <ErrorMessage name="visible" component="div" className="text-danger" />
@@ -497,17 +447,17 @@ function NewsCategory() {
             </CCol>
 
             <CCol>
-              <Search count={dataNewsCategory?.length} onSearchData={handleSearch} />
+              <Search count={dataDepartment?.total} onSearchData={handleSearch} />
               <CCol md={12} className="mt-3">
-                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
-              <CTable className="mt-2" columns={columns} items={items} />
+              <CTable className="mt-3" columns={columns} items={items} />
 
               <div className="d-flex justify-content-end">
                 <ReactPaginate
-                  pageCount={Math.ceil(dataNewsCategory?.length / 15)}
+                  pageCount={Math.ceil(dataDepartment?.total / dataDepartment?.per_page)}
                   pageRangeDisplayed={3}
                   marginPagesDisplayed={1}
                   pageClassName="page-item"
@@ -534,4 +484,4 @@ function NewsCategory() {
   )
 }
 
-export default NewsCategory
+export default Department

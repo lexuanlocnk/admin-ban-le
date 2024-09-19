@@ -1,10 +1,11 @@
 import { CButton, CCol, CContainer, CForm, CFormInput, CImage, CRow } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 import { toast } from 'react-toastify'
 
 function AdminInfo() {
+  const navigate = useNavigate()
   const [userName, setUserName] = useState('')
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -79,7 +80,15 @@ function AdminInfo() {
       }
     } catch (error) {
       console.error('Put data admin info is error', error)
-      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+      if (error.response) {
+        if (error.response.status === 500) {
+          navigate('/500')
+        } else if (error.response.status === 404) {
+          navigate('/404')
+        }
+      } else {
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     }
   }
 

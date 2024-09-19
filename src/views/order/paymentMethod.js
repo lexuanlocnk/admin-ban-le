@@ -6,8 +6,6 @@ import {
   CFormInput,
   CFormSelect,
   CFormText,
-  CFormTextarea,
-  CImage,
   CRow,
   CSpinner,
   CTable,
@@ -30,8 +28,6 @@ import Search from '../../components/search/Search'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
-import { CKEditor } from 'ckeditor4-react'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 
@@ -58,9 +54,8 @@ function PaymentMethod() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
-
-  const [isCollapse, setIsCollapse] = useState(false)
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -146,7 +141,7 @@ function PaymentMethod() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     console.log(values)
     if (isEditing) {
       //call api update data
@@ -161,10 +156,11 @@ function PaymentMethod() {
         })
 
         if (response.data.status === true) {
-          // toast.success('Cập nhật phương thức thành công!')
-          // fetchDataShippingMethod()
-          navigate('/order/payment-method')
+          toast.success('Cập nhật phương thức thành công!')
+          resetForm()
           setEditorData('')
+          fetchDataPaymentMethod()
+          navigate('/order/payment-method')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -179,6 +175,7 @@ function PaymentMethod() {
     } else {
       //call api post new data
       try {
+        setIsLoading(true)
         const response = await axiosClient.post('admin/payment-method ', {
           title: values.title,
           display: values.visible,
@@ -189,7 +186,10 @@ function PaymentMethod() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới phương thức thành công!')
+          resetForm()
+          setEditorData('')
           fetchDataPaymentMethod()
+          navigate('/order/payment-method?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -198,6 +198,8 @@ function PaymentMethod() {
       } catch (error) {
         console.error('Post data payment method is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -264,8 +266,48 @@ function PaymentMethod() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    //   try {
+    //     const response = await axiosClient.post(`admin/delete `, {
+    //       data: selectedCheckbox,
+    //     })
+
+    //     if (response.data.status === true) {
+    //       toast.success('Xóa tất cả thành công!')
+    //       fetchDataPaymentMethod()
+    //       setSelectedCheckbox([])
+    //     }
+
+    //     if (response.data.status === false && response.data.mess == 'no permission') {
+    //       toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //     }
+    //   } catch (error) {
+    //     toast.error('Đã xảy ra lỗi. Vui long thử lại!')
+    //   }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataPaymentMethod?.data.map((item) => item.payment_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'name', label: 'Name' },
     { key: 'config', label: 'Cấu hình' },
@@ -274,7 +316,24 @@ function PaymentMethod() {
 
   const items = dataPaymentMethod?.data
     ? dataPaymentMethod?.data.map((method) => ({
-        id: <CFormCheck id="flexCheckDefault" />,
+        id: (
+          <CFormCheck
+            key={method?.payment_id}
+            defaultChecked={method?.payment_id}
+            id={`flexCheckDefault_${method?.payment_id}`}
+            value={method?.payment_id}
+            checked={selectedCheckbox.includes(method?.payment_id)}
+            onChange={(e) => {
+              const paymentId = method?.payment_id
+              const isChecked = e.target.checked
+              if (isChecked) {
+                setSelectedCheckbox([...selectedCheckbox, paymentId])
+              } else {
+                setSelectedCheckbox(selectedCheckbox.filter((id) => id !== paymentId))
+              }
+            }}
+          />
+        ),
         title: <span className="blue-txt">{method.title}</span>,
         name: (
           <span
@@ -463,6 +522,11 @@ function PaymentMethod() {
                 </CCol>
                 <CCol md={8}>
                   <Search count={dataPaymentMethod?.total} onSearchData={handleSearch} />
+                  <CCol md={12} className="mt-3">
+                    <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                      Xóa vĩnh viễn
+                    </CButton>
+                  </CCol>
                   <CCol className="mt-4">
                     <CTable hover={true} className="border">
                       <thead>

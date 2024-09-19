@@ -12,16 +12,12 @@ import {
   CImage,
   CRow,
 } from '@coreui/react'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 import { Link } from 'react-router-dom'
 
 function AddProductCategory() {
   const [categories, setCategories] = useState([])
-
-  // const [brands, setBrands] = useState([])
-  // const [dataCustomerSupport, setDataCustomerSupport] = useState([])
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
@@ -128,7 +124,6 @@ function AddProductCategory() {
   }
 
   const handleSubmit = async (values) => {
-    console.log('>>>check values', values)
     // async requets fetch
     try {
       const response = await axiosClient.post('admin/category', {
@@ -157,7 +152,15 @@ function AddProductCategory() {
       }
     } catch (error) {
       console.error('Post product category data error', error)
-      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      if (error.response) {
+        if (error.response.status === 500) {
+          navigate('/500')
+        } else if (error.response.status === 404) {
+          navigate('/404')
+        }
+      } else {
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     }
   }
   return (

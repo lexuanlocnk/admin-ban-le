@@ -18,7 +18,6 @@ import {
 } from '@coreui/react'
 import { Link } from 'react-router-dom'
 
-import axios from 'axios'
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber } from '../../helper/utils'
 import { unformatNumber } from '../../helper/utils'

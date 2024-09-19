@@ -6,8 +6,6 @@ import {
   CFormInput,
   CFormSelect,
   CFormText,
-  CFormTextarea,
-  CImage,
   CRow,
   CSpinner,
   CTable,
@@ -31,7 +29,6 @@ import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber, unformatNumber } from '../../helper/utils'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 
@@ -57,9 +54,8 @@ function ShippingMethod() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
-
-  const [isCollapse, setIsCollapse] = useState(false)
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -75,7 +71,7 @@ function ShippingMethod() {
     title: '',
     name: '',
     charge: '0',
-    visible: '0',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
@@ -159,10 +155,11 @@ function ShippingMethod() {
         })
 
         if (response.data.status === true) {
-          // toast.success('Cập nhật phương thức thành công!')
-          // fetchDataShippingMethod()
-          navigate('/order/shipping-method')
+          toast.success('Cập nhật phương thức thành công!')
+          resetForm()
           setEditorData('')
+          fetchDataShippingMethod()
+          navigate('/order/shipping-method')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -177,6 +174,7 @@ function ShippingMethod() {
     } else {
       //call api post new data
       try {
+        setIsLoading(true)
         const response = await axiosClient.post('admin/shipping-method', {
           title: values.title,
           display: values.visible,
@@ -187,8 +185,10 @@ function ShippingMethod() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới phương thức thành công!')
-
+          resetForm()
+          setEditorData('')
           fetchDataShippingMethod()
+          navigate('/order/shipping-method?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -197,6 +197,8 @@ function ShippingMethod() {
       } catch (error) {
         console.error('Post data shipping method is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -263,8 +265,48 @@ function ShippingMethod() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả thành công!')
+    //     fetchDataShippingMethod()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataShippingMethod?.data.map((item) => item.shipping_id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'name', label: 'Name' },
     { key: 'charge', label: 'Mức phí' },
@@ -273,7 +315,24 @@ function ShippingMethod() {
 
   const items = dataShippingMethod?.data
     ? dataShippingMethod?.data.map((method) => ({
-        id: <CFormCheck id="flexCheckDefault" />,
+        id: (
+          <CFormCheck
+            key={method?.shipping_id}
+            defaultChecked={method?.shipping_id}
+            id={`flexCheckDefault_${method?.shipping_id}`}
+            value={method?.shipping_id}
+            checked={selectedCheckbox.includes(method?.shipping_id)}
+            onChange={(e) => {
+              const shippingId = method?.shipping_id
+              const isChecked = e.target.checked
+              if (isChecked) {
+                setSelectedCheckbox([...selectedCheckbox, shippingId])
+              } else {
+                setSelectedCheckbox(selectedCheckbox.filter((id) => id !== shippingId))
+              }
+            }}
+          />
+        ),
         title: <span className="blue-txt">{method.title}</span>,
         name: method.name,
         charge: (
@@ -332,13 +391,13 @@ function ShippingMethod() {
               </div>
             </h5>
           ) : (
-            <>
+            <CContainer>
               <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
               <CRow className="mb-3">
-                <CCol>
-                  <h3>PHƯƠNG THỨC VẬN CHUYỂN</h3>
+                <CCol md={6}>
+                  <h2>PHƯƠNG THỨC VẬN CHUYỂN</h2>
                 </CCol>
-                <CCol md={{ span: 6, offset: 6 }}>
+                <CCol md={6}>
                   <div className="d-flex justify-content-end">
                     <CButton
                       onClick={handleAddNewClick}
@@ -440,8 +499,8 @@ function ShippingMethod() {
                               as={CFormSelect}
                               id="visible-select"
                               options={[
-                                { label: 'Không', value: '0' },
-                                { label: 'Có', value: '1' },
+                                { label: 'Không', value: 0 },
+                                { label: 'Có', value: 1 },
                               ]}
                             />
                             <ErrorMessage name="visible" component="div" className="text-danger" />
@@ -460,6 +519,11 @@ function ShippingMethod() {
                 </CCol>
                 <CCol md={8}>
                   <Search count={dataShippingMethod?.total} onSearchData={handleSearch} />
+                  <CCol md={12} className="mt-3">
+                    <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                      Xóa vĩnh viễn
+                    </CButton>
+                  </CCol>
                   <CCol className="mt-4">
                     <CTable hover={true} className="border">
                       <thead>
@@ -518,7 +582,7 @@ function ShippingMethod() {
                   </CCol>
                 </CCol>
               </CRow>
-            </>
+            </CContainer>
           )}
         </div>
       )}

@@ -37,6 +37,7 @@ function PromotionDetail() {
   const [dataGiftPromotion, setDataGiftPromotion] = useState([])
   const [countGiftPromotion, setCountGiftPromotion] = useState(null)
 
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   // show deleted Modal
@@ -155,8 +156,48 @@ function PromotionDetail() {
     fetchGiftPromotion()
   }, [dataSearch, startDate, endDate])
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    alert('Chức năng đang thực hiện...')
+    // try {
+    //   const response = await axiosClient.post(`admin/delete `, {
+    //     data: selectedCheckbox,
+    //   })
+
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả thành công!')
+    //     fetchGiftPromotion()
+    //     setSelectedCheckbox([])
+    //   }
+
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
+  }
+
   const columns = [
-    { key: 'id', label: '#' },
+    {
+      key: 'id',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = dataGiftPromotion?.map((item) => item.id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
+    },
     { key: 'releaseCode', label: 'Mã đợt phát hành' },
     { key: 'name', label: 'Đợt phát hành' },
     { key: 'rangePrice', label: 'Phân khúc giá' },
@@ -167,7 +208,25 @@ function PromotionDetail() {
   ]
 
   const items = dataGiftPromotion?.map((item) => ({
-    id: <CFormCheck id="flexCheckDefault" />,
+    id: (
+      <CFormCheck
+        key={item?.id}
+        aria-label="Default select example"
+        defaultChecked={item?.id}
+        id={`flexCheckDefault_${item?.id}`}
+        checked={selectedCheckbox.includes(item?.id)}
+        value={item.id}
+        onChange={(e) => {
+          const detailId = item.id
+          const isChecked = e.target.checked
+          if (isChecked) {
+            setSelectedCheckbox([...selectedCheckbox, detailId])
+          } else {
+            setSelectedCheckbox(selectedCheckbox.filter((id) => id !== detailId))
+          }
+        }}
+      />
+    ),
     releaseCode: <span className="blue-txt">{item.code}</span>,
     name: item.title,
     rangePrice: `${Number(item.priceMin).toLocaleString('vi-VN')}đ - ${Number(item.priceMax).toLocaleString('vi-VN')}đ`,
@@ -320,6 +379,11 @@ function PromotionDetail() {
             </CCol>
 
             <CCol>
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CTable hover className="mt-3 border">
                 <thead>
                   <tr>
