@@ -65,6 +65,7 @@ function SocialsIcon() {
     color: '',
     iconf: '',
     linkf: '',
+    image: '',
     type: '',
     description: '',
     visible: 0,
@@ -371,22 +372,22 @@ function SocialsIcon() {
     const selectedFiles = []
     const fileUrls = []
 
-    // Array.from(files).forEach((file) => {
-    //   // Create a URL for the file
-    //   fileUrls.push(URL.createObjectURL(file))
+    Array.from(files).forEach((file) => {
+      // Create a URL for the file
+      fileUrls.push(URL.createObjectURL(file))
 
-    //   // Read the file as base64
-    //   const fileReader = new FileReader()
-    //   fileReader.readAsDataURL(file)
+      // Read the file as base64
+      const fileReader = new FileReader()
+      fileReader.readAsDataURL(file)
 
-    //   fileReader.onload = (event) => {
-    //     selectedFiles.push(event.target.result)
-    //     // Set base64 data after all files have been read
-    //     if (selectedFiles.length === files.length) {
-    //       setSelectedFile(selectedFiles)
-    //     }
-    //   }
-    // })
+      fileReader.onload = (event) => {
+        selectedFiles.push(event.target.result)
+        // Set base64 data after all files have been read
+        if (selectedFiles.length === files.length) {
+          setSelectedFile(selectedFiles)
+        }
+      }
+    })
 
     // Set file URLs for immediate preview
     setFile(fileUrls)
@@ -467,10 +468,10 @@ function SocialsIcon() {
                           id="formFile"
                           label="Ảnh"
                           size="sm"
-                          // onChange={(e) => onFileChange(e)}
+                          onChange={(e) => onFileChange(e)}
                         />
                         <ErrorMessage name="image" component="div" className="text-danger" />
-
+                        <br />
                         <div>
                           {file.length == 0 ? (
                             <div>
