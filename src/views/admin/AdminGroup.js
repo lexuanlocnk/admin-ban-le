@@ -73,13 +73,6 @@ function AdminGroup() {
       }
     } catch (error) {
       console.error('Fetch role adminstrator data is error', error)
-      if (error.response) {
-        if (error.response.status === 500) {
-          navigate('/500')
-        } else if (error.response.status === 404) {
-          navigate('/404')
-        }
-      }
     }
   }
 
@@ -124,15 +117,17 @@ function AdminGroup() {
         }
       } catch (error) {
         console.error('Put role adminstrator data is error', error)
-        if (error.response) {
-          if (error.response.status === 500) {
-            navigate('/500')
-          } else if (error.response.status === 404) {
-            navigate('/404')
-          }
-        } else {
-          toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-        }
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+
+        // if (error.response) {
+        //   if (error.response.status === 500) {
+        //     navigate('/500')
+        //   } else if (error.response.status === 404) {
+        //     navigate('/404')
+        //   }
+        // } else {
+        //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+        // }
       }
     } else {
       //call api post new data
@@ -152,15 +147,17 @@ function AdminGroup() {
         }
       } catch (error) {
         console.error('Post role adminstrator data is error', error)
-        if (error.response) {
-          if (error.response.status === 500) {
-            navigate('/500')
-          } else if (error.response.status === 404) {
-            navigate('/404')
-          }
-        } else {
-          toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-        }
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+
+        // if (error.response) {
+        //   if (error.response.status === 500) {
+        //     navigate('/500')
+        //   } else if (error.response.status === 404) {
+        //     navigate('/404')
+        //   }
+        // } else {
+        //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+        // }
       }
     }
   }
@@ -188,15 +185,16 @@ function AdminGroup() {
       }
     } catch (error) {
       console.error('Delete admin role is error', error)
-      if (error.response) {
-        if (error.response.status === 500) {
-          navigate('/500')
-        } else if (error.response.status === 404) {
-          navigate('/404')
-        }
-      } else {
-        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-      }
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      // if (error.response) {
+      //   if (error.response.status === 500) {
+      //     navigate('/500')
+      //   } else if (error.response.status === 404) {
+      //     navigate('/404')
+      //   }
+      // } else {
+      //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      // }
     }
   }
 

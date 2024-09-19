@@ -143,8 +143,9 @@ function Department() {
         if (response.data.status === true) {
           toast.success('Cập nhật phòng ban thành công')
           resetForm()
-          navigate('/department')
           fetchDataDepartment()
+          navigate('/department')
+          setIsEditing(false)
         } else {
           console.error('No data found for the given ID.')
         }
@@ -170,8 +171,8 @@ function Department() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới phòng ban thành công!')
-          fetchDataDepartment()
           resetForm()
+          fetchDataDepartment()
           navigate('/department?sub=add')
         }
 

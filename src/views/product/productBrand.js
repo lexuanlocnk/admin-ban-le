@@ -157,8 +157,9 @@ function ProductBrand() {
           resetForm()
           setFile([])
           setSelectedFile([])
-          navigate('/product/brand')
+          setIsEditing(false)
           fetchDataBrands()
+          navigate('/product/brand')
         } else {
           console.error('No data found for the given ID.')
         }

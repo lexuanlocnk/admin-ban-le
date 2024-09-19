@@ -48,13 +48,6 @@ function EditPermissions() {
       }
     } catch (error) {
       console.error('Fetch permissions data is error', error.message)
-      if (error.response) {
-        if (error.response.status === 500) {
-          navigate('/500')
-        } else if (error.response.status === 404) {
-          navigate('/404')
-        }
-      }
     }
   }
 
@@ -76,15 +69,7 @@ function EditPermissions() {
       }
     } catch (error) {
       console.error('Put role adminstrator data is error', error)
-      if (error.response) {
-        if (error.response.status === 500) {
-          navigate('/500')
-        } else if (error.response.status === 404) {
-          navigate('/404')
-        }
-      } else {
-        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-      }
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
 

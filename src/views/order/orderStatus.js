@@ -158,8 +158,9 @@ function OrderStatus() {
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công!')
           resetForm()
-          navigate('/order/status')
+          setIsEditing(false)
           fetchDataStatusOrder()
+          navigate('/order/status')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -185,8 +186,9 @@ function OrderStatus() {
         if (response.data.status === true) {
           toast.success('Thêm mới trạng thái thành công!')
           resetForm()
-          navigate('/order/status?sub=add')
+
           fetchDataStatusOrder()
+          navigate('/order/status?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
