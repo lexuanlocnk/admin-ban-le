@@ -12,7 +12,7 @@ import {
   CTable,
 } from '@coreui/react'
 
-import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { Formik, Form, Field, ErrorMessage, useFormik } from 'formik'
 import * as Yup from 'yup'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Search from '../../components/search/Search'
@@ -53,9 +53,6 @@ function ProductBrand() {
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
 
-  // search input
-  // const [dataSearch, setDataSearch] = useState('')
-
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
 
@@ -66,7 +63,7 @@ function ProductBrand() {
     pageTitle: '',
     metaKeyword: '',
     metaDesc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
@@ -75,7 +72,6 @@ function ProductBrand() {
     pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
     metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
     metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -141,7 +137,7 @@ function ProductBrand() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -158,6 +154,12 @@ function ProductBrand() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật thương hiệu thành công')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          setIsEditing(false)
+          fetchDataBrands()
+          navigate('/product/brand')
         } else {
           console.error('No data found for the given ID.')
         }
@@ -185,6 +187,10 @@ function ProductBrand() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới thương hiệu thành công!')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/brand?sub=add')
           fetchDataBrands()
         }
 
@@ -521,9 +527,10 @@ function ProductBrand() {
                       <CCol md={12}>
                         <label htmlFor="metaKeyword-input">Meta keywords</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaKeyword"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaKeyword-input"
                           text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                         />
@@ -533,9 +540,10 @@ function ProductBrand() {
                       <CCol md={12}>
                         <label htmlFor="metaDesc-input">Meta description</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaDesc"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaDesc-input"
                           text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                         />
@@ -550,8 +558,8 @@ function ProductBrand() {
                           as={CFormSelect}
                           id="visible-select"
                           options={[
-                            { label: 'Không', value: '0' },
-                            { label: 'Có', value: '1' },
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
                           ]}
                         />
                         <ErrorMessage name="visible" component="div" className="text-danger" />

@@ -101,7 +101,7 @@ function GroupSupport() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -111,7 +111,10 @@ function GroupSupport() {
         })
         if (response.data.status === true) {
           toast.success('Cập nhật nhóm support thành công')
+          resetForm()
           fetchDataSupportGroup()
+          setIsEditing(false)
+          navigate('/group-support')
         } else {
           console.error('No data found for the given ID.')
         }
@@ -132,7 +135,9 @@ function GroupSupport() {
         })
         if (response.data.status === true) {
           toast.success('Thêm mới nhóm support thành công!')
+          resetForm()
           fetchDataSupportGroup()
+          navigate('/group-support?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {

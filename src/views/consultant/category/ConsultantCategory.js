@@ -132,7 +132,7 @@ function ConsultantCategory() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -147,7 +147,10 @@ function ConsultantCategory() {
         })
         if (response.data.status === true) {
           toast.success('Cập nhật danh mục tư vấn thành công')
+          resetForm()
+          setIsEditing(false)
           fetchDataConsultantCate()
+          navigate('/consultant/category')
         } else {
           console.error('No data found for the given ID.')
         }
@@ -174,7 +177,9 @@ function ConsultantCategory() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới danh mục tư vấn thành công!')
+          resetForm()
           fetchDataConsultantCate()
+          navigate('/consultant/category?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {

@@ -56,8 +56,6 @@ function EditPermissions() {
   }, [])
 
   const handleSubmit = async () => {
-    console.log('>>> cehck permissions arr', selectedPermissions)
-
     try {
       const response = await axiosClient.put(`admin/role/${id}`, {
         title: title,

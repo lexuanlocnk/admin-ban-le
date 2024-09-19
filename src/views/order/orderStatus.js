@@ -5,8 +5,6 @@ import {
   CFormCheck,
   CFormInput,
   CFormSelect,
-  CFormTextarea,
-  CImage,
   CRow,
   CTable,
   CTableBody,
@@ -29,7 +27,6 @@ import Search from '../../components/search/Search'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 
 import { toast } from 'react-toastify'
-import axios, { isCancel } from 'axios'
 import { axiosClient } from '../../axiosConfig'
 
 function OrderStatus() {
@@ -52,8 +49,6 @@ function OrderStatus() {
   // selected checkbox
   const [isAllcheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
-
-  const [isCollapse, setIsCollapse] = useState(false)
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -145,7 +140,7 @@ function OrderStatus() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     console.log(values)
     if (isEditing) {
       try {
@@ -162,7 +157,10 @@ function OrderStatus() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công!')
+          resetForm()
+          setIsEditing(false)
           fetchDataStatusOrder()
+          navigate('/order/status')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -187,7 +185,10 @@ function OrderStatus() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới trạng thái thành công!')
+          resetForm()
+
           fetchDataStatusOrder()
+          navigate('/order/status?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -225,10 +226,6 @@ function OrderStatus() {
       console.error('Delete status order is error', error)
       toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
     }
-  }
-
-  const handleToggleCollapse = () => {
-    setIsCollapse((prevState) => !prevState)
   }
 
   // pagination data
@@ -318,12 +315,12 @@ function OrderStatus() {
             value={status?.status_id}
             checked={selectedCheckbox.includes(status?.status_id)}
             onChange={(e) => {
-              const giftId = status?.status_id
+              const orderStatusId = status?.status_id
               const isChecked = e.target.checked
               if (isChecked) {
-                setSelectedCheckbox([...selectedCheckbox, giftId])
+                setSelectedCheckbox([...selectedCheckbox, orderStatusId])
               } else {
-                setSelectedCheckbox(selectedCheckbox.filter((id) => id !== giftId))
+                setSelectedCheckbox(selectedCheckbox.filter((id) => id !== orderStatusId))
               }
             }}
           />
@@ -454,8 +451,9 @@ function OrderStatus() {
                       <CCol md={12}>
                         <label htmlFor="color-input">Màu sắc</label>
                         <Field
+                          style={{ width: 100 }}
                           name="color"
-                          type="text"
+                          type="color"
                           as={CFormInput}
                           id="color-input"
                           text="Hệ màu cho phép là RGB. vd: #000000"

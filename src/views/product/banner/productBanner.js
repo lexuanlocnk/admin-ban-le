@@ -24,7 +24,6 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
@@ -72,20 +71,21 @@ function ProductBanner() {
     title: '',
     image: '',
     url: '',
-    destination: '',
-    categories: '',
+    destination: '_self',
+    categories: 'Laptop',
     width: '',
     height: '',
     desc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    // url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    // destination: Yup.string().required('Chọn vị trí liên kết!'),
-    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
+    destination: Yup.string().required('Chọn vị trí liên kết!'),
+    categories: Yup.string().required('Danh mục đăng ảnh là bắt buộc!'),
+    width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
+    height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -166,9 +166,7 @@ function ProductBanner() {
     }
   }
 
-  const handleSubmit = async (values) => {
-    console.log(values)
-
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -186,6 +184,11 @@ function ProductBanner() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          setIsEditing(false)
+          navigate('/product/banner')
           fetchDataBanner()
         } else {
           console.error('No data found for the given ID.')
@@ -215,6 +218,10 @@ function ProductBanner() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật banner sản phẩm thành công!')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/banner?sub=add')
           fetchDataBanner()
         }
 
@@ -389,7 +396,7 @@ function ProductBanner() {
           ),
           images: <CImage className="border" fluid src={`${imageBaseUrl}${item.picture}`} />,
           url: item.link,
-          dimensions: `${item.width}X${item.height}`,
+          dimensions: `${item.width}x${item.height}`,
           actions: (
             <div>
               <button

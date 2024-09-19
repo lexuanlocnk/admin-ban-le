@@ -71,7 +71,6 @@ function EditProductCategory() {
     try {
       const response = await axiosClient.get(`admin/category/${id}/edit`)
       const data = response.data.category
-      console.log('>>>> checkj data', data)
 
       if (response.data.status === true) {
         setValues({
@@ -161,7 +160,6 @@ function EditProductCategory() {
   }
 
   const handleSubmit = async (values) => {
-    console.log('>>>check values', values)
     // async requets fetch
     try {
       const response = await axiosClient.put(`admin/category/${id}`, {
@@ -190,7 +188,15 @@ function EditProductCategory() {
       }
     } catch (error) {
       console.error('Put product category data error', error)
-      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      if (error.response) {
+        if (error.response.status === 500) {
+          navigate('/500')
+        } else if (error.response.status === 404) {
+          navigate('/404')
+        }
+      } else {
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      }
     }
   }
   return (

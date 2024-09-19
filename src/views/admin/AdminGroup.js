@@ -43,9 +43,6 @@ function AdminGroup() {
   const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
-  // search input
-  const [dataSearch, setDataSearch] = useState('')
-
   // show deleted Modal
   const [visible, setVisible] = useState(false)
   const [deletedId, setDeletedId] = useState(null)
@@ -76,7 +73,6 @@ function AdminGroup() {
       }
     } catch (error) {
       console.error('Fetch role adminstrator data is error', error)
-      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
 
@@ -122,6 +118,16 @@ function AdminGroup() {
       } catch (error) {
         console.error('Put role adminstrator data is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+
+        // if (error.response) {
+        //   if (error.response.status === 500) {
+        //     navigate('/500')
+        //   } else if (error.response.status === 404) {
+        //     navigate('/404')
+        //   }
+        // } else {
+        //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+        // }
       }
     } else {
       //call api post new data
@@ -142,6 +148,16 @@ function AdminGroup() {
       } catch (error) {
         console.error('Post role adminstrator data is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+
+        // if (error.response) {
+        //   if (error.response.status === 500) {
+        //     navigate('/500')
+        //   } else if (error.response.status === 404) {
+        //     navigate('/404')
+        //   }
+        // } else {
+        //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+        // }
       }
     }
   }
@@ -169,7 +185,16 @@ function AdminGroup() {
       }
     } catch (error) {
       console.error('Delete admin role is error', error)
-      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      // if (error.response) {
+      //   if (error.response.status === 500) {
+      //     navigate('/500')
+      //   } else if (error.response.status === 404) {
+      //     navigate('/404')
+      //   }
+      // } else {
+      //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      // }
     }
   }
 
@@ -241,8 +266,8 @@ function AdminGroup() {
               }}
             />
           ),
-          title: item.title,
-          role: item.name,
+          title: <div className="blue-txt">{item.title}</div>,
+          role: <div className="fw-bold">{item.name}</div>,
           permission: (
             <Link to={`/admin/groups/edit?id=${item.id}`}>Cập nhật quyền [{item.name}]</Link>
           ),

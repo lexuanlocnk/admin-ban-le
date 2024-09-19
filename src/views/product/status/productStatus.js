@@ -25,7 +25,6 @@ import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
 import Search from '../../../components/search/Search'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
@@ -53,11 +52,6 @@ function ProductStatus() {
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
 
-  const [isCollapse, setIsCollapse] = useState(false)
-
-  // search input
-  const [dataSearch, setDataSearch] = useState('')
-
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
 
@@ -77,15 +71,18 @@ function ProductStatus() {
     pageTitle: '',
     metaKeyword: '',
     metaDesc: '',
-    visible: '',
+    visible: 0,
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
     name: Yup.string().required('Name là bắt buộc!'),
-    // destination: Yup.string().required('Chọn vị trí liên kết!'),
-    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    width: Yup.string().required('Chiều rộng ảnh là bắt buộc!'),
+    height: Yup.string().required('Chiều cao ảnh là bắt buộc!'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    pageTitle: Yup.string().required('Tiêu đề trang là bắt buộc.'),
+    metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
+    metaDesc: Yup.string().required('Meta description là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -155,7 +152,7 @@ function ProductStatus() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -175,6 +172,11 @@ function ProductStatus() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật trạng thái thành công')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          setIsEditing(false)
+          navigate('/product/status')
           fetchDataStatus()
         } else {
           console.error('No data found for the given ID.')
@@ -206,6 +208,10 @@ function ProductStatus() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới trạng thái thành công!')
+          resetForm()
+          setFile([])
+          setSelectedFile([])
+          navigate('/product/status?sub=add')
           fetchDataStatus()
         }
 
@@ -275,10 +281,6 @@ function ProductStatus() {
     } finally {
       setVisible(false)
     }
-  }
-
-  const handleToggleCollapse = () => {
-    setIsCollapse((prevState) => !prevState)
   }
 
   // pagination data
@@ -592,9 +594,10 @@ function ProductStatus() {
                       <CCol md={12}>
                         <label htmlFor="metaKeyword-input">Meta keywords</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaKeyword"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaKeyword-input"
                           text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                         />
@@ -604,9 +607,10 @@ function ProductStatus() {
                       <CCol md={12}>
                         <label htmlFor="metaDesc-input">Meta description</label>
                         <Field
+                          style={{ height: 100 }}
                           name="metaDesc"
                           type="text"
-                          as={CFormInput}
+                          as={CFormTextarea}
                           id="metaDesc-input"
                           text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                         />
@@ -621,8 +625,8 @@ function ProductStatus() {
                           as={CFormSelect}
                           id="visible-select"
                           options={[
-                            { label: 'Không', value: '0' },
-                            { label: 'Có', value: '1' },
+                            { label: 'Không', value: 0 },
+                            { label: 'Có', value: 1 },
                           ]}
                         />
                         <ErrorMessage name="visible" component="div" className="text-danger" />

@@ -19,7 +19,7 @@ import { cilLockLocked, cilUser } from '@coreui/icons'
 
 import Logo from '../../../assets/images/logo/logo CN.png'
 
-import { axiosClient } from '../../../axiosConfig'
+import { axiosClient, setAuthToken } from '../../../axiosConfig'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 import LoadingPage from '../../../components/loading/LoadingPage'
@@ -29,6 +29,8 @@ const Login = () => {
   const [password, setPassWord] = useState('')
   const navigate = useNavigate()
 
+  const [loading, setLoading] = useState(false)
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleLogin()
@@ -37,7 +39,8 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const res = await axiosClient.post('http://192.168.245.190:8000/api/admin-login', {
+      setLoading(true)
+      const res = await axiosClient.post('/admin-login', {
         username,
         password,
       })
@@ -45,8 +48,9 @@ const Login = () => {
       if (res.data.status === true) {
         localStorage.setItem('adminCN', res.data.token)
         localStorage.setItem('username', res.data.username)
+
         navigate('/')
-        window.location.reload()
+        // window.location.reload()
       } else {
         if (res.data.mess == 'username') {
           toast.error('Sai tên đăng nhập!. Vui lòng kiểm tra lại!')
@@ -58,8 +62,12 @@ const Login = () => {
     } catch (error) {
       console.error('Post login data is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng kiểm tra lại thông tin!')
+    } finally {
+      setLoading(false)
     }
   }
+
+  if (loading) return <LoadingPage />
 
   return (
     <>

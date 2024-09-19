@@ -1,11 +1,10 @@
-import { CButton, CCol, CContainer, CFormCheck, CFormInput, CFormSelect, CRow } from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow } from '@coreui/react'
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 
@@ -36,15 +35,6 @@ function PermissionGroup() {
     parentCate: '',
     childCate: 'Thông tin admin',
   }
-
-  const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
-  })
 
   useEffect(() => {
     if (sub === 'add') {
@@ -181,7 +171,7 @@ function PermissionGroup() {
               <h6>{'Thêm mới quyền hạn'}</h6>
               <Formik
                 initialValues={initialValues}
-                validationSchema={validationSchema}
+                // validationSchema={validationSchema}
                 onSubmit={handleSubmit}
               >
                 {({ setFieldValue, setValues }) => {

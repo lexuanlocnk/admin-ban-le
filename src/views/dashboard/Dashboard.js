@@ -46,12 +46,12 @@ import {
   cilMoney,
 } from '@coreui/icons'
 
-import avatar1 from '../../assets/images/avatars/1.jpg'
-import avatar2 from '../../assets/images/avatars/2.jpg'
-import avatar3 from '../../assets/images/avatars/3.jpg'
-import avatar4 from '../../assets/images/avatars/4.jpg'
-import avatar5 from '../../assets/images/avatars/5.jpg'
-import avatar6 from '../../assets/images/avatars/6.jpg'
+// import avatar1 from '../../assets/images/avatars/1.jpg'
+// import avatar2 from '../../assets/images/avatars/2.jpg'
+// import avatar3 from '../../assets/images/avatars/3.jpg'
+// import avatar4 from '../../assets/images/avatars/4.jpg'
+// import avatar5 from '../../assets/images/avatars/5.jpg'
+// import avatar6 from '../../assets/images/avatars/6.jpg'
 
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
@@ -61,6 +61,7 @@ import moment from 'moment'
 
 import './css/dashboard.css'
 import ReactPaginate from 'react-paginate'
+import LoadingPage from '../../components/loading/LoadingPage'
 
 const Dashboard = () => {
   const [adminLogData, setAdminLogData] = useState([])
@@ -111,6 +112,7 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Fetch data dashboard is error', error)
+      // window.location.href = '/500'
     }
   }
 

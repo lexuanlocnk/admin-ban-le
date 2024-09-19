@@ -13,7 +13,6 @@ import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import '../css/editOrder.scss'
-import axios from 'axios'
 import moment from 'moment'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
@@ -224,10 +223,7 @@ function EditOrder() {
                         <tr key={index}>
                           <td>{index + 1}</td>
                           <td>
-                            <img
-                              src={`${imageBaseUrl}/product/${item.product?.picture}`}
-                              alt={'img-product'}
-                            />
+                            <img src={`${imageBaseUrl}${item?.picture}`} alt={'img-product'} />
                           </td>
                           <td>
                             <Link to={`/product/edit?id=${item.item_id}`}>{item.item_title}</Link>
