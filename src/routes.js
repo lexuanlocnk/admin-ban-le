@@ -67,6 +67,14 @@ const Newsletter = React.lazy(() => import('./views/newsletter/Newsletter'))
 const AddNewsletter = React.lazy(() => import('./views/newsletter/AddNewsletter'))
 const EditNewsletter = React.lazy(() => import('./views/newsletter/EditNewsletter'))
 
+// ACCESS STATISTICS
+const AccessStatistics = React.lazy(() => import('./views/accessstatistics/AccessStatistics'))
+
+// SEO
+const Seo = React.lazy(() => import('./views/seo/SocialsIcon'))
+const Sitemap = React.lazy(() => import('./views/seo/SitempaXML'))
+const Links = React.lazy(() => import('./views/seo/LinkManagement'))
+
 // GIFT
 const Gift = React.lazy(() => import('./views/gift/Gift'))
 const AddGift = React.lazy(() => import('./views/gift/AddGift'))
@@ -375,12 +383,20 @@ const routes = [
   // detail coupon
   { path: '/detail-coupon', name: 'DetailCoupon', element: DetailCoupon, exact: true },
 
-  // Newsletter
+  // newsletter
   { path: '/newsletter', name: 'Newsletter', element: Newsletter, exact: true },
   { path: '/newsletter/add', name: 'AddNewsletter', element: AddNewsletter, exact: true },
   { path: '/newsletter/edit', name: 'EditNewsletter', element: EditNewsletter, exact: true },
 
   { path: '/text', name: 'Text', element: Text, exact: true },
+
+  // access statistics
+  { path: '/access-statistics', name: 'AccessStatistics', element: AccessStatistics, exact: true },
+
+  // seo
+  { path: '/seo/social-icons', name: 'Seo', element: Seo, exact: true },
+  { path: '/seo/sitemap', name: 'Sitemap', element: Sitemap, exact: true },
+  { path: '/seo/links', name: 'Links', element: Links, exact: true },
 
   // gift
   { path: '/gift', name: 'Gift', element: Gift, exact: true },
