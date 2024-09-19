@@ -21,7 +21,6 @@ import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
 
@@ -64,12 +63,11 @@ function NewsCategory() {
   }
 
   const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
+    pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
+    metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
+    metaDesc: Yup.string().required('Meta description là bắt buộc.'),
   })
 
   useEffect(() => {
@@ -134,7 +132,7 @@ function NewsCategory() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -149,6 +147,9 @@ function NewsCategory() {
         })
         if (response.data.status === true) {
           toast.success('Cập nhật danh mục thành công')
+          resetForm()
+          navigate('/news/category')
+          setIsEditing(false)
           fetchDataNewsCategory()
         } else {
           console.error('No data found for the given ID.')
@@ -176,6 +177,8 @@ function NewsCategory() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới danh mục thành công!')
+          resetForm()
+          navigate('/news/category?sub=add')
           fetchDataNewsCategory()
         }
 
@@ -430,7 +433,7 @@ function NewsCategory() {
                           id="url-input"
                           text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
                         />
-                        <ErrorMessage name="email" component="div" className="text-danger" />
+                        <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
                       </CCol>
                       <br />
                       <CCol md={12}>

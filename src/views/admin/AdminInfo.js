@@ -80,15 +80,7 @@ function AdminInfo() {
       }
     } catch (error) {
       console.error('Put data admin info is error', error)
-      if (error.response) {
-        if (error.response.status === 500) {
-          navigate('/500')
-        } else if (error.response.status === 404) {
-          navigate('/404')
-        }
-      } else {
-        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-      }
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     }
   }
 

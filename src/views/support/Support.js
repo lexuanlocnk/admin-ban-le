@@ -22,7 +22,6 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 
@@ -71,12 +70,17 @@ function Support() {
     groupType: '',
   }
 
-  const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    // url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    // destination: Yup.string().required('Chọn vị trí liên kết!'),
-    // width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    // height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required('Name là bắt buộc.'),
+    phone: Yup.string()
+      .required('Số điện thoại là bắt buộc')
+      .matches(/^\d{10}$/, 'Số điện thoại tối đa là 10 kí tự'),
+    email: Yup.string().required('Email là bắt buộc.').email('Mail không hợp lệ.'),
+    skyName: Yup.string(),
+    groupType: Yup.string().when('type', {
+      is: 'group',
+      then: Yup.string().required('Nhóm support là bắt buộc.'),
+    }),
   })
 
   useEffect(() => {
@@ -158,7 +162,7 @@ function Support() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     console.log(values)
 
     if (isEditing) {
@@ -175,7 +179,10 @@ function Support() {
 
         if (response.data.status === true) {
           toast.success('Cập nhật thông tin support thành công.')
+          resetForm()
+          setIsEditing(false)
           fetchSupportData()
+          navigate('/support')
         } else {
           console.error('No data found for the given ID.')
         }
@@ -200,7 +207,9 @@ function Support() {
 
         if (response.data.status === true) {
           toast.success('Thêm mới support thành công!')
+          resetForm()
           fetchSupportData()
+          navigate('/support?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -488,7 +497,7 @@ function Support() {
                           as={CFormSelect}
                           id="type-select"
                           options={[
-                            { label: 'Chọn loại support', value: '' },
+                            { label: 'Loại support', value: '' },
                             { label: 'Chat', value: 'chat' },
                             { label: 'Call', value: 'call' },
                           ]}

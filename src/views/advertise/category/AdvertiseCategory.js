@@ -131,7 +131,7 @@ function AdvertiseCategory() {
     }
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
@@ -146,7 +146,10 @@ function AdvertiseCategory() {
         })
         if (response.data.status === true) {
           toast.success('Cập nhật vị trí thành công')
+          resetForm()
+          setIsEditing(false)
           fetchDataAdvertiseCategory()
+          navigate('/advertise/category')
         } else {
           console.error('No data found for the given ID.')
         }
@@ -172,7 +175,9 @@ function AdvertiseCategory() {
         })
         if (response.data.status === true) {
           toast.success('Thêm mới vị trí thành công!')
+          resetForm()
           fetchDataAdvertiseCategory()
+          navigate('/advertise/category?sub=add')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -352,7 +357,7 @@ function AdvertiseCategory() {
           <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
           <CRow className="mb-3">
             <CCol md={6}>
-              <h3>QUẢN LÝ VỊ TRÍ</h3>
+              <h3>QUẢN LÝ VỊ TRÍ BANNER</h3>
             </CCol>
             <CCol md={6}>
               <div className="d-flex justify-content-end">

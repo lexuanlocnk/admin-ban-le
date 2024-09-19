@@ -175,6 +175,7 @@ function ProductStatus() {
           resetForm()
           setFile([])
           setSelectedFile([])
+          setIsEditing(false)
           navigate('/product/status')
           fetchDataStatus()
         } else {

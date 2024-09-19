@@ -187,6 +187,7 @@ function ProductBanner() {
           resetForm()
           setFile([])
           setSelectedFile([])
+          setIsEditing(false)
           navigate('/product/banner')
           fetchDataBanner()
         } else {

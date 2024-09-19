@@ -159,6 +159,7 @@ function ShippingMethod() {
           resetForm()
           setEditorData('')
           fetchDataShippingMethod()
+          setIsEditing(false)
           navigate('/order/shipping-method')
         }
 

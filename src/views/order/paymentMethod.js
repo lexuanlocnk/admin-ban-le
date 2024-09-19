@@ -188,6 +188,7 @@ function PaymentMethod() {
           toast.success('Thêm mới phương thức thành công!')
           resetForm()
           setEditorData('')
+          setIsEditing(false)
           fetchDataPaymentMethod()
           navigate('/order/payment-method?sub=add')
         }
