@@ -117,57 +117,80 @@ function SystemConfig() {
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/contact-config/${id}/edit`)
-      const data = response.data.data
+      const response = await axiosClient.get('admin/setting-system')
+      const data = response.data
 
-      // if (data) {
-      //   setValues({
-      //     title: data?.title,
-      //     companyName: data?.company,
-      //     workTime: data?.work_time,
-      //     address: data?.address,
-      //     phone: data?.phone,
-      //     mail: data?.email,
-      //     website: data?.website,
-      //     map: data?.map,
-      //     visible: data?.display,
-      //   })
-      // } else {
-      //   console.error('No data found for the given ID.')
-      // }
-      if (response.data.status === false && response.data.mess == 'no permission') {
+      if (data?.status === true) {
+        const { settingSystem, settingLogo, settingSmtp } = data
+
+        setValues({
+          pageTitle: settingSystem?.title || '',
+          metaDesc: settingSystem?.meta_desc || '',
+          metaExtra: settingSystem?.meta_extra || '',
+          scriptCode: settingSystem?.script || '',
+          charset: settingSystem?.charset || '',
+          hotline: settingLogo?.hotline || '',
+          email: settingLogo?.email || '',
+          emailSearch: settingLogo?.email_search || '',
+          isSearchEngines: settingLogo?.tool_search || '',
+          address: settingLogo?.address || '',
+          method: settingSmtp?.method || '',
+          host: settingSmtp?.host || '',
+          port: settingSmtp?.port || '',
+          username: settingSmtp?.username || '',
+          password: settingSmtp?.password || '',
+          fromName: settingSmtp?.from_name || '',
+          securityKey: settingSmtp?.password_security || '',
+        })
+
+        setSelectedFile(settingSystem?.favicon || null)
+        setSelectedFileLogo(settingLogo?.logo || null)
+      } else if (data?.status === false && data?.mess === 'no permission') {
         setIsPermissionCheck(false)
+      } else {
+        console.error('No data found or no permission.')
       }
     } catch (error) {
-      console.error('Fetch data id intro is error', error.message)
+      console.error('Error fetching system config:', error.message)
     }
   }
 
   const handleSubmit = async (values) => {
-    console.log('>>> chek values', values)
-
-    // try {
-    //   const response = await axiosClient.put(`admin/contact-config/${id}`, {
-    //     title: values.title,
-    //     company: values.companyName,
-    //     address: values.address,
-    //     phone: values.phone,
-    //     email: values.mail,
-    //     website: values.website,
-    //     work_time: values.workTime,
-    //     map: values.map,
-    //     display: values.visible,
-    //   })
-    //   if (response.data.status === true) {
-    //     toast.success('Chỉnh sửa địa chỉ thành công!')
-    //   }
-    //   if (response.data.status === false && response.data.mess == 'no permission') {
-    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //   }
-    // } catch (error) {
-    //   console.error('Put data address is error', error)
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+    try {
+      const response = await axiosClient.put(`admin/setting-system/1`, {
+        title: values.pageTitle,
+        meta_desc: values.metaDesc,
+        meta_extra: values.metaExtra,
+        script: values.scriptCode,
+        charset: values.charset,
+        favicon: selectedFile,
+        logo: selectedFileLogo,
+        hotline: values.hotline,
+        email: values.email,
+        email_search: values.emailSearch,
+        address: values.address,
+        tool_search: values.isSearchEngines,
+        method: values.method,
+        host: values.host,
+        port: values.port,
+        username: values.username,
+        password: values.password,
+        from_name: values.fromName,
+        password_security: values.securityKey,
+        // time_cache:
+        //google_analytics_id
+        //google_maps_api_id
+      })
+      if (response.data.status === true) {
+        toast.success('Lưu lại cấu hình thay đổi!')
+      }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      console.error('Put data system config is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   return (
@@ -332,13 +355,7 @@ function SystemConfig() {
 
                       <CCol md={8}>
                         <label htmlFor="hotline-input">Hotline</label>
-                        <Field
-                          name="hotline"
-                          type="text"
-                          as={CFormTextarea}
-                          id="hotline-input"
-                          style={{ height: 100 }}
-                        />
+                        <Field name="hotline" type="text" as={CFormInput} id="hotline-input" />
                         <ErrorMessage name="hotline" component="div" className="text-danger" />
                       </CCol>
                       <br />

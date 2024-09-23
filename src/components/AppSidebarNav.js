@@ -18,7 +18,7 @@ export const AppSidebarNav = ({ items }) => {
                 <span className="nav-icon-bullet"></span>
               </span>
             )}
-        {name && name}
+        <div style={{ fontSize: '13.6px' }}>{name && name}</div>
         {badge && (
           <CBadge color={badge.color} className="ms-auto">
             {badge.text}

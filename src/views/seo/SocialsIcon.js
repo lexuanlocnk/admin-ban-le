@@ -19,7 +19,6 @@ import Search from '../../components/search/Search'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
-import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
@@ -67,10 +66,6 @@ function SocialsIcon() {
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // email: Yup.string().required('Email là bắt buộc.').email('Email không hợp lệ.'),
-    // visible: Yup.number()
-    //   .required('Trường này là bắt buộc.')
-    //   .oneOf([0, 1], 'Giá trị phải là 0 hoặc 1.'),
   })
 
   //set img avatar

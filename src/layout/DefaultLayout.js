@@ -3,6 +3,8 @@ import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/inde
 import { ToastContainer, Slide } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+import ScrollUpButton from '../components/scrollUp/ScrollUpButton'
+
 const DefaultLayout = () => {
   return (
     <div
@@ -10,6 +12,7 @@ const DefaultLayout = () => {
         fontSize: 14,
       }}
     >
+      <ScrollUpButton />
       <ToastContainer
         position="top-center"
         autoClose={2500}

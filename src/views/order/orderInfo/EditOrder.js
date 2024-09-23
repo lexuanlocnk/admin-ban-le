@@ -262,7 +262,7 @@ function EditOrder() {
                         {dataOrderDetail.PresentDes && dataOrderDetail.PresentDes !== null && (
                           <>
                             <div>
-                              Đơn hành có quà tặng kèm: {`${dataOrderDetail.PresentDes?.title}`}
+                              Đơn hàng có quà tặng kèm: {`${dataOrderDetail.PresentDes?.title}`}
                             </div>
                             <div
                               dangerouslySetInnerHTML={{
