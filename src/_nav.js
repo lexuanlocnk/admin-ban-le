@@ -245,12 +245,12 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Quản lý tin khuyến mãi',
-        to: '/promotion-news',
+        to: '/promotion',
       },
       {
         component: CNavItem,
         name: 'Thêm mới tin khuyến mãi',
-        to: '/promotion-news/add',
+        to: '/promotion/add',
       },
     ],
   },
@@ -339,18 +339,18 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'QUẢN LÝ GIỚI THIỆU',
-    to: '/introduce',
+    to: '/about',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
         name: 'Quản lý giới thiệu',
-        to: '/introduce',
+        to: '/about',
       },
       {
         component: CNavItem,
         name: 'Thêm mới giới thiệu',
-        to: '/introduce/add',
+        to: '/about/add',
       },
     ],
   },
@@ -376,18 +376,18 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'QUẢN LÝ HƯỚNG DẪN',
-    to: '/instruction',
+    to: '/guide',
     icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
         name: 'Quản lý hướng dẫn',
-        to: '/instruction',
+        to: '/guide',
       },
       {
         component: CNavItem,
         name: 'Thêm mới hướng dẫn',
-        to: '/instruction/add',
+        to: '/guide/add',
       },
     ],
   },

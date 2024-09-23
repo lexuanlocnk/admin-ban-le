@@ -193,6 +193,8 @@ function AdminList() {
         if (response.data.status === true) {
           toast.success('Thêm mới thông tin admin thành công!')
           resetForm()
+          setFile([])
+          setSelectedFile([])
           navigate('/admin/list?sub=add')
           fetchAdminListData()
         }

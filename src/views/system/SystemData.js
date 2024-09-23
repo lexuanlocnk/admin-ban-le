@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CTable,
   CTableBody,
@@ -10,130 +10,133 @@ import {
   CRow,
   CCol,
 } from '@coreui/react'
-
-const dummyData = [
-  {
-    table: 'about',
-    row: 8,
-    dataSize: '284 Bytes',
-    indexSize: '2 KB',
-    maxDataSize: '268435456 MB',
-    dataFree: '0 Bytes',
-    createTime: '2022-05-12 06:38:52',
-    updateTime: '2024-07-17 08:10:58',
-  },
-  {
-    table: 'about_desc',
-    row: 8,
-    dataSize: '24 KB',
-    indexSize: '2 KB',
-    maxDataSize: '268435456 MB',
-    dataFree: '0 Bytes',
-    createTime: '2022-05-12 06:38:52',
-    updateTime: '2024-07-17 08:10:58',
-  },
-  {
-    table: 'ad_pos',
-    row: 15,
-    dataSize: '1.1 KB',
-    indexSize: '2 KB',
-    maxDataSize: '268435456 MB',
-    dataFree: '0 Bytes',
-    createTime: '2022-05-12 06:38:52',
-    updateTime: '2024-06-15 02:51:14',
-  },
-  {
-    table: 'admin',
-    row: 11,
-    dataSize: '1.4 KB',
-    indexSize: '2 KB',
-    maxDataSize: '268435456 MB',
-    dataFree: '0 Bytes',
-    createTime: '2022-05-12 06:38:52',
-    updateTime: '2024-09-16 03:19:55',
-  },
-  {
-    table: 'admin_group',
-    row: 6,
-    dataSize: '11.3 KB',
-    indexSize: '2 KB',
-    maxDataSize: '268435456 MB',
-    dataFree: '0 Bytes',
-    createTime: '2022-05-12 06:38:52',
-    updateTime: '2024-06-02 05:51:14',
-  },
-  {
-    table: 'admin_menu',
-    row: 103,
-    dataSize: '8.8 KB',
-    indexSize: '4 KB',
-    maxDataSize: '268435456 MB',
-    dataFree: '0 Bytes',
-    createTime: '2022-05-12 06:38:52',
-    updateTime: '2024-07-04 07:10:53',
-  },
-  {
-    table: 'admin_permission',
-    row: 82,
-    dataSize: '6.6 KB',
-    indexSize: '2 KB',
-    maxDataSize: '268435456 MB',
-    dataFree: '0 Bytes',
-    createTime: '2022-05-12 06:38:52',
-    updateTime: '2024-07-18 08:10:58',
-  },
-  {
-    table: 'admin_sessions',
-    row: 23,
-    dataSize: '52.3 KB',
-    indexSize: '5 KB',
-    maxDataSize: '268435456 MB',
-    dataFree: '46.7 KB',
-    createTime: '2022-05-12 06:38:52',
-    updateTime: '2024-09-16 07:43:07',
-  },
-]
+import { axiosClient } from '../../axiosConfig'
+import Loading from '../../components/loading/Loading'
+import { toast } from 'react-toastify'
+import moment from 'moment/moment'
+import { Link } from 'react-router-dom'
 
 function SystemData() {
+  const [nameTableData, setNameTableData] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  // check permission state
+  const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
+  const fetchDataSystem = async () => {
+    try {
+      setIsLoading(true)
+      const response = await axiosClient.get('/name-table-backup-database')
+      const data = response.data.data
+
+      if (data) {
+        setNameTableData(data)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
+    } catch (error) {
+      console.error('Fetch data system is error', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchDataSystem()
+  }, [])
+
+  const handleSubmit = async (tableName) => {
+    try {
+      const response = await axiosClient({
+        url: `backup-database/${tableName}`,
+        method: 'GET',
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `${tableName}_table.sql`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+
+      // Dọn dẹp URL Blob
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error to get backup data', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
+  }
+
   return (
     <CContainer>
-      <CRow className="mb-3">
-        <CCol>
-          <h2>QUẢN LÝ DỮ LIỆU</h2>
-        </CCol>
-      </CRow>
+      {!isPermissionCheck ? (
+        <h5>
+          <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
+          <div className="mt-4">
+            Vui lòng quay lại trang chủ <Link to={'/dashboard'}>(Nhấn vào để quay lại)</Link>
+          </div>
+        </h5>
+      ) : (
+        <>
+          <CRow className="mb-3">
+            <CCol>
+              <h2>QUẢN LÝ DỮ LIỆU</h2>
+            </CCol>
+          </CRow>
 
-      <CRow>
-        <h6>Thông tin dữ liệu</h6>
-        <CTable hover align="middle" className="mb-0 border" responsive>
-          <CTableHead color="light">
-            <CTableRow>
-              <CTableHeaderCell>Table</CTableHeaderCell>
-              <CTableHeaderCell>Row</CTableHeaderCell>
-              <CTableHeaderCell>Data Size</CTableHeaderCell>
-              <CTableHeaderCell>Index Size</CTableHeaderCell>
-              <CTableHeaderCell>Max Data Size</CTableHeaderCell>
-              <CTableHeaderCell>Data Free</CTableHeaderCell>
-              <CTableHeaderCell>Create Time</CTableHeaderCell>
-              <CTableHeaderCell>Update Time</CTableHeaderCell>
-            </CTableRow>
-          </CTableHead>
-          <CTableBody>
-            {dummyData.map((item, index) => (
-              <CTableRow key={index}>
-                <CTableDataCell>{item.table}</CTableDataCell>
-                <CTableDataCell>{item.row}</CTableDataCell>
-                <CTableDataCell>{item.dataSize}</CTableDataCell>
-                <CTableDataCell>{item.indexSize}</CTableDataCell>
-                <CTableDataCell>{item.maxDataSize}</CTableDataCell>
-                <CTableDataCell>{item.dataFree}</CTableDataCell>
-                <CTableDataCell>{item.createTime}</CTableDataCell>
-                <CTableDataCell>{item.updateTime}</CTableDataCell>
-              </CTableRow>
-            ))}
-          </CTableBody>
-        </CTable>
-      </CRow>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <CRow>
+              <h6>Thông tin dữ liệu</h6>
+              <CTable hover align="middle" className="mb-0 border" responsive>
+                <CTableHead color="light">
+                  <CTableRow>
+                    <CTableHeaderCell>Table</CTableHeaderCell>
+                    <CTableHeaderCell>Row</CTableHeaderCell>
+                    <CTableHeaderCell>Data Size</CTableHeaderCell>
+
+                    <CTableHeaderCell>Create Time</CTableHeaderCell>
+                    <CTableHeaderCell>Update Time</CTableHeaderCell>
+                  </CTableRow>
+                </CTableHead>
+                <CTableBody>
+                  {nameTableData && nameTableData?.length > 0
+                    ? nameTableData.map((item, index) => (
+                        <CTableRow key={index}>
+                          <CTableDataCell>
+                            <div
+                              style={{
+                                color: 'blue',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => handleSubmit(item?.nameTable)}
+                            >
+                              {item?.nameTable}
+                            </div>
+                          </CTableDataCell>
+                          <CTableDataCell>{item?.rowCount}</CTableDataCell>
+                          <CTableDataCell>{item?.dataSize}</CTableDataCell>
+                          <CTableDataCell>
+                            {moment(item?.creationTime).format('hh:mm:ss A, DD/MM/YYYY')}
+                          </CTableDataCell>
+                          <CTableDataCell>
+                            {moment(item?.updateTime).format('hh:mm:ss A, DD/MM/YYYY')}
+                          </CTableDataCell>
+                        </CTableRow>
+                      ))
+                    : 'Không có dữ liệu'}
+                </CTableBody>
+              </CTable>
+            </CRow>
+          )}
+        </>
+      )}
     </CContainer>
   )
 }

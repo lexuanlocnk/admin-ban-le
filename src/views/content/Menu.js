@@ -6,7 +6,6 @@ import {
   CFormCheck,
   CFormInput,
   CFormSelect,
-  CFormTextarea,
   CImage,
   CRow,
   CTable,
@@ -262,7 +261,6 @@ function Menu() {
 
   const handleSubmit = async (values, { resetForm }) => {
     console.log('>>> check values', values)
-
     // if (isEditing) {
     //   //call api update data
     //   try {

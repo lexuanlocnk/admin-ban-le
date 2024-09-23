@@ -8,7 +8,7 @@ const AppFooter = () => {
         <a href="https://coreui.io" target="_blank" rel="noopener noreferrer">
           Chính Nhân
         </a>
-        <span className="ms-1">&copy; 2024 chinhnhan.vn | https://chinhnhan.vn</span>
+        <span className="ms-1">&copy; 2024 chinhnhan.vn | https://web.chinhnhan.com</span>
       </div>
       <div className="ms-auto">
         <span className="me-1">Powered by</span>

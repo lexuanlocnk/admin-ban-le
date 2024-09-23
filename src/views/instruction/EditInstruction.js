@@ -149,7 +149,7 @@ function EditInstruction() {
 
             <CCol md={6}>
               <div className="d-flex justify-content-end">
-                <Link to={'/instruction'}>
+                <Link to={'/guide'}>
                   <CButton color="primary" type="button" size="sm">
                     Danh sách
                   </CButton>

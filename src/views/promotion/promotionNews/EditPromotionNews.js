@@ -166,7 +166,7 @@ function EditPromotionNews() {
             </CCol>
             <CCol md={6}>
               <div className="d-flex justify-content-end">
-                <Link to={'/promotion-news'}>
+                <Link to={'/promotion'}>
                   <CButton color="primary" type="button" size="sm">
                     Danh sách
                   </CButton>

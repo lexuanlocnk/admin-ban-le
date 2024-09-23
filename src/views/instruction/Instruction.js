@@ -41,11 +41,11 @@ function Instruction() {
   const [dataSearch, setDataSearch] = useState('')
 
   const handleAddNewClick = () => {
-    navigate('/instruction/add')
+    navigate('/guide/add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/instruction/edit?id=${id}`)
+    navigate(`/guide/edit?id=${id}`)
   }
 
   // search Data
@@ -274,7 +274,7 @@ function Instruction() {
                 >
                   Thêm mới
                 </CButton>
-                <Link to={'/instruction'}>
+                <Link to={'/guide'}>
                   <CButton color="primary" type="submit" size="sm">
                     Danh sách
                   </CButton>

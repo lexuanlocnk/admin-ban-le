@@ -41,11 +41,11 @@ function Introduce() {
   const [dataSearch, setDataSearch] = useState('')
 
   const handleAddNewClick = () => {
-    navigate('/introduce/add')
+    navigate('/about/add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/introduce/edit?id=${id}`)
+    navigate(`/about/edit?id=${id}`)
   }
 
   // search Data
@@ -273,7 +273,7 @@ function Introduce() {
                 >
                   Thêm mới
                 </CButton>
-                <Link to={'/introduce'}>
+                <Link to={'/about'}>
                   <CButton color="primary" type="submit" size="sm">
                     Danh sách
                   </CButton>

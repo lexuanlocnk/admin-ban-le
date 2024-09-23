@@ -32,11 +32,11 @@ function PromotionNews() {
   const [pageNumber, setPageNumber] = useState(1)
 
   const handleAddNewClick = () => {
-    navigate('/promotion-news/add')
+    navigate('/promotion/add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/promotion-news/edit?id=${id}`)
+    navigate(`/promotion/edit?id=${id}`)
   }
 
   // search Data
@@ -259,7 +259,7 @@ function PromotionNews() {
                 >
                   Thêm mới
                 </CButton>
-                <Link to={'/promotion-news'}>
+                <Link to={'/promotion'}>
                   <CButton color="primary" type="submit" size="sm">
                     Danh sách
                   </CButton>

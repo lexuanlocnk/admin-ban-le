@@ -15,7 +15,6 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Search from '../../components/search/Search'
 import ReactPaginate from 'react-paginate'
-import axios from 'axios'
 import { axiosClient } from '../../axiosConfig'
 import CIcon from '@coreui/icons-react'
 import { cilColorBorder, cilTrash } from '@coreui/icons'
@@ -23,7 +22,7 @@ import moment from 'moment'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 
-const host = `http://192.168.245.154.:3000/`
+const host = `http://web.chinhnhan.com/`
 
 function Comment() {
   const navigate = useNavigate()

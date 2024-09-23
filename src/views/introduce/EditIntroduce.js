@@ -149,7 +149,7 @@ function EditIntroduce() {
 
             <CCol md={6}>
               <div className="d-flex justify-content-end">
-                <Link to={'/introduce'}>
+                <Link to={'/about'}>
                   <CButton color="primary" type="button" size="sm">
                     Danh sách
                   </CButton>
