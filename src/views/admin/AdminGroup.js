@@ -301,13 +301,13 @@ function AdminGroup() {
   const handleDeleteSelectedCheckbox = async () => {
     console.log('>>> selectedCheckbox', selectedCheckbox)
 
-    // try {
-    //   const response = await axiosClient.post('/delete-all-comment', {
-    //     data: selectedCheckbox,
-    //   })
-    // } catch (error) {
-    //   console.error('Delete selected checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('/admin/delete-all-role', {
+        data: selectedCheckbox,
+      })
+    } catch (error) {
+      console.error('Delete selected checkbox is error', error)
+    }
   }
 
   return (

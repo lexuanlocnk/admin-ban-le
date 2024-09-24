@@ -44,6 +44,8 @@ function AdminList() {
   const [adminListData, setAdminListData] = useState([])
 
   // selected checkbox
+  // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const [isCollapse, setIsCollapse] = useState(false)
@@ -240,6 +242,29 @@ function AdminList() {
     fetchAdminListData(keyword)
   }
 
+  const handleDeleteAll = async () => {
+    console.log('>>> check undeal', selectedCheckbox)
+    // alert('Chức năng đang thực hiện...')
+
+    try {
+      const response = await axiosClient.post(`/admin/delete-all-admin`, {
+        data: selectedCheckbox,
+      })
+
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả thành công!')
+        fetchAdminListData()
+        setSelectedCheckbox([])
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
+  }
+
   //set img avatar
   function onFileChange(e) {
     const files = e.target.files
@@ -330,7 +355,22 @@ function AdminList() {
   const columns = [
     {
       key: 'id',
-      label: '#',
+      label: (
+        <CFormCheck
+          aria-label="Select all"
+          checked={isAllCheckbox}
+          onChange={(e) => {
+            const isChecked = e.target.checked
+            setIsAllCheckbox(isChecked)
+            if (isChecked) {
+              const allIds = adminListData?.data.map((item) => item.id) || []
+              setSelectedCheckbox(allIds)
+            } else {
+              setSelectedCheckbox([])
+            }
+          }}
+        />
+      ),
       _props: { scope: 'col' },
     },
     {
@@ -560,7 +600,7 @@ function AdminList() {
               </CRow>
               <CRow>
                 <CCol className="my-2" md={4}>
-                  <CButton color="primary" size="sm">
+                  <CButton color="primary" size="sm" onClick={handleDeleteAll}>
                     Xóa vĩnh viễn
                   </CButton>
                 </CCol>
