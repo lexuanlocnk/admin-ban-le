@@ -12,6 +12,7 @@ import {
   CPagination,
   CPaginationItem,
   CFormCheck,
+  CSpinner,
 } from '@coreui/react'
 import './css/adminList.css'
 import CIcon from '@coreui/icons-react'
@@ -42,6 +43,9 @@ function AdminList() {
 
   const [dataRole, setDataRole] = useState([])
   const [adminListData, setAdminListData] = useState([])
+
+  // loading button
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
 
   // selected checkbox
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
@@ -104,7 +108,7 @@ function AdminList() {
           email: data.email,
           displayName: data.display_name,
           phone: data.phone,
-          role: data.roles[0].id,
+          role: data?.roles[0].id,
         })
         setSelectedFile(data.avatar)
       } else {
@@ -133,7 +137,9 @@ function AdminList() {
 
   const fetchAdminListData = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(`/admin/information?data=${dataSearch}`)
+      const response = await axiosClient.get(
+        `/admin/information?data=${dataSearch}&page=${pageNumber}`,
+      )
 
       if (response.data.status === true) {
         setAdminListData(response.data.adminList)
@@ -149,12 +155,13 @@ function AdminList() {
 
   useEffect(() => {
     fetchAdminListData()
-  }, [])
+  }, [pageNumber])
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
       //call api update data
       try {
+        setIsLoadingButton(true)
         const response = await axiosClient.put(`/admin/information/${id}`, {
           // username: values.username,
           // password: values.password,
@@ -167,8 +174,8 @@ function AdminList() {
         if (response.data.status === true) {
           toast.success('Cập nhật thông tin admin thành công!')
           resetForm()
-          navigate('/admin/list')
           fetchAdminListData()
+          navigate('/admin/list')
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
@@ -176,10 +183,13 @@ function AdminList() {
         }
       } catch (error) {
         console.error('Put data admin is error', error)
+      } finally {
+        setIsLoadingButton(false)
       }
     } else {
       //call api post new data
       try {
+        setIsLoadingButton(true)
         const response = await axiosClient.post('/admin/information', {
           username: values.username,
           password: values.password,
@@ -204,6 +214,8 @@ function AdminList() {
         }
       } catch (error) {
         console.error('Post data admin is error', error)
+      } finally {
+        setIsLoadingButton(false)
       }
     }
   }
@@ -483,19 +495,28 @@ function AdminList() {
                           name="role"
                           as={CFormSelect}
                           id="role-select"
-                          options={
-                            dataRole && dataRole?.length > 0
+                          options={[
+                            { label: '**Chọn vai trò**', value: '' },
+                            ...(dataRole && dataRole?.length > 0
                               ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
-                              : []
-                          }
+                              : []),
+                          ]}
                         />
                         <ErrorMessage name="role" component="div" className="text-danger" />
                       </CCol>
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoadingButton}>
+                          {isLoadingButton ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

@@ -1,4 +1,4 @@
-import { CButton, CCol, CContainer, CForm, CFormInput, CImage, CRow } from '@coreui/react'
+import { CButton, CCol, CContainer, CForm, CFormInput, CImage, CRow, CSpinner } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
@@ -12,6 +12,8 @@ function AdminInfo() {
   const [phone, setPhone] = useState('')
 
   const [adminId, setAdminId] = useState(null)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
@@ -68,6 +70,7 @@ function AdminInfo() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/information/${adminId}`, {
         email: email,
         display_name: displayName,
@@ -81,6 +84,8 @@ function AdminInfo() {
     } catch (error) {
       console.error('Put data admin info is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -178,8 +183,20 @@ function AdminInfo() {
             </CCol>
 
             <CCol xs={12}>
-              <CButton onClick={handleSubmit} color="primary" type="submit" size="sm">
-                Cập nhật
+              <CButton
+                onClick={handleSubmit}
+                color="primary"
+                type="submit"
+                size="sm"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                  </>
+                ) : (
+                  'Cập nhật'
+                )}
               </CButton>
             </CCol>
           </CForm>

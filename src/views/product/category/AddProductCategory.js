@@ -15,9 +15,12 @@ import {
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 import { Link } from 'react-router-dom'
+import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
 
 function AddProductCategory() {
   const [categories, setCategories] = useState([])
+
+  const [editorData, setEditorData] = useState('')
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
@@ -37,7 +40,7 @@ function AddProductCategory() {
     color: '',
     visibleBrands: [],
     visibleSupport: [],
-    description: '',
+    // description: '',
     scriptCode: '',
     pageTitle: '',
     metaDesc: '',
@@ -134,7 +137,7 @@ function AddProductCategory() {
         color: values.color,
         home_title: values.homeTitle,
         script_code: values.scriptCode,
-        description: values.description,
+        description: editorData,
         friendly_title: values.pageTitle,
         metakey: values.metaKeyword,
         metadesc: values.metaDesc,
@@ -384,7 +387,7 @@ function AddProductCategory() {
                 </CCol>
                 <br />
 
-                <CCol md={12}>
+                {/* <CCol md={12}>
                   <label htmlFor="desc-input">Mô tả</label>
                   <Field
                     style={{ height: '100px' }}
@@ -395,6 +398,12 @@ function AddProductCategory() {
                     text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
                   />
                   <ErrorMessage name="description" component="div" className="text-danger" />
+                </CCol>
+                <br /> */}
+
+                <CCol md={12}>
+                  <label htmlFor="editor">Mô tả</label>
+                  <CKedtiorCustom data={editorData} onChangeData={(data) => setEditorData(data)} />
                 </CCol>
                 <br />
 

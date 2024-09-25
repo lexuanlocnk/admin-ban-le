@@ -12,10 +12,10 @@ import {
   CImage,
   CRow,
 } from '@coreui/react'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { Link, useLocation } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
 
 function EditProductCategory() {
   const location = useLocation()
@@ -26,6 +26,7 @@ function EditProductCategory() {
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const [categories, setCategories] = useState([])
+  const [editorData, setEditorData] = useState('')
 
   // const [brands, setBrands] = useState([])
   // const [dataCustomerSupport, setDataCustomerSupport] = useState([])
@@ -48,7 +49,7 @@ function EditProductCategory() {
     color: '',
     visibleBrands: [],
     visibleSupport: [],
-    description: '',
+    // description: '',
     scriptCode: '',
     pageTitle: '',
     metaDesc: '',
@@ -81,7 +82,7 @@ function EditProductCategory() {
           color: data.color,
           // visibleBrands: [],
           // visibleSupport: [],
-          description: data.category_desc.description,
+          // description: data.category_desc.description,
           scriptCode: data.category_desc.script_code,
           pageTitle: data.category_desc.friendly_title,
           metaDesc: data.category_desc.metadesc,
@@ -89,6 +90,7 @@ function EditProductCategory() {
           visible: data.display,
           showHome: data.show_home,
         })
+        setEditorData(data.category_desc.description)
         setSelectedFile(data.picture)
         setSelectedFileBackground(data.background)
       }
@@ -170,7 +172,8 @@ function EditProductCategory() {
         color: values.color,
         home_title: values.homeTitle,
         script_code: values.scriptCode,
-        description: values.description,
+        // description: values.description,
+        description: editorData,
         friendly_title: values.pageTitle,
         metakey: values.metaKeyword,
         metadesc: values.metaDesc,
@@ -440,7 +443,7 @@ function EditProductCategory() {
                       </CCol>
                       <br />
 
-                      <CCol md={12}>
+                      {/* <CCol md={12}>
                         <label htmlFor="desc-input">Mô tả</label>
                         <Field
                           style={{ height: '100px' }}
@@ -451,6 +454,15 @@ function EditProductCategory() {
                           text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
                         />
                         <ErrorMessage name="description" component="div" className="text-danger" />
+                      </CCol>
+                      <br /> */}
+
+                      <CCol md={12}>
+                        <label htmlFor="editor">Mô tả</label>
+                        <CKedtiorCustom
+                          data={editorData}
+                          onChangeData={(data) => setEditorData(data)}
+                        />
                       </CCol>
                       <br />
 
