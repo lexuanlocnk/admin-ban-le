@@ -8,6 +8,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -23,6 +24,8 @@ function EditInstruction() {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
+
+  const [isLoading, setIsLoading] = useState(false)
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -76,6 +79,7 @@ function EditInstruction() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/guide/${id}`, {
         title: values.title,
         description: editorData,
@@ -97,6 +101,8 @@ function EditInstruction() {
     } catch (error) {
       console.error('Put data instruct is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -309,8 +315,14 @@ function EditInstruction() {
                           <br />
 
                           <CCol xs={12}>
-                            <CButton color="primary" type="submit" size="sm">
-                              {'Cập nhật'}
+                            <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                              {isLoading ? (
+                                <>
+                                  <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                                </>
+                              ) : (
+                                'Cập nhật'
+                              )}
                             </CButton>
                           </CCol>
                         </CCol>

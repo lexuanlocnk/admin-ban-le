@@ -8,6 +8,7 @@ import { toast } from 'react-toastify'
 
 function AddNewsletter() {
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
 
   const initialValues = {
     email: '',
@@ -25,6 +26,7 @@ function AddNewsletter() {
 
       if (response.data.status === true) {
         toast.success('Thêm danh sách email thành công!')
+        navigate('/newsletter')
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
