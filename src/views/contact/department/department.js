@@ -9,6 +9,7 @@ import {
   CFormTextarea,
   CRow,
   CTable,
+  CSpinner,
 } from '@coreui/react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -22,8 +23,14 @@ import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
+import Loading from '../../../components/loading/Loading'
 
 function Department() {
+  const [isLoading, setIsLoading] = useState({
+    page: false,
+    button: false,
+  })
+
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -79,6 +86,7 @@ function Department() {
 
   const fetchDataDepartment = async (dataSearch = '') => {
     try {
+      setIsLoading((prev) => ({ ...prev, page: true }))
       const response = await axiosClient.get(
         `admin/contact-staff?data=${dataSearch}&page=${pageNumber}`,
       )
@@ -92,6 +100,8 @@ function Department() {
       }
     } catch (error) {
       console.error('Fetch data department is error', error)
+    } finally {
+      setIsLoading((prev) => ({ ...prev, page: false }))
     }
   }
 
@@ -131,6 +141,7 @@ function Department() {
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
+      setIsLoading((prev) => ({ ...prev, button: true }))
       //call api update data
       try {
         const response = await axiosClient.put(`admin/contact-staff/${id}`, {
@@ -157,8 +168,11 @@ function Department() {
       } catch (error) {
         console.error('Put data id department is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
       }
     } else {
+      setIsLoading((prev) => ({ ...prev, button: true }))
       //call api post new data
       try {
         const response = await axiosClient.post('admin/contact-staff', {
@@ -183,6 +197,8 @@ function Department() {
       } catch (error) {
         console.error('Post data department is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
       }
     }
   }
@@ -437,8 +453,21 @@ function Department() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton
+                          color="primary"
+                          type="submit"
+                          size="sm"
+                          disabled={isLoading.button}
+                        >
+                          {isLoading.button ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>
@@ -454,7 +483,11 @@ function Department() {
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
-              <CTable className="mt-3" columns={columns} items={items} />
+              {isLoading.page ? (
+                <Loading />
+              ) : (
+                <CTable className="mt-3" columns={columns} items={items} />
+              )}
 
               <div className="d-flex justify-content-end">
                 <ReactPaginate

@@ -268,25 +268,23 @@ function PaymentMethod() {
   }
 
   const handleDeleteAll = async () => {
-    console.log('>>> check undeal', selectedCheckbox)
-    alert('Chức năng đang thực hiện...')
-    //   try {
-    //     const response = await axiosClient.post(`admin/delete `, {
-    //       data: selectedCheckbox,
-    //     })
+    try {
+      const response = await axiosClient.post(`/admin/delete-all-payment-method`, {
+        data: selectedCheckbox,
+      })
 
-    //     if (response.data.status === true) {
-    //       toast.success('Xóa tất cả thành công!')
-    //       fetchDataPaymentMethod()
-    //       setSelectedCheckbox([])
-    //     }
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả thành công!')
+        fetchDataPaymentMethod()
+        setSelectedCheckbox([])
+      }
 
-    //     if (response.data.status === false && response.data.mess == 'no permission') {
-    //       toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //     }
-    //   } catch (error) {
-    //     toast.error('Đã xảy ra lỗi. Vui long thử lại!')
-    //   }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      toast.error('Đã xảy ra lỗi. Vui long thử lại!')
+    }
   }
 
   const columns = [

@@ -493,7 +493,12 @@ function Menu() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
+                        <CButton
+                          color="primary"
+                          type="submit"
+                          size="sm"
+                          disabled={isLoading.button}
+                        >
                           {isLoading.button ? (
                             <>
                               <CSpinner size="sm"></CSpinner> Đang cập nhật...

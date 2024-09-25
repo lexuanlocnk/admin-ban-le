@@ -311,25 +311,23 @@ function ProductStatus() {
   }
 
   const handleDeleteAll = async () => {
-    console.log('>>> check undeal', selectedCheckbox)
-    // alert('chức năng đang thừc hiện...')
-    // try {
-    //   const response = await axiosClient.post(`admin/delete `, {
-    //     data: selectedCheckbox,
-    //   })
+    try {
+      const response = await axiosClient.post(`admin/delete-all-product-status`, {
+        data: selectedCheckbox,
+      })
 
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả danh mục thành công!')
-    //     fetchDataStatus()
-    //     setSelectedCheckbox([])
-    //   }
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả danh mục thành công!')
+        fetchDataStatus()
+        setSelectedCheckbox([])
+      }
 
-    //   if (response.data.status === false && response.data.mess == 'no permission') {
-    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //   }
-    // } catch (error) {
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   const columns = [

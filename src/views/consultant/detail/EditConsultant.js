@@ -8,12 +8,13 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
@@ -23,6 +24,9 @@ function EditConsultant() {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
+
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -94,6 +98,7 @@ function EditConsultant() {
     console.log('>>> check log', values, editorData)
 
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/faqs/${id}`, {
         title: values.question,
         poster: values.name,
@@ -114,6 +119,8 @@ function EditConsultant() {
     } catch (error) {
       console.error('Put data consultant is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -247,8 +254,14 @@ function EditConsultant() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Cập nhật'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

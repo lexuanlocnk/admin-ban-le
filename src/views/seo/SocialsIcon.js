@@ -10,6 +10,7 @@ import {
   CImage,
   CRow,
   CTable,
+  CSpinner,
 } from '@coreui/react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -22,6 +23,7 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
+import Loading from '../../components/loading/Loading'
 
 function SocialsIcon() {
   const location = useLocation()
@@ -30,6 +32,11 @@ function SocialsIcon() {
   const params = new URLSearchParams(location.search)
   const id = params.get('id')
   const sub = params.get('sub')
+
+  const [isLoading, setIsLoading] = useState({
+    page: false,
+    button: false,
+  })
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -108,6 +115,7 @@ function SocialsIcon() {
 
   const fetchDataSocials = async (dataSearch = '') => {
     try {
+      setIsLoading((prev) => ({ ...prev, page: true }))
       const response = await axiosClient.get(`admin/icon?data=${dataSearch}&page=${pageNumber}`)
 
       if (response.data.status === true) {
@@ -119,6 +127,8 @@ function SocialsIcon() {
       }
     } catch (error) {
       console.error('Fetch data department is error', error)
+    } finally {
+      setIsLoading((prev) => ({ ...prev, page: false }))
     }
   }
 
@@ -160,6 +170,7 @@ function SocialsIcon() {
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
+      setIsLoading((prev) => ({ ...prev, button: true }))
       //call api update data
       try {
         const response = await axiosClient.put(`admin/icon/${id}`, {
@@ -191,8 +202,11 @@ function SocialsIcon() {
       } catch (error) {
         console.error('Put data id icon social is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
       }
     } else {
+      setIsLoading((prev) => ({ ...prev, button: true }))
       //call api post new data
       try {
         const response = await axiosClient.post('admin/icon', {
@@ -223,6 +237,8 @@ function SocialsIcon() {
       } catch (error) {
         console.error('Post data icons is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
       }
     }
   }
@@ -563,8 +579,21 @@ function SocialsIcon() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton
+                          color="primary"
+                          type="submit"
+                          size="sm"
+                          disabled={isLoading.button}
+                        >
+                          {isLoading.button ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>
@@ -580,7 +609,12 @@ function SocialsIcon() {
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
-              <CTable className="mt-3" columns={columns} items={items} />
+
+              {isLoading.page ? (
+                <Loading />
+              ) : (
+                <CTable className="mt-3" columns={columns} items={items} />
+              )}
 
               {/* <div className="d-flex justify-content-end">
                 <ReactPaginate
