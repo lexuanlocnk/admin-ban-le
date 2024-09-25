@@ -27,10 +27,10 @@ function EditContactManagement() {
   const fetchDataById = async () => {
     try {
       setIsLoading(true)
-      const response = await axiosClient.get(`/admin/contact-qoute/${id}/edit`)
+      const response = await axiosClient.get(`/admin/contact/${id}/edit`)
 
       if (response.data.status === true) {
-        setcontactData(response.data.contactQoute)
+        setcontactData(response.data.list)
       } else {
         console.error('No data found for the given ID.')
       }
@@ -99,7 +99,7 @@ function EditContactManagement() {
                         {contactData && Object.keys(contactData).length > 0 ? (
                           <>
                             <tr>
-                              <td>ID</td>
+                              <td style={{ width: 130 }}>ID</td>
                               <td style={{ fontWeight: 600 }}>{contactData?.id}</td>
                             </tr>
                             <tr>
@@ -140,7 +140,7 @@ function EditContactManagement() {
                             </tr>
                           </>
                         ) : (
-                          'Không có dữ liệu báo giá về id này!'
+                          'Không có dữ liệu liên hệ về id này!'
                         )}
                       </tbody>
                     )}
@@ -148,7 +148,7 @@ function EditContactManagement() {
                 </CCol>
               </CRow>
               <CRow className="mt-4">
-                <Link to={'/price-management'}>
+                <Link to={'/contact'}>
                   <CButton color="primary" size="sm">
                     Trở lại
                   </CButton>
