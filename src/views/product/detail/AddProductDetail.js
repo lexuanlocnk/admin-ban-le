@@ -9,6 +9,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -27,6 +28,8 @@ function AddProductDetail() {
   const [descEditor, setDescEditor] = useState('')
   const [promotionEditor, setPromotionEditor] = useState('')
   const [videoEditor, setVideoEditor] = useState('')
+
+  const [isLoading, setIsLoading] = useState(false)
 
   // date picker
   const [startDate, setStartDate] = useState('')
@@ -234,10 +237,9 @@ function AddProductDetail() {
   }
 
   const handleSubmit = async (values) => {
-    console.log('>>>>check values', values)
     //api for submit
-
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/product', {
         title: values.title,
         description: editorData,
@@ -273,6 +275,8 @@ function AddProductDetail() {
     } catch (error) {
       console.error('Post product data is error', error)
       toast.error('Đã xảy ra lỗi. Xin vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -838,8 +842,14 @@ function AddProductDetail() {
                   <br />
 
                   <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      Thêm mới
+                    <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                        </>
+                      ) : (
+                        'Thêm mới'
+                      )}
                     </CButton>
                   </CCol>
                 </CCol>

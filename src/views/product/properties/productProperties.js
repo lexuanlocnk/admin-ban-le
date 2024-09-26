@@ -7,6 +7,7 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
+import Loading from '../../../components/loading/Loading'
 
 function ProductProperties() {
   const navigate = useNavigate()
@@ -18,6 +19,9 @@ function ProductProperties() {
 
   const [dataProductProperties, setDataProductProperties] = useState([])
   const [categories, setCategories] = useState([])
+
+  // loading page
+  const [isLoading, setIsLoading] = useState(false)
 
   const [selectedCategory, setSelectedCategory] = useState('')
   const [choosenCategory, setChoosenCategory] = useState('1')
@@ -49,6 +53,7 @@ function ProductProperties() {
 
   const fetchProductProperties = async (dataSearch = '') => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.get(
         `admin/cat-option?data=${dataSearch}&catId=${choosenCategory}`,
       )
@@ -63,6 +68,8 @@ function ProductProperties() {
       }
     } catch (error) {
       console.error('Fetch data categories is error', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -239,91 +246,95 @@ function ProductProperties() {
               </table>
             </CCol>
             <CCol>
-              <table className="table table-hover border caption-top mt-3">
-                <thead className="thead-dark">
-                  <tr>
-                    <th scope="col">
-                      <CFormCheck id="flexCheckDefault" />
-                    </th>
-                    <th scope="col">Tên</th>
-                    <th scope="col">Chuỗi đường dẫn</th>
-                    <th scope="col">Tác vụ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dataProductProperties &&
-                    dataProductProperties.map((option) => (
-                      <React.Fragment key={option.op_id}>
-                        <tr>
-                          <td scope="row">
-                            <CFormCheck id="flexCheckDefault" />
-                          </td>
-                          <td scope="row" style={{ fontWeight: 600 }}>
-                            {option.title}
-                          </td>
-                          <td scope="row">{option.slug}</td>
-                          <td scope="row">
-                            <div>
-                              <button
-                                onClick={() => handleUpdateClick(option.op_id)}
-                                className="button-action mr-2 bg-info"
-                              >
-                                <CIcon icon={cilColorBorder} className="text-white" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setVisible(true)
-                                  setDeletedId(option.op_id)
-                                }}
-                                className="button-action bg-danger"
-                              >
-                                <CIcon icon={cilTrash} className="text-white" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        {option?.optionChild &&
-                          option?.optionChild.map((optionChild) => (
-                            <React.Fragment key={optionChild.op_id}>
-                              <tr>
-                                <td scope="row">
-                                  <CFormCheck id="flexCheckDefault" />
-                                </td>
-                                <td>
-                                  <img
-                                    src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
-                                    alt="Subcategory"
-                                    className="mr-2"
-                                  />
-                                  {optionChild.title}
-                                </td>
-                                <td>{optionChild.slug}</td>
-                                <td scope="row">
-                                  <div>
-                                    <button
-                                      onClick={() => handleUpdateClick(optionChild.op_id)}
-                                      className="button-action mr-2 bg-info"
-                                    >
-                                      <CIcon icon={cilColorBorder} className="text-white" />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setVisible(true)
-                                        setDeletedId(optionChild.op_id)
-                                      }}
-                                      className="button-action bg-danger"
-                                    >
-                                      <CIcon icon={cilTrash} className="text-white" />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            </React.Fragment>
-                          ))}
-                      </React.Fragment>
-                    ))}
-                </tbody>
-              </table>
+              {isLoading ? (
+                <Loading />
+              ) : (
+                <table className="table table-hover border caption-top mt-3">
+                  <thead className="thead-dark">
+                    <tr>
+                      <th scope="col">
+                        <CFormCheck id="flexCheckDefault" />
+                      </th>
+                      <th scope="col">Tên</th>
+                      <th scope="col">Chuỗi đường dẫn</th>
+                      <th scope="col">Tác vụ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataProductProperties &&
+                      dataProductProperties.map((option) => (
+                        <React.Fragment key={option.op_id}>
+                          <tr>
+                            <td scope="row">
+                              <CFormCheck id="flexCheckDefault" />
+                            </td>
+                            <td scope="row" style={{ fontWeight: 600 }}>
+                              {option.title}
+                            </td>
+                            <td scope="row">{option.slug}</td>
+                            <td scope="row">
+                              <div>
+                                <button
+                                  onClick={() => handleUpdateClick(option.op_id)}
+                                  className="button-action mr-2 bg-info"
+                                >
+                                  <CIcon icon={cilColorBorder} className="text-white" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setVisible(true)
+                                    setDeletedId(option.op_id)
+                                  }}
+                                  className="button-action bg-danger"
+                                >
+                                  <CIcon icon={cilTrash} className="text-white" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          {option?.optionChild &&
+                            option?.optionChild.map((optionChild) => (
+                              <React.Fragment key={optionChild.op_id}>
+                                <tr>
+                                  <td scope="row">
+                                    <CFormCheck id="flexCheckDefault" />
+                                  </td>
+                                  <td>
+                                    <img
+                                      src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
+                                      alt="Subcategory"
+                                      className="mr-2"
+                                    />
+                                    {optionChild.title}
+                                  </td>
+                                  <td>{optionChild.slug}</td>
+                                  <td scope="row">
+                                    <div>
+                                      <button
+                                        onClick={() => handleUpdateClick(optionChild.op_id)}
+                                        className="button-action mr-2 bg-info"
+                                      >
+                                        <CIcon icon={cilColorBorder} className="text-white" />
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setVisible(true)
+                                          setDeletedId(optionChild.op_id)
+                                        }}
+                                        className="button-action bg-danger"
+                                      >
+                                        <CIcon icon={cilTrash} className="text-white" />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </React.Fragment>
+                            ))}
+                        </React.Fragment>
+                      ))}
+                  </tbody>
+                </table>
+              )}
             </CCol>
           </CRow>
         </>

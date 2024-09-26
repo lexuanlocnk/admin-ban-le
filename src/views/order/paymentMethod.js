@@ -43,6 +43,7 @@ function PaymentMethod() {
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
 
   // editor
   const [editorData, setEditorData] = useState('')
@@ -146,7 +147,7 @@ function PaymentMethod() {
     if (isEditing) {
       //call api update data
       try {
-        setIsLoading(true)
+        setIsLoadingButton(true)
         const response = await axiosClient.put(`admin/payment-method/${id}`, {
           title: values.title,
           display: values.visible,
@@ -170,12 +171,12 @@ function PaymentMethod() {
         console.error('Put data payment method is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading(false)
+        setIsLoadingButton(false)
       }
     } else {
       //call api post new data
       try {
-        setIsLoading(true)
+        setIsLoadingButton(true)
         const response = await axiosClient.post('admin/payment-method ', {
           title: values.title,
           display: values.visible,
@@ -200,7 +201,7 @@ function PaymentMethod() {
         console.error('Post data payment method is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading(false)
+        setIsLoadingButton(false)
       }
     }
   }
@@ -510,8 +511,21 @@ function PaymentMethod() {
                           <br />
 
                           <CCol xs={12}>
-                            <CButton color="primary" type="submit" size="sm">
-                              {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                            <CButton
+                              color="primary"
+                              type="submit"
+                              size="sm"
+                              disabled={isLoadingButton}
+                            >
+                              {isLoadingButton ? (
+                                <>
+                                  <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                                </>
+                              ) : isEditing ? (
+                                'Cập nhật'
+                              ) : (
+                                'Thêm mới'
+                              )}
                             </CButton>
                           </CCol>
                         </Form>

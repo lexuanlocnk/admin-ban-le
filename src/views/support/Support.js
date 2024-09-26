@@ -6,6 +6,7 @@ import {
   CFormInput,
   CFormSelect,
   CRow,
+  CSpinner,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -41,6 +42,9 @@ function Support() {
 
   const [supportGroup, setSupportGroup] = useState([])
   const [dataSupport, setDataSupport] = useState([])
+
+  //loading button
+  const [isLoading, setIsLoading] = useState()
 
   const [selectedGroup, setSelectedGroup] = useState('')
 
@@ -163,11 +167,10 @@ function Support() {
   }
 
   const handleSubmit = async (values, { resetForm }) => {
-    console.log(values)
-
     if (isEditing) {
       //call api update data
       try {
+        setIsLoading(true)
         const response = await axiosClient.put(`admin/support/${id}`, {
           title: values.name,
           email: values.email,
@@ -192,10 +195,13 @@ function Support() {
       } catch (error) {
         console.error('Put data support is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     } else {
       //call api post new data
       try {
+        setIsLoading(true)
         const response = await axiosClient.post('admin/support', {
           title: values.name,
           email: values.email,
@@ -218,6 +224,8 @@ function Support() {
       } catch (error) {
         console.error('Post data support is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -360,7 +368,7 @@ function Support() {
           skyName: item?.name,
           type: item?.type,
           actions: (
-            <div>
+            <div style={{ width: 80 }}>
               <button
                 onClick={() => handleEditClick(item.id)}
                 className="button-action mr-2 bg-info"
@@ -526,8 +534,16 @@ function Support() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

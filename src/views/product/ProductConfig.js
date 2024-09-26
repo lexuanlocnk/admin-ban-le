@@ -7,6 +7,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -20,6 +21,8 @@ function ProductConfig() {
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     point: '10000',
@@ -98,6 +101,7 @@ function ProductConfig() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.put('admin/config/1', {
         title: values.pageTitle,
         metaKeywords: values.metaKeyword,
@@ -122,6 +126,8 @@ function ProductConfig() {
     } catch (error) {
       console.error('Put product config data is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -295,8 +301,14 @@ function ProductConfig() {
                   <br />
 
                   <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {'Lưu thay đổi'}
+                    <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                        </>
+                      ) : (
+                        'Lưu thay đổi'
+                      )}
                     </CButton>
                   </CCol>
                 </Form>

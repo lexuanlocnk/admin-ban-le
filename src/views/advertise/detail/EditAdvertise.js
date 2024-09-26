@@ -23,12 +23,13 @@ function EditAdvertise() {
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
 
-  const [isLoading, setIsLoading] = useState(false)
-
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const [dataAdvertiseCategory, setDataAdvertiseCategroy] = useState([])
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')

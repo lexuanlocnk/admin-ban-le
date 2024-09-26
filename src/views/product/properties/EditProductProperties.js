@@ -8,6 +8,7 @@ import {
   CFormSelect,
   CFormTextarea,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -25,6 +26,8 @@ function EditProductProperties() {
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const [propertiesChild, setPropertiesChild] = useState([])
 
@@ -63,6 +66,7 @@ function EditProductProperties() {
 
   const fetchDataProperties = async (setValues) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.get(`admin/cat-option/${id}/edit`)
       const dataDesc = response.data.productCatOptionDesc
       const dataOption = response.data.productCatOption
@@ -82,13 +86,15 @@ function EditProductProperties() {
       }
     } catch (error) {
       console.error('Fetch properties data error', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleSubmit = async (values) => {
-    console.log('>>>> cehck values', values)
     // api for submit
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/cat-option/${id}`, {
         title: values.title,
         parentid: values.parentId,
@@ -108,6 +114,8 @@ function EditProductProperties() {
     } catch (error) {
       console.error('Put product properties data error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -233,8 +241,14 @@ function EditProductProperties() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          Cập nhật
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

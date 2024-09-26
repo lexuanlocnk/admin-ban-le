@@ -8,8 +8,8 @@ import {
   CFormSelect,
   CFormTextarea,
   CRow,
-  CTable,
   CSpinner,
+  CTable,
 } from '@coreui/react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -27,7 +27,6 @@ import { axiosClient } from '../../../axiosConfig'
 function AdvertiseCategory() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
 
   const params = new URLSearchParams(location.search)
   const id = params.get('id')
@@ -38,6 +37,9 @@ function AdvertiseCategory() {
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   const [dataAdvertiseCategory, setDataAdvertiseCategroy] = useState([])
   const [countNewsCategory, setCountNewsCategory] = useState(null)

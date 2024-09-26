@@ -9,6 +9,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
   CTable,
 } from '@coreui/react'
 
@@ -23,6 +24,7 @@ import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
+import Loading from '../../components/loading/Loading'
 
 function ProductBrand() {
   const location = useLocation()
@@ -40,6 +42,11 @@ function ProductBrand() {
 
   const [dataBrands, setDataBrands] = useState([])
   const [countBrand, setCountBrand] = useState(null)
+
+  const [isLoading, setIsLoading] = useState({
+    page: false,
+    button: false,
+  })
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -87,6 +94,7 @@ function ProductBrand() {
 
   const fetchDataBrands = async (dataSearch = '') => {
     try {
+      setIsLoading((prev) => ({ ...prev, page: true }))
       const response = await axiosClient.get(`admin/brand?data=${dataSearch}&page=${pageNumber}`)
 
       if (response.data.status === true) {
@@ -99,6 +107,8 @@ function ProductBrand() {
       }
     } catch (error) {
       console.error('Fetch data product brand is error', error)
+    } finally {
+      setIsLoading((prev) => ({ ...prev, page: false }))
     }
   }
 
@@ -141,6 +151,7 @@ function ProductBrand() {
     if (isEditing) {
       //call api update data
       try {
+        setIsLoading((prev) => ({ ...prev, button: true }))
         const response = await axiosClient.put(`admin/brand/${id}`, {
           description: values.description,
           title: values.title,
@@ -170,10 +181,14 @@ function ProductBrand() {
       } catch (error) {
         console.error('Put data id product brand is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
       }
     } else {
       //call api post new data
       try {
+        setIsLoading((prev) => ({ ...prev, button: true }))
+
         const response = await axiosClient.post('admin/brand', {
           title: values.title,
           description: values.description,
@@ -200,6 +215,8 @@ function ProductBrand() {
       } catch (error) {
         console.error('Post data product brand is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
       }
     }
   }
@@ -565,8 +582,21 @@ function ProductBrand() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton
+                          color="primary"
+                          type="submit"
+                          size="sm"
+                          disabled={isLoading.button}
+                        >
+                          {isLoading.button ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>
@@ -582,7 +612,14 @@ function ProductBrand() {
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
-              <CTable className="mt-2" columns={columns} items={items} />
+
+              {isLoading.page ? (
+                <Loading />
+              ) : (
+                <>
+                  <CTable className="mt-2" columns={columns} items={items} />
+                </>
+              )}
 
               <div className="d-flex justify-content-end">
                 <ReactPaginate

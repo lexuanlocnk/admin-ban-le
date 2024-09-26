@@ -17,6 +17,7 @@ import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
+import Loading from '../../../components/loading/Loading'
 
 // import './css/news.scss'
 
@@ -30,6 +31,9 @@ function Advertise() {
 
   const [dataAdvertisePos, setDataAdvertisePos] = useState([])
   const [selectedPosition, setSelectedPosition] = useState('')
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -81,6 +85,7 @@ function Advertise() {
 
   const fetchDataAdvertise = async (dataSearch = '') => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.get(
         `admin/advertise?data=${dataSearch}&page=${pageNumber}&pos=${selectedPosition}`,
       )
@@ -94,6 +99,8 @@ function Advertise() {
       }
     } catch (error) {
       console.error('Fetch promotion news data is error', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -360,7 +367,11 @@ function Advertise() {
             </CCol>
 
             <CCol>
-              <CTable hover className="mt-3 border" columns={columns} items={items} />
+              {isLoading ? (
+                <Loading />
+              ) : (
+                <CTable hover className="mt-3 border" columns={columns} items={items} />
+              )}
             </CCol>
 
             <div className="d-flex justify-content-end">

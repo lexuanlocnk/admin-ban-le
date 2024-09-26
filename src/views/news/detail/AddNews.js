@@ -8,6 +8,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -23,6 +24,9 @@ function AddNews() {
   const [editorData, setEditorData] = useState('')
   const [dataNewsCategory, setDataNewsCategroy] = useState([])
   const [selectedCateCheckbox, setSelectedCateCheckbox] = useState([])
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     title: '',
@@ -59,9 +63,8 @@ function AddNews() {
   }, [])
 
   const handleSubmit = async (values) => {
-    console.log('>>> check values', values)
-
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/news', {
         title: values.title,
         description: editorData,
@@ -85,6 +88,8 @@ function AddNews() {
     } catch (error) {
       console.error('Post data news is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -329,8 +334,14 @@ function AddNews() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </CCol>
