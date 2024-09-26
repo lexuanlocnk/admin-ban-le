@@ -96,14 +96,13 @@ function AddressManagement() {
   }
 
   const handleDeleteSelectedCheckbox = async () => {
-    alert('Chức năng đang thực hiện...')
     // try {
-    //   const response = await axiosClient.post('admin/delete-all-news', {
+    //   const response = await axiosClient.post('admin/delete-all-contact-config', {
     //     data: selectedCheckbox,
     //   })
     //   if (response.data.status === true) {
     //     toast.success('Xóa tất cả các mục thành công!')
-    //     fetchDataConsultant()
+    //     fetchDataAddress()
     //     setSelectedCheckbox([])
     //   }
     // } catch (error) {

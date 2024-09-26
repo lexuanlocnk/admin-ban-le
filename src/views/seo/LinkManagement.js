@@ -12,6 +12,7 @@ import moment from 'moment/moment'
 
 function LinkManagement() {
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(false)
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
   const [dataLinks, setDataLinks] = useState([])

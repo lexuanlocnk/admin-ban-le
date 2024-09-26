@@ -26,10 +26,7 @@ import { axiosClient } from '../../../axiosConfig'
 import Loading from '../../../components/loading/Loading'
 
 function Department() {
-  const [isLoading, setIsLoading] = useState({
-    page: false,
-    button: false,
-  })
+  const [isLoading, setIsLoading] = useState(false)
 
   const location = useLocation()
   const navigate = useNavigate()
@@ -86,7 +83,6 @@ function Department() {
 
   const fetchDataDepartment = async (dataSearch = '') => {
     try {
-      setIsLoading((prev) => ({ ...prev, page: true }))
       const response = await axiosClient.get(
         `admin/contact-staff?data=${dataSearch}&page=${pageNumber}`,
       )
@@ -100,8 +96,6 @@ function Department() {
       }
     } catch (error) {
       console.error('Fetch data department is error', error)
-    } finally {
-      setIsLoading((prev) => ({ ...prev, page: false }))
     }
   }
 
@@ -141,7 +135,7 @@ function Department() {
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
-      setIsLoading((prev) => ({ ...prev, button: true }))
+      setIsLoading(true)
       //call api update data
       try {
         const response = await axiosClient.put(`admin/contact-staff/${id}`, {
@@ -169,10 +163,10 @@ function Department() {
         console.error('Put data id department is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading((prev) => ({ ...prev, button: false }))
+        setIsLoading(false)
       }
     } else {
-      setIsLoading((prev) => ({ ...prev, button: true }))
+      setIsLoading(true)
       //call api post new data
       try {
         const response = await axiosClient.post('admin/contact-staff', {
@@ -198,7 +192,7 @@ function Department() {
         console.error('Post data department is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading((prev) => ({ ...prev, button: false }))
+        setIsLoading(false)
       }
     }
   }
@@ -333,14 +327,19 @@ function Department() {
   ]
 
   const handleDeleteSelectedCheckbox = async () => {
-    console.log('>>> selectedCheckbox', selectedCheckbox)
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-comment', {
-    //     data: selectedCheckbox,
-    //   })
-    // } catch (error) {
-    //   console.error('Delete selected checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-contact-staff', {
+        data: selectedCheckbox,
+      })
+
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataDepartment()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Delete selected checkbox is error', error)
+    }
   }
 
   return (
@@ -453,13 +452,8 @@ function Department() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton
-                          color="primary"
-                          type="submit"
-                          size="sm"
-                          disabled={isLoading.button}
-                        >
-                          {isLoading.button ? (
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
                             <>
                               <CSpinner size="sm"></CSpinner> Đang cập nhật...
                             </>
@@ -483,11 +477,8 @@ function Department() {
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
-              {isLoading.page ? (
-                <Loading />
-              ) : (
-                <CTable className="mt-3" columns={columns} items={items} />
-              )}
+
+              <CTable className="mt-3" columns={columns} items={items} />
 
               <div className="d-flex justify-content-end">
                 <ReactPaginate

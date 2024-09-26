@@ -8,6 +8,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -21,6 +22,7 @@ import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 
 function AddIntroduce() {
   const [editorData, setEditorData] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     title: '',
@@ -41,9 +43,8 @@ function AddIntroduce() {
   })
 
   const handleSubmit = async (values) => {
-    console.log('>>> check values', values, editorData)
-
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/about', {
         title: values.title,
         description: editorData,
@@ -65,6 +66,8 @@ function AddIntroduce() {
     } catch (error) {
       console.error('Post data introduce is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -252,8 +255,14 @@ function AddIntroduce() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang thêm mới...
+                            </>
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </CCol>

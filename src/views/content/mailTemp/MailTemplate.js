@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient } from '../../../axiosConfig'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
+import { toast } from 'react-toastify'
 
 function MailTemplate() {
   const navigate = useNavigate()
@@ -87,19 +88,18 @@ function MailTemplate() {
   }
 
   const handleDeleteSelectedCheckbox = async () => {
-    alert('Chức năng đang thực hiện...')
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-news', {
-    //     data: selectedCheckbox,
-    //   })
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả các mục thành công!')
-    //     fetchDataConsultant()
-    //     setSelectedCheckbox([])
-    //   }
-    // } catch (error) {
-    //   console.error('Deleted all id checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-mail-template', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataMailTemp()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
   }
 
   const items =

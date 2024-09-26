@@ -33,10 +33,7 @@ function SocialsIcon() {
   const id = params.get('id')
   const sub = params.get('sub')
 
-  const [isLoading, setIsLoading] = useState({
-    page: false,
-    button: false,
-  })
+  const [isLoading, setIsLoading] = useState(false)
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -115,7 +112,6 @@ function SocialsIcon() {
 
   const fetchDataSocials = async (dataSearch = '') => {
     try {
-      setIsLoading((prev) => ({ ...prev, page: true }))
       const response = await axiosClient.get(`admin/icon?data=${dataSearch}&page=${pageNumber}`)
 
       if (response.data.status === true) {
@@ -127,8 +123,6 @@ function SocialsIcon() {
       }
     } catch (error) {
       console.error('Fetch data department is error', error)
-    } finally {
-      setIsLoading((prev) => ({ ...prev, page: false }))
     }
   }
 
@@ -170,7 +164,7 @@ function SocialsIcon() {
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
-      setIsLoading((prev) => ({ ...prev, button: true }))
+      setIsLoading(true)
       //call api update data
       try {
         const response = await axiosClient.put(`admin/icon/${id}`, {
@@ -203,10 +197,10 @@ function SocialsIcon() {
         console.error('Put data id icon social is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading((prev) => ({ ...prev, button: false }))
+        setIsLoading(false)
       }
     } else {
-      setIsLoading((prev) => ({ ...prev, button: true }))
+      setIsLoading(true)
       //call api post new data
       try {
         const response = await axiosClient.post('admin/icon', {
@@ -238,7 +232,7 @@ function SocialsIcon() {
         console.error('Post data icons is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading((prev) => ({ ...prev, button: false }))
+        setIsLoading(false)
       }
     }
   }
@@ -384,14 +378,18 @@ function SocialsIcon() {
   ]
 
   const handleDeleteSelectedCheckbox = async () => {
-    console.log('>>> selectedCheckbox', selectedCheckbox)
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-comment', {
-    //     data: selectedCheckbox,
-    //   })
-    // } catch (error) {
-    //   console.error('Delete selected checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-icon', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataSocials()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Delete selected checkbox is error', error)
+    }
   }
 
   return (
@@ -579,13 +577,8 @@ function SocialsIcon() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton
-                          color="primary"
-                          type="submit"
-                          size="sm"
-                          disabled={isLoading.button}
-                        >
-                          {isLoading.button ? (
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
                             <>
                               <CSpinner size="sm"></CSpinner> Đang cập nhật...
                             </>
@@ -610,11 +603,7 @@ function SocialsIcon() {
                 </CButton>
               </CCol>
 
-              {isLoading.page ? (
-                <Loading />
-              ) : (
-                <CTable className="mt-3" columns={columns} items={items} />
-              )}
+              <CTable className="mt-3" columns={columns} items={items} />
 
               {/* <div className="d-flex justify-content-end">
                 <ReactPaginate

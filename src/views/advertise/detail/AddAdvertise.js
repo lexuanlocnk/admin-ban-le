@@ -21,7 +21,6 @@ import { toast } from 'react-toastify'
 function AddAdvertise() {
   const [dataAdvertiseCategory, setDataAdvertiseCategroy] = useState([])
 
-  //loading button
   const [isLoading, setIsLoading] = useState(false)
 
   // upload image and show image
@@ -321,7 +320,7 @@ function AddAdvertise() {
                     <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
                       {isLoading ? (
                         <>
-                          <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                          <CSpinner size="sm"></CSpinner> Đang thêm mới...
                         </>
                       ) : (
                         'Thêm mới'

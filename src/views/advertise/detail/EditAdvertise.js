@@ -23,6 +23,8 @@ function EditAdvertise() {
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
 
+  const [isLoading, setIsLoading] = useState(false)
+
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
