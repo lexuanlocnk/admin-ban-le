@@ -8,6 +8,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -26,8 +27,7 @@ function EditMailTemplate() {
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
-
-  const username = localStorage.getItem('username')
+  const [isLoading, setIsLoading] = useState(false)
 
   const [editorData, setEditorData] = useState('')
 
@@ -44,15 +44,15 @@ function EditMailTemplate() {
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/faqs/${id}/edit`)
-      const data = response.data.data
-      if (data) {
+      const response = await axiosClient.get(`admin/mail-template/${id}/edit`)
+      const data = response.data.list
+      if (data && response.data.status == 'success') {
         setValues({
-          title: data?.faqs_desc?.title,
-          name: data?.poster,
+          title: data?.title,
+          name: data?.name,
           visible: data?.display,
         })
-        setEditorData(data?.faqs_desc?.description)
+        setEditorData(data?.description)
       } else {
         console.error('No data found for the given ID.')
       }
@@ -66,12 +66,12 @@ function EditMailTemplate() {
   }
 
   const handleSubmit = async (values) => {
-    console.log('>>> check log', values, editorData)
-
     try {
-      const response = await axiosClient.put(`admin/faqs/${id}`, {
-        title: values.question,
+      setIsLoading(true)
+      const response = await axiosClient.put(`admin/mail-template/${id}`, {
+        title: values.title,
         name: values.name,
+        description: editorData,
         display: values.visible,
       })
 
@@ -85,6 +85,8 @@ function EditMailTemplate() {
     } catch (error) {
       console.error('Put data mail template is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -167,8 +169,14 @@ function EditMailTemplate() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Cập nhật'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

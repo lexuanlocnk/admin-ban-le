@@ -41,11 +41,11 @@ function Introduce() {
   const [dataSearch, setDataSearch] = useState('')
 
   const handleAddNewClick = () => {
-    navigate('/introduce/add')
+    navigate('/about/add')
   }
 
   const handleEditClick = (id) => {
-    navigate(`/introduce/edit?id=${id}`)
+    navigate(`/about/edit?id=${id}`)
   }
 
   // search Data
@@ -108,20 +108,18 @@ function Introduce() {
 
   // deleted all checkbox
   const handleDeleteSelectedCheckbox = async () => {
-    console.log('>>>>.  cgheck selected checkbox', selectedCheckbox)
-
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-about', {
-    //     data: selectedCheckbox,
-    //   })
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả các mục thành công!')
-    //     fetchDataNews()
-    //     setSelectedCheckbox([])
-    //   }
-    // } catch (error) {
-    //   console.error('Deleted all id checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-about', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataIntro()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
   }
 
   const items =
@@ -273,7 +271,7 @@ function Introduce() {
                 >
                   Thêm mới
                 </CButton>
-                <Link to={'/introduce'}>
+                <Link to={'/about'}>
                   <CButton color="primary" type="submit" size="sm">
                     Danh sách
                   </CButton>

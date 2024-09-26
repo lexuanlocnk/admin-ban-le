@@ -8,12 +8,13 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
 import { toast } from 'react-toastify'
@@ -21,6 +22,9 @@ import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 
 function AddService() {
   const [editorData, setEditorData] = useState('')
+
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
 
   const initialValues = {
     title: '',
@@ -41,9 +45,10 @@ function AddService() {
   })
 
   const handleSubmit = async (values) => {
-    console.log('>>> check values', values, editorData)
+    // console.log('>>> check values', values, editorData)
 
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/service', {
         title: values.title,
         description: editorData,
@@ -57,6 +62,7 @@ function AddService() {
 
       if (response.data.status === true) {
         toast.success('Thêm mới dịch vụ thành công!')
+        navigate('/service')
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
@@ -65,6 +71,8 @@ function AddService() {
     } catch (error) {
       console.error('Post data service is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -252,8 +260,14 @@ function AddService() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </CCol>

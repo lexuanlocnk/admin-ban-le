@@ -1,5 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { CButton, CCol, CContainer, CFormCheck, CFormInput, CRow, CTable } from '@coreui/react'
+import {
+  CButton,
+  CCol,
+  CContainer,
+  CFormCheck,
+  CFormInput,
+  CRow,
+  CSpinner,
+  CTable,
+} from '@coreui/react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
@@ -7,7 +16,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Search from '../../components/search/Search'
 
 import CIcon from '@coreui/icons-react'
-import { cilTrash, cilColorBorder } from '@coreui/icons'
+import { cilTrash, cilColorBorder, flagSet } from '@coreui/icons'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
@@ -27,6 +36,8 @@ function GroupSupport() {
   const inputRef = useRef(null)
 
   const [dataSupportGroup, setDataSupportGroup] = useState([])
+  //loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -105,6 +116,7 @@ function GroupSupport() {
     if (isEditing) {
       //call api update data
       try {
+        setIsLoading(true)
         const response = await axiosClient.put(`admin/support-group/${id}`, {
           title: values.title,
           name: values.name,
@@ -125,10 +137,13 @@ function GroupSupport() {
       } catch (error) {
         console.error('Put data id group support is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     } else {
       //call api post new data
       try {
+        setIsLoading(true)
         const response = await axiosClient.post('admin/support-group', {
           title: values.title,
           name: values.name,
@@ -146,6 +161,8 @@ function GroupSupport() {
       } catch (error) {
         console.error('Post data group support is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -183,25 +200,23 @@ function GroupSupport() {
   }
 
   const handleDeleteAll = async () => {
-    console.log('>>> check undeal', selectedCheckbox)
-    alert('Chức năng đang thực hiện...')
-    // try {
-    //   const response = await axiosClient.post(`admin/delete `, {
-    //     data: selectedCheckbox,
-    //   })
+    try {
+      const response = await axiosClient.post(`admin/delete-all-support-group`, {
+        data: selectedCheckbox,
+      })
 
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả danh mục đã chọn thành công!')
-    //     fetchDataSupportGroup()
-    //     setSelectedCheckbox([])
-    //   }
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả danh mục đã chọn thành công!')
+        fetchDataSupportGroup()
+        setSelectedCheckbox([])
+      }
 
-    //   if (response.data.status === false && response.data.mess == 'no permission') {
-    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //   }
-    // } catch (error) {
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   const items =
@@ -358,8 +373,16 @@ function GroupSupport() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

@@ -8,6 +8,7 @@ import {
   CFormSelect,
   CFormTextarea,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -26,6 +27,8 @@ function EditOrder() {
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const [dataOrderDetail, setDataOrderDetail] = useState([])
+  //loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   const [dataStatus, setDataStatus] = useState([])
   const [choosenStatus, setChoosenStatus] = useState('')
@@ -79,6 +82,7 @@ function EditOrder() {
   const handleUpdateClick = async () => {
     // submit api put
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/order/${id}`, {
         status: choosenStatus,
         comment: orderNote,
@@ -94,6 +98,8 @@ function EditOrder() {
     } catch (error) {
       console.error('Put data order detail is error', error.message)
       toast.error('Đã xảy ra lỗi! Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -262,7 +268,7 @@ function EditOrder() {
                         {dataOrderDetail.PresentDes && dataOrderDetail.PresentDes !== null && (
                           <>
                             <div>
-                              Đơn hành có quà tặng kèm: {`${dataOrderDetail.PresentDes?.title}`}
+                              Đơn hàng có quà tặng kèm: {`${dataOrderDetail.PresentDes?.title}`}
                             </div>
                             <div
                               dangerouslySetInnerHTML={{
@@ -346,8 +352,14 @@ function EditOrder() {
                     </CCol>
                   </CForm>
                 </CCol>
-                <CButton onClick={handleUpdateClick} color="primary" size="sm">
-                  Cập nhật
+                <CButton onClick={handleUpdateClick} color="primary" size="sm" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                    </>
+                  ) : (
+                    'Cập nhật'
+                  )}
                 </CButton>
               </CRow>
             </>

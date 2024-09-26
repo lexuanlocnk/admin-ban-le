@@ -474,6 +474,7 @@ const routes = [
     element: AddPromotionDetail,
     exact: true,
   },
+
   {
     path: 'promotion-detail/edit',
     name: 'EditPromotionDetail',
@@ -481,15 +482,16 @@ const routes = [
     exact: true,
   },
 
-  { path: '/promotion-news', name: 'Promotion', element: PromotionNews, exact: true },
+  { path: '/promotion', name: 'Promotion', element: PromotionNews, exact: true },
+
   {
-    path: 'promotion-news/add',
+    path: 'promotion/add',
     name: 'AddPromotionNews',
     element: AddPromotionNews,
     exact: true,
   },
   {
-    path: 'promotion-news/edit',
+    path: 'promotion/edit',
     name: 'EditPromotionNews',
     element: EditPromotionNews,
     exact: true,
@@ -572,15 +574,15 @@ const routes = [
   },
 
   // introduce
-  { path: '/introduce', name: 'Introduce', element: Introduce, exact: true },
+  { path: '/about', name: 'Introduce', element: Introduce, exact: true },
   {
-    path: 'introduce/add',
+    path: 'about/add',
     name: 'AddIntroduce',
     element: AddIntroduce,
     exact: true,
   },
   {
-    path: 'introduce/edit',
+    path: 'about/edit',
     name: 'EditIntroduce',
     element: EditIntroduce,
     exact: true,
@@ -602,15 +604,15 @@ const routes = [
   },
 
   // instruction
-  { path: '/instruction', name: 'Instruction', element: Instruction, exact: true },
+  { path: '/guide', name: 'Instruction', element: Instruction, exact: true },
   {
-    path: 'instruction/add',
+    path: 'guide/add',
     name: 'AddInstruction',
     element: AddInstruction,
     exact: true,
   },
   {
-    path: 'instruction/edit',
+    path: 'guide/edit',
     name: 'EditInstruction',
     element: EditInstruction,
     exact: true,

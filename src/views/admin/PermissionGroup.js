@@ -1,4 +1,4 @@
-import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow } from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow, CSpinner } from '@coreui/react'
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -17,6 +17,8 @@ function PermissionGroup() {
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const [cateParentData, setCateParentData] = useState([])
   const [cateChildData, setCateChildData] = useState([])
@@ -95,6 +97,7 @@ function PermissionGroup() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/permission', {
         permissionName: values.permissions,
         parentCate: selectedLabel,
@@ -108,6 +111,8 @@ function PermissionGroup() {
     } catch (error) {
       console.error('Post data permission is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -243,8 +248,14 @@ function PermissionGroup() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

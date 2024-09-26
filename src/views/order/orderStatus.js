@@ -6,6 +6,7 @@ import {
   CFormInput,
   CFormSelect,
   CRow,
+  CSpinner,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -45,6 +46,9 @@ function OrderStatus() {
 
   const [dataStatus, setDataStatus] = useState([])
   const [deletedId, setDeletedId] = useState(null)
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // selected checkbox
   const [isAllcheckbox, setIsAllCheckbox] = useState(false)
@@ -144,6 +148,7 @@ function OrderStatus() {
     console.log(values)
     if (isEditing) {
       try {
+        setIsLoading(true)
         const response = await axiosClient.put(`admin/order-status/${id}`, {
           title: values.title,
           display: values.visible,
@@ -169,9 +174,12 @@ function OrderStatus() {
       } catch (error) {
         console.error('Put data order status is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     } else {
       try {
+        setIsLoading(true)
         const response = await axiosClient.post('admin/order-status', {
           title: values.title,
           display: values.visible,
@@ -197,6 +205,8 @@ function OrderStatus() {
       } catch (error) {
         console.error('Post data order status is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -255,25 +265,23 @@ function OrderStatus() {
     setSortConfig({ key: columnKey, direction })
   }
   const handleDeleteAll = async () => {
-    console.log('>>> check undeal', selectedCheckbox)
-    alert('Chức năng đang thực hiện...')
-    //   try {
-    //     const response = await axiosClient.post(`admin/delete `, {
-    //       data: selectedCheckbox,
-    //     })
+    try {
+      const response = await axiosClient.post(`/admin/delete-all-order-status`, {
+        data: selectedCheckbox,
+      })
 
-    //     if (response.data.status === true) {
-    //       toast.success('Xóa tất cả danh mục thành công!')
-    //       fetchDataStatusOrder()
-    //       setSelectedCheckbox([])
-    //     }
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả danh mục thành công!')
+        fetchDataStatusOrder()
+        setSelectedCheckbox([])
+      }
 
-    //     if (response.data.status === false && response.data.mess == 'no permission') {
-    //       toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //     }
-    //   } catch (error) {
-    //     toast.error('Đã xảy ra lỗi. Vui long thử lại!')
-    //   }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      toast.error('Đã xảy ra lỗi. Vui long thử lại!')
+    }
   }
 
   const columns = [
@@ -555,8 +563,16 @@ function OrderStatus() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

@@ -7,6 +7,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useState } from 'react'
 
@@ -22,6 +23,9 @@ import { toast } from 'react-toastify'
 
 function AddPromotionNews() {
   const [editorData, setEditorData] = useState('')
+
+  //loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     title: '',
@@ -52,9 +56,8 @@ function AddPromotionNews() {
   })
 
   const handleSubmit = async (values) => {
-    console.log('>>> check values', values)
-
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/promotion', {
         title: values.title,
         description: editorData,
@@ -78,6 +81,8 @@ function AddPromotionNews() {
     } catch (error) {
       console.error('Post data promotion news is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -120,7 +125,7 @@ function AddPromotionNews() {
         </CCol>
         <CCol md={6}>
           <div className="d-flex justify-content-end">
-            <Link to={'/promotion-news'}>
+            <Link to={'/promotion'}>
               <CButton color="primary" type="button" size="sm">
                 Danh sách
               </CButton>
@@ -289,8 +294,14 @@ function AddPromotionNews() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </CCol>

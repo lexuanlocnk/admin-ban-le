@@ -1,52 +1,43 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik'
-import { CButton, CCol, CContainer, CFormCheck, CRow, CFormTextarea } from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CRow, CFormTextarea, CSpinner } from '@coreui/react'
 import React, { useEffect, useState, useParams } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
+import { axiosClient } from '../../axiosConfig'
+import { toast } from 'react-toastify'
 
 function AddNewsletter() {
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+
   const initialValues = {
     email: '',
   }
-
   const validationSchema = Yup.object({
     email: Yup.string().required('Email là bắt buộc.'),
   })
 
-  //   const fetchDataNewsletter = async () => {
-  //     try {
-  //       const response = await axiosClient.get(`admin/`)
-  //       if (response.data.status === true) {
-  //         setDataNewsletter(response.data.list)
-  //       }
-  //     } catch (error) {
-  //       console.error('Fetch data news is error', error)
-  //     }
-  //   }
-
-  //   useEffect(() => {
-  //     fetchDataNewsletter()
-  //   }, [])
-
   const handleSubmit = async (values) => {
-    console.log('>>> check values', values)
+    try {
+      setIsLoading(true)
+      const response = await axiosClient.post('admin/mail-list', {
+        email: values.email,
+      })
 
-    // try {
-    //   const response = await axiosClient.post('admin/', {
-    //     email: values.email,
-    //   })
+      if (response.data.status === true) {
+        toast.success('Thêm danh sách email thành công!')
+        navigate('/newsletter')
+      }
 
-    //   if (response.data.status === true) {
-    //     toast.success('Thêm danh sách email thành công!')
-    //   }
-
-    //   if (response.data.status === false && response.data.mess == 'no permission') {
-    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //   }
-    // } catch (error) {
-    //   console.error('Post data news is error', error)
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      console.error('Post data newsletter is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -84,15 +75,23 @@ function AddNewsletter() {
                   <Field
                     style={{ height: '100px' }}
                     name="email"
-                    type="email"
+                    type="text"
                     as={CFormTextarea}
                     text="Nhập vào đây một hoặc nhiều email. Mỗi email cách nhau bởi một dấu phẩy (,)"
                   />
                   <ErrorMessage name="email" component="div" className="text-danger" />
 
-                  <CButton color="primary" type="submit" size="sm" className="mt-5">
-                    Thêm mới
-                  </CButton>
+                  <CCol xs={12}>
+                    <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                        </>
+                      ) : (
+                        'Thêm mới'
+                      )}
+                    </CButton>
+                  </CCol>
                 </CCol>
               </CRow>
             </CCol>

@@ -3,13 +3,11 @@ import {
   CButton,
   CCol,
   CContainer,
-  CFormCheck,
   CFormInput,
   CFormSelect,
-  CFormTextarea,
   CImage,
   CRow,
-  CTable,
+  CSpinner,
 } from '@coreui/react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -19,94 +17,11 @@ import Search from '../../components/search/Search'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
-import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
-const menuData = [
-  {
-    id: 1,
-    title: 'Tin tức',
-    link: 'tin-tuc',
-  },
-  {
-    id: 2,
-    title: 'Laptop',
-    link: 'laptop',
-    children: [
-      {
-        id: 3,
-        title: 'Thương hiệu',
-        link: 'laptop',
-        children: [
-          {
-            id: 4,
-            title: 'Apple Macbook',
-            link: 'macbook-apple',
-          },
-          {
-            id: 5,
-            title: 'HP',
-            link: 'laptop/hp',
-          },
-          {
-            id: 6,
-            title: 'Dell',
-            link: 'laptop/dell',
-          },
-          {
-            id: 7,
-            title: 'Asus',
-            link: 'laptop/asus',
-          },
-          {
-            id: 8,
-            title: 'Acer',
-            link: 'laptop/acer',
-          },
-          {
-            id: 9,
-            title: 'Lenovo',
-            link: 'laptop/lenovo',
-          },
-          {
-            id: 10,
-            title: 'LG',
-            link: 'laptop-lg',
-          },
-        ],
-      },
-      {
-        id: 11,
-        title: 'Nhu cầu sử dụng',
-        link: './',
-        children: [
-          {
-            id: 12,
-            title: 'Laptop cho doanh nhân',
-            link: '/laptop?op_id=49&price=10000000-100000000',
-          },
-          {
-            id: 13,
-            title: 'Laptop cho kỹ thuật viên',
-            link: '/laptop?op_id=49,182&price=0-100000000',
-          },
-          {
-            id: 14,
-            title: 'Laptop cho văn phòng',
-            link: '/laptop?price=0-4500000',
-          },
-          {
-            id: 15,
-            title: 'Laptop cho sinh viên',
-            link: '/laptop?price=0-2500000',
-          },
-        ],
-      },
-    ],
-  },
-]
+import Loading from '../../components/loading/Loading'
 
 function Menu() {
   const location = useLocation()
@@ -122,7 +37,12 @@ function Menu() {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
 
-  const [dataDepartment, setDataDepartment] = useState([])
+  const [dataMenu, setDataMenu] = useState([])
+
+  const [isLoading, setIsLoading] = useState({
+    page: false,
+    button: false,
+  })
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -153,18 +73,14 @@ function Menu() {
       .required('Tiêu đề là bắt buộc.')
       .min(3, 'Tiêu đề phải có ít nhất 3 ký tự.')
       .max(100, 'Tiêu đề không được vượt quá 100 ký tự.'),
-
-    url: Yup.string().required('Liên kết là bắt buộc.').url('Liên kết không hợp lệ.'),
-
+    url: Yup.string().required('Liên kết là bắt buộc.'),
     name: Yup.string()
       .required('Tên action là bắt buộc.')
       .min(3, 'Tên action phải có ít nhất 3 ký tự.')
       .max(50, 'Tên action không được vượt quá 50 ký tự.'),
-
     target: Yup.string()
       .required('Đích đến là bắt buộc.')
       .oneOf(['_self', '_blank', '_parent', '_top'], 'Đích đến không hợp lệ.'),
-
     visible: Yup.number()
       .required('Trường hiển thị là bắt buộc.')
       .oneOf([0, 1], 'Giá trị hiển thị phải là 0 hoặc 1.'),
@@ -208,14 +124,13 @@ function Menu() {
     }
   }, [location.search])
 
-  const fetchDataDepartment = async (dataSearch = '') => {
+  const fetchDataMenu = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(
-        `admin/contact-staff?data=${dataSearch}&page=${pageNumber}`,
-      )
+      setIsLoading((prev) => ({ ...prev, page: true }))
+      const response = await axiosClient.get(`admin/menu?data=${dataSearch}&page=${pageNumber}`)
 
-      if (response.data.status === true) {
-        setDataDepartment(response.data.data)
+      if (response.data.message === 'Fetched from database') {
+        setDataMenu(response.data.data)
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
@@ -223,26 +138,29 @@ function Menu() {
       }
     } catch (error) {
       console.error('Fetch data department is error', error)
+    } finally {
+      setIsLoading((prev) => ({ ...prev, page: false }))
     }
   }
 
   useEffect(() => {
-    fetchDataDepartment()
+    fetchDataMenu()
   }, [pageNumber])
 
   const fetchDataById = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/contact-staff/${id}/edit`)
-      const data = response.data.contactStaff
-      if (data) {
+      const response = await axiosClient.get(`admin/menu/${id}/edit`)
+      const data = response.data
+      if (data && response.data.status === true) {
         setValues({
-          title: data?.title,
-          email: data?.email,
-          phone: data?.phone,
-          description: data?.description,
-          visible: data?.display,
+          title: data?.menuDes.title,
+          url: data?.menuDes.link,
+          name: data?.menuDes.name,
+          target: data?.menu?.target,
+          childOf: data?.menu?.parentid,
+          visible: data?.menu?.display,
         })
-        setSelectedFile(data.picture)
+        setSelectedFile(data?.menu?.menu_icon)
       } else {
         console.error('No data found for the given ID.')
       }
@@ -261,62 +179,73 @@ function Menu() {
   }
 
   const handleSubmit = async (values, { resetForm }) => {
-    console.log('>>> check values', values)
+    if (isEditing) {
+      //call api update data
+      try {
+        setIsLoading((prev) => ({ ...prev, button: true }))
 
-    // if (isEditing) {
-    //   //call api update data
-    //   try {
-    //     const response = await axiosClient.put(`admin/contact-staff/${id}`, {
-    //       title: values.title,
-    //       email: values.email,
-    //       phone: values.phone,
-    //       description: values.description,
-    //       display: values.visible,
-    //     })
-    //     if (response.data.status === true) {
-    //       toast.success('Cập nhật phòng ban thành công')
-    //       resetForm()
-    //       navigate('/department')
-    //       fetchDataDepartment()
-    //     } else {
-    //       console.error('No data found for the given ID.')
-    //     }
+        const response = await axiosClient.put(`admin/menu/${id}`, {
+          title: values.title,
+          link: values.url,
+          name: values.name,
+          parentid: values.childOf,
+          display: values.visible,
+          target: values.target,
+          picture: selectedFile,
+        })
+        if (response.data.status === true) {
+          toast.success('Cập nhật danh mục thành công')
+          resetForm()
+          setSelectedFile([])
+          setFile([])
+          fetchDataMenu()
+          navigate('/content/menu')
+        } else {
+          console.error('No data found for the given ID.')
+        }
 
-    //     // phân quyền tác vụ update
-    //     if (response.data.status === false && response.data.mess == 'no permission') {
-    //       toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //     }
-    //   } catch (error) {
-    //     console.error('Put data id department is error', error.message)
-    //     toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    //   }
-    // } else {
-    //   //call api post new data
-    //   try {
-    //     const response = await axiosClient.post('admin/contact-staff', {
-    //       title: values.title,
-    //       email: values.email,
-    //       phone: values.phone,
-    //       description: values.description,
-    //       display: values.visible,
-    //     })
-
-    //     if (response.data.status === true) {
-    //       toast.success('Thêm mới phòng ban thành công!')
-    //       fetchDataDepartment()
-    //       resetForm()
-    //       navigate('/department?sub=add')
-    //     }
-
-    //     // phân quyền tác vụ add
-    //     if (response.data.status === false && response.data.mess == 'no permission') {
-    //       toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //     }
-    //   } catch (error) {
-    //     console.error('Post data department is error', error)
-    //     toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    //   }
-    // }
+        // phân quyền tác vụ update
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
+      } catch (error) {
+        console.error('Put data id menu is error', error.message)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
+      }
+    } else {
+      //call api post new data
+      try {
+        setIsLoading((prev) => ({ ...prev, button: true }))
+        const response = await axiosClient.post('admin/menu', {
+          title: values.title,
+          link: values.url,
+          name: values.name,
+          parentid: values.childOf,
+          display: values.visible,
+          target: values.target,
+          picture: selectedFile,
+        })
+        if (response.data.status === true) {
+          toast.success('Thêm mới danh mục thành công!')
+          resetForm()
+          setSelectedFile([])
+          setFile([])
+          fetchDataMenu()
+          navigate('/content/menu?sub=add')
+        }
+        // phân quyền tác vụ add
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
+      } catch (error) {
+        console.error('Post data menu is error', error)
+        toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
+      }
+    }
   }
 
   const handleAddNewClick = () => {
@@ -331,10 +260,10 @@ function Menu() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/contact-staff/${deletedId}`)
+      const response = await axiosClient.delete(`admin/menu/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
-        fetchDataDepartment()
+        fetchDataMenu()
       }
 
       // phân quyền tác vụ delete
@@ -342,7 +271,7 @@ function Menu() {
         toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
-      console.error('Delete department id is error', error)
+      console.error('Delete menu id is error', error)
       toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
     }
   }
@@ -361,92 +290,8 @@ function Menu() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataDepartment(keyword)
+    fetchDataMenu(keyword)
   }
-
-  const items =
-    dataDepartment?.data && dataDepartment?.data?.length > 0
-      ? dataDepartment?.data.map((item) => ({
-          id: (
-            <CFormCheck
-              id={item.staff_id}
-              checked={selectedCheckbox.includes(item.staff_id)}
-              value={item.staff_id}
-              onChange={(e) => {
-                const idx = item.staff_id
-                const isChecked = e.target.checked
-                if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, idx])
-                } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== idx))
-                }
-              }}
-            />
-          ),
-          title: item?.title,
-
-          mail: item?.email,
-          actions: (
-            <div>
-              <button
-                onClick={() => handleEditClick(item.staff_id)}
-                className="button-action mr-2 bg-info"
-              >
-                <CIcon icon={cilColorBorder} className="text-white" />
-              </button>
-              <button
-                onClick={() => {
-                  setVisible(true)
-                  setDeletedId(item.staff_id)
-                }}
-                className="button-action bg-danger"
-              >
-                <CIcon icon={cilTrash} className="text-white" />
-              </button>
-            </div>
-          ),
-          _cellProps: { id: { scope: 'row' } },
-        }))
-      : []
-
-  const columns = [
-    {
-      key: 'id',
-      label: (
-        <CFormCheck
-          aria-label="Select all"
-          checked={isAllCheckbox}
-          onChange={(e) => {
-            const isChecked = e.target.checked
-            setIsAllCheckbox(isChecked)
-            if (isChecked) {
-              const allIds = dataDepartment?.data.map((item) => item.staff_id) || []
-              setSelectedCheckbox(allIds)
-            } else {
-              setSelectedCheckbox([])
-            }
-          }}
-        />
-      ),
-      _props: { scope: 'col' },
-    },
-    {
-      key: 'title',
-      label: 'Tiêu đề',
-      _props: { scope: 'col' },
-    },
-    {
-      key: 'mail',
-      label: 'Thư điện tử',
-      _props: { scope: 'col' },
-    },
-
-    {
-      key: 'actions',
-      label: 'Tác vụ',
-      _props: { scope: 'col' },
-    },
-  ]
 
   const handleDeleteSelectedCheckbox = async () => {
     console.log('>>> selectedCheckbox', selectedCheckbox)
@@ -569,25 +414,28 @@ function Menu() {
                           onChange={(e) => setFieldValue('childOf', e.target.value)}
                         >
                           <option value={''}>None</option>
-                          {menuData &&
-                            menuData?.map((item) => (
-                              <React.Fragment key={item.id}>
-                                <option value={item.id}>
-                                  {item?.title} ({item?.id})
+                          {dataMenu &&
+                            dataMenu?.map((item) => (
+                              <React.Fragment key={item.menu_id}>
+                                <option value={item.menu_id}>
+                                  {item?.menu_desc?.title} ({item?.menu_id})
                                 </option>
-                                {item?.children &&
-                                  item?.children.map((subItem) => (
-                                    <React.Fragment key={subItem.id}>
-                                      <option value={subItem.id}>
+                                {item?.parenty &&
+                                  item?.parenty.map((subItem) => (
+                                    <React.Fragment key={subItem.menu_id}>
+                                      <option value={subItem.menu_id}>
                                         &nbsp;&nbsp;&nbsp;{'|--'}
-                                        {subItem?.title} ({subItem.id})
+                                        {subItem.menu_desc?.title} ({subItem.menu_id})
                                       </option>
 
-                                      {subItem?.children &&
-                                        subItem?.children.map((subSubItem) => (
-                                          <option key={subSubItem.id} value={subSubItem.id}>
+                                      {subItem?.parentx &&
+                                        subItem?.parentx.map((subSubItem) => (
+                                          <option
+                                            key={subSubItem.menu_id}
+                                            value={subSubItem.menu_id}
+                                          >
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'|--'}
-                                            {subSubItem?.title}({subSubItem.id})
+                                            {subSubItem.menu_desc?.title}({subSubItem.menu_id})
                                           </option>
                                         ))}
                                     </React.Fragment>
@@ -645,8 +493,21 @@ function Menu() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton
+                          color="primary"
+                          type="submit"
+                          size="sm"
+                          disabled={isLoading.button}
+                        >
+                          {isLoading.button ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>
@@ -656,35 +517,147 @@ function Menu() {
             </CCol>
 
             <CCol>
-              <Search count={dataDepartment?.total} onSearchData={handleSearch} />
+              <Search count={dataMenu?.length} onSearchData={handleSearch} />
               <CCol md={12} className="mt-3">
                 <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
-              <CTable className="mt-3" columns={columns} items={items} />
 
-              <div className="d-flex justify-content-end">
-                <ReactPaginate
-                  pageCount={Math.ceil(dataDepartment?.total / dataDepartment?.per_page)}
-                  pageRangeDisplayed={3}
-                  marginPagesDisplayed={1}
-                  pageClassName="page-item"
-                  pageLinkClassName="page-link"
-                  previousClassName="page-item"
-                  previousLinkClassName="page-link"
-                  nextClassName="page-item"
-                  nextLinkClassName="page-link"
-                  breakLabel="..."
-                  breakClassName="page-item"
-                  breakLinkClassName="page-link"
-                  onPageChange={handlePageChange}
-                  containerClassName={'pagination'}
-                  activeClassName={'active'}
-                  previousLabel={'<<'}
-                  nextLabel={'>>'}
-                />
-              </div>
+              {isLoading.page ? (
+                <Loading />
+              ) : (
+                <>
+                  <CCol>
+                    <table className="table table-hover caption-top mt-3">
+                      <thead className="thead-dark">
+                        <tr>
+                          <th style={{ width: 320 }} scope="col">
+                            Tên
+                          </th>
+                          <th scope="col">Liên kết</th>
+                          <th style={{ width: 120 }} scope="col">
+                            Tác vụ
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dataMenu &&
+                          dataMenu?.length > 0 &&
+                          dataMenu?.map((item) => (
+                            <React.Fragment key={item?.menu_id}>
+                              <tr>
+                                <td scope="row" style={{ fontWeight: 600 }}>
+                                  {item?.menu_desc?.title}
+                                </td>
+                                <td>{item?.menu_desc?.link}</td>
+                                <td scope="row">
+                                  <div>
+                                    <button
+                                      onClick={() => handleEditClick(item?.menu_id)}
+                                      className="button-action mr-2 bg-info"
+                                    >
+                                      <CIcon icon={cilColorBorder} className="text-white" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setVisible(true)
+                                        setDeletedId(item?.menu_id)
+                                      }}
+                                      className="button-action bg-danger"
+                                    >
+                                      <CIcon icon={cilTrash} className="text-white" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+
+                              {item.parenty &&
+                                item.parenty.map((subItem) => (
+                                  <React.Fragment key={subItem?.menu_id}>
+                                    <tr>
+                                      <td>
+                                        <img
+                                          src={`${imageBaseUrl}row-sub.gif`}
+                                          alt="Subcategory"
+                                          className="mr-2"
+                                        />
+                                        {subItem?.menu_desc?.title}
+                                      </td>
+
+                                      <td>{subItem?.menu_desc?.link}</td>
+
+                                      <td scope="row">
+                                        <div>
+                                          <button
+                                            onClick={() => handleEditClick(subItem.menu_id)}
+                                            className="button-action mr-2 bg-info"
+                                          >
+                                            <CIcon icon={cilColorBorder} className="text-white" />
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              setVisible(true)
+                                              setDeletedId(subItem.menu_id)
+                                            }}
+                                            className="button-action bg-danger"
+                                          >
+                                            <CIcon icon={cilTrash} className="text-white" />
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+
+                                    {subItem.parentx &&
+                                      subItem.parentx.map((subSubItem) => (
+                                        <React.Fragment key={subSubItem.menu_id}>
+                                          <tr>
+                                            <td>
+                                              <img
+                                                src={`${imageBaseUrl}row-sub.gif`}
+                                                alt="Subcategory"
+                                                style={{ marginLeft: 16 }}
+                                              />
+                                              {subSubItem?.menu_desc?.title}
+                                            </td>
+                                            <td>{subSubItem?.menu_desc?.link}</td>
+
+                                            <td scope="row">
+                                              <div>
+                                                <button
+                                                  onClick={() =>
+                                                    handleEditClick(subSubItem.menu_id)
+                                                  }
+                                                  className="button-action mr-2 bg-info"
+                                                >
+                                                  <CIcon
+                                                    icon={cilColorBorder}
+                                                    className="text-white"
+                                                  />
+                                                </button>
+                                                <button
+                                                  onClick={() => {
+                                                    setVisible(true)
+                                                    setDeletedId(subSubItem.menu_id)
+                                                  }}
+                                                  className="button-action bg-danger"
+                                                >
+                                                  <CIcon icon={cilTrash} className="text-white" />
+                                                </button>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </React.Fragment>
+                                      ))}
+                                  </React.Fragment>
+                                ))}
+                            </React.Fragment>
+                          ))}
+                      </tbody>
+                    </table>
+                  </CCol>
+                </>
+              )}
             </CCol>
           </CRow>
         </>

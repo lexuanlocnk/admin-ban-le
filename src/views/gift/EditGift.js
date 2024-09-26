@@ -14,6 +14,7 @@ import {
   CFormSelect,
   CFormTextarea,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -27,6 +28,8 @@ import { axiosClient } from '../../axiosConfig'
 function EditGift() {
   const [categories, setCategories] = useState([])
   const [editorData, setEditorData] = useState('')
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
@@ -116,6 +119,7 @@ function EditGift() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/present/${id}`, {
         title: values.title,
         code: values.releaseCode,
@@ -140,6 +144,8 @@ function EditGift() {
     } catch (error) {
       console.error('Post gift data is error', error)
       toast.error('Đã xảy ra lỗi! Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -424,8 +430,14 @@ function EditGift() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          Cập nhật
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

@@ -5,9 +5,8 @@ import {
   CFormCheck,
   CFormInput,
   CFormSelect,
-  CFormTextarea,
-  CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -21,6 +20,7 @@ import { toast } from 'react-toastify'
 
 function AddMailTemp() {
   const [editorData, setEditorData] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     title: '',
@@ -34,26 +34,28 @@ function AddMailTemp() {
   })
 
   const handleSubmit = async (values) => {
-    console.log('>>> check log', values, editorData)
+    try {
+      setIsLoading(true)
+      const response = await axiosClient.post('admin/mail-template', {
+        title: values.title,
+        name: values.name,
+        description: editorData,
+        display: values.visible,
+      })
 
-    // try {
-    //   const response = await axiosClient.post('admin/faqs', {
-    //     title: values.question,
-    //     name: values.name,
-    //     display: values.visible,
-    //   })
+      if (response.data.status === true) {
+        toast.success('Thêm mail template thành công!')
+      }
 
-    //   if (response.data.status === true) {
-    //     toast.success('Thêm mail template thành công!')
-    //   }
-
-    //   if (response.data.status === false && response.data.mess == 'no permission') {
-    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //   }
-    // } catch (error) {
-    //   console.error('Post data mail temp is error', error)
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      console.error('Post data mail temp is error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -123,8 +125,14 @@ function AddMailTemp() {
                   <br />
 
                   <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {'Thêm mới'}
+                    <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                        </>
+                      ) : (
+                        'Thêm mới'
+                      )}
                     </CButton>
                   </CCol>
                 </Form>

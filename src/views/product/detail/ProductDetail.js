@@ -27,6 +27,7 @@ import './css/productDetail.css'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 import { toast } from 'react-toastify'
+import Loading from '../../../components/loading/Loading'
 
 function ProductDetail() {
   const navigate = useNavigate()
@@ -35,6 +36,9 @@ function ProductDetail() {
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const [dataProductList, setDataProductList] = useState([])
+
+  //loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // category
   const [categories, setCategories] = useState([])
@@ -52,6 +56,10 @@ function ProductDetail() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [errors, setErrors] = useState({ startDate: '', endDate: '' })
+
+  // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
+  const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   // validate for date start - date end
   const validateDates = (start, end) => {
@@ -122,6 +130,7 @@ function ProductDetail() {
 
   const fetchProductData = async () => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.get(
         `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
       )
@@ -134,6 +143,8 @@ function ProductDetail() {
       }
     } catch (error) {
       console.error('Fetch product data list is error', error.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -245,7 +256,7 @@ function ProductDetail() {
             </>
           ),
           actions: (
-            <div>
+            <div style={{ width: 80 }}>
               <button
                 onClick={() => handleUpdateClick(item.product_id)}
                 className="button-action mr-2 bg-info"
@@ -445,35 +456,39 @@ function ProductDetail() {
             </CCol>
 
             <CCol>
-              <CTable hover className="mt-3 border">
-                <thead>
-                  <tr>
-                    {columns.map((column) => (
-                      <CTableHeaderCell
-                        key={column.key}
-                        onClick={() => handleSort(column.key)}
-                        className="prevent-select"
-                      >
-                        {column.label}
-                        {sortConfig.key === column.key
-                          ? sortConfig.direction === 'ascending'
-                            ? ' ▼'
-                            : ' ▲'
-                          : ''}
-                      </CTableHeaderCell>
-                    ))}
-                  </tr>
-                </thead>
-                <CTableBody>
-                  {sortedItems.map((item, index) => (
-                    <CTableRow key={index}>
+              {isLoading ? (
+                <Loading />
+              ) : (
+                <CTable hover className="mt-3 border">
+                  <thead>
+                    <tr>
                       {columns.map((column) => (
-                        <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                        <CTableHeaderCell
+                          key={column.key}
+                          onClick={() => handleSort(column.key)}
+                          className="prevent-select"
+                        >
+                          {column.label}
+                          {sortConfig.key === column.key
+                            ? sortConfig.direction === 'ascending'
+                              ? ' ▼'
+                              : ' ▲'
+                            : ''}
+                        </CTableHeaderCell>
                       ))}
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
+                    </tr>
+                  </thead>
+                  <CTableBody>
+                    {sortedItems.map((item, index) => (
+                      <CTableRow key={index}>
+                        {columns.map((column) => (
+                          <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                        ))}
+                      </CTableRow>
+                    ))}
+                  </CTableBody>
+                </CTable>
+              )}
 
               <div className="d-flex justify-content-end">
                 <ReactPaginate

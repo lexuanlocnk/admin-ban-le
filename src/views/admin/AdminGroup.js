@@ -6,6 +6,7 @@ import {
   CFormCheck,
   CFormInput,
   CRow,
+  CSpinner,
   CTable,
 } from '@coreui/react'
 import React, { useEffect, useRef, useState } from 'react'
@@ -33,6 +34,9 @@ function AdminGroup() {
 
   const [title, setTitle] = useState('')
   const [role, setRole] = useState('')
+
+  // loading button
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
 
   const [adminGroupData, setAdminGroupData] = useState([])
 
@@ -102,6 +106,7 @@ function AdminGroup() {
     if (isEditing) {
       //call api update data
       try {
+        setIsLoadingButton(true)
         const response = await axiosClient.put(`admin/role/${id}`, {
           title: title,
           name: role,
@@ -118,20 +123,13 @@ function AdminGroup() {
       } catch (error) {
         console.error('Put role adminstrator data is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-
-        // if (error.response) {
-        //   if (error.response.status === 500) {
-        //     navigate('/500')
-        //   } else if (error.response.status === 404) {
-        //     navigate('/404')
-        //   }
-        // } else {
-        //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-        // }
+      } finally {
+        setIsLoadingButton(false)
       }
     } else {
       //call api post new data
       try {
+        setIsLoadingButton(true)
         const response = await axiosClient.post(`admin/role`, {
           title: title,
           name: role,
@@ -148,16 +146,8 @@ function AdminGroup() {
       } catch (error) {
         console.error('Post role adminstrator data is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-
-        // if (error.response) {
-        //   if (error.response.status === 500) {
-        //     navigate('/500')
-        //   } else if (error.response.status === 404) {
-        //     navigate('/404')
-        //   }
-        // } else {
-        //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-        // }
+      } finally {
+        setIsLoadingButton(false)
       }
     }
   }
@@ -301,13 +291,13 @@ function AdminGroup() {
   const handleDeleteSelectedCheckbox = async () => {
     console.log('>>> selectedCheckbox', selectedCheckbox)
 
-    // try {
-    //   const response = await axiosClient.post('/delete-all-comment', {
-    //     data: selectedCheckbox,
-    //   })
-    // } catch (error) {
-    //   console.error('Delete selected checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('/admin/delete-all-role', {
+        data: selectedCheckbox,
+      })
+    } catch (error) {
+      console.error('Delete selected checkbox is error', error)
+    }
   }
 
   return (
@@ -370,8 +360,22 @@ function AdminGroup() {
                 </CCol>
 
                 <CCol xs={12}>
-                  <CButton onClick={handleSubmit} color="primary" type="submit" size="sm">
-                    {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                  <CButton
+                    onClick={handleSubmit}
+                    color="primary"
+                    type="submit"
+                    size="sm"
+                    disabled={isLoadingButton}
+                  >
+                    {isLoadingButton ? (
+                      <>
+                        <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                      </>
+                    ) : isEditing ? (
+                      'Cập nhật'
+                    ) : (
+                      'Thêm mới'
+                    )}
                   </CButton>
                 </CCol>
               </CForm>

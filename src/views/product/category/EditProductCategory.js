@@ -11,11 +11,12 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { Link, useLocation } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
 
 function EditProductCategory() {
   const location = useLocation()
@@ -26,6 +27,10 @@ function EditProductCategory() {
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const [categories, setCategories] = useState([])
+  const [editorData, setEditorData] = useState('')
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // const [brands, setBrands] = useState([])
   // const [dataCustomerSupport, setDataCustomerSupport] = useState([])
@@ -48,7 +53,7 @@ function EditProductCategory() {
     color: '',
     visibleBrands: [],
     visibleSupport: [],
-    description: '',
+    // description: '',
     scriptCode: '',
     pageTitle: '',
     metaDesc: '',
@@ -81,7 +86,7 @@ function EditProductCategory() {
           color: data.color,
           // visibleBrands: [],
           // visibleSupport: [],
-          description: data.category_desc.description,
+          // description: data.category_desc.description,
           scriptCode: data.category_desc.script_code,
           pageTitle: data.category_desc.friendly_title,
           metaDesc: data.category_desc.metadesc,
@@ -89,6 +94,7 @@ function EditProductCategory() {
           visible: data.display,
           showHome: data.show_home,
         })
+        setEditorData(data.category_desc.description)
         setSelectedFile(data.picture)
         setSelectedFileBackground(data.background)
       }
@@ -162,6 +168,7 @@ function EditProductCategory() {
   const handleSubmit = async (values) => {
     // async requets fetch
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/category/${id}`, {
         cat_name: values.title,
         friendly_url: values.friendlyUrl,
@@ -170,7 +177,8 @@ function EditProductCategory() {
         color: values.color,
         home_title: values.homeTitle,
         script_code: values.scriptCode,
-        description: values.description,
+        // description: values.description,
+        description: editorData,
         friendly_title: values.pageTitle,
         metakey: values.metaKeyword,
         metadesc: values.metaDesc,
@@ -197,6 +205,8 @@ function EditProductCategory() {
       } else {
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
+    } finally {
+      setIsLoading(false)
     }
   }
   return (
@@ -440,7 +450,7 @@ function EditProductCategory() {
                       </CCol>
                       <br />
 
-                      <CCol md={12}>
+                      {/* <CCol md={12}>
                         <label htmlFor="desc-input">Mô tả</label>
                         <Field
                           style={{ height: '100px' }}
@@ -451,6 +461,15 @@ function EditProductCategory() {
                           text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
                         />
                         <ErrorMessage name="description" component="div" className="text-danger" />
+                      </CCol>
+                      <br /> */}
+
+                      <CCol md={12}>
+                        <label htmlFor="editor">Mô tả</label>
+                        <CKedtiorCustom
+                          data={editorData}
+                          onChangeData={(data) => setEditorData(data)}
+                        />
                       </CCol>
                       <br />
 
@@ -528,8 +547,14 @@ function EditProductCategory() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          Cập nhật
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

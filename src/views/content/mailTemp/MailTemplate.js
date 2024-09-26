@@ -1,19 +1,11 @@
 import { cilColorBorder, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import {
-  CButton,
-  CCol,
-  CContainer,
-  CFormCheck,
-  CFormSelect,
-  CImage,
-  CRow,
-  CTable,
-} from '@coreui/react'
+import { CButton, CCol, CContainer, CFormCheck, CRow, CTable } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient } from '../../../axiosConfig'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
+import { toast } from 'react-toastify'
 
 function MailTemplate() {
   const navigate = useNavigate()
@@ -21,7 +13,7 @@ function MailTemplate() {
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
-  const [dataAddress, setDataAddress] = useState([])
+  const [dataMailTemp, setDataMailTemp] = useState([])
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -53,82 +45,81 @@ function MailTemplate() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataAddress(keyword)
+    fetchDataMailTemp(keyword)
   }
 
-  const fetchDataAddress = async (dataSearch = '') => {
+  const fetchDataMailTemp = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(`admin/contact-config`)
+      const response = await axiosClient.get(`admin/mail-template?data=${dataSearch}`)
 
       if (response.data.status === true) {
-        setDataAddress(response.data.list)
+        setDataMailTemp(response.data.list)
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
         setIsPermissionCheck(false)
       }
     } catch (error) {
-      console.error('Fetch consultant data is error', error)
+      console.error('Fetch mail temp data is error', error)
     }
   }
 
   useEffect(() => {
-    fetchDataAddress()
+    fetchDataMailTemp()
   }, [pageNumber])
 
   // delete row
   const handleDelete = async () => {
     setVisible(true)
-    // try {
-    //   const response = await axiosClient.delete(`admin/faqs/${deletedId}`)
-    //   if (response.data.status === true) {
-    //     setVisible(false)
-    //     fetchDataAddress()
-    //   }
+    try {
+      const response = await axiosClient.delete(`admin/mail-template/${deletedId}`)
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchDataMailTemp()
+      }
 
-    //   if (response.data.status === false && response.data.mess == 'no permission') {
-    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //   }
-    // } catch (error) {
-    //   console.error('Delete consultant id is error', error)
-    //   toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
-    // }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      console.error('Delete mail temp id is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    }
   }
 
   const handleDeleteSelectedCheckbox = async () => {
-    alert('Chức năng đang thực hiện...')
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-news', {
-    //     data: selectedCheckbox,
-    //   })
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả các mục thành công!')
-    //     fetchDataConsultant()
-    //     setSelectedCheckbox([])
-    //   }
-    // } catch (error) {
-    //   console.error('Deleted all id checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-mail-template', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataMailTemp()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
   }
 
   const items =
-    dataAddress && dataAddress?.length > 0
-      ? dataAddress.map((item) => ({
+    dataMailTemp && dataMailTemp?.length > 0
+      ? dataMailTemp.map((item) => ({
           id: (
             <CFormCheck
-              key={item?.contact_id}
+              key={item?.mailtemp_id}
               aria-label="Default select example"
-              defaultChecked={item?.contact_id}
-              id={`flexCheckDefault_${item?.contact_id}`}
-              value={item?.contact_id}
-              checked={selectedCheckbox.includes(item?.contact_id)}
+              defaultChecked={item?.mailtemp_id}
+              id={`flexCheckDefault_${item?.mailtemp_id}`}
+              value={item?.mailtemp_id}
+              checked={selectedCheckbox.includes(item?.mailtemp_id)}
               onChange={(e) => {
-                const contactId = item?.contact_id
+                const mailTempId = item?.mailtemp_id
                 const isChecked = e.target.checked
                 if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, contactId])
+                  setSelectedCheckbox([...selectedCheckbox, mailTempId])
                 } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== contactId))
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== mailTempId))
                 }
               }}
             />
@@ -145,12 +136,12 @@ function MailTemplate() {
             </div>
           ),
 
-          name: <div className="cate-color">{item?.email}</div>,
+          name: <div className="fw-bold">{item?.name}</div>,
 
           actions: (
             <div>
               <button
-                onClick={() => handleEditClick(item?.contact_id)}
+                onClick={() => handleEditClick(item?.mailtemp_id)}
                 className="button-action mr-2 bg-info"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
@@ -158,7 +149,7 @@ function MailTemplate() {
               <button
                 onClick={() => {
                   setVisible(true)
-                  setDeletedId(item?.contact_id)
+                  setDeletedId(item?.mailtemp_id)
                 }}
                 className="button-action bg-danger"
               >
@@ -182,7 +173,7 @@ function MailTemplate() {
               const isChecked = e.target.checked
               setIsAllCheckbox(isChecked)
               if (isChecked) {
-                const allIds = dataAddress?.data.map((item) => item.id) || []
+                const allIds = dataMailTemp?.map((item) => item.mailtemp_id) || []
                 setSelectedCheckbox(allIds)
               } else {
                 setSelectedCheckbox([])
@@ -268,7 +259,7 @@ function MailTemplate() {
                   <tbody>
                     <tr>
                       <td>Tổng cộng</td>
-                      <td className="total-count">{dataAddress?.total}</td>
+                      <td className="total-count">{dataMailTemp?.length}</td>
                     </tr>
 
                     <tr>

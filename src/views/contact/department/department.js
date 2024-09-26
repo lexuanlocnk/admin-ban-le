@@ -9,6 +9,7 @@ import {
   CFormTextarea,
   CRow,
   CTable,
+  CSpinner,
 } from '@coreui/react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -22,8 +23,11 @@ import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
+import Loading from '../../../components/loading/Loading'
 
 function Department() {
+  const [isLoading, setIsLoading] = useState(false)
+
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -131,6 +135,7 @@ function Department() {
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
+      setIsLoading(true)
       //call api update data
       try {
         const response = await axiosClient.put(`admin/contact-staff/${id}`, {
@@ -157,8 +162,11 @@ function Department() {
       } catch (error) {
         console.error('Put data id department is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     } else {
+      setIsLoading(true)
       //call api post new data
       try {
         const response = await axiosClient.post('admin/contact-staff', {
@@ -183,6 +191,8 @@ function Department() {
       } catch (error) {
         console.error('Post data department is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -317,14 +327,19 @@ function Department() {
   ]
 
   const handleDeleteSelectedCheckbox = async () => {
-    console.log('>>> selectedCheckbox', selectedCheckbox)
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-comment', {
-    //     data: selectedCheckbox,
-    //   })
-    // } catch (error) {
-    //   console.error('Delete selected checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-contact-staff', {
+        data: selectedCheckbox,
+      })
+
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataDepartment()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Delete selected checkbox is error', error)
+    }
   }
 
   return (
@@ -437,8 +452,16 @@ function Department() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>
@@ -454,6 +477,7 @@ function Department() {
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
+
               <CTable className="mt-3" columns={columns} items={items} />
 
               <div className="d-flex justify-content-end">

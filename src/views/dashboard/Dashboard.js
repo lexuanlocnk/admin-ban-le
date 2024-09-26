@@ -61,7 +61,6 @@ import moment from 'moment'
 
 import './css/dashboard.css'
 import ReactPaginate from 'react-paginate'
-import LoadingPage from '../../components/loading/LoadingPage'
 
 const Dashboard = () => {
   const [adminLogData, setAdminLogData] = useState([])
@@ -319,7 +318,7 @@ const Dashboard = () => {
         </CCol>
       </CRow>
 
-      <CRow>
+      <CRow className="align-items-center">
         <CCol md={8}>
           <h6 style={{ fontWeight: 'bold' }}>Lịch sử hoạt động admin</h6>
           <CTable hover style={{ fontSize: 13 }} className="mt-2" columns={columns} items={items} />

@@ -9,6 +9,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
   CTable,
 } from '@coreui/react'
 
@@ -24,6 +25,8 @@ function EditMember() {
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const params = new URLSearchParams(location.search)
   const id = params.get('id')
@@ -88,6 +91,7 @@ function EditMember() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`/admin/member/${id}`, {
         // username: values.userName,
         fullname: values.fullName,
@@ -109,6 +113,8 @@ function EditMember() {
     } catch (error) {
       console.error('Put data id member is error', error.message)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -148,7 +154,6 @@ function EditMember() {
               >
                 {({ setFieldValue, setValues }) => {
                   useEffect(() => {
-                    ;``
                     fetchDataById(setValues)
                   }, [setValues, id])
                   return (
@@ -279,8 +284,14 @@ function EditMember() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          Cập nhật
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

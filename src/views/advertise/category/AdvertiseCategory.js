@@ -8,6 +8,7 @@ import {
   CFormSelect,
   CFormTextarea,
   CRow,
+  CSpinner,
   CTable,
 } from '@coreui/react'
 
@@ -36,6 +37,9 @@ function AdvertiseCategory() {
 
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef(null)
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   const [dataAdvertiseCategory, setDataAdvertiseCategroy] = useState([])
   const [countNewsCategory, setCountNewsCategory] = useState(null)
@@ -135,6 +139,7 @@ function AdvertiseCategory() {
     if (isEditing) {
       //call api update data
       try {
+        setIsLoading(true)
         const response = await axiosClient.put(`admin/ad-pos/${id}`, {
           title: values.title,
           name: values.name,
@@ -160,10 +165,13 @@ function AdvertiseCategory() {
       } catch (error) {
         console.error('Put data id advertise category is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     } else {
       //call api post new data
       try {
+        setIsLoading(true)
         const response = await axiosClient.post('admin/ad-pos', {
           title: values.title,
           name: values.name,
@@ -186,6 +194,8 @@ function AdvertiseCategory() {
       } catch (error) {
         console.error('Post data advertise category is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -496,8 +506,16 @@ function AdvertiseCategory() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

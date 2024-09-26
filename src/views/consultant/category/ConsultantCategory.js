@@ -10,6 +10,7 @@ import {
   CImage,
   CRow,
   CTable,
+  CSpinner,
 } from '@coreui/react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -23,6 +24,7 @@ import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
+import Loading from '../../../components/loading/Loading'
 
 function ConsultantCategory() {
   const location = useLocation()
@@ -50,6 +52,8 @@ function ConsultantCategory() {
 
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     title: '',
@@ -134,6 +138,7 @@ function ConsultantCategory() {
 
   const handleSubmit = async (values, { resetForm }) => {
     if (isEditing) {
+      setIsLoading(true)
       //call api update data
       try {
         const response = await axiosClient.put(`admin/faqs-category/${id}`, {
@@ -161,8 +166,11 @@ function ConsultantCategory() {
       } catch (error) {
         console.error('Put data id faqs category is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     } else {
+      setIsLoading(true)
       //call api post new data
       try {
         const response = await axiosClient.post('admin/faqs-category', {
@@ -188,6 +196,8 @@ function ConsultantCategory() {
       } catch (error) {
         console.error('Post data consultant category is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -237,26 +247,24 @@ function ConsultantCategory() {
   }
 
   const handleDeleteAll = async () => {
-    console.log('>>> check undeal', selectedCheckbox)
-    // alert('Chức năng đang thực hiện...')
-    // try {
-    //   const response = await axiosClient.post(`admin/delete `, {
-    //     data: selectedCheckbox,
-    //   })
+    try {
+      const response = await axiosClient.post(`admin/delete-all-faqs-category`, {
+        data: selectedCheckbox,
+      })
 
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả danh mục thành công!')
-    //     fetchDataConsultantCate()
-    //     setSelectedCheckbox([])
-    //   }
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả danh mục thành công!')
+        fetchDataConsultantCate()
+        setSelectedCheckbox([])
+      }
 
-    //   if (response.data.status === false && response.data.mess == 'no permission') {
-    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-    //   }
-    // } catch (error) {
-    //   console.error('xóa lỗi error', error)
-    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    // }
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      console.error('xóa lỗi error', error)
+      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    }
   }
 
   const items =
@@ -343,7 +351,7 @@ function ConsultantCategory() {
       _props: { scope: 'col' },
     },
   ]
-  console.log('>>>>cehck data', selectedCheckbox)
+
   return (
     <CContainer>
       {!isPermissionCheck ? (
@@ -491,8 +499,16 @@ function ConsultantCategory() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>
@@ -508,7 +524,9 @@ function ConsultantCategory() {
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
+
               <CTable className="mt-2" columns={columns} items={items} />
+
               <div className="d-flex justify-content-end">
                 <ReactPaginate
                   pageCount={Math.ceil(dataConsultantCate?.length / 15)}

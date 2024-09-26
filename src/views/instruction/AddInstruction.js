@@ -8,19 +8,22 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
 import { toast } from 'react-toastify'
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 
 function AddInstruction() {
+  const [isLoading, setIsLoading] = useState(false)
   const [editorData, setEditorData] = useState('')
+  const navigate = useNavigate()
 
   const initialValues = {
     title: '',
@@ -42,6 +45,7 @@ function AddInstruction() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/guide', {
         title: values.title,
         description: editorData,
@@ -55,6 +59,7 @@ function AddInstruction() {
 
       if (response.data.status === 'success') {
         toast.success('Thêm mới hướng dẫn thành công!')
+        navigate('/guide')
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
@@ -63,6 +68,8 @@ function AddInstruction() {
     } catch (error) {
       console.error('Post data instruction is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -105,7 +112,7 @@ function AddInstruction() {
         </CCol>
         <CCol md={6}>
           <div className="d-flex justify-content-end">
-            <Link to={'/instruction'}>
+            <Link to={'/guide'}>
               <CButton color="primary" type="button" size="sm">
                 Danh sách
               </CButton>
@@ -250,8 +257,14 @@ function AddInstruction() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Thêm mới'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </CCol>

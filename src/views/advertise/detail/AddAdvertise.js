@@ -7,6 +7,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -19,6 +20,8 @@ import { toast } from 'react-toastify'
 
 function AddAdvertise() {
   const [dataAdvertiseCategory, setDataAdvertiseCategroy] = useState([])
+
+  const [isLoading, setIsLoading] = useState(false)
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
@@ -88,6 +91,7 @@ function AddAdvertise() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/advertise', {
         title: values.title,
         picture: selectedFile,
@@ -110,6 +114,8 @@ function AddAdvertise() {
     } catch (error) {
       console.error('Post data advertise is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -311,8 +317,14 @@ function AddAdvertise() {
                   <br />
 
                   <CCol xs={12}>
-                    <CButton color="primary" type="submit" size="sm">
-                      {'Thêm mới'}
+                    <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <CSpinner size="sm"></CSpinner> Đang thêm mới...
+                        </>
+                      ) : (
+                        'Thêm mới'
+                      )}
                     </CButton>
                   </CCol>
                 </Form>
