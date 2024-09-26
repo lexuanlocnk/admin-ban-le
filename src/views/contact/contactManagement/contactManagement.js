@@ -13,8 +13,10 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import '../css/priceManagement.css'
+import Loading from '../../../components/loading/Loading'
 
 function ContactManagement() {
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
   // check permission state
@@ -78,6 +80,7 @@ function ContactManagement() {
 
   const fetchDataContact = async (dataSearch = '') => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.get(`admin/contact?page=${pageNumber}&data=${dataSearch}`)
 
       if (response.data.status === true) {
@@ -89,6 +92,8 @@ function ContactManagement() {
       }
     } catch (error) {
       console.error('Fetch consultant data is error', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -112,7 +117,7 @@ function ContactManagement() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/faqs/${deletedId}`)
+      const response = await axiosClient.delete(`/admin/contact/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataContact()
@@ -128,19 +133,18 @@ function ContactManagement() {
   }
 
   const handleDeleteSelectedCheckbox = async () => {
-    alert('Chức năng đang thực hiện...')
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-news', {
-    //     data: selectedCheckbox,
-    //   })
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả các mục thành công!')
-    //     fetchDataConsultant()
-    //     setSelectedCheckbox([])
-    //   }
-    // } catch (error) {
-    //   console.error('Deleted all id checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-contact', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataContact()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
   }
 
   const items =
@@ -178,7 +182,7 @@ function ContactManagement() {
           ),
           title: (
             <div>
-              <span>{item?.company} lượt xem</span>
+              <span>{item?.subject}</span>
             </div>
           ),
 
@@ -369,17 +373,21 @@ function ContactManagement() {
               </CButton>
             </CCol>
 
-            <CCol>
-              <CTable
-                style={{
-                  fontSize: 13.6,
-                }}
-                hover
-                className="mt-3"
-                columns={columns}
-                items={items}
-              />
-            </CCol>
+            {isLoading ? (
+              <Loading />
+            ) : (
+              <CCol>
+                <CTable
+                  style={{
+                    fontSize: 13.6,
+                  }}
+                  hover
+                  className="mt-3"
+                  columns={columns}
+                  items={items}
+                />
+              </CCol>
+            )}
 
             <div className="d-flex justify-content-end">
               <ReactPaginate

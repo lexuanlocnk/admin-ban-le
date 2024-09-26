@@ -8,6 +8,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -25,6 +26,8 @@ function EditAddressManagement() {
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     title: '',
@@ -84,6 +87,7 @@ function EditAddressManagement() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/contact-config/${id}`, {
         title: values.title,
         company: values.companyName,
@@ -104,6 +108,8 @@ function EditAddressManagement() {
     } catch (error) {
       console.error('Put data address is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -253,8 +259,14 @@ function EditAddressManagement() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Cập nhật'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

@@ -7,6 +7,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 
@@ -21,6 +22,8 @@ function EditAdvertise() {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
+
+  const [isLoading, setIsLoading] = useState(false)
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -123,6 +126,7 @@ function EditAdvertise() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/advertise/${id}`, {
         title: values.title,
         picture: selectedFile,
@@ -145,6 +149,8 @@ function EditAdvertise() {
     } catch (error) {
       console.error('Put data advertise is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -358,8 +364,14 @@ function EditAdvertise() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {'Cập nhật'}
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

@@ -87,8 +87,6 @@ function Instruction() {
 
   // delete row
   const handleDelete = async () => {
-    console.log('>>>>check deledte:', deletedId)
-
     setVisible(true)
     try {
       const response = await axiosClient.delete(`admin/guide/${deletedId}`)
@@ -108,20 +106,18 @@ function Instruction() {
 
   // deleted all checkbox
   const handleDeleteSelectedCheckbox = async () => {
-    console.log('>>>>.  cgheck selected checkbox', selectedCheckbox)
-
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-about', {
-    //     data: selectedCheckbox,
-    //   })
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả các mục thành công!')
-    //     fetchDataInstruct()
-    //     setSelectedCheckbox([])
-    //   }
-    // } catch (error) {
-    //   console.error('Deleted all id checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-guide', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataInstruct()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
   }
 
   const items =

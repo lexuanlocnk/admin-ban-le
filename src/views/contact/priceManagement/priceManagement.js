@@ -123,7 +123,7 @@ function PriceManagement() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/faqs/${deletedId}`)
+      const response = await axiosClient.delete(`admin/contact-qoute/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataPriceMamagement()
@@ -139,19 +139,18 @@ function PriceManagement() {
   }
 
   const handleDeleteSelectedCheckbox = async () => {
-    alert('Chức năng đang thực hiện...')
-    // try {
-    //   const response = await axiosClient.post('admin/delete-all-news', {
-    //     data: selectedCheckbox,
-    //   })
-    //   if (response.data.status === true) {
-    //     toast.success('Xóa tất cả các mục thành công!')
-    //     fetchDataConsultant()
-    //     setSelectedCheckbox([])
-    //   }
-    // } catch (error) {
-    //   console.error('Deleted all id checkbox is error', error)
-    // }
+    try {
+      const response = await axiosClient.post('admin/delete-all-contact-qoute', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataPriceMamagement()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
   }
 
   const items =

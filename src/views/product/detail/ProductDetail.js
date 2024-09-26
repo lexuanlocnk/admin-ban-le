@@ -53,6 +53,10 @@ function ProductDetail() {
   const [endDate, setEndDate] = useState('')
   const [errors, setErrors] = useState({ startDate: '', endDate: '' })
 
+  // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
+  const [selectedCheckbox, setSelectedCheckbox] = useState([])
+
   // validate for date start - date end
   const validateDates = (start, end) => {
     const newErrors = { startDate: '', endDate: '' }
