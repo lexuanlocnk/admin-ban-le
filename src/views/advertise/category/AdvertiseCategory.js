@@ -10,7 +10,6 @@ import {
   CRow,
   CSpinner,
   CTable,
-  CSpinner,
 } from '@coreui/react'
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -28,7 +27,6 @@ import { axiosClient } from '../../../axiosConfig'
 function AdvertiseCategory() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
 
   const params = new URLSearchParams(location.search)
   const id = params.get('id')
