@@ -144,6 +144,11 @@ const _nav = [
       },
       {
         component: CNavItem,
+        name: 'Banner sản phẩm hot deal',
+        to: '/product/banner-hot-deal',
+      },
+      {
+        component: CNavItem,
         name: 'Thêm mới sản phẩm',
         to: '/product/add',
       },

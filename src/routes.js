@@ -31,6 +31,7 @@ const EditProductProperties = React.lazy(
 )
 
 const ProductBanner = React.lazy(() => import('./views/product/banner/productBanner'))
+const ProductBannerHotDeal = React.lazy(() => import('./views/product/banner/productBannerHotDeal'))
 const ProductStatus = React.lazy(() => import('./views/product/status/productStatus'))
 
 // product detail
@@ -347,6 +348,14 @@ const routes = [
     path: '/product/banner',
     name: 'ProductBanner',
     element: ProductBanner,
+    exact: true,
+  },
+
+  // product banner hot-deal
+  {
+    path: '/product/banner-hot-deal',
+    name: 'ProductBannerHotDeal',
+    element: ProductBannerHotDeal,
     exact: true,
   },
 
