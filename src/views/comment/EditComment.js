@@ -8,6 +8,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -26,6 +27,9 @@ function EditComment() {
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
+
+  //loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   const [customerComment, setCustomerComment] = useState('')
   const [adminComment, setAdminComment] = useState('')
@@ -70,6 +74,7 @@ function EditComment() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/comment/${id}`, {
         reply: values.adminReply,
         display: values.visible,
@@ -87,6 +92,8 @@ function EditComment() {
     } catch (error) {
       console.error('Put data id comment is error', error.message)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -208,8 +215,14 @@ function EditComment() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          Cập nhật
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

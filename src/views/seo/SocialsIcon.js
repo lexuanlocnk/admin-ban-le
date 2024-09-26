@@ -312,7 +312,7 @@ function SocialsIcon() {
             <CImage
               src={`${imageBaseUrl}${item?.picture}`}
               alt={`Ảnh icons ${item?.title}`}
-              width={50}
+              width={37}
             />
           ),
           font_icon: item?.font_icon,

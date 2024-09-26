@@ -14,6 +14,12 @@ function CKedtiorCustom({ data, onChangeData }) {
       config={{
         versionCheck: false,
         extraPlugins: 'justify',
+        filebrowserBrowseUrl: 'http://api.chinhnhan.com/ckfinder/ckfinder.html',
+        filebrowserImageBrowseUrl: 'http://api.chinhnhan.com/ckfinder/ckfinder.html?type=Images',
+        filebrowserUploadUrl:
+          'http://api.chinhnhan.com/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files',
+        filebrowserImageUploadUrl:
+          'http://api.chinhnhan.com/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images',
       }}
       initData={data}
       onChange={(event) => {

@@ -11,6 +11,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
@@ -21,6 +22,9 @@ function AddProductCategory() {
   const [categories, setCategories] = useState([])
 
   const [editorData, setEditorData] = useState('')
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
@@ -129,6 +133,7 @@ function AddProductCategory() {
   const handleSubmit = async (values) => {
     // async requets fetch
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/category', {
         cat_name: values.title,
         friendly_url: values.friendlyUrl,
@@ -164,6 +169,8 @@ function AddProductCategory() {
       } else {
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
+    } finally {
+      setIsLoading(false)
     }
   }
   return (
@@ -482,8 +489,14 @@ function AddProductCategory() {
                 <br />
 
                 <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    Thêm mới
+                  <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                      </>
+                    ) : (
+                      'Thêm mới'
+                    )}
                   </CButton>
                 </CCol>
               </Form>

@@ -11,6 +11,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import { toast } from 'react-toastify'
 import { Link, useLocation } from 'react-router-dom'
@@ -27,6 +28,9 @@ function EditProductCategory() {
 
   const [categories, setCategories] = useState([])
   const [editorData, setEditorData] = useState('')
+
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // const [brands, setBrands] = useState([])
   // const [dataCustomerSupport, setDataCustomerSupport] = useState([])
@@ -164,6 +168,7 @@ function EditProductCategory() {
   const handleSubmit = async (values) => {
     // async requets fetch
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/category/${id}`, {
         cat_name: values.title,
         friendly_url: values.friendlyUrl,
@@ -200,6 +205,8 @@ function EditProductCategory() {
       } else {
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       }
+    } finally {
+      setIsLoading(false)
     }
   }
   return (
@@ -540,8 +547,14 @@ function EditProductCategory() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          Cập nhật
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>

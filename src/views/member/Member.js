@@ -125,7 +125,6 @@ function Member() {
     { key: 'customerInfo', label: 'Thông tin khách hàng' },
     { key: 'orderYet', label: 'Đơn hàng' },
     { key: 'createDate', label: 'Ngày đăng ký' },
-    { key: 'login', label: 'Đăng nhập gần đây' },
     { key: 'status', label: 'Trạng thái tài khoản' },
     { key: 'actions', label: 'Tác vụ' },
   ]
@@ -151,6 +150,7 @@ function Member() {
               }}
             />
           ),
+          username: customer?.username,
           customerInfo: (
             <React.Fragment>
               <div>
@@ -179,7 +179,7 @@ function Member() {
               {moment(customer?.created_at).format('DD-MM-YYYY, hh:mm:ss A')}
             </span>
           ),
-          login: customer?.lastLogin,
+
           status: <span className="customer-status">{`[Đang hoạt động]`}</span>,
           actions: (
             <div style={{ width: 60 }}>

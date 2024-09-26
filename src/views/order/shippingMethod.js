@@ -43,6 +43,7 @@ function ShippingMethod() {
   const [editorData, setEditorData] = useState(null)
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -145,7 +146,7 @@ function ShippingMethod() {
     if (isEditing) {
       //call api update data
       try {
-        setIsLoading(true)
+        setIsLoadingButton(true)
         const response = await axiosClient.put(`admin/shipping-method/${id}`, {
           title: values.title,
           display: values.visible,
@@ -170,12 +171,12 @@ function ShippingMethod() {
         console.error('Put data shipping method is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading(false)
+        setIsLoadingButton(false)
       }
     } else {
       //call api post new data
       try {
-        setIsLoading(true)
+        setIsLoadingButton(true)
         const response = await axiosClient.post('admin/shipping-method', {
           title: values.title,
           display: values.visible,
@@ -199,7 +200,7 @@ function ShippingMethod() {
         console.error('Post data shipping method is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading(false)
+        setIsLoadingButton(false)
       }
     }
   }
@@ -507,8 +508,16 @@ function ShippingMethod() {
                           <br />
 
                           <CCol xs={12}>
-                            <CButton color="primary" type="submit" size="sm">
-                              {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                            <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                              {isLoadingButton ? (
+                                <>
+                                  <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                                </>
+                              ) : isEditing ? (
+                                'Cập nhật'
+                              ) : (
+                                'Thêm mới'
+                              )}
                             </CButton>
                           </CCol>
                         </Form>

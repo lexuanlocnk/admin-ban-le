@@ -14,6 +14,7 @@ import {
   CFormSelect,
   CFormTextarea,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import { Link } from 'react-router-dom'
 import './css/addCoupon.css'
@@ -24,6 +25,8 @@ import { axiosClient } from '../../axiosConfig'
 function AddCoupon() {
   const [categories, setCategories] = useState([])
   const [brands, setBrands] = useState([])
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     title: '',
@@ -89,6 +92,7 @@ function AddCoupon() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/coupon', {
         TenCoupon: values.title,
         MaPhatHanh: values.releaseCode,
@@ -120,6 +124,8 @@ function AddCoupon() {
     } catch (error) {
       console.error('Add coupon data is error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -461,8 +467,14 @@ function AddCoupon() {
                 <br />
 
                 <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    Thêm mới
+                  <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                      </>
+                    ) : (
+                      'Thêm mới'
+                    )}
                   </CButton>
                 </CCol>
               </Form>

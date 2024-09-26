@@ -20,9 +20,9 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
+import Loading from '../../../components/loading/Loading'
 
 import '../css/orderList.scss'
-import axios from 'axios'
 import moment from 'moment'
 import ReactPaginate from 'react-paginate'
 import { axiosClient } from '../../../axiosConfig'
@@ -39,6 +39,9 @@ function OrderList() {
 
   const [dataOrderList, setDataOrderList] = useState([])
   const [dataStatus, setDataStatus] = useState([])
+
+  //loading
+  const [isLoading, setIsLoading] = useState(false)
 
   const [choosenStatus, setChoosenStatus] = useState('')
   const [typeMember, setTypeMember] = useState('')
@@ -138,6 +141,7 @@ function OrderList() {
 
   const fetchOrderListData = async () => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.get(
         `admin/order?name=${dataSearch}&status=${choosenStatus}&typeMember=${typeMember}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
       )
@@ -148,6 +152,8 @@ function OrderList() {
       }
     } catch (error) {
       console.error('Fetch order data is error', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -433,41 +439,45 @@ function OrderList() {
             </table>
           </CRow>
 
-          <CRow className="mt-3">
-            <CCol md={12} className="mt-3">
+          <CRow>
+            <CCol md={12} className="mt-2 mb-2">
               <CButton onClick={handleDeleteAll} color="primary" size="sm">
                 Xóa vĩnh viễn
               </CButton>
             </CCol>
-            <CTable>
-              <thead>
-                <tr>
-                  {columns.map((column) => (
-                    <CTableHeaderCell
-                      key={column.key}
-                      onClick={() => handleSort(column.key)}
-                      className="prevent-select"
-                    >
-                      {column.label}
-                      {sortConfig.key === column.key
-                        ? sortConfig.direction === 'ascending'
-                          ? ' ▼'
-                          : ' ▲'
-                        : ''}
-                    </CTableHeaderCell>
-                  ))}
-                </tr>
-              </thead>
-              <CTableBody>
-                {sortedItems.map((item, index) => (
-                  <CTableRow key={index}>
+            {isLoading ? (
+              <Loading />
+            ) : (
+              <CTable>
+                <thead>
+                  <tr>
                     {columns.map((column) => (
-                      <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                      <CTableHeaderCell
+                        key={column.key}
+                        onClick={() => handleSort(column.key)}
+                        className="prevent-select"
+                      >
+                        {column.label}
+                        {sortConfig.key === column.key
+                          ? sortConfig.direction === 'ascending'
+                            ? ' ▼'
+                            : ' ▲'
+                          : ''}
+                      </CTableHeaderCell>
                     ))}
-                  </CTableRow>
-                ))}
-              </CTableBody>
-            </CTable>
+                  </tr>
+                </thead>
+                <CTableBody>
+                  {sortedItems.map((item, index) => (
+                    <CTableRow key={index}>
+                      {columns.map((column) => (
+                        <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                      ))}
+                    </CTableRow>
+                  ))}
+                </CTableBody>
+              </CTable>
+            )}
             <div className="d-flex justify-content-end">
               <ReactPaginate
                 pageCount={Math.ceil(dataOrderList?.total / dataOrderList?.per_page)}

@@ -8,13 +8,13 @@ import {
   CFormSelect,
   CFormTextarea,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
 
@@ -25,6 +25,7 @@ function AddProductProperties() {
   const catId = searchParams.get('cat_id')
 
   const [propertiesChild, setPropertiesChild] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const initialValues = {
     title: '',
@@ -60,9 +61,9 @@ function AddProductProperties() {
   }, [])
 
   const handleSubmit = async (values) => {
-    console.log('>>>> cehck values', values)
     // api for submit
     try {
+      setIsLoading(true)
       const response = await axiosClient.post('admin/cat-option', {
         title: values.title,
         parentid: values.parentId,
@@ -82,6 +83,8 @@ function AddProductProperties() {
     } catch (error) {
       console.error('Post product properties data error', error)
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -193,8 +196,14 @@ function AddProductProperties() {
                 <br />
 
                 <CCol xs={12}>
-                  <CButton color="primary" type="submit" size="sm">
-                    Thêm mới
+                  <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                      </>
+                    ) : (
+                      'Thêm mới'
+                    )}
                   </CButton>
                 </CCol>
               </Form>

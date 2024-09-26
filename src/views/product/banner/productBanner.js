@@ -8,6 +8,7 @@ import {
   CFormTextarea,
   CImage,
   CRow,
+  CSpinner,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -26,6 +27,7 @@ import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import Loading from '../../../components/loading/Loading'
 
 function ProductBanner() {
   const location = useLocation()
@@ -43,6 +45,12 @@ function ProductBanner() {
 
   const [categories, setCategories] = useState([])
   const [dataBanner, setDataBanner] = useState([])
+
+  //loading
+  const [isLoading, setIsLoading] = useState({
+    page: false,
+    button: false,
+  })
 
   const [selectedCate, setSelectedCate] = useState('')
 
@@ -114,6 +122,8 @@ function ProductBanner() {
 
   const fetchDataBanner = async () => {
     try {
+      setIsLoading((prev) => ({ ...prev, page: true }))
+
       const response = await axiosClient.get(
         `admin/product-advertise?data=${dataSearch}&page=${pageNumber}&cat_id=${selectedCate}`,
       )
@@ -126,6 +136,8 @@ function ProductBanner() {
       }
     } catch (error) {
       console.error('Fetch data banner is error', error)
+    } finally {
+      setIsLoading((prev) => ({ ...prev, page: false }))
     }
   }
 
@@ -170,6 +182,8 @@ function ProductBanner() {
     if (isEditing) {
       //call api update data
       try {
+        setIsLoading((prev) => ({ ...prev, button: true }))
+
         const response = await axiosClient.put(`admin/product-advertise/${id}`, {
           title: values.title,
           picture: selectedFile,
@@ -200,10 +214,14 @@ function ProductBanner() {
       } catch (error) {
         console.error('Put data product status is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
       }
     } else {
       //call api post new data
       try {
+        setIsLoading((prev) => ({ ...prev, button: true }))
+
         const response = await axiosClient.post('admin/product-advertise', {
           title: values.title,
           picture: selectedFile,
@@ -231,6 +249,8 @@ function ProductBanner() {
       } catch (error) {
         console.error('Put data product banner is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+      } finally {
+        setIsLoading((prev) => ({ ...prev, button: false }))
       }
     }
   }
@@ -636,8 +656,21 @@ function ProductBanner() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                        <CButton
+                          color="primary"
+                          type="submit"
+                          size="sm"
+                          disabled={isLoading.button}
+                        >
+                          {isLoading.button ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : isEditing ? (
+                            'Cập nhật'
+                          ) : (
+                            'Thêm mới'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>
@@ -718,36 +751,40 @@ function ProductBanner() {
                     Xóa vĩnh viễn
                   </CButton>
                 </CCol>
-                <CTable>
-                  <thead>
-                    <tr>
-                      {columns.map((column) => (
-                        <CTableHeaderCell
-                          style={{ whiteSpace: 'nowrap' }}
-                          key={column.key}
-                          onClick={() => handleSort(column.key)}
-                          className="prevent-select"
-                        >
-                          {column.label}
-                          {sortConfig.key === column.key
-                            ? sortConfig.direction === 'ascending'
-                              ? ' ▼'
-                              : ' ▲'
-                            : ''}
-                        </CTableHeaderCell>
-                      ))}
-                    </tr>
-                  </thead>
-                  <CTableBody>
-                    {sortedItems.map((item, index) => (
-                      <CTableRow key={index}>
+                {isLoading.page ? (
+                  <Loading />
+                ) : (
+                  <CTable>
+                    <thead>
+                      <tr>
                         {columns.map((column) => (
-                          <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                          <CTableHeaderCell
+                            style={{ whiteSpace: 'nowrap' }}
+                            key={column.key}
+                            onClick={() => handleSort(column.key)}
+                            className="prevent-select"
+                          >
+                            {column.label}
+                            {sortConfig.key === column.key
+                              ? sortConfig.direction === 'ascending'
+                                ? ' ▼'
+                                : ' ▲'
+                              : ''}
+                          </CTableHeaderCell>
                         ))}
-                      </CTableRow>
-                    ))}
-                  </CTableBody>
-                </CTable>
+                      </tr>
+                    </thead>
+                    <CTableBody>
+                      {sortedItems.map((item, index) => (
+                        <CTableRow key={index}>
+                          {columns.map((column) => (
+                            <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                          ))}
+                        </CTableRow>
+                      ))}
+                    </CTableBody>
+                  </CTable>
+                )}
 
                 <div className="d-flex justify-content-end">
                   <ReactPaginate

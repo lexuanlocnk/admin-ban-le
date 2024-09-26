@@ -12,7 +12,6 @@ import {
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Search from '../../../components/search/Search'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 import moment from 'moment/moment'
 
@@ -21,7 +20,6 @@ import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 
 import './css/news.scss'
-import LoadingPage from '../../../components/loading/LoadingPage'
 
 function News() {
   const navigate = useNavigate()

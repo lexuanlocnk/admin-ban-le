@@ -48,7 +48,6 @@ const Login = () => {
       if (res.data.status === true) {
         localStorage.setItem('adminCN', res.data.token)
         localStorage.setItem('username', res.data.username)
-
         navigate('/')
         // window.location.reload()
       } else {
@@ -67,7 +66,7 @@ const Login = () => {
     }
   }
 
-  if (loading) return <LoadingPage />
+  // if (loading) return <LoadingPage />
 
   return (
     <>

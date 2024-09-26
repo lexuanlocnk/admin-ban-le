@@ -14,6 +14,7 @@ import {
   CFormSelect,
   CFormTextarea,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -28,6 +29,8 @@ import { axiosClient } from '../../../axiosConfig'
 function EditPromotionDetail() {
   const [categories, setCategories] = useState([])
   const [editorData, setEditorData] = useState('')
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
@@ -90,8 +93,6 @@ function EditPromotionDetail() {
       const response = await axiosClient.get(`admin/gift-promotion/${id}/edit`)
       const data = response.data.data
 
-      console.log('>>>> check gift promotion', response.data)
-
       if (data && response.data.status === true) {
         setEditorData(data.content)
         setValues({
@@ -119,6 +120,7 @@ function EditPromotionDetail() {
 
   const handleSubmit = async (values) => {
     try {
+      setIsLoading(true)
       const response = await axiosClient.put(`admin/gift-promotion/${id}`, {
         title: values.title,
         code: values.releaseCode,
@@ -144,6 +146,8 @@ function EditPromotionDetail() {
     } catch (error) {
       console.error('Post gift data is error', error)
       toast.error('Đã xảy ra lỗi! Vui lòng thử lại!')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -428,8 +432,14 @@ function EditPromotionDetail() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton color="primary" type="submit" size="sm">
-                          Cập nhật
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
+                            <>
+                              <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                            </>
+                          ) : (
+                            'Cập nhật'
+                          )}
                         </CButton>
                       </CCol>
                     </Form>
