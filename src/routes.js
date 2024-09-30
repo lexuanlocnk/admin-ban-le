@@ -211,6 +211,15 @@ const MailTemp = React.lazy(() => import('./views/content/mailTemp/MailTemplate'
 const AddMailTemp = React.lazy(() => import('./views/content/mailTemp/AddMailTemplate'))
 const EditMailTemp = React.lazy(() => import('./views/content/mailTemp/EditMailTemplate'))
 
+// HIRE
+const HireCategory = React.lazy(() => import('./views/hire/HireCategory.js'))
+const HireDetail = React.lazy(() => import('./views/hire/HireDetail.js'))
+const AddHirePost = React.lazy(() => import('./views/hire/AddHirePost.js'))
+const EditHirePost = React.lazy(() => import('./views/hire/EditHirePost.js'))
+
+const CandidateCV = React.lazy(() => import('./views/hire/CandidateCV.js'))
+const EditCandidateCV = React.lazy(() => import('./views/hire/EditCandidateCV.js'))
+
 /** ------------------------------------------------------------------------------------------------------------------ */
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
@@ -746,6 +755,46 @@ const routes = [
     path: '/content/mail-temp/edit',
     name: 'EditMailTemp',
     element: EditMailTemp,
+    exact: true,
+  },
+
+  // hire
+  {
+    path: '/hire/category',
+    name: 'HireCategory',
+    element: HireCategory,
+    exact: true,
+  },
+  {
+    path: '/hire/post',
+    name: 'HireDetail',
+    element: HireDetail,
+    exact: true,
+  },
+  {
+    path: '/hire/post/add',
+    name: 'AddHirePost',
+    element: AddHirePost,
+    exact: true,
+  },
+  {
+    path: '/hire/post/edit',
+    name: 'EditHirePost',
+    element: EditHirePost,
+    exact: true,
+  },
+
+  {
+    path: '/hire/candidate-cv',
+    name: 'CandidateCV',
+    element: CandidateCV,
+    exact: true,
+  },
+
+  {
+    path: '/hire/candidate-cv/edit',
+    name: 'EditCandidateCV',
+    element: EditCandidateCV,
     exact: true,
   },
 

@@ -81,7 +81,6 @@ function ProductBannerHotDeal() {
   // form formik value
   const initialValues = {
     title: '',
-    image: '',
     url: '',
     destination: '_self',
     categories: 'All',
@@ -130,8 +129,9 @@ function ProductBannerHotDeal() {
       setIsLoading((prev) => ({ ...prev, page: true }))
 
       const response = await axiosClient.get(
-        `admin/product-advertise?data=${dataSearch}&page=${pageNumber}&cat_id=${selectedCate}`,
+        `admin/product-advertise-special?data=${dataSearch}&page=${pageNumber}`,
       )
+
       if (response.data.status === true) {
         setDataBanner(response.data.data)
       }
@@ -140,7 +140,7 @@ function ProductBannerHotDeal() {
         setIsPermissionCheck(false)
       }
     } catch (error) {
-      console.error('Fetch data banner is error', error)
+      console.error('Fetch data banner hot deal is error', error)
     } finally {
       setIsLoading((prev) => ({ ...prev, page: false }))
     }
@@ -153,9 +153,9 @@ function ProductBannerHotDeal() {
   const fetchDataById = async (setValues) => {
     //api?search={dataSearch}
     try {
-      const response = await axiosClient.get(`admin/product-advertise/${id}/edit`)
+      const response = await axiosClient.get(`admin/product-advertise-special/${id}/edit`)
       const data = response.data.data
-      if (response.data.status === true) {
+      if (data && response.data.status === true) {
         setValues({
           title: data.title,
           url: data.link,
@@ -164,9 +164,11 @@ function ProductBannerHotDeal() {
           width: data.width,
           height: data.height,
           desc: data.description,
+          type: data.type,
           visible: data.display,
         })
-        setSelectedFile(data.picture)
+        setSelectedFileBanner(data.picture)
+        setSelectedFileBackground(data?.background)
       } else {
         console.error('No data found for the given ID.')
       }
@@ -179,7 +181,7 @@ function ProductBannerHotDeal() {
         toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
-      console.error('Fetch data id product banner is error', error.message)
+      console.error('Fetch data id product hot deal banner is error', error.message)
     }
   }
 
@@ -189,25 +191,29 @@ function ProductBannerHotDeal() {
       try {
         setIsLoading((prev) => ({ ...prev, button: true }))
 
-        const response = await axiosClient.put(`admin/product-advertise/${id}`, {
+        const response = await axiosClient.put(`admin/product-advertise-special/${id}`, {
           title: values.title,
-          picture: selectedFile,
+          picture: selectedFileBanner,
+          background: selectedFileBackground,
           link: values.url,
           target: values.destination,
           pos: values.categories,
           width: values.width,
           height: values.height,
           description: values.desc,
+          status: values.type,
           display: values.visible,
         })
 
         if (response.data.status === true) {
-          toast.success('Cập nhật trạng thái thành công')
+          toast.success('Cập nhật banner hot deal thành công')
           resetForm()
-          setFile([])
-          setSelectedFile([])
+          setSelectedFileBanner([])
+          setFileBanner([])
+          setSelectedFileBackground([])
+          setFileBackground([])
           setIsEditing(false)
-          navigate('/product/banner')
+          navigate('/product/banner-hot-deal')
           fetchDataBanner()
         } else {
           console.error('No data found for the given ID.')
@@ -226,33 +232,34 @@ function ProductBannerHotDeal() {
       //call api post new data
       try {
         setIsLoading((prev) => ({ ...prev, button: true }))
-
-        const response = await axiosClient.post('admin/product-advertise', {
+        const response = await axiosClient.post('admin/product-advertise-special', {
           title: values.title,
-          picture: selectedFile,
+          picture: selectedFileBanner,
+          background: selectedFileBackground,
           link: values.url,
           target: values.destination,
           pos: values.categories,
           width: values.width,
           height: values.height,
           description: values.desc,
+          status: values.type,
           display: values.visible,
         })
-
         if (response.data.status === true) {
-          toast.success('Cập nhật banner sản phẩm thành công!')
+          toast.success('Thêm mới banner hot deal thành công!')
           resetForm()
-          setFile([])
-          setSelectedFile([])
-          navigate('/product/banner?sub=add')
+          setSelectedFileBanner([])
+          setFileBanner([])
+          setSelectedFileBackground([])
+          setFileBackground([])
+          navigate('/product/banner-hot-deal?sub=add')
           fetchDataBanner()
         }
-
         if (response.data.status === false && response.data.mess == 'no permission') {
           toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
-        console.error('Put data product banner is error', error)
+        console.error('Put data product hot deal banner is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
         setIsLoading((prev) => ({ ...prev, button: false }))
@@ -272,19 +279,18 @@ function ProductBannerHotDeal() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/product-advertise/${deletedId}`)
+      const response = await axiosClient.delete(`admin/product-advertise-special/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataBanner()
       } else {
         console.error('ID not found for deleting product status')
       }
-
       if (response.data.status === false && response.data.mess == 'no permission') {
         toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       }
     } catch (error) {
-      console.error('Delete product banner id is error', error)
+      console.error('Delete product banner hot deal id is error', error)
       toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
     } finally {
       setVisible(false)
@@ -377,23 +383,22 @@ function ProductBannerHotDeal() {
   }
 
   const handleDeleteAll = async () => {
-    try {
-      const response = await axiosClient.post(`/admin/delete-all-product-advertise `, {
-        data: selectedCheckbox,
-      })
-
-      if (response.data.status === true) {
-        toast.success('Xóa tất cả các danh mục thành công!')
-        fetchDataBanner()
-        setSelectedCheckbox([])
-      }
-
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-      }
-    } catch (error) {
-      toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
-    }
+    alert('Chức năng đang phát triển')
+    // try {
+    //   const response = await axiosClient.post(`/admin/delete-all-product-advertise `, {
+    //     data: selectedCheckbox,
+    //   })
+    //   if (response.data.status === true) {
+    //     toast.success('Xóa tất cả các danh mục thành công!')
+    //     fetchDataBanner()
+    //     setSelectedCheckbox([])
+    //   }
+    //   if (response.data.status === false && response.data.mess == 'no permission') {
+    //     toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+    //   }
+    // } catch (error) {
+    //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
+    // }
   }
 
   const columns = [
