@@ -32,6 +32,7 @@ import {
   cilBarChart,
   cilChart,
   cilColorPalette,
+  cilUserPlus,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -141,6 +142,11 @@ const _nav = [
         component: CNavItem,
         name: 'Banner sản phẩm',
         to: '/product/banner',
+      },
+      {
+        component: CNavItem,
+        name: 'Banner sản phẩm hot deal',
+        to: '/product/banner-hot-deal',
       },
       {
         component: CNavItem,
@@ -441,6 +447,30 @@ const _nav = [
         component: CNavItem,
         name: 'Quản lý liên hệ',
         to: '/contact',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'QUẢN LÝ TUYỂN DỤNG',
+    to: '/hire',
+    icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Quản lý danh mục tuyển dụng',
+        to: '/hire/category',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý bài đăng tuyển dụng',
+        to: '/hire/post',
+      },
+      {
+        component: CNavItem,
+        name: 'Quản lý hồ sơ ứng tuyển',
+        to: '/hire/candidate-CV',
       },
     ],
   },

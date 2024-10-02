@@ -2,6 +2,7 @@ import {
   CButton,
   CCol,
   CContainer,
+  CFormCheck,
   CFormSelect,
   CImage,
   CRow,
@@ -183,6 +184,22 @@ function ProductDetail() {
     }
   }
 
+  // deleted all checkbox
+  const handleDeleteSelectedCheckbox = async () => {
+    try {
+      const response = await axiosClient.post('admin/delete-all-product', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataInstruct()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
+  }
+
   const handleSearch = (keyword) => {
     fetchProductData(keyword)
   }
@@ -211,6 +228,28 @@ function ProductDetail() {
   }
 
   const columns = [
+    {
+      key: 'id',
+      label: (
+        <>
+          <CFormCheck
+            aria-label="Select all"
+            checked={isAllCheckbox}
+            onChange={(e) => {
+              const isChecked = e.target.checked
+              setIsAllCheckbox(isChecked)
+              if (isChecked) {
+                const allIds = dataProductList?.data.map((item) => item.product_id) || []
+                setSelectedCheckbox(allIds)
+              } else {
+                setSelectedCheckbox([])
+              }
+            }}
+          />
+        </>
+      ),
+      _props: { scope: 'col' },
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'image', label: 'Hình ảnh' },
     { key: 'price', label: 'Giá bán' },
@@ -223,6 +262,25 @@ function ProductDetail() {
   const items =
     dataProductList?.data && dataProductList?.data.length > 0
       ? dataProductList?.data?.map((item) => ({
+          id: (
+            <CFormCheck
+              key={item?.product_id}
+              aria-label="Default select example"
+              defaultChecked={item?.product_id}
+              id={`flexCheckDefault_${item?.product_id}`}
+              value={item?.product_id}
+              checked={selectedCheckbox.includes(item?.product_id)}
+              onChange={(e) => {
+                const productId = item?.product_id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, productId])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== productId))
+                }
+              }}
+            />
+          ),
           title: (
             <>
               <p className="blue-txt m-0">{item?.product_desc?.title}</p>
@@ -256,7 +314,7 @@ function ProductDetail() {
             </>
           ),
           actions: (
-            <div style={{ width: 80 }}>
+            <div className="d-flex justify-content-start">
               <button
                 onClick={() => handleUpdateClick(item.product_id)}
                 className="button-action mr-2 bg-info"
@@ -453,6 +511,12 @@ function ProductDetail() {
                   </tbody>
                 )}
               </table>
+            </CCol>
+
+            <CCol md={12} className="mt-3">
+              <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+                Xóa vĩnh viễn
+              </CButton>
             </CCol>
 
             <CCol>

@@ -71,12 +71,10 @@ function Menu() {
   const validationSchema = Yup.object().shape({
     title: Yup.string()
       .required('Tiêu đề là bắt buộc.')
-      .min(3, 'Tiêu đề phải có ít nhất 3 ký tự.')
       .max(100, 'Tiêu đề không được vượt quá 100 ký tự.'),
     url: Yup.string().required('Liên kết là bắt buộc.'),
     name: Yup.string()
       .required('Tên action là bắt buộc.')
-      .min(3, 'Tên action phải có ít nhất 3 ký tự.')
       .max(50, 'Tên action không được vượt quá 50 ký tự.'),
     target: Yup.string()
       .required('Đích đến là bắt buộc.')

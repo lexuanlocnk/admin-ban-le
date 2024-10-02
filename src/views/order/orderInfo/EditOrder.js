@@ -260,6 +260,23 @@ function EditOrder() {
                           `Đơn hàng không áp dụng Coupon`
                         )}
                       </div>
+
+                      <div
+                        style={{
+                          fontWeight: 600,
+                        }}
+                      >
+                        {dataOrderDetail.totalValueOfPoint &&
+                        dataOrderDetail.totalValueOfPoint !== null ? (
+                          <div>
+                            Đơn hàng áp dụng điểm tích lũy quy đổi:
+                            {` ${dataOrderDetail.totalValueOfPoint.toLocaleString('vi-VN')}đ`}
+                          </div>
+                        ) : (
+                          `Đơn hàng không áp dụng Coupon`
+                        )}
+                      </div>
+
                       <div
                         style={{
                           fontWeight: 600,
@@ -289,12 +306,23 @@ function EditOrder() {
                           đ
                         </span>
                       </div>
-                      Giảm giá:{' '}
-                      <span>
-                        {dataOrderDetail.CouponDiscout &&
-                          dataOrderDetail.CouponDiscout?.toLocaleString('vi-VN')}
-                        đ
-                      </span>
+                      <div>
+                        Giảm giá coupon:{' '}
+                        <span>
+                          {dataOrderDetail.CouponDiscout &&
+                            dataOrderDetail.CouponDiscout?.toLocaleString('vi-VN')}
+                          đ
+                        </span>
+                      </div>
+
+                      <div>
+                        Giảm giá điểm thưởng:{' '}
+                        <span>
+                          {dataOrderDetail.totalValueOfPoint &&
+                            dataOrderDetail.totalValueOfPoint?.toLocaleString('vi-VN')}
+                          đ
+                        </span>
+                      </div>
                       <div>
                         Tổng tiền:{' '}
                         <span>
