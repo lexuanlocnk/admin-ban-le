@@ -218,7 +218,7 @@ function HirePost() {
                           className="component-size w-50"
                           aria-label="Chọn yêu cầu lọc"
                           options={[
-                            { label: 'Chọn danh mục', value: '' },
+                            { label: 'Chọn danh mục tuyển dụng', value: '' },
                             ...(dataHireCategory && dataHireCategory?.length > 0
                               ? dataHireCategory.map((cate) => ({
                                   label: cate.title,
@@ -282,9 +282,9 @@ function HirePost() {
                       <CTableHeaderCell scope="col">Danh mục</CTableHeaderCell>
                       <CTableHeaderCell scope="col">Ngày đăng</CTableHeaderCell>
                       <CTableHeaderCell scope="col">Ngày hết hạn</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">
+                      {/* <CTableHeaderCell scope="col">
                         <CIcon icon={cilEnvelopeClosed} size="lg" />
-                      </CTableHeaderCell>
+                      </CTableHeaderCell> */}
                       <CTableHeaderCell scope="col">Tác vụ</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
@@ -329,16 +329,16 @@ function HirePost() {
                             {moment(item.deadline).format('DD-MM-YYYY, hh:mm:ss A')}
                           </CTableDataCell>
 
-                          <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
+                          {/* <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
                             {item?.status === 1 ? (
                               <CIcon icon={cilEnvelopeOpen} />
                             ) : (
                               <CIcon icon={cilEnvelopeClosed} className="text-warning" size="lg" />
                             )}
-                          </CTableDataCell>
+                          </CTableDataCell> */}
 
-                          <CTableDataCell style={{ width: 100 }} className="orange-txt">
-                            <div>
+                          <CTableDataCell className="orange-txt">
+                            <div className="d-flex">
                               <button
                                 onClick={() => handleEditClick(item.id)}
                                 className="button-action mr-2 bg-info"

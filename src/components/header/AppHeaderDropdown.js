@@ -10,21 +10,10 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
-import {
-  cilBell,
-  cilCreditCard,
-  cilCommentSquare,
-  cilEnvelopeOpen,
-  cilFile,
-  cilLockLocked,
-  cilSettings,
-  cilTask,
-  cilUser,
-} from '@coreui/icons'
+import { cilBell, cilEnvelopeOpen, cilLockLocked, cilUser } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import '../css/headerLogout.css'
 
-import avatar8 from './../../assets/images/avatars/8.jpg'
 import { useNavigate } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
 
@@ -55,10 +44,10 @@ const AppHeaderDropdown = () => {
 
   return (
     <CDropdown variant="nav-item">
-      <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
+      <CDropdownToggle placement="bottom-end " className="py-0 pe-0" caret={false}>
         <div className="d-flex gap-3 align-items-center">
           <strong>{username}</strong>
-          <CAvatar src={`${imageBaseUrl}${avatar}`} size="md" />
+          <CAvatar src={`${imageBaseUrl}${avatar}`} size="sm" />
         </div>
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">

@@ -1,4 +1,4 @@
-import { cilColorBorder, cilTrash } from '@coreui/icons'
+import { cilColorBorder, cilEnvelopeClosed, cilEnvelopeOpen, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { CButton, CCol, CContainer, CFormCheck, CRow, CTable } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
@@ -138,6 +138,12 @@ function Newsletters() {
           ),
 
           dateRegister: <div>{moment.unix(item?.date_send).format('hh:mm:ss A, DD/MM/YYYY')}</div>,
+          seen:
+            item?.status === 1 ? (
+              <CIcon icon={cilEnvelopeOpen} />
+            ) : (
+              <CIcon icon={cilEnvelopeClosed} className="text-warning" />
+            ),
 
           actions: (
             <div>
@@ -195,6 +201,11 @@ function Newsletters() {
     {
       key: 'dateRegister',
       label: 'Ngày đăng ký',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'seen',
+      label: <CIcon icon={cilEnvelopeClosed} />,
       _props: { scope: 'col' },
     },
 
