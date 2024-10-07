@@ -296,9 +296,9 @@ function ProductDetail() {
             />
           ),
           price: (
-            <span className="orange-txt">{`${Number(item.price_old).toLocaleString('vi-VN')}đ`}</span>
+            <span className="orange-txt">{`${Number(item.price).toLocaleString('vi-VN')}đ`}</span>
           ),
-          marketPrice: `${Number(item.price).toLocaleString('vi-VN')}đ`,
+          marketPrice: `${Number(item.price_old).toLocaleString('vi-VN')}đ`,
           status: (
             <>
               <span>

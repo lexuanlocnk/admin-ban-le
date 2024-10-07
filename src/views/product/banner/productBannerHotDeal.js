@@ -155,6 +155,9 @@ function ProductBannerHotDeal() {
     try {
       const response = await axiosClient.get(`admin/product-advertise-special/${id}/edit`)
       const data = response.data.data
+
+      console.log('>>>> check status: ', data.status)
+
       if (data && response.data.status === true) {
         setValues({
           title: data.title,
@@ -164,7 +167,7 @@ function ProductBannerHotDeal() {
           width: data.width,
           height: data.height,
           desc: data.description,
-          type: data.type,
+          type: data.status,
           visible: data.display,
         })
         setSelectedFileBanner(data.picture)
@@ -874,7 +877,7 @@ function ProductBannerHotDeal() {
 
                 <div className="d-flex justify-content-end">
                   <ReactPaginate
-                    pageCount={Math.round(dataBanner?.total / dataBanner?.per_page)}
+                    pageCount={Math.ceil(dataBanner?.total / dataBanner?.per_page)}
                     pageRangeDisplayed={3}
                     marginPagesDisplayed={1}
                     pageClassName="page-item"
