@@ -209,7 +209,7 @@ function HirePost() {
                   <tbody>
                     <tr>
                       <td>Tổng cộng</td>
-                      <td className="total-count">6</td>
+                      <td className="total-count">{dataHirePost?.total}</td>
                     </tr>
                     <tr>
                       <td>Lọc theo vị trí</td>

@@ -6,6 +6,7 @@ import {
   CFormSelect,
   CImage,
   CRow,
+  CSpinner,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -39,6 +40,11 @@ function ProductDetail() {
 
   //loading button
   const [isLoading, setIsLoading] = useState(false)
+
+  const [isLoadingButton, setIsLoadingButton] = useState({
+    excelCategoryButton: false,
+    excelAllButton: false,
+  })
 
   // category
   const [categories, setCategories] = useState([])
@@ -352,6 +358,65 @@ function ProductDetail() {
     return sortableItems
   }, [items, sortConfig])
 
+  // export excel by category and brand
+
+  const handleExportExcelByCategoryAndBrand = async () => {
+    if (!selectedCategory || !selectedBrand) {
+      alert('Vui lòng chọn đầy đủ danh mục và thương hiệu trước khi xuất Excel.')
+      return
+    }
+    try {
+      setIsLoadingButton((prev) => ({ ...prev, excelCategoryButton: true }))
+      const response = await axiosClient({
+        url: `/member/products/export/technology?categoryId=${selectedCategory}&brandId=${selectedBrand}`,
+        method: 'GET',
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `Thong_tin_sp_theo_danh_muc.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      console.error('Export excel by category and brand is error:', error)
+    } finally {
+      setIsLoadingButton((prev) => ({ ...prev, excelCategoryButton: false }))
+    }
+  }
+
+  // export excel all products by category and brand
+
+  const handleExportExcelAllProductByCategoryAndBrand = async () => {
+    if (!selectedCategory || !selectedBrand) {
+      alert('Vui lòng chọn đầy đủ danh mục và thương hiệu trước khi xuất Excel.')
+      return
+    }
+    try {
+      setIsLoadingButton((prev) => ({ ...prev, excelAllButton: true }))
+
+      const response = await axiosClient({
+        url: `/member/products-export-properties?categoryId=${selectedCategory}&brandId=${selectedBrand}`,
+        method: 'GET',
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `Tskt_sp_theo_danh_muc.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      console.error('Export excel technology by category and brand is error:', error)
+    } finally {
+      setIsLoadingButton((prev) => ({ ...prev, excelAllButton: false }))
+    }
+  }
+
   return (
     <CContainer>
       {!isPermissionCheck ? (
@@ -512,12 +577,46 @@ function ProductDetail() {
               </table>
             </CCol>
 
-            <CCol md={12} className="mt-3">
-              <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
-                Xóa vĩnh viễn
-              </CButton>
-            </CCol>
-
+            <div className="d-flex gap-3 mt-3">
+              {' '}
+              <div>
+                <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </div>
+              <div>
+                <CButton
+                  onClick={handleExportExcelByCategoryAndBrand}
+                  color="primary"
+                  size="sm"
+                  disabled={isLoadingButton.excelCategoryButton}
+                >
+                  {isLoadingButton.excelCategoryButton ? (
+                    <>
+                      Đang tải xuống <CSpinner size="sm" />
+                    </>
+                  ) : (
+                    'Xuất excel sản phẩm theo danh mục, thương hiệu'
+                  )}
+                </CButton>
+              </div>
+              <div>
+                <CButton
+                  onClick={handleExportExcelAllProductByCategoryAndBrand}
+                  color="primary"
+                  size="sm"
+                  disabled={isLoadingButton.excelAllButton}
+                >
+                  {isLoadingButton.excelAllButton ? (
+                    <>
+                      Đang tải xuống <CSpinner size="sm" />
+                    </>
+                  ) : (
+                    'Xuất excel toàn bộ thông tin sản phẩm'
+                  )}
+                </CButton>
+              </div>
+            </div>
             <CCol>
               {isLoading ? (
                 <Loading />

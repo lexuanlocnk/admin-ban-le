@@ -94,6 +94,8 @@ function AccessStatistics() {
     fetchStatictical()
   }, [pageNumber, startDate, endDate])
 
+  // dowload excel file statics
+
   const downloadForm = async () => {
     // if (!startDate || !endDate) {
     //   alert('Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc trước khi xuất Excel.')
