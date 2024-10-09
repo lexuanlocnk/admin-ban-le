@@ -273,7 +273,7 @@ function EditOrder() {
                             {` ${dataOrderDetail.totalValueOfPoint.toLocaleString('vi-VN')}đ`}
                           </div>
                         ) : (
-                          `Đơn hàng không áp dụng Coupon`
+                          `Đơn hàng không áp dụng điểm tích lũy`
                         )}
                       </div>
 

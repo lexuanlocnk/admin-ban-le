@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import moment from 'moment'
+import Loading from '../../components/loading/Loading'
 
 function AccessStatistics() {
   // check permission state
@@ -20,6 +21,11 @@ function AccessStatistics() {
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
+
+  const [isLoading, setIsLoading] = useState({
+    page: false,
+    button: false,
+  })
 
   // date picker
   const [startDate, setStartDate] = useState('')
@@ -66,6 +72,7 @@ function AccessStatistics() {
 
   const fetchStatictical = async () => {
     try {
+      setIsLoading((prev) => ({ ...prev, page: true }))
       const response = await axiosClient.get(
         `admin/get-statistics?page=${pageNumber}&fromDate=${startDate !== null ? convertStringToTimeStamp(startDate) : ''}&toDate=${endDate !== null ? convertStringToTimeStamp(endDate) : ''}`,
       )
@@ -78,12 +85,16 @@ function AccessStatistics() {
       }
     } catch (error) {
       console.error('Fetch statictical data is error', error)
+    } finally {
+      setIsLoading((prev) => ({ ...prev, page: false }))
     }
   }
 
   useEffect(() => {
     fetchStatictical()
   }, [pageNumber, startDate, endDate])
+
+  // dowload excel file statics
 
   const downloadForm = async () => {
     // if (!startDate || !endDate) {
@@ -92,6 +103,8 @@ function AccessStatistics() {
     // }
 
     try {
+      setIsLoading((prev) => ({ ...prev, button: true }))
+
       const response = await axiosClient({
         url: `/member/export-statistics-excel?fromDate=${convertStringToTimeStamp(startDate)}&endDate=${convertStringToTimeStamp(endDate)}`,
         method: 'GET',
@@ -107,6 +120,8 @@ function AccessStatistics() {
       document.body.removeChild(link)
     } catch (error) {
       console.error('Error:', error)
+    } finally {
+      setIsLoading((prev) => ({ ...prev, button: false }))
     }
   }
 
@@ -238,21 +253,30 @@ function AccessStatistics() {
           </CCol>
 
           <CCol md={12} className="mt-2">
-            <CButton size="sm" color="primary" onClick={downloadForm}>
-              Xuất dữ liệu excel
-            </CButton>
+            {isLoading?.button ? (
+              <CButton size="sm" color="primary" disabled>
+                Đang xuất dữ liệu excel
+              </CButton>
+            ) : (
+              <CButton size="sm" color="primary" onClick={downloadForm}>
+                Xuất dữ liệu excel
+              </CButton>
+            )}
           </CCol>
 
           <CCol>
-            <CTable
-              hover
-              bordered
-              style={{ fontSize: 13.6 }}
-              className="mt-2 mb-4"
-              columns={columns}
-              items={items}
-            />
-
+            {isLoading.page ? (
+              <Loading />
+            ) : (
+              <CTable
+                hover
+                bordered
+                style={{ fontSize: 13.6 }}
+                className="mt-2 mb-4"
+                columns={columns}
+                items={items}
+              />
+            )}
             <CCol>
               <div className="d-flex justify-content-end">
                 <ReactPaginate

@@ -201,7 +201,7 @@ function News() {
             </div>
           ),
           actions: (
-            <div>
+            <div className="d-flex">
               <button
                 onClick={() => handleEditClick(item.news_id)}
                 className="button-action mr-2 bg-info"
