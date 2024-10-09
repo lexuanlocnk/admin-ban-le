@@ -8,6 +8,7 @@ import {
   CFormSelect,
   CImage,
   CRow,
+  CSpinner,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -42,6 +43,7 @@ function OrderList() {
 
   //loading
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
 
   const [choosenStatus, setChoosenStatus] = useState('')
   const [typeMember, setTypeMember] = useState('')
@@ -143,7 +145,7 @@ function OrderList() {
     try {
       setIsLoading(true)
       const response = await axiosClient.get(
-        `admin/order?name=${dataSearch}&status=${choosenStatus}&typeMember=${typeMember}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
+        `admin/order?name=${dataSearch}&status=${choosenStatus}&typeMember=${typeMember}&fromDate=${startDate !== null ? convertStringToTimeStamp(startDate) : ''}&toDate=${endDate !== null ? convertStringToTimeStamp(endDate) : ''}&page=${pageNumber}`,
       )
 
       const orderData = response.data.data
@@ -196,6 +198,34 @@ function OrderList() {
     // } catch (error) {
     //   toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
     // }
+  }
+
+  // export excel all products by category and brand
+  const handleExportExcelTimeSwitchStatus = async () => {
+    // if (!startDate || !endDate) {
+    //   alert('Vui lòng chọn đầy đủ danh mục và thương hiệu trước khi xuất Excel.')
+    // }
+
+    try {
+      setIsLoadingButton(true)
+      const response = await axiosClient({
+        url: `/member/export-order-excel?fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}`,
+        method: 'GET',
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `Thong_tin_don_hang.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      console.error('Export excel technology by category and brand is error:', error)
+    } finally {
+      setIsLoadingButton(false)
+    }
   }
 
   const columns = [
@@ -271,7 +301,7 @@ function OrderList() {
           total: <span className="total">{Number(order.total_cart).toLocaleString('vi-VN')}đ</span>,
           status: <span style={{ fontWeight: 600 }}>{order?.order_status.title}</span>,
           actions: (
-            <div>
+            <div className="d-flex">
               <button
                 onClick={() => handleEditClick(order.order_id)}
                 className="button-action mr-2 bg-info"
@@ -440,11 +470,33 @@ function OrderList() {
           </CRow>
 
           <CRow>
-            <CCol md={12} className="mt-2 mb-2">
-              <CButton onClick={handleDeleteAll} color="primary" size="sm">
-                Xóa vĩnh viễn
-              </CButton>
-            </CCol>
+            <div>
+              <div className="d-flex align-items-center gap-3">
+                <div className="mt-2 mb-2">
+                  <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                    Xóa vĩnh viễn
+                  </CButton>
+                </div>
+
+                <div>
+                  <CButton
+                    onClick={handleExportExcelTimeSwitchStatus}
+                    color="primary"
+                    size="sm"
+                    disabled={isLoadingButton}
+                  >
+                    {isLoadingButton ? (
+                      <>
+                        Đang tải xuống <CSpinner size="sm" />
+                      </>
+                    ) : (
+                      'Xuất dữ liệu excel lọc theo ngày'
+                    )}
+                  </CButton>
+                </div>
+              </div>
+            </div>
+
             {isLoading ? (
               <Loading />
             ) : (

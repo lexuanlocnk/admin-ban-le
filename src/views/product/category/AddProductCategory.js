@@ -44,7 +44,6 @@ function AddProductCategory() {
     color: '',
     visibleBrands: [],
     visibleSupport: [],
-    // description: '',
     scriptCode: '',
     pageTitle: '',
     metaDesc: '',
@@ -245,11 +244,25 @@ function AddProductCategory() {
                           <option value={item.category_desc.cat_id}>
                             {item.category_desc.cat_name} ({item.category_desc.cat_id})
                           </option>
-                          {item.sub_categories &&
-                            item.sub_categories.map((subItem) => (
-                              <option key={subItem.cat_id} value={subItem.cat_id}>
-                                + {subItem.category_desc.cat_name} ({subItem?.cat_id})
-                              </option>
+                          {item.parenty &&
+                            item.parenty.map((subItem) => (
+                              <>
+                                <option key={subItem.cat_id} value={subItem.cat_id}>
+                                  &nbsp;&nbsp;&nbsp;{'|--'}
+                                  {subItem.category_desc.cat_name} ({subItem?.cat_id})
+                                </option>
+                                {subItem.parentx &&
+                                  subItem.parentx.map((subSubCategory) => (
+                                    <option
+                                      key={subSubCategory.cat_id}
+                                      value={subSubCategory.cat_id}
+                                    >
+                                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'|--'}
+                                      {subSubCategory?.category_desc?.cat_name}(
+                                      {subSubCategory.cat_id})
+                                    </option>
+                                  ))}
+                              </>
                             ))}
                         </optgroup>
                       ))}
