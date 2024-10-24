@@ -134,10 +134,19 @@ function PromotionDetail() {
     setSortConfig({ key: columnKey, direction })
   }
 
+  const convertStringToTimeStamp = (dateString) => {
+    if (dateString == '') {
+      return ''
+    } else {
+      const dateMoment = moment(dateString, 'ddd MMM DD YYYY HH:mm:ss GMTZ')
+      return dateMoment.unix()
+    }
+  }
+
   const fetchGiftPromotion = async () => {
     try {
       const response = await axiosClient.get(
-        `admin/gift-promotion?data=${dataSearch}&StartDate=${startDate}&EndDate=${endDate}`,
+        `admin/gift-promotion?data=${dataSearch}&StartDate=${startDate !== null ? convertStringToTimeStamp(startDate) : ''}&EndDate=${endDate !== null ? convertStringToTimeStamp(endDate) : ''}`,
       )
       if (response.data.status === true) {
         setDataGiftPromotion(response.data.data)
@@ -234,7 +243,7 @@ function PromotionDetail() {
     startDate: moment.unix(Number(item.StartDate)).format('DD-MM-YYYY'),
     expire: moment.unix(Number(item.EndDate)).format('DD-MM-YYYY'),
     actions: (
-      <div>
+      <div className="d-flex">
         <button onClick={() => handleEditClick(item.id)} className="button-action mr-2 bg-info">
           <CIcon icon={cilColorBorder} className="text-white" />
         </button>

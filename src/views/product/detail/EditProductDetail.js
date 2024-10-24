@@ -886,7 +886,7 @@ function EditProductDetail() {
                             options={[
                               { label: 'Còn hàng', value: 0 },
                               { label: 'Liên hệ', value: 1 },
-                              { label: 'Hàng đang về', value: 2 },
+                              { label: 'Ngừng kinh doanh', value: 2 },
                             ]}
                           />
                           <ErrorMessage name="stock" component="div" className="text-danger" />

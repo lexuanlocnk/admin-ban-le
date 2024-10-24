@@ -2,16 +2,17 @@ import {
   CButton,
   CCol,
   CContainer,
+  CFormCheck,
   CFormSelect,
   CImage,
   CRow,
+  CSpinner,
   CTable,
   CTableBody,
   CTableDataCell,
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -39,6 +40,11 @@ function ProductDetail() {
 
   //loading button
   const [isLoading, setIsLoading] = useState(false)
+
+  const [isLoadingButton, setIsLoadingButton] = useState({
+    excelCategoryButton: false,
+    excelAllButton: false,
+  })
 
   // category
   const [categories, setCategories] = useState([])
@@ -183,6 +189,22 @@ function ProductDetail() {
     }
   }
 
+  // deleted all checkbox
+  const handleDeleteSelectedCheckbox = async () => {
+    try {
+      const response = await axiosClient.post('admin/delete-all-product', {
+        data: selectedCheckbox,
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataInstruct()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
+  }
+
   const handleSearch = (keyword) => {
     fetchProductData(keyword)
   }
@@ -211,6 +233,28 @@ function ProductDetail() {
   }
 
   const columns = [
+    {
+      key: 'id',
+      label: (
+        <>
+          <CFormCheck
+            aria-label="Select all"
+            checked={isAllCheckbox}
+            onChange={(e) => {
+              const isChecked = e.target.checked
+              setIsAllCheckbox(isChecked)
+              if (isChecked) {
+                const allIds = dataProductList?.data.map((item) => item.product_id) || []
+                setSelectedCheckbox(allIds)
+              } else {
+                setSelectedCheckbox([])
+              }
+            }}
+          />
+        </>
+      ),
+      _props: { scope: 'col' },
+    },
     { key: 'title', label: 'Tiêu đề' },
     { key: 'image', label: 'Hình ảnh' },
     { key: 'price', label: 'Giá bán' },
@@ -223,6 +267,25 @@ function ProductDetail() {
   const items =
     dataProductList?.data && dataProductList?.data.length > 0
       ? dataProductList?.data?.map((item) => ({
+          id: (
+            <CFormCheck
+              key={item?.product_id}
+              aria-label="Default select example"
+              defaultChecked={item?.product_id}
+              id={`flexCheckDefault_${item?.product_id}`}
+              value={item?.product_id}
+              checked={selectedCheckbox.includes(item?.product_id)}
+              onChange={(e) => {
+                const productId = item?.product_id
+                const isChecked = e.target.checked
+                if (isChecked) {
+                  setSelectedCheckbox([...selectedCheckbox, productId])
+                } else {
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== productId))
+                }
+              }}
+            />
+          ),
           title: (
             <>
               <p className="blue-txt m-0">{item?.product_desc?.title}</p>
@@ -238,9 +301,9 @@ function ProductDetail() {
             />
           ),
           price: (
-            <span className="orange-txt">{`${Number(item.price_old).toLocaleString('vi-VN')}đ`}</span>
+            <span className="orange-txt">{`${Number(item.price).toLocaleString('vi-VN')}đ`}</span>
           ),
-          marketPrice: `${Number(item.price).toLocaleString('vi-VN')}đ`,
+          marketPrice: `${Number(item.price_old).toLocaleString('vi-VN')}đ`,
           status: (
             <>
               <span>
@@ -256,7 +319,7 @@ function ProductDetail() {
             </>
           ),
           actions: (
-            <div style={{ width: 80 }}>
+            <div className="d-flex justify-content-start">
               <button
                 onClick={() => handleUpdateClick(item.product_id)}
                 className="button-action mr-2 bg-info"
@@ -294,6 +357,65 @@ function ProductDetail() {
     }
     return sortableItems
   }, [items, sortConfig])
+
+  // export excel by category and brand
+
+  const handleExportExcelByCategoryAndBrand = async () => {
+    if (!selectedCategory || !selectedBrand) {
+      alert('Vui lòng chọn đầy đủ danh mục và thương hiệu trước khi xuất Excel.')
+      return
+    }
+    try {
+      setIsLoadingButton((prev) => ({ ...prev, excelCategoryButton: true }))
+      const response = await axiosClient({
+        url: `/member/products/export/technology?categoryId=${selectedCategory}&brandId=${selectedBrand}`,
+        method: 'GET',
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `Thong_tin_sp_theo_danh_muc.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      console.error('Export excel by category and brand is error:', error)
+    } finally {
+      setIsLoadingButton((prev) => ({ ...prev, excelCategoryButton: false }))
+    }
+  }
+
+  // export excel all products by category and brand
+
+  const handleExportExcelAllProductByCategoryAndBrand = async () => {
+    if (!selectedCategory || !selectedBrand) {
+      alert('Vui lòng chọn đầy đủ danh mục và thương hiệu trước khi xuất Excel.')
+      return
+    }
+    try {
+      setIsLoadingButton((prev) => ({ ...prev, excelAllButton: true }))
+
+      const response = await axiosClient({
+        url: `/member/products-export-properties?categoryId=${selectedCategory}&brandId=${selectedBrand}`,
+        method: 'GET',
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `Tskt_sp_theo_danh_muc.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      console.error('Export excel technology by category and brand is error:', error)
+    } finally {
+      setIsLoadingButton((prev) => ({ ...prev, excelAllButton: false }))
+    }
+  }
 
   return (
     <CContainer>
@@ -455,6 +577,46 @@ function ProductDetail() {
               </table>
             </CCol>
 
+            <div className="d-flex gap-3 mt-3">
+              {' '}
+              <div>
+                <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </div>
+              <div>
+                <CButton
+                  onClick={handleExportExcelByCategoryAndBrand}
+                  color="primary"
+                  size="sm"
+                  disabled={isLoadingButton.excelCategoryButton}
+                >
+                  {isLoadingButton.excelCategoryButton ? (
+                    <>
+                      Đang tải xuống <CSpinner size="sm" />
+                    </>
+                  ) : (
+                    'Xuất excel sản phẩm theo danh mục, thương hiệu'
+                  )}
+                </CButton>
+              </div>
+              <div>
+                <CButton
+                  onClick={handleExportExcelAllProductByCategoryAndBrand}
+                  color="primary"
+                  size="sm"
+                  disabled={isLoadingButton.excelAllButton}
+                >
+                  {isLoadingButton.excelAllButton ? (
+                    <>
+                      Đang tải xuống <CSpinner size="sm" />
+                    </>
+                  ) : (
+                    'Xuất excel toàn bộ thông tin sản phẩm'
+                  )}
+                </CButton>
+              </div>
+            </div>
             <CCol>
               {isLoading ? (
                 <Loading />

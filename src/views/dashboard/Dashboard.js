@@ -61,6 +61,7 @@ import moment from 'moment'
 
 import './css/dashboard.css'
 import ReactPaginate from 'react-paginate'
+import { Link } from 'react-router-dom'
 
 const Dashboard = () => {
   const [adminLogData, setAdminLogData] = useState([])
@@ -163,8 +164,12 @@ const Dashboard = () => {
       ? staticData?.data.map((item, index) => ({
           index: index + 1,
           visited: item?.count,
-          username: item?.mem_id === 0 ? 'Unknow' : item?.member?.username,
-          url: item?.url,
+          username: item?.mem_id === 0 ? 'Khách vãng lai' : item?.member?.username,
+          url: (
+            <Link target="_blank" to={`http://web.chinhnhan.com/${'detail-product'}/${item?.url}`}>
+              {item?.url}
+            </Link>
+          ),
           module: item?.module,
           action: item?.action,
           ip: item?.ip,
