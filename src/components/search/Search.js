@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import '../css/search.css'
 
 function Search({ onSearchData, count }) {
   const [keyword, setKeyword] = useState('')
