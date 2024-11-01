@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2007-2022, CKSource Holding sp. z o.o. All rights reserved.
+For licensing, see LICENSE.html or https://ckeditor.com/sales/license/ckfinder
+-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+	<title>CKFinder 3 - File Browser</title>
+
+	<!-- <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .instructions {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .url-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        #url {
+            padding: 8px;
+            font-size: 16px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #copy-btn {
+            margin-left: 10px;
+            padding: 8px 12px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        #copy-btn:hover {
+            background-color: #45a049;
+        }
+
+        .btn-select {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .btn-select:hover {
+            background-color: #0056b3;
+        }
+
+        .image-preview {
+    margin-top: 20px;
+    text-align: center;
+        }
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 300px; /* Giới hạn chiều cao tối đa */
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+    </style> -->
+</head>
+<body>
+
+<script src="ckfinder.js"></script>
+<script>
+	CKFinder.start();
+</script>
+
+
+
+
+
+
+
+
+
+<!-- <div id="ckfinder1"></div>
+
+
+
+
+
+
+
+    <h1>Chọn ảnh từ thư viện ảnh</h1>
+<div class="input-container">
+    <p class="instructions">Nhấn nút "Chọn ảnh" để mở thư viện ảnh. Sau khi chọn ảnh, đường dẫn ảnh sẽ hiển thị, bạn có thể nhấn "Copy link" để sao chép đường dẫn.</p>
+    <label for="url">Đường dẫn url của ảnh:</label>
+    <div class="url-container">
+        <input type="text" size="48" name="url" id="url" readonly />
+        <button id="copy-btn" onclick="copyUrl()">Copy link</button>
+    </div>
+    <button class="btn-select" onclick="openPopup()">Chọn ảnh</button>
+</div>
+<div id="preview" class="image-preview"></div> -->
+
+<!-- <script>
+    function openPopup() {
+    CKFinder.popup({
+        chooseFiles: true,
+        onInit: function (finder) {
+            finder.on('files:choose', function (evt) {
+                var file = evt.data.files.first();
+                var url = "http://api.chinhnhan.com/" + file.getUrl();
+                document.getElementById('url').value = url;
+                displayImage(url);
+            });
+            finder.on('file:choose:resizedImage', function (evt) {
+                var url = evt.data.resizedUrl;
+                document.getElementById('url').value = url;
+                displayImage(url);
+            });
+        }
+    });
+}
+
+function displayImage(url) {
+    var preview = document.getElementById('preview');
+    var img = document.createElement('img');
+    img.src = url;
+    preview.innerHTML = '';
+    preview.appendChild(img);
+}
+
+function copyUrl() {
+    var urlInput = document.getElementById('url');
+    var urlValue = urlInput.value;
+
+    if (!urlValue) {
+        alert("Chưa có link nào để sao chép.");
+        return;
+    }
+
+    // Kiểm tra xem API Clipboard có được hỗ trợ không
+    if (navigator.clipboard) {
+        // Nếu có, dùng API Clipboard để sao chép
+        navigator.clipboard.writeText(urlValue).then(function() {
+            alert("Link đã được copy! Bây giờ bạn có thể Ctrl + V để dán link vào nơi khác.😉👌");
+        }).catch(function(error) {
+            alert("Đã xảy ra lỗi khi sao chép link: " + error);
+        });
+    } else {
+        // Nếu không hỗ trợ Clipboard API, sử dụng phương thức fallback
+        urlInput.select();
+        urlInput.setSelectionRange(0, 99999); // Dành cho các thiết bị di động
+
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? "Link đã được copy! Bây giờ bạn có thể Ctrl + V để dán link vào nơi khác.😉👌" : "Sao chép không thành công.👀";
+            alert(msg);
+        } catch (err) {
+            alert('Trình duyệt của bạn không hỗ trợ sao chép tự động. Hãy sao chép thủ công.');
+        }
+    }
+}
+
+</script> -->
+
+
+</script>
+</body>
+</html>
+

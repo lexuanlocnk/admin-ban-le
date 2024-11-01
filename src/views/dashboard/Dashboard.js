@@ -166,7 +166,7 @@ const Dashboard = () => {
           visited: item?.count,
           username: item?.mem_id === 0 ? 'Khách vãng lai' : item?.member?.username,
           url: (
-            <Link target="_blank" to={`http://web.chinhnhan.com/${'detail-product'}/${item?.url}`}>
+            <Link target="_blank" to={`http://web.chinhnhan.net/${'detail-product'}/${item?.url}`}>
               {item?.url}
             </Link>
           ),
