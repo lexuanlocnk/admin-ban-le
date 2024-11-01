@@ -4,24 +4,9 @@ import { Link, useLocation } from 'react-router-dom'
 import moment from 'moment'
 
 import './css/editCoupon.css'
-import axios from 'axios'
 import { axiosClient } from '../../axiosConfig'
 
 import { useNavigate } from 'react-router-dom'
-const fakeData = [
-  {
-    couponCode: 'NKDRVMCP',
-    used: '4',
-    remaining: '9995',
-    url: '/coupon/detail',
-  },
-  {
-    couponCode: 'NKDRVMCP58',
-    used: '19',
-    remaining: '125',
-    url: '/coupon/detail',
-  },
-]
 
 function EditCoupon() {
   const location = useLocation()
@@ -194,8 +179,8 @@ function EditCoupon() {
                     {dataCoupon?.DanhMucSpChoPhep &&
                       dataCoupon?.DanhMucSpChoPhep.length > 0 &&
                       dataCoupon?.DanhMucSpChoPhep.map((item) => (
-                        <span key={item.cat_name} className="orange-txt">
-                          {item.cat_name},{' '}
+                        <span key={item?.cat_name} className="orange-txt">
+                          {item?.cat_name},{' '}
                         </span>
                       ))}
                   </p>

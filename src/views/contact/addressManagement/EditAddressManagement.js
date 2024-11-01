@@ -4,6 +4,7 @@ import {
   CContainer,
   CFormCheck,
   CFormInput,
+  CFormLabel,
   CFormSelect,
   CFormTextarea,
   CImage,
@@ -18,6 +19,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 import { toast } from 'react-toastify'
+import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
 
 function EditAddressManagement() {
   const location = useLocation()
@@ -29,11 +31,14 @@ function EditAddressManagement() {
 
   const [isLoading, setIsLoading] = useState(false)
 
+  const [addressEditor, setAddressEditor] = useState('')
+  const [phoneEditor, setPhoneEditor] = useState('')
+
   const initialValues = {
     title: '',
     companyName: '',
-    address: '',
-    phone: '',
+    // address: '',
+    // phone: '',
     mail: '',
     website: '',
     workTime: '',
@@ -46,10 +51,10 @@ function EditAddressManagement() {
     companyName: Yup.string()
       .required('Tên công ty là bắt buộc.')
       .min(3, 'Tên công ty phải có ít nhất 3 ký tự.'),
-    address: Yup.string()
-      .required('Địa chỉ là bắt buộc.')
-      .min(10, 'Địa chỉ phải có ít nhất 10 ký tự.'),
-    phone: Yup.string().required('Số điện thoại là bắt buộc.'),
+    // address: Yup.string()
+    //   .required('Địa chỉ là bắt buộc.')
+    //   .min(10, 'Địa chỉ phải có ít nhất 10 ký tự.'),
+    // phone: Yup.string().required('Số điện thoại là bắt buộc.'),
     mail: Yup.string().required('Email là bắt buộc.').email('Email không hợp lệ.'),
     workTime: Yup.string().required('Thời gian làm việc là bắt buộc.'),
     visible: Yup.number()
@@ -67,16 +72,19 @@ function EditAddressManagement() {
           title: data?.title,
           companyName: data?.company,
           workTime: data?.work_time,
-          address: data?.address,
-          phone: data?.phone,
+          // address: data?.address,
+          // phone: data?.phone,
           mail: data?.email,
           website: data?.website,
           map: data?.map,
           visible: data?.display,
         })
+        setAddressEditor(data?.address)
+        setPhoneEditor(data?.phone)
       } else {
         console.error('No data found for the given ID.')
       }
+
       if (response.data.status === false && response.data.mess == 'no permission') {
         setIsPermissionCheck(false)
       }
@@ -91,8 +99,8 @@ function EditAddressManagement() {
       const response = await axiosClient.put(`admin/contact-config/${id}`, {
         title: values.title,
         company: values.companyName,
-        address: values.address,
-        phone: values.phone,
+        address: addressEditor,
+        phone: phoneEditor,
         email: values.mail,
         website: values.website,
         work_time: values.workTime,
@@ -172,10 +180,12 @@ function EditAddressManagement() {
                       </CCol>
                       <br />
 
-                      <CCol md={8}>
+                      {/* <CCol md={8}>
                         <label htmlFor="address-input">Địa chỉ</label>
                         <Field name="address">
-                          {({ field }) => <CFormInput {...field} type="text" id="address-input" />}
+                          {({ field }) => (
+                            <CFormTextarea {...field} type="text" id="address-input" />
+                          )}
                         </Field>
                         <ErrorMessage name="address" component="div" className="text-danger" />
                       </CCol>
@@ -207,6 +217,24 @@ function EditAddressManagement() {
                           {({ field }) => <CFormInput {...field} type="text" id="website-input" />}
                         </Field>
                         <ErrorMessage name="website" component="div" className="text-danger" />
+                      </CCol>
+                      <br /> */}
+
+                      <CCol md={12}>
+                        <CFormLabel>Địa chỉ</CFormLabel>
+                        <CKedtiorCustom
+                          data={addressEditor}
+                          onChangeData={(data) => setAddressEditor(data)}
+                        />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <CFormLabel>Điện thoại</CFormLabel>
+                        <CKedtiorCustom
+                          data={phoneEditor}
+                          onChangeData={(data) => setPhoneEditor(data)}
+                        />
                       </CCol>
                       <br />
 

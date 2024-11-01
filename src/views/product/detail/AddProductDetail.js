@@ -5,7 +5,6 @@ import {
   CFormCheck,
   CFormInput,
   CFormSelect,
-  CFormText,
   CFormTextarea,
   CImage,
   CRow,
@@ -20,7 +19,6 @@ import * as Yup from 'yup'
 import '../detail/css/addProductDetail.css'
 import { formatNumber, unformatNumber } from '../../../helper/utils'
 import useDebounce from '../../../helper/debounce'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
