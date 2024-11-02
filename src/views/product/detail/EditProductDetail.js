@@ -618,6 +618,17 @@ function EditProductDetail() {
                       </CCol>
 
                       <CCol md={3}>
+                        <CCol md={12} className="sticky-button">
+                          <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                            {isLoading ? (
+                              <>
+                                <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                              </>
+                            ) : (
+                              'Cập nhật'
+                            )}
+                          </CButton>
+                        </CCol>
                         <CCol md={12}>
                           <label htmlFor="syndicationCode-input">Mã Syndication</label>
                           <Field
@@ -938,18 +949,6 @@ function EditProductDetail() {
                           <ErrorMessage name="visible" component="div" className="text-danger" />
                         </CCol>
                         <br />
-
-                        <CCol xs={12}>
-                          <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
-                            {isLoading ? (
-                              <>
-                                <CSpinner size="sm"></CSpinner> Đang cập nhật...
-                              </>
-                            ) : (
-                              'Cập nhật'
-                            )}
-                          </CButton>
-                        </CCol>
                       </CCol>
                     </CRow>
                   </Form>

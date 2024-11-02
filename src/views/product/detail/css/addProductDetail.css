@@ -62,3 +62,12 @@ td {
 th {
   background-color: #f9f9f9;
 } */
+
+.sticky-button {
+  position: sticky !important;
+  top: 90px !important;
+  right: 174px;
+  z-index: 1000 !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+}
