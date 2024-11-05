@@ -160,6 +160,8 @@ function AdminList() {
   }, [pageNumber])
 
   const handleSubmit = async (values, { resetForm }) => {
+    console.log('>>>>check values: ', values)
+
     if (isEditing) {
       //call api update data
       try {
@@ -171,7 +173,7 @@ function AdminList() {
           display_name: values.displayName,
           avatar: selectedFile,
           phone: values.phone,
-          // role_id: values.role,
+          role_id: values.role,
         })
         if (response.data.status === true) {
           toast.success('Cập nhật thông tin admin thành công!')
@@ -255,7 +257,6 @@ function AdminList() {
   }
 
   const handleDeleteAll = async () => {
-    console.log('>>> check undeal', selectedCheckbox)
     // alert('Chức năng đang thực hiện...')
 
     try {
