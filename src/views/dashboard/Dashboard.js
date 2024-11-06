@@ -59,6 +59,8 @@ import MainChart from './MainChart'
 import { axiosClient } from '../../axiosConfig'
 import moment from 'moment'
 
+import { mainUrl } from '../../axiosConfig'
+
 import './css/dashboard.css'
 import ReactPaginate from 'react-paginate'
 import { Link } from 'react-router-dom'
@@ -166,7 +168,10 @@ const Dashboard = () => {
           visited: item?.count,
           username: item?.mem_id === 0 ? 'Khách vãng lai' : item?.member?.username,
           url: (
-            <Link target="_blank" to={`http://web.chinhnhan.net/${'detail-product'}/${item?.url}`}>
+            <Link
+              target="_blank"
+              to={`${mainUrl}/${item?.module === 'product' ? 'detail-product' : item.module}/${item?.url}`}
+            >
               {item?.url}
             </Link>
           ),

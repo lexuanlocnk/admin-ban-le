@@ -310,6 +310,7 @@ function AddProductDetail() {
                     <Field name="title">
                       {({ field }) => (
                         <CFormInput
+                          size="lg"
                           {...field}
                           type="text"
                           id="title-input"

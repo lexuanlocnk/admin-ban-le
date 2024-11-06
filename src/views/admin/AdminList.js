@@ -43,6 +43,7 @@ function AdminList() {
 
   const [dataRole, setDataRole] = useState([])
   const [adminListData, setAdminListData] = useState([])
+  const [roleChoosen, setRoleChoosen] = useState('')
 
   // loading button
   const [isLoadingButton, setIsLoadingButton] = useState(false)
@@ -140,7 +141,7 @@ function AdminList() {
   const fetchAdminListData = async (dataSearch = '') => {
     try {
       const response = await axiosClient.get(
-        `/admin/information?data=${dataSearch}&page=${pageNumber}`,
+        `/admin/information?data=${dataSearch}&page=${pageNumber}&role_id=${roleChoosen}`,
       )
 
       if (response.data.status === true) {
@@ -157,11 +158,9 @@ function AdminList() {
 
   useEffect(() => {
     fetchAdminListData()
-  }, [pageNumber])
+  }, [pageNumber, roleChoosen])
 
   const handleSubmit = async (values, { resetForm }) => {
-    console.log('>>>>check values: ', values)
-
     if (isEditing) {
       //call api update data
       try {
@@ -537,7 +536,7 @@ function AdminList() {
                           as={CFormSelect}
                           id="role-select"
                           options={[
-                            { label: '**Chọn vai trò**', value: '' },
+                            { label: 'Chọn vai trò', value: '', disabled: true },
                             ...(dataRole && dataRole?.length > 0
                               ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
                               : []),
@@ -594,11 +593,14 @@ function AdminList() {
                           <CFormSelect
                             className="component-size w-50"
                             aria-label="Chọn yêu cầu lọc"
-                            options={
-                              dataRole && dataRole?.length > 0
-                                ? dataRole?.map((role) => ({ label: role.title, value: role.id }))
-                                : []
-                            }
+                            options={[
+                              { label: 'Tất cả', value: '' },
+                              ...(Array.isArray(dataRole) && dataRole.length > 0
+                                ? dataRole.map((role) => ({ label: role.title, value: role.id }))
+                                : []),
+                            ]}
+                            value={roleChoosen}
+                            onChange={(e) => setRoleChoosen(e.target.value)}
                           />
                         </td>
                       </tr>

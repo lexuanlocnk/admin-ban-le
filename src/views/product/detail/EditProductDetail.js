@@ -371,6 +371,7 @@ function EditProductDetail() {
                           <Field name="title">
                             {({ field }) => (
                               <CFormInput
+                                size="lg"
                                 {...field}
                                 type="text"
                                 id="title-input"

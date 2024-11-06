@@ -207,13 +207,13 @@ function PermissionGroup() {
                       <CCol md={12}>
                         <label htmlFor="childCate-select">Chọn danh mục quản trị</label>
                         <Field
-                          className="component-size "
+                          className="component-size"
                           name="childCate"
                           as={CFormSelect}
                           id="childCate-select"
                           text="Lựa chọn danh mục sẽ thêm tab quản trị trong Admin."
                           options={[
-                            { label: '**Chọn danh mục**', value: '' },
+                            { label: 'Chọn danh mục', value: '', disabled: true },
                             ...(cateChildData && cateChildData.length > 0
                               ? cateChildData.map((cate) => ({
                                   label: cate?.name,

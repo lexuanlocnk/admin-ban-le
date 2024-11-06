@@ -10,6 +10,7 @@ function AdminInfo() {
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [phone, setPhone] = useState('')
+  const [roleId, setRoleId] = useState(null)
 
   const [adminId, setAdminId] = useState(null)
 
@@ -57,6 +58,7 @@ function AdminInfo() {
         setDisplayName(data.display_name)
         setPhone(data.phone)
         setSelectedFile(data.avatar)
+        setRoleId(Array.isArray(data?.roles) && data.roles.length > 0 ? data.roles[0].id : null)
       }
     } catch (error) {
       console.error('Fetch admin info data is error', error)
@@ -76,6 +78,7 @@ function AdminInfo() {
         display_name: displayName,
         avatar: selectedFile,
         phone: phone,
+        role_id: roleId,
       })
       if (response.data.status === true) {
         toast.success('Cập nhật thông tin admin thành công!')
@@ -181,6 +184,15 @@ function AdminInfo() {
                 onChange={(e) => setPhone(e.target.value)}
               />
             </CCol>
+
+            {/* <CCol md={12}>
+              <CFormInput
+                id="inputRole"
+                label="Vai trò"
+                value={roleId}
+                onChange={(e) => setRoleId(e.target.value)}
+              />
+            </CCol> */}
 
             <CCol xs={12}>
               <CButton

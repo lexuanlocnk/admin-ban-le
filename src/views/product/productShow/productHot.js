@@ -133,7 +133,7 @@ function ProductHot() {
     try {
       setIsLoading(true)
       const response = await axiosClient.get(
-        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
+        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}&stock=${true}`,
       )
       if (response.data.status === true) {
         setDataProductList(response.data.product)
@@ -174,7 +174,7 @@ function ProductHot() {
   }
 
   const handleSearch = (keyword) => {
-    fetchDataCategories(keyword)
+    fetchProductData(keyword)
   }
 
   // pagination data
@@ -190,8 +190,6 @@ function ProductHot() {
   }
 
   const handleSubmitDeal = async () => {
-    console.log('>>> cehck deal:', selectedDealCheckbox)
-
     try {
       const response = await axiosClient.post(`admin/product-hot`, {
         data: selectedDealCheckbox,
