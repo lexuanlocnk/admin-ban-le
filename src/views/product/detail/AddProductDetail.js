@@ -236,39 +236,54 @@ function AddProductDetail() {
 
   const handleSubmit = async (values) => {
     //api for submit
+
+    const productData = {
+      title: values.title,
+      description: editorData,
+      short: descEditor,
+      op_search: selectedTechOptions,
+      cat_id: selectedCategory?.[0],
+      cat_list: [...choosenCategory, ...selectedCategory, ...selectedChildCate],
+      friendly_title: values.pageTitle,
+      friendly_url: values.friendlyUrl,
+      metakey: values.metaKeywords,
+      metadesc: values.metaDescription,
+      code_script: values.syndicationCode,
+      maso: values.productCodeNumber,
+      macn: values.productCode,
+      price: values.marketPrice,
+      price_old: values.price,
+      brand_id: values.brand,
+      status: selectedStatus,
+      stock: values.stock,
+      display: values.visible,
+      picture: selectedFile,
+      technology: tech,
+      picture_detail: selectedFileDetail,
+    }
     try {
       setIsLoading(true)
-      const response = await axiosClient.post('admin/product', {
-        title: values.title,
-        description: editorData,
-        short: descEditor,
-        op_search: selectedTechOptions,
-        cat_id: selectedCategory?.[0],
-        cat_list: [...choosenCategory, ...selectedCategory, ...selectedChildCate],
-        friendly_title: values.pageTitle,
-        friendly_url: values.friendlyUrl,
-        metakey: values.metaKeywords,
-        metadesc: values.metaDescription,
-        code_script: values.syndicationCode,
-        maso: values.productCodeNumber,
-        macn: values.productCode,
-        price: values.marketPrice,
-        price_old: values.price,
-        brand_id: values.brand,
-        status: selectedStatus,
-        stock: values.stock,
-        display: values.visible,
-        picture: selectedFile,
-        technology: tech,
-        picture_detail: selectedFileDetail,
-      })
+      const response = await axiosClient.post('admin/product', productData)
 
-      if (response.data.status === true) {
+      const { status, message, mess } = response.data
+
+      if (status === true) {
         toast.success('Thêm sản phẩm mới thành công!')
-      }
+      } else {
+        const messages = {
+          maso: 'Mã số đã tồn tại trong database!',
+          macn: 'Mã kho đã tồn tại trong database!',
+          title: 'Tiêu đề đã tồn tại trong database!',
+          stock: 'Sản phẩm NGỪNG KINH DOANH không được set HOT hoặc FLASH-SALE!',
+        }
 
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        if (messages[message]) {
+          toast.warning(messages[message])
+        }
+
+        if (mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
       }
     } catch (error) {
       console.error('Post product data is error', error)
@@ -506,7 +521,7 @@ function AddProductDetail() {
                     <Field
                       name="metaKeywords"
                       type="text"
-                      as={CFormInput}
+                      as={CFormTextarea}
                       id="metaKeywords-input"
                       text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                     />
@@ -519,7 +534,7 @@ function AddProductDetail() {
                     <Field
                       name="metaDescription"
                       type="text"
-                      as={CFormInput}
+                      as={CFormTextarea}
                       id="metaDescription-input"
                       text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                     />

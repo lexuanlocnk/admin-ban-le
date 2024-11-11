@@ -19,14 +19,14 @@ function DetailCoupon() {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const coupon_code = searchParams.get('coupon_code')
-  const [dataDetailCoupon, setDataDetailCoupon] = useState([])
 
-  // const [dataCouponDetail, setDataCouponDetail] = useState([])
+  const [dataDetailCoupon, setDataDetailCoupon] = useState([])
 
   const fetchCouponDetailData = async () => {
     try {
       const response = await axiosClient.get(`admin/get-detail-coupon/${coupon_code}`)
-      setDataDetailCoupon(response.data.data)
+
+      setDataDetailCoupon(response.data)
     } catch (error) {
       console.error('Fetch coupon data error', error)
     }
@@ -37,9 +37,9 @@ function DetailCoupon() {
   }, [])
 
   const items =
-    dataDetailCoupon &&
-    dataDetailCoupon.length > 0 &&
-    dataDetailCoupon.map((item, index) => ({
+    Array.isArray(dataDetailCoupon?.data) &&
+    dataDetailCoupon?.data.length > 0 &&
+    dataDetailCoupon?.data.map((item, index) => ({
       id: index + 1,
       maCouponUSer: item.MaCouponUSer,
       dateUsingCode: moment(item.DateUsingCode).format('hh:mm, DD/MM/YYYY'),
@@ -47,7 +47,7 @@ function DetailCoupon() {
       iDOrderCode: <span className="orange-txt">{item.IDOrderCode}</span>,
       _cellProps: {
         id: { scope: 'row' },
-        style: { backgroundColor: index % 2 == 0 ? 'red' : '#ffffff' }, // Inline style for row colors
+        style: { backgroundColor: index % 2 == 0 ? 'red' : '#ffffff' },
       },
     }))
 
@@ -87,18 +87,22 @@ function DetailCoupon() {
                   color: 'red',
                 }}
               >
-                {coupon_code}
+                {dataDetailCoupon?.codeCoupon}
               </strong>
             </strong>
           </div>
 
           <div>
             <strong>Trạng thái: </strong>
-            <span style={{ fontSize: 18 }}>Đang...</span>
+            <span style={{ fontSize: 18, color: dataDetailCoupon?.status === 1 ? 'green' : 'red' }}>
+              {dataDetailCoupon?.status === 1 ? 'Đang phát hành' : 'Ngưng phát hành'}
+            </span>
           </div>
 
           <div>
-            <strong>Ngày tạo: DD-MM-YYYY</strong>
+            <strong>
+              Ngày tạo: {moment(dataDetailCoupon?.DateCreateCoupon).format('DD-MM-YYYY')}
+            </strong>
             <span></span>
           </div>
         </CCol>

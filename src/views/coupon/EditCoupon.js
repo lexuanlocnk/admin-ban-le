@@ -169,7 +169,8 @@ function EditCoupon() {
                     Tên đợt phát hành: <span>{dataCoupon?.TenCoupon}</span>
                   </p>
                   <p>
-                    Loại mã giảm: <span>Tổng đơn hàng</span>
+                    Loại mã giảm:{' '}
+                    <span>{dataCoupon?.CouponType === 0 ? 'Tổng đơn hàng' : 'Theo mã hàng'}</span>
                   </p>
                   <p>
                     Số lượng mã: <span className="orange-txt">{dataCoupon?.SoLuongMa}</span>
@@ -208,7 +209,9 @@ function EditCoupon() {
                   </p>
                   <p>
                     Mã hàng áp dụng:{' '}
-                    <span className="orange-txt">{dataCoupon?.MaKhoSPApdung === 0}</span>
+                    <span className="orange-txt">
+                      {dataCoupon?.MaKhoSPApdung === '0' ? 'Không có' : dataCoupon?.MaKhoSPApdung}
+                    </span>
                   </p>
                 </div>
               </div>

@@ -125,7 +125,7 @@ function ProductBanner() {
       setIsLoading((prev) => ({ ...prev, page: true }))
 
       const response = await axiosClient.get(
-        `admin/product-advertise?data=${dataSearch}&page=${pageNumber}&cat_id=${selectedCate}`,
+        `admin/product-advertise?data=${dataSearch}&page=${pageNumber}&cat=${selectedCate}`,
       )
       if (response.data.status === true) {
         setDataBanner(response.data.data)
@@ -706,10 +706,10 @@ function ProductBanner() {
                           aria-label="Chọn yêu cầu lọc"
                           options={[
                             { label: 'Chọn danh mục', value: '' },
-                            ...(categories && categories.length > 0
+                            ...(Array.isArray(categories) && categories.length > 0
                               ? categories.map((cate) => ({
                                   label: cate.category_desc.cat_name,
-                                  value: cate.cat_id,
+                                  value: cate.category_desc.cat_name,
                                 }))
                               : []),
                           ]}

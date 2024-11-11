@@ -281,7 +281,9 @@ function OrderList() {
               <div>
                 <span>Họ tên: </span>
                 <span className="customer-name">
-                  {order.member === null ? order.d_name : order.member?.full_name}
+                  {order.member === null || order?.member.full_name === null
+                    ? order.d_name
+                    : order?.member.full_name}
                 </span>
                 <span className="customer-type">
                   {order.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
@@ -383,7 +385,7 @@ function OrderList() {
                 <tbody>
                   <tr>
                     <td>Tổng cộng</td>
-                    <td className="total-count">6</td>
+                    <td className="total-count">{dataOrderList?.total}</td>
                   </tr>
                   <tr>
                     <td>Lọc</td>

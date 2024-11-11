@@ -129,7 +129,7 @@ function ProductBannerHotDeal() {
       setIsLoading((prev) => ({ ...prev, page: true }))
 
       const response = await axiosClient.get(
-        `admin/product-advertise-special?data=${dataSearch}&page=${pageNumber}`,
+        `admin/product-advertise-special?data=${dataSearch}&page=${pageNumber}&cat=${selectedCate}`,
       )
 
       if (response.data.status === true) {
@@ -155,8 +155,6 @@ function ProductBannerHotDeal() {
     try {
       const response = await axiosClient.get(`admin/product-advertise-special/${id}/edit`)
       const data = response.data.data
-
-      console.log('>>>> check status: ', data.status)
 
       if (data && response.data.status === true) {
         setValues({
@@ -798,7 +796,7 @@ function ProductBannerHotDeal() {
                             ...(categories && categories.length > 0
                               ? categories.map((cate) => ({
                                   label: cate.category_desc.cat_name,
-                                  value: cate.cat_id,
+                                  value: cate.category_desc.cat_name,
                                 }))
                               : []),
                           ]}
