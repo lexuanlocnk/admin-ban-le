@@ -297,8 +297,8 @@ function EditProductDetail() {
       code_script: values.syndicationCode,
       maso: values.productCodeNumber,
       macn: values.productCode,
-      price: values.marketPrice,
-      price_old: values.price,
+      price: values.price,
+      price_old: values.marketPrice,
       brand_id: values.brand,
       status: selectedStatus,
       stock: values.stock,
@@ -909,8 +909,8 @@ function EditProductDetail() {
                             id="stock-select"
                             className="select-input"
                             options={[
-                              { label: 'Còn hàng', value: 0 },
-                              { label: 'Liên hệ', value: 1 },
+                              { label: 'Liên hệ', value: 0 },
+                              { label: 'Còn hàng', value: 1 },
                               { label: 'Ngừng kinh doanh', value: 2 },
                             ]}
                           />
