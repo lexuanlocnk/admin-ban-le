@@ -82,7 +82,15 @@ a {
   font-weight: bold;
   text-align: right;
 
-  span {
+  span  {
     color: $orange-color;
   }
+}
+
+.order-address {
+  color: $blue-color;
+}
+
+.order-time {
+  color: $orange-color;
 }

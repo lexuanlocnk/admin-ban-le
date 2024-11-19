@@ -301,7 +301,11 @@ function OrderList() {
           ),
           orderDate: moment.unix(Number(order.date_order)).format('hh:mm:ss A, DD-MM-YYYY'),
           total: <span className="total">{Number(order.total_cart).toLocaleString('vi-VN')}đ</span>,
-          status: <span style={{ fontWeight: 600 }}>{order?.order_status.title}</span>,
+          status: (
+            <span style={{ fontWeight: 600, color: order?.order_status.color }}>
+              {order?.order_status.title}
+            </span>
+          ),
           actions: (
             <div className="d-flex">
               <button
