@@ -16,7 +16,6 @@ const PermissionGroup = React.lazy(() => import('./views/admin/PermissionGroup')
 const EditPermission = React.lazy(() => import('./views/admin/EditPermissions'))
 
 // PRODUCT
-
 const ProductBrand = React.lazy(() => import('./views/product/productBrand'))
 const ProductCategory = React.lazy(() => import('./views/product/category/productCategory'))
 const AddProductCategory = React.lazy(() => import('./views/product/category/AddProductCategory'))
@@ -58,9 +57,7 @@ const ShippingMethod = React.lazy(() => import('./views/order/shippingMethod'))
 const Coupon = React.lazy(() => import('./views/coupon/Coupon'))
 const AddCoupon = React.lazy(() => import('./views/coupon/AddCoupon'))
 const EditCoupon = React.lazy(() => import('./views/coupon/EditCoupon'))
-
 const DetailCoupon = React.lazy(() => import('./views/coupon/DetailCoupon'))
-
 const Text = React.lazy(() => import('./views/coupon/Text'))
 
 // NEWSLETTER

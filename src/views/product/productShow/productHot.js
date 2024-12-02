@@ -212,7 +212,6 @@ function ProductHot() {
   }
 
   const handleSubmitUndeal = async () => {
-    console.log('>>> check undeal', selectedUnDealCheckbox)
     try {
       const response = await axiosClient.post(`admin/delete-all-hot `, {
         data: selectedUnDealCheckbox,
