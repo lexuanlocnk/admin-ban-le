@@ -12,7 +12,6 @@ import {
   CFormInput,
   CFormLabel,
   CFormSelect,
-  CFormTextarea,
   CRow,
   CSpinner,
 } from '@coreui/react'

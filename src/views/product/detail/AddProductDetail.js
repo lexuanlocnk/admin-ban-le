@@ -737,6 +737,19 @@ function AddProductDetail() {
                   </CCol>
                   <br />
 
+                  <CCol md={12}>
+                    <label htmlFor="star-input">Đánh giá sản phẩm</label>
+                    <Field
+                      name="star"
+                      type="text"
+                      as={CFormInput}
+                      id="star-input"
+                      text="Nhập số sao đánh giá mong muốn cho sản phẩm. Số từ 1 -> 5"
+                    />
+                    <ErrorMessage name="star" component="div" className="text-danger" />
+                  </CCol>
+                  <br />
+
                   {/* <div className="border p-3 bg-white">
                     <React.Fragment>
                       <strong>Trạng thái</strong>

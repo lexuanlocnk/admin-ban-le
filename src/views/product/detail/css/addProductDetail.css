@@ -71,3 +71,24 @@ th {
   display: flex !important;
   justify-content: flex-start !important;
 }
+
+.table-combo tbody tr:hover {
+  background-color: greenyellow;
+  cursor: pointer;
+}
+
+.combo-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+.discount-box label {
+  display: block;
+  margin-bottom: 10px;
+}
+.discount-box input {
+  margin-top: 5px;
+}
+
+.combo-list p {
+  margin-bottom: 0;
+}
