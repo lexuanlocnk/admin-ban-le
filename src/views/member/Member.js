@@ -20,11 +20,13 @@ import { cilTrash, cilColorBorder } from '@coreui/icons'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { axiosClient } from '../../axiosConfig'
 import moment from 'moment/moment'
+import ReactPaginate from 'react-paginate'
 
 function Member() {
   const navigate = useNavigate()
 
   const [memberData, setMemberData] = useState([])
+  const [countMember, setCountMember] = useState('')
 
   const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
@@ -48,10 +50,11 @@ function Member() {
 
   const fetchMemberData = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(`admin/member?data=${dataSearch}`)
+      const response = await axiosClient.get(`admin/member?page=${pageNumber}&data=${dataSearch}`)
 
       if (response.data.status === true) {
         setMemberData(response.data.data)
+        setCountMember(response.data.countMember)
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
@@ -64,7 +67,7 @@ function Member() {
 
   useEffect(() => {
     fetchMemberData()
-  }, [])
+  }, [pageNumber])
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -259,7 +262,7 @@ function Member() {
                 <tbody>
                   <tr>
                     <td>Tổng cộng</td>
-                    <td className="total-count">6</td>
+                    <td className="total-count">{countMember || 0}</td>
                   </tr>
                   <tr>
                     <td>Tìm kiếm</td>
@@ -313,6 +316,28 @@ function Member() {
               </CTableBody>
             </CTable>
           </CRow>
+
+          <div className="d-flex justify-content-end">
+            <ReactPaginate
+              pageCount={Math.ceil(countMember / 10)}
+              pageRangeDisplayed={3}
+              marginPagesDisplayed={1}
+              pageClassName="page-item"
+              pageLinkClassName="page-link"
+              previousClassName="page-item"
+              previousLinkClassName="page-link"
+              nextClassName="page-item"
+              nextLinkClassName="page-link"
+              breakLabel="..."
+              breakClassName="page-item"
+              breakLinkClassName="page-link"
+              onPageChange={handlePageChange}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+              previousLabel={'<<'}
+              nextLabel={'>>'}
+            />
+          </div>
         </>
       )}
     </CContainer>

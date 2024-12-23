@@ -22,8 +22,7 @@ import moment from 'moment'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import Loading from '../../components/loading/Loading'
-
-const host = `http://web.chinhnhan.com/`
+import { mainUrl } from '../../axiosConfig'
 
 function Comment() {
   const navigate = useNavigate()
@@ -226,7 +225,7 @@ function Comment() {
 
                           <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
                             <a
-                              href={`${host}/detail-product/${item?.product_desc?.friendly_url}`}
+                              href={`${mainUrl}/detail-product/${item?.product_desc?.friendly_url}`}
                               target="_blank"
                               rel="noreferrer"
                             >

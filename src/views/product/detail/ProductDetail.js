@@ -298,6 +298,7 @@ function ProductDetail() {
               width={50}
               src={`${imageBaseUrl}${item.picture}`}
               alt={`image_${item?.macn}`}
+              loading="lazy"
             />
           ),
           price: (

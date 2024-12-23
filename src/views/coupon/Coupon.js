@@ -123,7 +123,7 @@ function Coupon() {
   const fetchDataCoupon = async (dataSearch) => {
     try {
       const response = await axiosClient.get(
-        `admin/coupon?data=${dataSearch}&StartCouponDate=${convertStringToTimeStamp(startDate)}&EndCouponDate=${convertStringToTimeStamp(endDate)}&page=${pageNumber}`,
+        `admin/coupon?data=${dataSearch}&StartCouponDate=${startDate !== null ? convertStringToTimeStamp(startDate) : ''}&EndCouponDate=${endDate !== null ? convertStringToTimeStamp(endDate) : ''}&page=${pageNumber}`,
       )
       setDataCoupon(response.data.listCoupon)
       setCountCoupon(response.data.countCoupon)
@@ -156,7 +156,7 @@ function Coupon() {
     ? dataCoupon?.map((item) => ({
         releaseCode: <span className="blue-txt">{item.MaPhatHanh}</span>,
         release: item.couponName,
-        createAt: item.DateCreateCoupon,
+        createAt: moment.unix(Number(item.DateCreateCoupon)).format('DD-MM-YYYY'),
         startDate: moment.unix(Number(item.StartCouponDate)).format('DD-MM-YYYY'),
         expire: moment.unix(Number(item.EndCouponDate)).format('DD-MM-YYYY'),
         sumOfCoupon: <span className="orange-txt">{item.SoLuongMa}</span>,

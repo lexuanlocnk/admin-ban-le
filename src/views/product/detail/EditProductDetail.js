@@ -1,12 +1,11 @@
 import {
   CButton,
-  CCloseButton,
   CCol,
   CContainer,
   CFormCheck,
   CFormInput,
+  CFormLabel,
   CFormSelect,
-  CFormText,
   CFormTextarea,
   CImage,
   CRow,
@@ -21,16 +20,18 @@ import * as Yup from 'yup'
 import '../detail/css/addProductDetail.css'
 
 import { formatNumber, unformatNumber } from '../../../helper/utils'
-import useDebounce from '../../../helper/debounce'
-import axios from 'axios'
-
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import Loading from '../../../components/loading/Loading'
+import moment from 'moment'
 
 function EditProductDetail() {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
+
+  const [dataProductList, setDataProductList] = useState([])
+  const [isDataComboLoading, setIsDataComboLoading] = useState(false)
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -40,6 +41,8 @@ function EditProductDetail() {
   const [videoEditor, setVideoEditor] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
+
+  const [comboList, setComboList] = useState([])
 
   // category
   const [categories, setCategories] = useState([])
@@ -70,6 +73,29 @@ function EditProductDetail() {
 
   const handleTabClick = (tab) => {
     setActiveTab(tab)
+  }
+
+  //combo sp
+  const [selectedFilterCategory, setSelectedFilterCategory] = useState(null)
+
+  const [deletedProductIds, setDeletedProductIds] = useState([])
+
+  // toggel table
+  const [isCollapse, setIsCollapse] = useState(false)
+
+  const [comboCollapseStates, setComboCollapseStates] = useState(comboList.map(() => false))
+
+  // search input
+  const [dataSearch, setDataSearch] = useState('')
+
+  const handleToggleCollapse = () => {
+    setIsCollapse((prevState) => !prevState)
+  }
+
+  const handleToggleComboCollapse = (index) => {
+    setComboCollapseStates((prevStates) =>
+      prevStates.map((state, i) => (i === index ? !state : state)),
+    )
   }
 
   // editor
@@ -110,6 +136,10 @@ function EditProductDetail() {
     // metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
     // visible: Yup.string().required('Hiển thị là bắt buộc.'),
   })
+
+  useEffect(() => {
+    setComboCollapseStates(comboList.map(() => false))
+  }, [comboList.length])
 
   const fetchData = async () => {
     try {
@@ -186,6 +216,9 @@ function EditProductDetail() {
         // setFileDetail(fileUrls)
         // setSelectedFileDetail(base64Images)
         setImagesDetail(data?.product_picture)
+
+        // combolist
+        setComboList(mapApiDataToComboList(data?.group))
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
@@ -195,6 +228,30 @@ function EditProductDetail() {
       console.error('Fetch data product is error', error)
     }
   }
+
+  const fetchProductListData = async () => {
+    try {
+      setIsDataComboLoading(true)
+      const response = await axiosClient.get(
+        `admin/product?data=${dataSearch}&category=${selectedFilterCategory}&isNotPaginate=${true}&stock=${true}`,
+      )
+      if (response.data.status === true) {
+        setDataProductList(response.data.product)
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        setIsPermissionCheck(false)
+      }
+    } catch (error) {
+      console.error('Fetch product data list is error', error.message)
+    } finally {
+      setIsDataComboLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProductListData()
+  }, [dataSearch, selectedFilterCategory])
 
   const fetchProductProperties = async () => {
     try {
@@ -281,42 +338,62 @@ function EditProductDetail() {
   }
 
   const handleSubmit = async (values) => {
-    console.log('>>>>check values', values)
     //api for submit
+
+    if (!validateComboList()) {
+      alert('Vui lòng điền đầy đủ thông tin cho các combo áp dụng giảm giá.')
+      return
+    }
+
+    const productData = {
+      title: values.title,
+      description: editorData,
+      short: descEditor,
+      op_search: selectedTechOptions,
+      cat_id: selectedCategory?.[0],
+      cat_list: [choosenCategory, ...selectedCategory, ...selectedChildCate],
+      friendly_title: values.pageTitle,
+      friendly_url: values.friendlyUrl,
+      metakey: values.metaKeywords,
+      metadesc: values.metaDescription,
+      code_script: values.syndicationCode,
+      maso: values.productCodeNumber,
+      macn: values.productCode,
+      price: values.price,
+      price_old: values.marketPrice,
+      brand_id: values.brand,
+      status: selectedStatus,
+      stock: values.stock,
+      display: values.visible,
+      picture: selectedFile,
+      technology: tech,
+      picture_detail: selectedFileDetail,
+      product_combo: comboList,
+      delete_item_product_groups: deletedProductIds,
+    }
 
     try {
       setIsLoading(true)
-      const response = await axiosClient.put(`admin/product/${id}`, {
-        title: values.title,
-        description: editorData,
-        short: descEditor,
-        op_search: selectedTechOptions,
-        cat_id: selectedCategory?.[0],
-        cat_list: [choosenCategory, ...selectedCategory, ...selectedChildCate],
-        friendly_title: values.pageTitle,
-        friendly_url: values.friendlyUrl,
-        metakey: values.metaKeywords,
-        metadesc: values.metaDescription,
-        code_script: values.syndicationCode,
-        maso: values.productCodeNumber,
-        macn: values.productCode,
-        price: values.marketPrice,
-        price_old: values.price,
-        brand_id: values.brand,
-        status: selectedStatus,
-        stock: values.stock,
-        display: values.visible,
-        picture: selectedFile,
-        technology: tech,
-        picture_detail: selectedFileDetail,
-      })
+      const response = await axiosClient.put(`admin/product/${id}`, productData)
+      const { status, message, mess } = response.data
 
-      if (response.data.status === true) {
-        toast.success('Cập nhật sản phẩm mới thành công!')
-      }
+      if (status === true) {
+        toast.success('Thêm sản phẩm mới thành công!')
+      } else {
+        const messages = {
+          maso: 'Mã số đã tồn tại trong database!',
+          macn: 'Mã kho đã tồn tại trong database!',
+          title: 'Tiêu đề đã tồn tại trong database!',
+          stock: 'Sản phẩm NGỪNG KINH DOANH không được set HOT hoặc FLASH-SALE!',
+        }
 
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        if (messages[message]) {
+          toast.warning(messages[message])
+        }
+
+        if (mess == 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
       }
     } catch (error) {
       console.error('Put product data is error', error)
@@ -325,6 +402,135 @@ function EditProductDetail() {
       setIsLoading(false)
     }
   }
+
+  const validateComboList = () => {
+    let isValid = true
+
+    setComboList((prev) =>
+      prev.map((product) => {
+        const errors = {}
+
+        if (product.discountApplied) {
+          const { content, startDate, endDate, discountPrice } = product.discountDetails
+
+          // Kiểm tra các trường bắt buộc
+          if (!content) errors.content = 'Nội dung giảm giá không được để trống.'
+          if (!startDate) errors.startDate = 'Ngày bắt đầu không được để trống.'
+          if (!endDate) errors.endDate = 'Ngày kết thúc không được để trống.'
+          if (!discountPrice || discountPrice <= 0)
+            errors.discountPrice = 'Giá giảm phải lớn hơn 0.'
+
+          // Kiểm tra logic ngày bắt đầu và ngày kết thúc
+          if (startDate && endDate) {
+            const start = moment(startDate)
+            const end = moment(endDate)
+            if (start.isValid() && end.isValid() && start.isAfter(end)) {
+              errors.date = 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc.'
+            }
+          }
+        }
+
+        // Nếu có lỗi, đánh dấu isValid là false
+        if (Object.keys(errors).length > 0) {
+          isValid = false
+        }
+
+        return {
+          ...product,
+          errors,
+        }
+      }),
+    )
+
+    return isValid
+  }
+
+  const mapApiDataToComboList = (group) =>
+    group.map((item) => ({
+      productId: item.product_id,
+      productTitle: item.nameProduct,
+      productPrice: item.price,
+      productImage: item.picture,
+      discountApplied: Boolean(item.discount),
+      discountDetails: {
+        content: item.title || '',
+        startDate: item.date_start ? moment.unix(item.date_start).format('YYYY-MM-DD') : '',
+        endDate: item.date_end ? moment.unix(item.date_end).format('YYYY-MM-DD') : '',
+        discountPrice: parseInt(item.discount, 10) || 0,
+      },
+      errors: {},
+    }))
+
+  const handleAddCombo = (product) => {
+    setComboList((prev) => {
+      if (prev.some((item) => item.productId === product.productId)) return prev
+
+      return [
+        ...prev,
+        {
+          ...product,
+          discountApplied: false,
+          discountDetails: {
+            content: '',
+            startDate: '',
+            endDate: '',
+            discountPrice: 0,
+          },
+          errors: {},
+        },
+      ]
+    })
+
+    setDeletedProductIds((prev) => prev.filter((id) => id !== product.productId))
+  }
+
+  const handleToggleDiscount = (index, checked) => {
+    setComboList((prev) =>
+      prev.map((product, idx) =>
+        idx === index ? { ...product, discountApplied: checked } : product,
+      ),
+    )
+  }
+
+  const handleDiscountChange = (index, key, value) => {
+    setComboList((prev) =>
+      prev.map((product, i) => {
+        if (i !== index) return product
+
+        const updatedProduct = {
+          ...product,
+          discountDetails: {
+            ...product.discountDetails,
+            [key]: value,
+          },
+          errors: {
+            ...product.errors,
+          },
+        }
+
+        if (key === 'startDate' || key === 'endDate') {
+          const startDate = moment(updatedProduct.discountDetails.startDate)
+          const endDate = moment(updatedProduct.discountDetails.endDate)
+
+          if (startDate.isValid() && endDate.isValid() && startDate.isBefore(endDate)) {
+            updatedProduct.errors.date = null
+          } else {
+            updatedProduct.errors.date = 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc!'
+          }
+        }
+
+        return updatedProduct
+      }),
+    )
+  }
+
+  const handleDeleteCombo = (productId) => {
+    setComboList((prev) => prev.filter((product) => product.productId !== productId))
+    setDeletedProductIds((prev) => [...prev, productId])
+  }
+
+  console.log('check combo', comboList)
+  console.log('check combo', deletedProductIds)
 
   return (
     <CContainer>
@@ -371,6 +577,7 @@ function EditProductDetail() {
                           <Field name="title">
                             {({ field }) => (
                               <CFormInput
+                                size="lg"
                                 {...field}
                                 type="text"
                                 id="title-input"
@@ -507,6 +714,317 @@ function EditProductDetail() {
                         <br />
 
                         <CCol>
+                          <div className="combo-list">
+                            {comboList.map((product, index) => (
+                              <div key={product.productId} className="border p-2 mb-3 bg-white">
+                                <div className="d-flex justify-content-between">
+                                  <div className="d-flex align-items-center gap-3">
+                                    <h5 className="text-danger">Combo giảm giá {index + 1}</h5>
+                                    <CButton
+                                      onClick={() => handleDeleteCombo(product.productId)}
+                                      style={{
+                                        fontSize: 13,
+                                        color: 'white',
+                                        fontWeight: 500,
+                                      }}
+                                      color="danger"
+                                      size="sm"
+                                    >
+                                      Xóa combo
+                                    </CButton>
+                                  </div>
+                                  <span
+                                    className="toggle-pointer"
+                                    onClick={() => handleToggleComboCollapse(index)}
+                                  >
+                                    {comboCollapseStates[index] ? '▼' : '▲'}
+                                  </span>
+                                </div>
+                                {!comboCollapseStates[index] && (
+                                  <>
+                                    <div className="d-flex align-items-center mt-2">
+                                      <CImage
+                                        src={`${imageBaseUrl}${product.productImage}`}
+                                        alt={product.productTitle}
+                                        width={50}
+                                      />
+                                      <div className="ms-3">
+                                        <p>{product.productTitle}</p>
+                                        <p style={{ color: 'orange' }}>
+                                          {product.productPrice.toLocaleString()} đ
+                                        </p>
+                                      </div>
+                                      <div
+                                        className="ms-auto"
+                                        style={{
+                                          flexShrink: 0,
+                                        }}
+                                      >
+                                        <CFormCheck
+                                          type="checkbox"
+                                          checked={product.discountApplied}
+                                          onChange={(e) =>
+                                            handleToggleDiscount(index, e.target.checked)
+                                          }
+                                        />
+                                        <CFormLabel className="ms-2 text-primary">
+                                          Áp dụng giá giảm
+                                        </CFormLabel>
+                                      </div>
+                                    </div>
+                                    {product.discountApplied && (
+                                      <div className="discount-box mt-3">
+                                        <CFormLabel>Nội dung giảm giá</CFormLabel>
+                                        <CFormTextarea
+                                          style={{
+                                            height: 70,
+                                          }}
+                                          type="text"
+                                          value={product.discountDetails.content}
+                                          onChange={(e) =>
+                                            handleDiscountChange(index, 'content', e.target.value)
+                                          }
+                                          className="form-control"
+                                        />
+                                        <CRow>
+                                          <CCol>
+                                            <label className="mr-3">
+                                              Ngày bắt đầu
+                                              <input
+                                                type="date"
+                                                value={product.discountDetails.startDate}
+                                                onChange={(e) =>
+                                                  handleDiscountChange(
+                                                    index,
+                                                    'startDate',
+                                                    e.target.value,
+                                                  )
+                                                }
+                                                className="form-control"
+                                              />
+                                              {product.discountDetails.startDate && (
+                                                <span>
+                                                  {moment(product.discountDetails.startDate).format(
+                                                    'DD-MM-YYYY',
+                                                  )}
+                                                </span>
+                                              )}
+                                            </label>
+                                          </CCol>
+                                          <CCol>
+                                            <label className="me-3">
+                                              Ngày kết thúc
+                                              <input
+                                                type="date"
+                                                value={product.discountDetails.endDate}
+                                                onChange={(e) =>
+                                                  handleDiscountChange(
+                                                    index,
+                                                    'endDate',
+                                                    e.target.value,
+                                                  )
+                                                }
+                                                className="form-control"
+                                              />
+                                              {product.discountDetails.endDate && (
+                                                <span>
+                                                  {moment(product.discountDetails.endDate).format(
+                                                    'DD-MM-YYYY',
+                                                  )}
+                                                </span>
+                                              )}
+                                            </label>
+                                          </CCol>
+                                        </CRow>
+                                        <label>
+                                          Giá giảm khi mua theo combo
+                                          <input
+                                            type="text"
+                                            value={formatNumber(
+                                              product.discountDetails.discountPrice.toString(),
+                                            )}
+                                            onChange={(e) =>
+                                              handleDiscountChange(
+                                                index,
+                                                'discountPrice',
+                                                unformatNumber(e.target.value),
+                                              )
+                                            }
+                                            className="form-control"
+                                          />
+                                          <span style={{ fontSize: 13, color: 'gray' }}>
+                                            Set giá giảm cho combo. Mệnh giá VNĐ
+                                          </span>
+                                        </label>
+                                        {product.errors.date && (
+                                          <p style={{ color: 'red' }}>{product.errors.date}</p>
+                                        )}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </CCol>
+                        <br />
+
+                        <CCol md={12}>
+                          <table className="filter-table">
+                            <thead>
+                              <tr>
+                                <th colSpan="2">
+                                  <div className="d-flex justify-content-between">
+                                    <span>Tìm kiếm sản phẩm</span>
+                                    <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                                      {isCollapse ? '▼' : '▲'}
+                                    </span>
+                                  </div>
+                                </th>
+                              </tr>
+                            </thead>
+                            {!isCollapse && (
+                              <tbody>
+                                <tr>
+                                  <td>Lọc</td>
+                                  <td>
+                                    <div
+                                      className="d-flex"
+                                      style={{
+                                        columnGap: 10,
+                                      }}
+                                    >
+                                      <CFormSelect
+                                        className="component-size w-25"
+                                        aria-label="Chọn yêu cầu lọc"
+                                        value={selectedFilterCategory}
+                                        onChange={(e) => setSelectedFilterCategory(e.target.value)}
+                                        options={[
+                                          { label: 'Chọn danh mục', value: '' },
+                                          ...(categories && categories.length > 0
+                                            ? categories.map((cate) => ({
+                                                label: cate.category_desc.cat_name,
+                                                value: cate.cat_id,
+                                              }))
+                                            : []),
+                                        ]}
+                                      />
+                                    </div>
+                                  </td>
+                                </tr>
+
+                                <tr>
+                                  <td>Tìm kiếm</td>
+                                  <td>
+                                    <strong>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</strong>
+                                    <input
+                                      type="text"
+                                      className="search-input"
+                                      value={dataSearch}
+                                      onChange={(e) => setDataSearch(e.target.value)}
+                                    />
+                                    {/* <button
+                                      onClick={() => handleSearch(dataSearch)}
+                                      className="submit-btn"
+                                    >
+                                      Submit
+                                    </button> */}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            )}
+                          </table>
+                        </CCol>
+                        <br />
+
+                        <h6>Lựa chọn combo sản phẩm đi kèm</h6>
+                        <CCol>
+                          <div
+                            className="border p-3 bg-white"
+                            style={{
+                              maxHeight: 400,
+                              minHeight: 'auto',
+                              overflowY: 'scroll',
+                            }}
+                          >
+                            <table
+                              className="table-combo"
+                              style={{
+                                fontSize: 13,
+                                width: '100%',
+                                textAlign: 'left',
+                                borderCollapse: 'collapse',
+                              }}
+                            >
+                              <thead
+                                style={{
+                                  background: '#ddd',
+                                }}
+                              >
+                                <tr>
+                                  <th>Tiêu đề</th>
+                                  <th>Hình ảnh</th>
+                                  <th>Giá bán</th>
+                                  <th>Tác vụ</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {isDataComboLoading ? (
+                                  <Loading />
+                                ) : dataProductList && dataProductList.length > 0 ? (
+                                  dataProductList.map((item) => (
+                                    <tr key={item.product_id}>
+                                      <td
+                                        style={{
+                                          maxWidth: 300,
+                                          fontWeight: 500,
+                                        }}
+                                      >
+                                        {item.product_desc.title}
+                                      </td>
+                                      <td>
+                                        <CImage
+                                          src={`${imageBaseUrl}${item.picture}`}
+                                          alt={`image_${item.product_id}`}
+                                          width={50}
+                                        />
+                                      </td>
+                                      <td style={{ color: 'orange', fontWeight: 500 }}>
+                                        {item.price.toLocaleString()} đ
+                                      </td>
+                                      <td style={{ textAlign: 'center' }}>
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            handleAddCombo({
+                                              productId: item.product_id,
+                                              productTitle: item.product_desc.title,
+                                              productImage: item.picture,
+                                              productPrice: item.price,
+                                            })
+                                          }
+                                          style={{
+                                            backgroundColor: '#008CBA',
+                                            color: 'white',
+                                            padding: '5px 10px',
+                                            border: 'none',
+                                          }}
+                                        >
+                                          +
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  ))
+                                ) : (
+                                  []
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </CCol>
+                        <br />
+
+                        <CCol>
                           <CFormInput
                             type="file"
                             id="formFile"
@@ -587,7 +1105,7 @@ function EditProductDetail() {
                           <Field
                             name="metaKeywords"
                             type="text"
-                            as={CFormInput}
+                            as={CFormTextarea}
                             id="metaKeywords-input"
                             text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
                           />
@@ -604,7 +1122,7 @@ function EditProductDetail() {
                           <Field
                             name="metaDescription"
                             type="text"
-                            as={CFormInput}
+                            as={CFormTextarea}
                             id="metaDescription-input"
                             text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
                           />
@@ -618,6 +1136,17 @@ function EditProductDetail() {
                       </CCol>
 
                       <CCol md={3}>
+                        <CCol md={12} className="sticky-button">
+                          <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                            {isLoading ? (
+                              <>
+                                <CSpinner size="sm"></CSpinner> Đang cập nhật...
+                              </>
+                            ) : (
+                              'Cập nhật'
+                            )}
+                          </CButton>
+                        </CCol>
                         <CCol md={12}>
                           <label htmlFor="syndicationCode-input">Mã Syndication</label>
                           <Field
@@ -823,6 +1352,19 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
+                        <CCol md={12}>
+                          <label htmlFor="star-input">Đánh giá sản phẩm</label>
+                          <Field
+                            name="star"
+                            type="text"
+                            as={CFormInput}
+                            id="star-input"
+                            text="Nhập số sao đánh giá mong muốn cho sản phẩm. Số từ 1 -> 5"
+                          />
+                          <ErrorMessage name="star" component="div" className="text-danger" />
+                        </CCol>
+                        <br />
+
                         {/* <div className="border p-3 bg-white">
                       <React.Fragment>
                         <strong>Trạng thái</strong>
@@ -884,8 +1426,8 @@ function EditProductDetail() {
                             id="stock-select"
                             className="select-input"
                             options={[
-                              { label: 'Còn hàng', value: 0 },
-                              { label: 'Liên hệ', value: 1 },
+                              { label: 'Liên hệ', value: 0 },
+                              { label: 'Còn hàng', value: 1 },
                               { label: 'Ngừng kinh doanh', value: 2 },
                             ]}
                           />
@@ -938,18 +1480,6 @@ function EditProductDetail() {
                           <ErrorMessage name="visible" component="div" className="text-danger" />
                         </CCol>
                         <br />
-
-                        <CCol xs={12}>
-                          <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
-                            {isLoading ? (
-                              <>
-                                <CSpinner size="sm"></CSpinner> Đang cập nhật...
-                              </>
-                            ) : (
-                              'Cập nhật'
-                            )}
-                          </CButton>
-                        </CCol>
                       </CCol>
                     </CRow>
                   </Form>

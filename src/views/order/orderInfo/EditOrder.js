@@ -34,6 +34,7 @@ function EditOrder() {
   const [choosenStatus, setChoosenStatus] = useState('')
   const [orderNote, setOrderNote] = useState(null)
   const [spx, setSpx] = useState(null)
+  const [orderAddress, setOrderAddress] = useState({})
 
   const fetchDataStatusOrder = async () => {
     try {
@@ -55,15 +56,11 @@ function EditOrder() {
     try {
       const response = await axiosClient.get(`admin/order/${id}/edit`)
 
-      const data = response.data.dataOrder
-      if (data) {
-        setDataOrderDetail(data)
-        setOrderNote(data.comment)
-        // setDataStatus(2)
-        setChoosenStatus(data.status)
-      } else {
-        console.error('No data found for the given ID.')
-      }
+      const data = response.data.dataOrder || {}
+      setDataOrderDetail(data)
+      setOrderNote(data.comment || '')
+      setChoosenStatus(data.status || null)
+      setOrderAddress(data.orderAddress)
 
       if (response.data.status === false && response.data.mess == 'no permission') {
         setIsPermissionCheck(false)
@@ -90,6 +87,7 @@ function EditOrder() {
 
       if (response.data.status === true) {
         toast.success('Cập nhật đơn hàng thành công!')
+        fetchOrderDataDetail()
       }
 
       if (response.data.status === false && response.data.mess == 'no permission') {
@@ -182,7 +180,7 @@ function EditOrder() {
                       </p>
 
                       <strong>Phương thức thanh toán:</strong>
-                      <p>{dataOrderDetail?.payment_method?.title}</p>
+                      <p>{dataOrderDetail?.payment_method}</p>
                     </div>
                     <div className="col-md-6">
                       <strong>Thông tin giao hàng</strong>
@@ -198,7 +196,14 @@ function EditOrder() {
                         <span className="customer-info-phone">{dataOrderDetail?.d_phone}</span>
                       </p>
                       <p>
-                        Địa chỉ: <span>{dataOrderDetail?.d_address}</span>
+                        Địa chỉ:{' '}
+                        <span className="order-address">
+                          {`${orderAddress?.address}, ${orderAddress?.ward}, ${orderAddress?.district}, ${orderAddress?.province}`}
+                        </span>
+                      </p>
+                      <p>
+                        Thời gian nhận hàng:{' '}
+                        <span className="order-time">{orderAddress?.time}</span>
                       </p>
                       <p>
                         Email: <span>{dataOrderDetail?.d_email}</span>

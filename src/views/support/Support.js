@@ -70,7 +70,7 @@ function Support() {
     phone: '',
     email: '',
     skyName: '',
-    type: 'chat',
+    type: '',
     groupType: '',
   }
 
@@ -489,7 +489,7 @@ function Support() {
                       <br />
 
                       <CCol md={12}>
-                        <label htmlFor="skyName-input">Skyke name</label>
+                        <label htmlFor="skyName-input">Skype name</label>
                         <Field name="skyName" type="text" as={CFormInput} id="skyName-input" />
                         <ErrorMessage name="skyName" component="div" className="text-danger" />
                       </CCol>

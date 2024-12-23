@@ -12,7 +12,7 @@ function LoadingPage() {
       <div className="logo"></div>
       <div className="processing">
         (Đang xử lý. Xin vui lòng đợi hoặc click{' '}
-        <Link style={{ fontWeight: 600 }} to={'http://web.chinhnhan.com/'}>
+        <Link style={{ fontWeight: 600 }} to={'http://web.chinhnhan.net/'}>
           vào đây
         </Link>{' '}
         để trở về trang web Chính Nhân .)

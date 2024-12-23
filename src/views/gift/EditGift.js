@@ -12,7 +12,6 @@ import {
   CFormInput,
   CFormLabel,
   CFormSelect,
-  CFormTextarea,
   CRow,
   CSpinner,
 } from '@coreui/react'
@@ -103,7 +102,7 @@ function EditGift() {
           applyGiftType: data.type,
           ordersHaveProductCode: data.ordersHaveProductCode,
           industry: data.cat_parent_id,
-          visible: data.visible,
+          visible: data.display,
           applyToProductCategories: data.list_cat,
         })
         setEditorData(data?.content)

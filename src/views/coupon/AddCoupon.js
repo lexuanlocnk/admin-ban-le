@@ -372,25 +372,27 @@ function AddCoupon() {
 
                 <CFormLabel>Đơn hàng có thương hiệu sản phẩm</CFormLabel>
                 <CCol md={12} className="overflow-scroll" style={{ height: '300px' }}>
-                  {brands.map((brand) => (
-                    <div key={brand.brandId}>
-                      <CFormCheck
-                        id={brand.brandId}
-                        label={brand?.title}
-                        value={brand.brandId}
-                        checked={values.applytoProductBrand.includes(brand.brandId)}
-                        onChange={() => {
-                          const set = new Set(values.applytoProductBrand)
-                          if (set.has(brand.brandId)) {
-                            set.delete(brand.brandId)
-                          } else {
-                            set.add(brand.brandId)
-                          }
-                          setFieldValue('applytoProductBrand', Array.from(set))
-                        }}
-                      />
-                    </div>
-                  ))}
+                  {brands && brands.length > 0
+                    ? brands.map((brand) => (
+                        <div key={brand.brandId}>
+                          <CFormCheck
+                            id={brand.brandId}
+                            label={brand?.title}
+                            value={brand.brandId}
+                            checked={values.applytoProductBrand.includes(brand.brandId)}
+                            onChange={() => {
+                              const set = new Set(values.applytoProductBrand)
+                              if (set.has(brand.brandId)) {
+                                set.delete(brand.brandId)
+                              } else {
+                                set.add(brand.brandId)
+                              }
+                              setFieldValue('applytoProductBrand', Array.from(set))
+                            }}
+                          />
+                        </div>
+                      ))
+                    : 'Không có thương hiệu để lựa chọn'}
                   <ErrorMessage
                     name="applytoProductBrand"
                     component="div"

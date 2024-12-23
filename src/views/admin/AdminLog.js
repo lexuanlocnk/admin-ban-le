@@ -48,7 +48,7 @@ function AdminLog() {
   const fetchAdminLogData = async (dataSearch = '') => {
     try {
       const response = await axiosClient.get(
-        `admin/admin-log?page=${pageNumber}&data=${dataSearch}&username=${selectedUsername}&fromDate=${convertStringToTimeStamp(startDate)}&toDate=${convertStringToTimeStamp(endDate)}`,
+        `admin/admin-log?page=${pageNumber}&data=${dataSearch}&username=${selectedUsername}&fromDate=${startDate !== null ? convertStringToTimeStamp(startDate) : ''}&toDate=${endDate !== null ? convertStringToTimeStamp(endDate) : ''}`,
       )
 
       if (response.data.status === true) {
@@ -259,7 +259,7 @@ function AdminLog() {
                     <td>
                       <div className="mt-2">
                         <strong>
-                          <em>Tìm kiếm theo tên Danh mục quản trị</em>
+                          <em>Tìm kiếm theo tên Page đã truy cập</em>
                         </strong>
                         <input
                           type="text"
