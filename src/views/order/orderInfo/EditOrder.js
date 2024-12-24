@@ -76,6 +76,8 @@ function EditOrder() {
 
   // const total = dataOrderDetail.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
+  console.log('dataOrderDetail:', dataOrderDetail)
+
   const handleUpdateClick = async () => {
     // submit api put
     try {
@@ -100,6 +102,8 @@ function EditOrder() {
       setIsLoading(false)
     }
   }
+
+  console.log('data:', dataOrderDetail?.orderDetail)
 
   return (
     <CContainer>
@@ -230,22 +234,78 @@ function EditOrder() {
                       </tr>
                     </thead>
                     <tbody>
-                      {dataOrderDetail?.orderDetail?.map((item, index) => (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>
-                            <img src={`${imageBaseUrl}${item?.picture}`} alt={'img-product'} />
-                          </td>
-                          <td>
-                            <Link to={`/product/edit?id=${item.item_id}`}>{item.item_title}</Link>
-                          </td>
-                          <td>{Number(item.item_price).toLocaleString('vi-VN')}đ</td>
-                          <td>{item.quantity}</td>
-                          <td>
-                            {Number(item.item_price * item.quantity).toLocaleString('vi-VN')}đ
-                          </td>
-                        </tr>
-                      ))}
+                      {dataOrderDetail?.orderDetail?.map((item, index) => {
+                        if (!item?.typeCombo) {
+                          return (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>
+                                <img
+                                  className="image_cart"
+                                  src={`${imageBaseUrl}${item?.Picture}`}
+                                  alt="img-product"
+                                />
+                              </td>
+                              <td>
+                                <Link to={`/product/edit?id=${item.ProductId}`}>
+                                  {item.ProductName}
+                                </Link>
+                                <div className="box_present">
+                                  <div
+                                    dangerouslySetInnerHTML={{
+                                      __html: item?.present?.content || '',
+                                    }}
+                                  />
+                                </div>
+                              </td>
+                              <td>{Number(item.Price).toLocaleString('vi-VN')}đ</td>
+                              <td>{item.quantity}</td>
+                              <td>{Number(item.Price * item.quantity).toLocaleString('vi-VN')}đ</td>
+                            </tr>
+                          )
+                        }
+                        return (
+                          <tr key={index}>
+                            <td>{index + 1}</td>
+                            <td>
+                              <div className="box_image_combo d-flex align-items-center gap-1">
+                                {item.products.map((product, productIndex) => (
+                                  <div key={productIndex} className="image_combo">
+                                    <img
+                                      className="image_cart"
+                                      src={`${imageBaseUrl}${product?.Picture}`}
+                                      alt={`Product ${productIndex + 1}`} // Added alt text for accessibility
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </td>
+
+                            <td>
+                              <ol className="box_name_product_combo">
+                                {item.products.map((product, productIndex) => (
+                                  <li key={productIndex} className="my-1">
+                                    <Link to={`/product/edit?id=${product.ProductId}`}>
+                                      {product.ProductName}
+                                    </Link>
+                                    <div className="box_present">
+                                      <div
+                                        dangerouslySetInnerHTML={{
+                                          __html: product?.present?.content || '',
+                                        }}
+                                      />
+                                    </div>
+                                  </li>
+                                ))}
+                              </ol>
+                            </td>
+
+                            <td>{Number(item.Price).toLocaleString('vi-VN')}đ</td>
+                            <td>{item.quantity}</td>
+                            <td>{Number(item.Price * item.quantity).toLocaleString('vi-VN')}đ</td>
+                          </tr>
+                        ) // Explicitly return null for items with typeCombo
+                      })}
                     </tbody>
                   </table>
 
@@ -282,7 +342,7 @@ function EditOrder() {
                         )}
                       </div>
 
-                      <div
+                      {/* <div
                         style={{
                           fontWeight: 600,
                         }}
@@ -299,7 +359,7 @@ function EditOrder() {
                             ></div>
                           </>
                         )}
-                      </div>
+                      </div> */}
                     </div>
 
                     <div className="total justify-content-end">
