@@ -100,6 +100,7 @@ function AddProductDetail() {
     brand: '',
     stock: 0,
     visible: 0,
+    star: 4.5,
   }
 
   const validationSchema = Yup.object({
@@ -110,6 +111,14 @@ function AddProductDetail() {
     // metaDesc: Yup.string().required('metaDescription là bắt buộc.'),
     // metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
     // visible: Yup.string().required('Hiển thị là bắt buộc.'),
+    star: Yup.number()
+      .min(1, 'Giá trị tối thiểu là 1')
+      .max(5, 'Giá trị tối đa là 5')
+      .test(
+        'is-decimal',
+        'Số sao phải là số thập phân, ví dụ: 1.2, 4.5',
+        (value) => value === undefined || /^\d+(\.\d+)?$/.test(value),
+      ),
   })
 
   const fetchData = async () => {
@@ -260,6 +269,7 @@ function AddProductDetail() {
       picture: selectedFile,
       technology: tech,
       picture_detail: selectedFileDetail,
+      votes: values.star,
     }
     try {
       setIsLoading(true)
@@ -741,10 +751,14 @@ function AddProductDetail() {
                     <label htmlFor="star-input">Đánh giá sản phẩm</label>
                     <Field
                       name="star"
-                      type="text"
+                      type="number"
                       as={CFormInput}
                       id="star-input"
                       text="Nhập số sao đánh giá mong muốn cho sản phẩm. Số từ 1 -> 5"
+                      min="1"
+                      max="5"
+                      step="0.1"
+                      placeholder="Ví dụ: 4.5 ⭐"
                     />
                     <ErrorMessage name="star" component="div" className="text-danger" />
                   </CCol>
