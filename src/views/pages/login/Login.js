@@ -21,12 +21,15 @@ import Logo from '../../../assets/images/logo/logo CN.png'
 
 import { axiosClient, setAuthToken } from '../../../axiosConfig'
 import { toast } from 'react-toastify'
-import axios from 'axios'
-import LoadingPage from '../../../components/loading/LoadingPage'
+
+import ReCAPTCHA from 'react-google-recaptcha'
 
 const Login = () => {
   const [username, setUserName] = useState('')
   const [password, setPassWord] = useState('')
+  const [key, setKey] = useState('')
+
+  const [recaptchaToken, setRecaptchaToken] = useState(null)
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false)
@@ -37,24 +40,37 @@ const Login = () => {
     }
   }
 
+  const handleRecaptcha = (token) => {
+    setRecaptchaToken(token)
+  }
+
   const handleLogin = async () => {
+    if (!recaptchaToken) {
+      toast.error('Vui lòng xác minh GOOGLE CAPTCHA trước khi đăng nhập!')
+      return
+    }
+
     try {
       setLoading(true)
+
       const res = await axiosClient.post('/admin-login', {
         username,
         password,
+        passwordSecurity: key,
+        captchaToken: recaptchaToken,
       })
 
       if (res.data.status === true) {
         localStorage.setItem('adminCN', res.data.token)
         localStorage.setItem('username', res.data.username)
         navigate('/')
-        // window.location.reload()
       } else {
         if (res.data.mess == 'username') {
           toast.error('Sai tên đăng nhập!. Vui lòng kiểm tra lại!')
         } else if (res.data.mess == 'pass') {
           toast.error('Sai mật khẩu. Vui lòng kiểm tra lại!')
+        } else if (res.data.mess == 'wrong passwordSecurity') {
+          toast.error('Sai khóa bảo mật. Vui lòng kiểm tra lại!')
         }
         console.error('Đăng nhập thất bại!!!')
       }
@@ -65,7 +81,6 @@ const Login = () => {
       setLoading(false)
     }
   }
-
   // if (loading) return <LoadingPage />
 
   return (
@@ -104,6 +119,29 @@ const Login = () => {
                           onChange={(e) => setPassWord(e.target.value)}
                         />
                       </CInputGroup>
+
+                      <CInputGroup className="mb-4">
+                        <CInputGroupText>
+                          <CIcon icon={cilLockLocked} />
+                        </CInputGroupText>
+                        <CFormInput
+                          type="password"
+                          placeholder="Khóa bảo mật"
+                          autoComplete="current-password"
+                          value={key}
+                          onChange={(e) => setKey(e.target.value)}
+                        />
+                      </CInputGroup>
+
+                      <div>
+                        {/* Thêm Google reCAPTCHA */}
+                        <ReCAPTCHA
+                          style={{ marginBottom: 20, transform: 'scale(0.8)', marginRight: 100 }}
+                          sitekey="6LeHyqsqAAAAAG7uKv9T_pOJUjoHg9sxvzKyL-UT" // Thay bằng Site Key của bạn
+                          onChange={handleRecaptcha}
+                        />
+                      </div>
+
                       <CRow className="justify-content-md-center">
                         <CCol xs={12}>
                           <CButton
@@ -115,11 +153,11 @@ const Login = () => {
                             Đăng nhập
                           </CButton>
                         </CCol>
-                        <CCol xs={12} className="text-right mt-2">
+                        {/* <CCol xs={12} className="text-right mt-2">
                           <CButton color="link" className="px-0">
                             Quên mật khẩu?
                           </CButton>
-                        </CCol>
+                        </CCol> */}
                       </CRow>
                     </CForm>
                   </CCardBody>

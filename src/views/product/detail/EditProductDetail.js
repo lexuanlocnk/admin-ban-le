@@ -125,6 +125,7 @@ function EditProductDetail() {
     brand: '',
     stock: 0,
     visible: 0,
+    star: 4.5,
   }
 
   const validationSchema = Yup.object({
@@ -135,6 +136,14 @@ function EditProductDetail() {
     // metaDesc: Yup.string().required('metaDescription là bắt buộc.'),
     // metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
     // visible: Yup.string().required('Hiển thị là bắt buộc.'),
+    star: Yup.number()
+      .min(1, 'Giá trị tối thiểu là 1')
+      .max(5, 'Giá trị tối đa là 5')
+      .test(
+        'is-decimal',
+        'Số sao phải là số thập phân, ví dụ: 1.2, 4.5',
+        (value) => value === undefined || /^\d+(\.\d+)?$/.test(value),
+      ),
   })
 
   useEffect(() => {
@@ -202,6 +211,7 @@ function EditProductDetail() {
           brand: data?.brand_id,
           stock: data?.stock,
           visible: data?.display,
+          star: data?.votes,
         })
 
         setEditorData(data?.product_desc?.description)
@@ -370,6 +380,7 @@ function EditProductDetail() {
       picture_detail: selectedFileDetail,
       product_combo: comboList,
       delete_item_product_groups: deletedProductIds,
+      votes: values.star,
     }
 
     try {

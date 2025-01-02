@@ -375,7 +375,7 @@ function EditPromotionDetail() {
                                       .map((child) => (
                                         <div key={child.cat_id} className="ms-3 d-flex">
                                           <img
-                                            src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
+                                            src="https://media.vitinhnguyenkim.com/uploads/row-sub.gif"
                                             alt="Subcategory"
                                             className="mr-2"
                                           />
