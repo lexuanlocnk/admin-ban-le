@@ -81,7 +81,6 @@ const Login = () => {
       setLoading(false)
     }
   }
-  // if (loading) return <LoadingPage />
 
   return (
     <>
@@ -153,11 +152,6 @@ const Login = () => {
                             Đăng nhập
                           </CButton>
                         </CCol>
-                        {/* <CCol xs={12} className="text-right mt-2">
-                          <CButton color="link" className="px-0">
-                            Quên mật khẩu?
-                          </CButton>
-                        </CCol> */}
                       </CRow>
                     </CForm>
                   </CCardBody>
