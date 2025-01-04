@@ -94,6 +94,11 @@ const _nav = [
         name: 'Lịch sử hoạt động admin',
         to: '/admin/log',
       },
+      {
+        component: CNavItem,
+        name: 'Cập nhật giá Excel',
+        to: '/admin/update-excel-price',
+      },
     ],
   },
 

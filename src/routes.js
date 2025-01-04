@@ -10,6 +10,7 @@ const AdminInfo = React.lazy(() => import('./views/admin/AdminInfo'))
 const AdminGroup = React.lazy(() => import('./views/admin/AdminGroup'))
 const AdminList = React.lazy(() => import('./views/admin/AdminList'))
 const AdminLog = React.lazy(() => import('./views/admin/AdminLog'))
+const AdminUpdateExcelPrice = React.lazy(() => import('./views/admin/AdminExcelUpdatePrice'))
 
 // permission group
 const PermissionGroup = React.lazy(() => import('./views/admin/PermissionGroup'))
@@ -261,6 +262,12 @@ const routes = [
   { path: '/admin/groups', name: 'AdminGroup', element: AdminGroup },
   { path: '/admin/list', name: 'AdminList', element: AdminList },
   { path: '/admin/log', name: 'AdminLog', element: AdminLog },
+  {
+    path: '/admin/update-excel-price',
+    name: 'AdminUpdateExcelPrice',
+    element: AdminUpdateExcelPrice,
+  },
+
   { path: '/admin', name: 'Admin', element: AdminInfo, exact: true },
 
   {
