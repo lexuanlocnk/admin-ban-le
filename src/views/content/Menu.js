@@ -64,7 +64,7 @@ function Menu() {
     url: '',
     name: '',
     target: '',
-    childOf: '',
+    childOf: 0,
     visible: 0,
   }
 
@@ -104,6 +104,10 @@ function Menu() {
         if (selectedFiles.length === files.length) {
           setSelectedFile(selectedFiles)
         }
+      }
+
+      fileReader.onerror = (error) => {
+        console.error('Error reading file:', error)
       }
     })
 
@@ -411,7 +415,7 @@ function Menu() {
                           name="childOf"
                           onChange={(e) => setFieldValue('childOf', e.target.value)}
                         >
-                          <option value={''}>None</option>
+                          <option value={0}>None</option>
                           {dataMenu &&
                             dataMenu?.map((item) => (
                               <React.Fragment key={item.menu_id}>
