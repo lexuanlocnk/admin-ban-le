@@ -25,6 +25,10 @@ const ProductProperties = React.lazy(() => import('./views/product/properties/pr
 const AddProductProperties = React.lazy(
   () => import('./views/product/properties/AddProductProperties'),
 )
+
+const AddProductProperties1 = React.lazy(
+  () => import('./views/product/properties/AddProductProperties1'),
+)
 const EditProductProperties = React.lazy(
   () => import('./views/product/properties/EditProductProperties'),
 )
@@ -339,6 +343,13 @@ const routes = [
     path: '/product/properties/add',
     name: 'AddProductProperties',
     element: AddProductProperties,
+    exact: true,
+  },
+
+  {
+    path: '/product/properties/add1',
+    name: 'AddProductProperties1',
+    element: AddProductProperties1,
     exact: true,
   },
 

@@ -1,10 +1,9 @@
 import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
-import axios from 'axios'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../../axiosConfig'
 import Loading from '../../../components/loading/Loading'
@@ -301,7 +300,7 @@ function ProductProperties() {
                                   </td>
                                   <td>
                                     <img
-                                      src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
+                                      src="https://media.vitinhnguyenkim.com/uploads/row-sub.gif"
                                       alt="Subcategory"
                                       className="mr-2"
                                     />
