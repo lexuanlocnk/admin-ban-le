@@ -24,6 +24,7 @@ import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 import Loading from '../../../components/loading/Loading'
 import moment from 'moment'
+import { CKEditor } from 'ckeditor4-react'
 
 function EditProductDetail() {
   const location = useLocation()
@@ -186,7 +187,7 @@ function EditProductDetail() {
 
   const fetchProductData = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/product/${id}/edit`)
+      const response = await axiosClient.get(`admin/products/${id}/edit`)
       const data = response.data.product
 
       // const productPictures = data.product_picture
@@ -198,11 +199,11 @@ function EditProductDetail() {
 
       if (data && response.data.status === true) {
         setValues({
-          title: data?.product_desc?.title,
-          friendlyUrl: data?.product_desc?.friendly_url,
-          pageTitle: data?.product_desc?.friendly_title,
-          metaKeywords: data?.product_desc?.metakey,
-          metaDescription: data?.product_desc?.metadesc,
+          title: data?.product_descs?.title,
+          friendlyUrl: data?.product_descs?.friendly_url,
+          pageTitle: data?.product_descs?.friendly_title,
+          metaKeywords: data?.product_descs?.metakey,
+          metaDescription: data?.product_descs?.metadesc,
           syndicationCode: data?.code_script,
           productCodeNumber: data?.maso,
           productCode: data?.macn,
@@ -214,8 +215,8 @@ function EditProductDetail() {
           star: data?.votes,
         })
 
-        setEditorData(data?.product_desc?.description)
-        setDescEditor(data?.product_desc?.short)
+        setEditorData(data?.product_descs?.description)
+        setDescEditor(data?.product_descs?.short)
         setChoosenCategory(data?.parentId)
         setSelectedCategory([data?.cateId])
         setSelectedChildCate([data?.childId])
@@ -540,8 +541,21 @@ function EditProductDetail() {
     setDeletedProductIds((prev) => [...prev, productId])
   }
 
-  console.log('check combo', comboList)
-  console.log('check combo', deletedProductIds)
+  const handleEditorChange = (index, content) => {
+    setOptions((prev) => {
+      const newTskt = [...prev.tskt]
+      newTskt[index] = content
+      return { ...prev, tskt: newTskt }
+    })
+  }
+
+  const handleCheckboxChange = (index, id) => {
+    setOptions((prev) => {
+      const newValue = [...prev.value]
+      newValue[index] = newValue[index] === id ? null : id
+      return { ...prev, value: newValue }
+    })
+  }
 
   return (
     <CContainer>
@@ -673,46 +687,49 @@ function EditProductDetail() {
                                     dataProductProperties.length > 0 &&
                                     dataProductProperties?.map((prop) => (
                                       <tr key={prop.title}>
-                                        <th>{prop.title}</th>
                                         <td>
-                                          <CFormTextarea
-                                            id={`textarea_${prop?.op_id}`}
-                                            value={tech?.[prop?.op_id] || ''}
-                                            onChange={(e) =>
-                                              handleTextareaChange(prop?.op_id, e.target.value)
-                                            }
-                                          ></CFormTextarea>
+                                          <strong>
+                                            {index + 1}.{prop.title}
+                                          </strong>
+                                          <div key={index}>
+                                            <CKEditor
+                                              config={{
+                                                height: 70,
+                                                versionCheck: false,
+                                              }}
+                                              data={options.tskt[index] || ''}
+                                              onChange={(event, editor) => {
+                                                const data = event.editor.getData()
+                                                handleEditorChange(index, data)
+                                              }}
+                                            />
 
-                                          <div className="d-flex gap-3 flex-wrap mt-2">
-                                            {prop?.optionChild?.map((option) => (
-                                              <CFormCheck
-                                                key={option?.op_id}
-                                                label={option?.title}
-                                                aria-label="Default select example"
-                                                defaultChecked={option?.op_id}
-                                                id={`flexCheckDefault_${option?.op_id}`}
-                                                value={option?.op_id}
-                                                checked={selectedTechOptions.includes(
-                                                  option?.op_id,
+                                            <div
+                                              className="d-flex gap-4 mt-2"
+                                              style={{ overflowX: 'auto' }}
+                                            >
+                                              {Array.isArray(prop?.optionChild) &&
+                                                prop?.optionChild.length > 0 &&
+                                                prop?.optionChild.map(
+                                                  (radioOption, childOptionIndex) => (
+                                                    <CFormCheck
+                                                      key={radioOption.id}
+                                                      type="radio"
+                                                      id={`radio-${index}-${childOptionIndex}`}
+                                                      label={radioOption.title}
+                                                      checked={
+                                                        options.value[index] === radioOption.op_id
+                                                      }
+                                                      onChange={() =>
+                                                        handleCheckboxChange(
+                                                          index,
+                                                          radioOption.op_id,
+                                                        )
+                                                      }
+                                                    />
+                                                  ),
                                                 )}
-                                                onChange={(e) => {
-                                                  const optionId = option?.op_id
-                                                  const isChecked = e.target.checked
-                                                  if (isChecked) {
-                                                    setSelectedTechOptions([
-                                                      ...selectedTechOptions,
-                                                      optionId,
-                                                    ])
-                                                  } else {
-                                                    setSelectedTechOptions(
-                                                      selectedTechOptions.filter(
-                                                        (id) => id !== optionId,
-                                                      ),
-                                                    )
-                                                  }
-                                                }}
-                                              />
-                                            ))}
+                                            </div>
                                           </div>
                                         </td>
                                       </tr>

@@ -21,6 +21,7 @@ import { formatNumber, unformatNumber } from '../../../helper/utils'
 import useDebounce from '../../../helper/debounce'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import { CKEditor } from 'ckeditor4-react'
 
 function AddProductDetail() {
   const [descEditor, setDescEditor] = useState('')
@@ -29,20 +30,10 @@ function AddProductDetail() {
 
   const [isLoading, setIsLoading] = useState(false)
 
-  // date picker
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [errors, setErrors] = useState({ startDate: '', endDate: '' })
-
-  // validate for date start - date end
-  const validateDates = (start, end) => {
-    const newErrors = { startDate: '', endDate: '' }
-    if (start && end && start > end) {
-      newErrors.startDate = 'Ngày bắt đầu không được sau ngày kết thúc'
-      newErrors.endDate = 'Ngày kết thúc không được trước ngày bắt đầu'
-    }
-    setErrors(newErrors)
-  }
+  const [options, setOptions] = useState({
+    tskt: [],
+    value: [],
+  })
 
   // category
   const [categories, setCategories] = useState([])
@@ -303,6 +294,22 @@ function AddProductDetail() {
     }
   }
 
+  const handleEditorChange = (index, content) => {
+    setOptions((prev) => {
+      const newTskt = [...prev.tskt]
+      newTskt[index] = content
+      return { ...prev, tskt: newTskt }
+    })
+  }
+
+  const handleCheckboxChange = (index, id) => {
+    setOptions((prev) => {
+      const newValue = [...prev.value]
+      newValue[index] = newValue[index] === id ? null : id
+      return { ...prev, value: newValue }
+    })
+  }
+
   return (
     <CContainer>
       <CRow className="mb-3">
@@ -415,46 +422,52 @@ function AddProductDetail() {
                       </div>
                       <div className={`tab-content ${activeTab === 'tab4' ? 'active' : ''}`}>
                         <CCol md={12}>
-                          <table className="tech-table">
+                          <table
+                            className="tech-table"
+                            style={{
+                              tableLayout: 'fixed',
+                            }}
+                          >
                             {dataProductProperties &&
                               dataProductProperties.length > 0 &&
-                              dataProductProperties?.map((prop) => (
+                              dataProductProperties?.map((prop, index) => (
                                 <tr key={prop.title}>
-                                  <th>{prop.title}</th>
                                   <td>
-                                    <CFormTextarea
-                                      id={`textarea_${prop.op_id}`}
-                                      onChange={(e) =>
-                                        handleTextareaChange(prop.op_id, e.target.value)
-                                      }
-                                    ></CFormTextarea>
+                                    <strong>
+                                      {index + 1}.{prop.title}
+                                    </strong>
+                                    <div key={index}>
+                                      <CKEditor
+                                        config={{
+                                          height: 70,
+                                          versionCheck: false,
+                                        }}
+                                        data={options.tskt[index] || ''}
+                                        onChange={(event, editor) => {
+                                          const data = event.editor.getData()
+                                          handleEditorChange(index, data)
+                                        }}
+                                      />
 
-                                    <div className="d-flex gap-3 flex-wrap mt-2">
-                                      {prop?.optionChild?.map((option) => (
-                                        <CFormCheck
-                                          key={option?.op_id}
-                                          label={option?.title}
-                                          aria-label="Default select example"
-                                          defaultChecked={option?.op_id}
-                                          id={`flexCheckDefault_${option?.op_id}`}
-                                          value={option?.op_id}
-                                          checked={selectedTechOptions.includes(option?.op_id)}
-                                          onChange={(e) => {
-                                            const optionId = option?.op_id
-                                            const isChecked = e.target.checked
-                                            if (isChecked) {
-                                              setSelectedTechOptions([
-                                                ...selectedTechOptions,
-                                                optionId,
-                                              ])
-                                            } else {
-                                              setSelectedTechOptions(
-                                                selectedTechOptions.filter((id) => id !== optionId),
-                                              )
-                                            }
-                                          }}
-                                        />
-                                      ))}
+                                      <div
+                                        className="d-flex gap-4 mt-2"
+                                        style={{ overflowX: 'auto' }}
+                                      >
+                                        {Array.isArray(prop?.optionChild) &&
+                                          prop?.optionChild.length > 0 &&
+                                          prop?.optionChild.map((radioOption, childOptionIndex) => (
+                                            <CFormCheck
+                                              key={radioOption.id}
+                                              type="radio"
+                                              id={`radio-${index}-${childOptionIndex}`}
+                                              label={radioOption.title}
+                                              checked={options.value[index] === radioOption.op_id}
+                                              onChange={() =>
+                                                handleCheckboxChange(index, radioOption.op_id)
+                                              }
+                                            />
+                                          ))}
+                                      </div>
                                     </div>
                                   </td>
                                 </tr>
