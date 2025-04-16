@@ -193,7 +193,7 @@ function ProductCategory() {
                                   </td>
                                   <td>
                                     <img
-                                      src="https://media.vitinhnguyenkim.com/uploads/row-sub.gif"
+                                      src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
                                       alt="Subcategory"
                                       className="mr-2"
                                     />
@@ -236,7 +236,7 @@ function ProductCategory() {
                                         </td>
                                         <td>
                                           <img
-                                            src="https://media.vitinhnguyenkim.com/uploads/row-sub.gif"
+                                            src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
                                             alt="Subcategory"
                                             style={{ marginLeft: 16 }}
                                           />

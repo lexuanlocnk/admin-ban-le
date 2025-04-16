@@ -301,7 +301,7 @@ function ProductProperties() {
                                   </td>
                                   <td>
                                     <img
-                                      src="https://vitinhnguyenkim.vn/admin/public/images/row-sub.gif"
+                                      src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
                                       alt="Subcategory"
                                       className="mr-2"
                                     />

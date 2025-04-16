@@ -31,6 +31,11 @@ function EditProductDetail() {
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
 
+  const [options, setOptions] = useState({
+    tskt: [],
+    value: [],
+  })
+
   const [dataProductList, setDataProductList] = useState([])
   const [isDataComboLoading, setIsDataComboLoading] = useState(false)
 
@@ -187,7 +192,7 @@ function EditProductDetail() {
 
   const fetchProductData = async (setValues) => {
     try {
-      const response = await axiosClient.get(`admin/products/${id}/edit`)
+      const response = await axiosClient.get(`admin/product/${id}/edit`)
       const data = response.data.product
 
       // const productPictures = data.product_picture
@@ -685,7 +690,7 @@ function EditProductDetail() {
                                 <table className="tech-table">
                                   {dataProductProperties &&
                                     dataProductProperties.length > 0 &&
-                                    dataProductProperties?.map((prop) => (
+                                    dataProductProperties?.map((prop, index) => (
                                       <tr key={prop.title}>
                                         <td>
                                           <strong>
@@ -1225,7 +1230,7 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
-                        <CCol md={12}>
+                        {/* <CCol md={12}>
                           <Field name="marketPrice">
                             {({ field }) => (
                               <CFormInput
@@ -1266,7 +1271,7 @@ function EditProductDetail() {
                             )}
                           </Field>
                           <ErrorMessage name="price" component="div" className="text-danger" />
-                        </CCol>
+                        </CCol> */}
                         <br />
 
                         <CCol md={12}>

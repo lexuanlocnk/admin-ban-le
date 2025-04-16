@@ -138,7 +138,7 @@ function ProductDetail() {
     try {
       setIsLoading(true)
       const response = await axiosClient.get(
-        `admin/products?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
+        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
       )
       if (response.data.status === true) {
         setDataProductList(response.data.product)
