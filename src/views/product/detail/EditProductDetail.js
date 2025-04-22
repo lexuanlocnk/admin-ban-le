@@ -1,5 +1,6 @@
 import {
   CButton,
+  CCallout,
   CCol,
   CContainer,
   CFormCheck,
@@ -31,11 +32,6 @@ function EditProductDetail() {
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
 
-  const [options, setOptions] = useState({
-    tskt: [],
-    value: [],
-  })
-
   const [dataProductList, setDataProductList] = useState([])
   const [isDataComboLoading, setIsDataComboLoading] = useState(false)
 
@@ -62,14 +58,13 @@ function EditProductDetail() {
   // properties
   const [dataProductProperties, setDataProductProperties] = useState([])
 
-  // technology
+  // technology cũ của CN
   const [tech, setTech] = useState({})
 
   // selected technology option
   const [selectedTechOptions, setSelectedTechOptions] = useState([])
 
-  const [choosenCategory, setChoosenCategory] = useState('1')
-
+  const [choosenCategory, setChoosenCategory] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState([])
   const [selectedChildCate, setSelectedChildCate] = useState([])
 
@@ -113,6 +108,7 @@ function EditProductDetail() {
   // upload list of images and show images
   const [selectedFileDetail, setSelectedFileDetail] = useState([])
   const [fileDetail, setFileDetail] = useState([])
+  const [selectedIndexes, setSelectedIndexes] = useState([])
 
   // const showIamge detail
   const [imagesDetail, setImagesDetail] = useState([])
@@ -195,42 +191,34 @@ function EditProductDetail() {
       const response = await axiosClient.get(`admin/product/${id}/edit`)
       const data = response.data.product
 
-      // const productPictures = data.product_picture
-
-      // const fileUrls = productPictures.map(
-      //   (pic) => `http://192.168.245.190:8000/uploads/${pic.picture}`,
-      // )
-      // const base64Images = productPictures.map((pic) => `data:image/png;base64,${pic.picture}`)
-
       if (data && response.data.status === true) {
         setValues({
-          title: data?.product_descs?.title,
-          friendlyUrl: data?.product_descs?.friendly_url,
-          pageTitle: data?.product_descs?.friendly_title,
-          metaKeywords: data?.product_descs?.metakey,
-          metaDescription: data?.product_descs?.metadesc,
+          title: data?.product_desc?.title,
+          friendlyUrl: data?.product_desc?.friendly_url,
+          pageTitle: data?.product_desc?.friendly_title,
+          metaKeywords: data?.product_desc?.metakey,
+          metaDescription: data?.product_desc?.metadesc,
           syndicationCode: data?.code_script,
           productCodeNumber: data?.maso,
           productCode: data?.macn,
-          price: data?.price_old,
-          marketPrice: data?.price,
+          price: data?.price,
+          marketPrice: data?.price_old,
           brand: data?.brand_id,
           stock: data?.stock,
           visible: data?.display,
           star: data?.votes,
         })
 
-        setEditorData(data?.product_descs?.description)
-        setDescEditor(data?.product_descs?.short)
+        setEditorData(data?.product_desc?.description)
+        setDescEditor(data?.product_desc?.short)
         setChoosenCategory(data?.parentId)
         setSelectedCategory([data?.cateId])
         setSelectedChildCate([data?.childId])
         setSelectedStatus(data?.status)
         setSelectedTechOptions(data?.op_search)
-        setTech(data?.tech)
+        setTech(data?.technology)
+
         setSelectedFile(data?.picture)
-        // setFileDetail(fileUrls)
-        // setSelectedFileDetail(base64Images)
         setImagesDetail(data?.product_picture)
 
         // combolist
@@ -286,12 +274,12 @@ function EditProductDetail() {
     fetchProductProperties()
   }, [choosenCategory])
 
-  const handleTextareaChange = (propId, value) => {
-    setTech((prevTech) => ({
-      ...prevTech,
-      [propId]: value,
-    }))
-  }
+  // const handleTextareaChange = (propId, value) => {
+  //   setTech((prevTech) => ({
+  //     ...prevTech,
+  //     [propId]: value,
+  //   }))
+  // }
 
   //set img category
   function onFileChange(e) {
@@ -348,9 +336,21 @@ function EditProductDetail() {
     setFileDetail((prevFiles) => [...prevFiles, ...selectedFiles])
   }
 
-  const removeImage = (index) => {
-    setSelectedFileDetail((prevFiles) => prevFiles.filter((_, i) => i !== index))
-    setFileDetail((prevFiles) => prevFiles.filter((_, i) => i !== index))
+  const toggleSelect = (index) => {
+    setSelectedIndexes((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
+    )
+  }
+
+  const removeSelectedImages = () => {
+    const filteredFileDetail = fileDetail.filter((_, i) => !selectedIndexes.includes(i))
+    const filteredSelectedFileDetail = selectedFileDetail.filter(
+      (_, i) => !selectedIndexes.includes(i),
+    )
+
+    setFileDetail(filteredFileDetail)
+    setSelectedFileDetail(filteredSelectedFileDetail)
+    setSelectedIndexes([])
   }
 
   const handleSubmit = async (values) => {
@@ -546,20 +546,12 @@ function EditProductDetail() {
     setDeletedProductIds((prev) => [...prev, productId])
   }
 
-  const handleEditorChange = (index, content) => {
-    setOptions((prev) => {
-      const newTskt = [...prev.tskt]
-      newTskt[index] = content
-      return { ...prev, tskt: newTskt }
-    })
-  }
-
-  const handleCheckboxChange = (index, id) => {
-    setOptions((prev) => {
-      const newValue = [...prev.value]
-      newValue[index] = newValue[index] === id ? null : id
-      return { ...prev, value: newValue }
-    })
+  // Change technology in ckeditor
+  const handleEditorChange = (key, value) => {
+    setTech((prevTech) => ({
+      ...prevTech,
+      [key]: value,
+    }))
   }
 
   return (
@@ -687,54 +679,64 @@ function EditProductDetail() {
                             </div>
                             <div className={`tab-content ${activeTab === 'tab4' ? 'active' : ''}`}>
                               <CCol md={12}>
-                                <table className="tech-table">
+                                <table
+                                  className="tech-table bg-white"
+                                  style={{
+                                    tableLayout: 'fixed',
+                                  }}
+                                >
                                   {dataProductProperties &&
                                     dataProductProperties.length > 0 &&
                                     dataProductProperties?.map((prop, index) => (
                                       <tr key={prop.title}>
                                         <td>
                                           <strong>
-                                            {index + 1}.{prop.title}
+                                            {index + 1}. {prop.title}
                                           </strong>
-                                          <div key={index}>
-                                            <CKEditor
-                                              config={{
-                                                height: 70,
-                                                versionCheck: false,
-                                              }}
-                                              data={options.tskt[index] || ''}
-                                              onChange={(event, editor) => {
-                                                const data = event.editor.getData()
-                                                handleEditorChange(index, data)
-                                              }}
-                                            />
+                                          <CKEditor
+                                            className="mt-2"
+                                            config={{
+                                              height: 70,
+                                              versionCheck: false,
+                                            }}
+                                            id={`editor-${prop.op_id}`}
+                                            initData={tech[prop.op_id] || ''}
+                                            onChange={(event) => {
+                                              const data = event.editor.getData()
+                                              handleEditorChange(prop.op_id, data)
+                                            }}
+                                          />
 
-                                            <div
-                                              className="d-flex gap-4 mt-2"
-                                              style={{ overflowX: 'auto' }}
-                                            >
-                                              {Array.isArray(prop?.optionChild) &&
-                                                prop?.optionChild.length > 0 &&
-                                                prop?.optionChild.map(
-                                                  (radioOption, childOptionIndex) => (
-                                                    <CFormCheck
-                                                      key={radioOption.id}
-                                                      type="radio"
-                                                      id={`radio-${index}-${childOptionIndex}`}
-                                                      label={radioOption.title}
-                                                      checked={
-                                                        options.value[index] === radioOption.op_id
-                                                      }
-                                                      onChange={() =>
-                                                        handleCheckboxChange(
-                                                          index,
-                                                          radioOption.op_id,
-                                                        )
-                                                      }
-                                                    />
-                                                  ),
+                                          <div className="d-flex gap-3 flex-wrap mt-2">
+                                            {prop?.optionChild?.map((option) => (
+                                              <CFormCheck
+                                                key={option?.op_id}
+                                                label={option?.title}
+                                                aria-label="Default selecAt example"
+                                                defaultChecked={option?.op_id}
+                                                id={`flexCheckDefault_${option?.op_id}`}
+                                                value={option?.op_id}
+                                                checked={selectedTechOptions.includes(
+                                                  option?.op_id,
                                                 )}
-                                            </div>
+                                                onChange={(e) => {
+                                                  const optionId = option?.op_id
+                                                  const isChecked = e.target.checked
+                                                  if (isChecked) {
+                                                    setSelectedTechOptions([
+                                                      ...selectedTechOptions,
+                                                      optionId,
+                                                    ])
+                                                  } else {
+                                                    setSelectedTechOptions(
+                                                      selectedTechOptions.filter(
+                                                        (id) => id !== optionId,
+                                                      ),
+                                                    )
+                                                  }
+                                                }}
+                                              />
+                                            ))}
                                           </div>
                                         </td>
                                       </tr>
@@ -970,7 +972,7 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
-                        <h6>Lựa chọn combo sản phẩm đi kèm</h6>
+                        <h5>LỰA CHỌN SẢN PHẨM COMBO ĐI KÈM</h5>
                         <CCol>
                           <div
                             className="border p-3 bg-white"
@@ -1057,115 +1059,159 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
-                        <CCol>
-                          <CFormInput
-                            type="file"
-                            id="formFile"
-                            label="Hình ảnh chi tiết sản phẩm"
-                            multiple
-                            onChange={(e) => onFileChangeDetail(e)}
-                            size="sm"
-                          />
-                          <br />
-                          <div className="d-flex gap-4 w-100 flex-wrap">
-                            {fileDetail.length === 0 ? (
-                              <div className="d-flex flex-wrap gap-3">
-                                {imagesDetail &&
-                                  imagesDetail.length > 0 &&
-                                  imagesDetail.map((image) => (
-                                    <CImage
-                                      key={image.id}
-                                      src={`${imageBaseUrl}${image.picture}`}
-                                      fluid
-                                      width={130}
-                                    />
-                                  ))}
-                              </div>
-                            ) : (
-                              fileDetail.map((item, index) => (
-                                <div key={index} className="position-relative">
-                                  <CImage className="border" src={item} fluid width={130} />
-                                  <CButton
-                                    color="danger"
-                                    size="sm"
-                                    onClick={() => removeImage(index)}
-                                    style={{ position: 'absolute', top: 0, right: 0 }}
+                        <h5>HÌNH PHỤ SẢN PHẨM </h5>
+                        <div className="bg-white border p-3 position-relative">
+                          {selectedIndexes.length > 0 && (
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                padding: '8px',
+                                backgroundColor: '#fff',
+                                border: '1px solid #ccc',
+                                width: '100%',
+                                position: 'absolute',
+                                bottom: 0,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                zIndex: 10,
+                              }}
+                            >
+                              <CButton
+                                color="danger"
+                                className="text-white"
+                                onClick={removeSelectedImages}
+                              >
+                                Xóa ảnh đã chọn ({selectedIndexes.length})
+                              </CButton>
+                            </div>
+                          )}
+                          <CCol>
+                            <CFormInput
+                              type="file"
+                              id="formFile"
+                              label="Chọn hình ảnh phụ (*Có thể chọn nhiều hình cùng lúc)"
+                              multiple
+                              onChange={(e) => onFileChangeDetail(e)}
+                              size="sm"
+                            />
+                            <br />
+
+                            <div
+                              className="d-flex flex-wrap gap-5 p-2 "
+                              style={{ maxHeight: 400, overflowY: 'auto' }}
+                            >
+                              {fileDetail.map((item, index) => {
+                                const isSelected = selectedIndexes.includes(index)
+                                return (
+                                  <div
+                                    key={index}
+                                    className="position-relative"
+                                    style={{ width: 130 }}
                                   >
-                                    X
-                                  </CButton>
-                                </div>
-                              ))
-                            )}
-                          </div>
+                                    <div className="d-flex align-items-start gap-2">
+                                      <CFormCheck
+                                        checked={isSelected}
+                                        onChange={() => toggleSelect(index)}
+                                        style={{
+                                          marginTop: 10,
+                                          transform: 'scale(1.5)',
+                                          accentColor: '#198754',
+                                        }}
+                                      />
+                                      <CImage
+                                        className="border "
+                                        src={item}
+                                        fluid
+                                        style={{
+                                          aspectRatio: '1/1',
+                                          objectFit: 'cover',
+                                          border: isSelected
+                                            ? '3px solid #198754'
+                                            : '1px solid #dee2e6',
+                                          opacity: isSelected ? 0.8 : 1,
+                                          transition: 'all 0.2s ease-in-out',
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </CCol>
+                        </div>
+                        <br />
+
+                        <h5>SEARCH ENGINE OPTIMIZATION</h5>
+                        <div className="p-3 border bg-white">
+                          <CCol md={12}>
+                            <label htmlFor="friendlyUrl-input">Chuỗi đường dẫn</label>
+                            <Field
+                              name="friendlyUrl"
+                              type="text"
+                              as={CFormInput}
+                              id="url-input"
+                              text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
+                            />
+                            <ErrorMessage
+                              name="friendlyUrl"
+                              component="div"
+                              className="text-danger"
+                            />
+                          </CCol>
                           <br />
-                        </CCol>
-                        <br />
 
-                        <h6>Search Engine Optimization</h6>
-                        <br />
+                          <CCol md={12}>
+                            <label htmlFor="pageTitle-input">Tiêu đề trang</label>
+                            <Field
+                              name="pageTitle"
+                              type="text"
+                              as={CFormInput}
+                              id="pageTitle-input"
+                              text="Độ dài của tiêu đề trang tối đa 60 ký tự."
+                            />
+                            <ErrorMessage
+                              name="pageTitle"
+                              component="div"
+                              className="text-danger"
+                            />
+                          </CCol>
+                          <br />
+                          <CCol md={12}>
+                            <label htmlFor="metaKeywords-input">Meta keywords</label>
+                            <Field
+                              name="metaKeywords"
+                              type="text"
+                              as={CFormTextarea}
+                              id="metaKeywords-input"
+                              text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
+                            />
+                            <ErrorMessage
+                              name="metaKeywords"
+                              component="div"
+                              className="text-danger"
+                            />
+                          </CCol>
+                          <br />
 
-                        <CCol md={12}>
-                          <label htmlFor="friendlyUrl-input">Chuỗi đường dẫn</label>
-                          <Field
-                            name="friendlyUrl"
-                            type="text"
-                            as={CFormInput}
-                            id="url-input"
-                            text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
-                          />
-                          <ErrorMessage
-                            name="friendlyUrl"
-                            component="div"
-                            className="text-danger"
-                          />
-                        </CCol>
-                        <br />
-
-                        <CCol md={12}>
-                          <label htmlFor="pageTitle-input">Tiêu đề trang</label>
-                          <Field
-                            name="pageTitle"
-                            type="text"
-                            as={CFormInput}
-                            id="pageTitle-input"
-                            text="Độ dài của tiêu đề trang tối đa 60 ký tự."
-                          />
-                          <ErrorMessage name="pageTitle" component="div" className="text-danger" />
-                        </CCol>
-                        <br />
-                        <CCol md={12}>
-                          <label htmlFor="metaKeywords-input">Meta keywords</label>
-                          <Field
-                            name="metaKeywords"
-                            type="text"
-                            as={CFormTextarea}
-                            id="metaKeywords-input"
-                            text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
-                          />
-                          <ErrorMessage
-                            name="metaKeywords"
-                            component="div"
-                            className="text-danger"
-                          />
-                        </CCol>
-                        <br />
-
-                        <CCol md={12}>
-                          <label htmlFor="metaDescription-input">Meta description</label>
-                          <Field
-                            name="metaDescription"
-                            type="text"
-                            as={CFormTextarea}
-                            id="metaDescription-input"
-                            text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
-                          />
-                          <ErrorMessage
-                            name="metaDescription"
-                            component="div"
-                            className="text-danger"
-                          />
-                        </CCol>
-                        <br />
+                          <CCol md={12}>
+                            <label htmlFor="metaDescription-input">Meta description</label>
+                            <Field
+                              name="metaDescription"
+                              type="text"
+                              as={CFormTextarea}
+                              id="metaDescription-input"
+                              text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
+                            />
+                            <ErrorMessage
+                              name="metaDescription"
+                              component="div"
+                              className="text-danger"
+                            />
+                          </CCol>
+                          <br />
+                        </div>
                       </CCol>
 
                       <CCol md={3}>
@@ -1230,7 +1276,7 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
-                        {/* <CCol md={12}>
+                        <CCol md={12}>
                           <Field name="marketPrice">
                             {({ field }) => (
                               <CFormInput
@@ -1238,7 +1284,7 @@ function EditProductDetail() {
                                 type="text"
                                 id="marketPrice-input"
                                 value={formatNumber(field.value)}
-                                label="Giá thị trường"
+                                label="Giá thị trường (VNĐ)"
                                 onChange={(e) => {
                                   const rawValue = unformatNumber(e.target.value)
                                   setFieldValue(field.name, rawValue)
@@ -1262,7 +1308,7 @@ function EditProductDetail() {
                                 type="text"
                                 id="price-input"
                                 value={formatNumber(field.value)}
-                                label="Giá bán"
+                                label="Giá bán (VNĐ)"
                                 onChange={(e) => {
                                   const rawValue = unformatNumber(e.target.value)
                                   setFieldValue(field.name, rawValue)
@@ -1271,7 +1317,7 @@ function EditProductDetail() {
                             )}
                           </Field>
                           <ErrorMessage name="price" component="div" className="text-danger" />
-                        </CCol> */}
+                        </CCol>
                         <br />
 
                         <CCol md={12}>
@@ -1283,86 +1329,107 @@ function EditProductDetail() {
                             className="select-input"
                             value={choosenCategory}
                             onChange={(e) => setChoosenCategory(e.target.value)}
-                            options={
-                              categories && categories.length > 0
+                            options={[
+                              { label: '-- Chọn ngành hàng --', value: 0, disabled: true },
+                              ...(categories && categories.length > 0
                                 ? categories.map((cate) => ({
                                     label: cate?.category_desc?.cat_name,
                                     value: cate.cat_id,
                                   }))
-                                : []
-                            }
+                                : []),
+                            ]}
                           />
                         </CCol>
                         <br />
 
-                        <div
-                          className="border p-3 bg-white"
-                          style={{
-                            maxHeight: 400,
-                            minHeight: 250,
-                            overflowY: 'scroll',
-                          }}
-                        >
-                          <React.Fragment>
-                            <strong>Danh mục sản phẩm</strong>
-                            <div className="mt-2">
-                              {categories &&
-                                categories.length > 0 &&
-                                categories
-                                  ?.filter((cate) => cate.cat_id == choosenCategory)?.[0]
-                                  ?.parenty.map((subCate) => (
-                                    <>
-                                      <CFormCheck
-                                        key={subCate?.cat_id}
-                                        label={subCate?.category_desc?.cat_name}
-                                        aria-label="Default select example"
-                                        defaultChecked={subCate?.cat_id}
-                                        id={`flexCheckDefault_${subCate?.cat_id}`}
-                                        value={subCate?.cat_id}
-                                        checked={selectedCategory.includes(subCate?.cat_id)}
-                                        onChange={(e) => {
-                                          const cateId = subCate?.cat_id
-                                          const isChecked = e.target.checked
-                                          if (isChecked) {
-                                            setSelectedCategory([...selectedCategory, cateId])
-                                          } else {
-                                            setSelectedCategory(
-                                              selectedCategory.filter((id) => id !== cateId),
-                                            )
-                                          }
-                                        }}
-                                      />
+                        {choosenCategory !== 0 && (
+                          <>
+                            <em
+                              style={{
+                                color: 'red',
+                                fontSize: 12,
+                              }}
+                            >
+                              Lưu ý: Không chọn 2 danh mục cùng cấp.
+                            </em>
+                            <div
+                              className="border p-3 bg-white"
+                              style={{
+                                maxHeight: 400,
+                                minHeight: 250,
+                                overflowY: 'scroll',
+                              }}
+                            >
+                              <React.Fragment>
+                                <strong>Danh mục sản phẩm</strong>
 
-                                      {subCate &&
-                                        subCate?.parentx.length > 0 &&
-                                        subCate?.parentx.map((childCate) => (
+                                <div className="mt-2">
+                                  {categories &&
+                                    categories.length > 0 &&
+                                    categories
+                                      ?.filter((cate) => cate.cat_id == choosenCategory)?.[0]
+                                      ?.parenty.map((subCate) => (
+                                        <>
                                           <CFormCheck
-                                            className="ms-3"
-                                            key={childCate?.cat_id}
-                                            label={childCate?.category_desc?.cat_name}
+                                            key={subCate?.cat_id}
+                                            label={subCate?.category_desc?.cat_name}
                                             aria-label="Default select example"
-                                            defaultChecked={childCate?.cat_id}
-                                            id={`flexCheckDefault_${childCate?.cat_id}`}
-                                            value={childCate?.cat_id}
-                                            checked={selectedChildCate.includes(childCate?.cat_id)}
+                                            id={`flexCheckDefault_${subCate?.cat_id}`}
+                                            defaultChecked={subCate?.cat_id}
+                                            value={subCate?.cat_id}
+                                            checked={selectedCategory.includes(subCate?.cat_id)}
                                             onChange={(e) => {
-                                              const cateId = childCate?.cat_id
+                                              const cateId = subCate?.cat_id
                                               const isChecked = e.target.checked
                                               if (isChecked) {
-                                                setSelectedChildCate([...selectedChildCate, cateId])
+                                                setSelectedCategory([...selectedCategory, cateId])
                                               } else {
-                                                setSelectedChildCate(
-                                                  selectedChildCate.filter((id) => id !== cateId),
+                                                setSelectedCategory(
+                                                  selectedCategory.filter((id) => id !== cateId),
                                                 )
                                               }
                                             }}
                                           />
-                                        ))}
-                                    </>
-                                  ))}
+
+                                          {subCate &&
+                                            subCate?.parentx.length > 0 &&
+                                            subCate?.parentx.map((childCate) => (
+                                              <CFormCheck
+                                                className="ms-3"
+                                                key={childCate?.cat_id}
+                                                label={childCate?.category_desc?.cat_name}
+                                                aria-label="Default select example"
+                                                defaultChecked={childCate?.cat_id}
+                                                id={`flexCheckDefault_${childCate?.cat_id}`}
+                                                value={childCate?.cat_id}
+                                                checked={selectedChildCate.includes(
+                                                  childCate?.cat_id,
+                                                )}
+                                                onChange={(e) => {
+                                                  const cateId = childCate?.cat_id
+                                                  const isChecked = e.target.checked
+                                                  if (isChecked) {
+                                                    setSelectedChildCate([
+                                                      ...selectedChildCate,
+                                                      cateId,
+                                                    ])
+                                                  } else {
+                                                    setSelectedChildCate(
+                                                      selectedChildCate.filter(
+                                                        (id) => id !== cateId,
+                                                      ),
+                                                    )
+                                                  }
+                                                }}
+                                              />
+                                            ))}
+                                        </>
+                                      ))}
+                                </div>
+                              </React.Fragment>
                             </div>
-                          </React.Fragment>
-                        </div>
+                          </>
+                        )}
                         <br />
 
                         <CCol md={12}>
@@ -1374,10 +1441,13 @@ function EditProductDetail() {
                             className="select-input"
                             options={
                               brands && brands.length > 0
-                                ? brands.map((brand) => ({
-                                    label: brand?.title,
-                                    value: brand.brandId,
-                                  }))
+                                ? brands
+                                    .slice() // Tạo bản sao để tránh thay đổi mảng gốc
+                                    .sort((a, b) => a.title.localeCompare(b.title)) // Sắp xếp theo thứ tự alphabet
+                                    .map((brand) => ({
+                                      label: brand?.title,
+                                      value: brand.brandId,
+                                    }))
                                 : []
                             }
                           />
@@ -1486,7 +1556,7 @@ function EditProductDetail() {
                                 <CImage
                                   className="border"
                                   src={`${imageBaseUrl}${selectedFile}`}
-                                  width={200}
+                                  fluid
                                 />
                               </div>
                             ) : (

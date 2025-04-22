@@ -244,8 +244,7 @@ function LinkManagement() {
                           className="component-size w-50"
                           aria-label="Chọn yêu cầu lọc"
                           options={[
-                            { label: 'Chọn module', value: 'All' },
-                            // { label: 'Page', value: 'Page' },
+                            { label: '--Chọn module--', value: 'All', disabled: true },
                             { label: 'About', value: 'About' },
                             { label: 'News', value: 'News' },
                             { label: 'Product', value: 'Product' },

@@ -14,7 +14,7 @@ import {
   CTableRow,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -32,6 +32,15 @@ import Loading from '../../../components/loading/Loading'
 
 function ProductDetail() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Lấy giá trị `page` từ URL hoặc mặc định là 1
+  const pageFromUrl = parseInt(searchParams.get('page')) || 1
+  const [pageNumber, setPageNumber] = useState(pageFromUrl)
+
+  useEffect(() => {
+    setSearchParams({ page: pageNumber })
+  }, [pageNumber, setSearchParams])
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -97,9 +106,6 @@ function ProductDetail() {
   // search input
   const [dataSearch, setDataSearch] = useState('')
 
-  //pagination state
-  const [pageNumber, setPageNumber] = useState(1)
-
   const fetchData = async () => {
     try {
       const [categoriesResult, brandsResult, statusResult] = await Promise.allSettled([
@@ -163,7 +169,7 @@ function ProductDetail() {
   }
 
   const handleUpdateClick = (id) => {
-    navigate(`/product/edit?id=${id}`)
+    navigate(`/product/edit?id=${id}&page=${pageNumber}`)
   }
 
   const handleToggleCollapse = () => {
@@ -212,13 +218,8 @@ function ProductDetail() {
   // pagination data
   const handlePageChange = ({ selected }) => {
     const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
     setPageNumber(newPage)
+    window.scrollTo(0, 0)
   }
 
   // sorting columns
@@ -260,7 +261,9 @@ function ProductDetail() {
     { key: 'price', label: 'Giá bán' },
     { key: 'marketPrice', label: 'Giá thị trường' },
     { key: 'status', label: 'Tình trạng' },
-    { key: 'info', label: 'Thông tin ' },
+    // { key: 'info', label: 'Thông tin ' },
+    { key: 'create_at', label: 'Ngày đồng bộ' },
+    { key: 'update_at', label: 'Cập nhật' },
     { key: 'actions', label: 'Tác vụ' },
   ]
 
@@ -288,8 +291,12 @@ function ProductDetail() {
           ),
           title: (
             <>
-              <p className="blue-txt m-0">{item?.product_desc?.title}</p>
-              <p className="orange-txt">{`#${item?.macn}`}</p>
+              <Link to={`/product/edit?id=${item?.product_id}`}>
+                <p className="blue-txt m-0">
+                  {item?.TenHH ? item?.TenHH : item?.product_desc?.title}
+                </p>
+              </Link>
+              <p className="orange-txt">{`#${item?.MaHH ? item?.MaHH : item?.macn}`}</p>
             </>
           ),
           image: (
@@ -308,17 +315,38 @@ function ProductDetail() {
           status: (
             <>
               <span>
-                {item.stock > 0 ? (item.stock === 1 ? 'Hết hàng' : 'Ngừng kinh doanh') : 'Còn hàng'}
+                {item.stock > 0 ? (item.stock === 1 ? 'Còn hàng' : 'Ngừng kinh doanh') : 'Hết hàng'}
               </span>
-              <p>{item.display === 1 ? 'Hiển thị' : 'Ẩn'}</p>
+              <p
+                style={{
+                  color: item.display === 1 ? '#28a745' : '#dc3545',
+                  fontWeight: 'bold',
+                }}
+              >
+                {item.display === 1 ? 'Hiển thị' : 'Ẩn'}
+              </p>
             </>
           ),
-          info: (
+
+          // info: (
+          //   <>
+          //     <p>{item.views} lượt xem</p>
+          //     <p>{moment.unix(item.date_post).format('DD-MM-YYYY, hh:mm:ss A')}</p>
+          //   </>
+          // ),
+
+          create_at: (
             <>
-              <p>{item.views} lượt xem</p>
-              <p>{moment.unix(item.date_post).format('DD-MM-YYYY, hh:mm:ss A')}</p>
+              <p>{moment(item?.created_at).format('DD-MM-YYYY, HH:mm:ss A')}</p>
             </>
           ),
+
+          update_at: (
+            <>
+              <p>{moment(item?.updated_at).format('DD-MM-YYYY, HH:mm:ss A')}</p>
+            </>
+          ),
+
           actions: (
             <div className="d-flex justify-content-start">
               <button
@@ -672,6 +700,7 @@ function ProductDetail() {
                   activeClassName={'active'}
                   previousLabel={'<<'}
                   nextLabel={'>>'}
+                  forcePage={pageNumber - 1} // Đảm bảo pagination hiển thị đúng trang hiện tại
                 />
               </div>
             </CCol>

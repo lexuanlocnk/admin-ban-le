@@ -10,15 +10,14 @@ import {
   CRow,
   CSpinner,
 } from '@coreui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import CKedtiorCustom from '../../../components/customEditor/ckEditorCustom'
-import { ErrorMessage, Field, Form, Formik } from 'formik'
+import { ErrorMessage, FastField, Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 
 import '../detail/css/addProductDetail.css'
 import { formatNumber, unformatNumber } from '../../../helper/utils'
-import useDebounce from '../../../helper/debounce'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 import { CKEditor } from 'ckeditor4-react'
@@ -29,11 +28,6 @@ function AddProductDetail() {
   const [videoEditor, setVideoEditor] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
-
-  const [options, setOptions] = useState({
-    tskt: [],
-    value: [],
-  })
 
   // category
   const [categories, setCategories] = useState([])
@@ -49,8 +43,6 @@ function AddProductDetail() {
 
   // technology
   const [tech, setTech] = useState({})
-  const [tempTech, setTempTech] = useState({}) // Temporary state for input handling
-  const debouncedTempTech = useDebounce(tempTech, 300) // Use debounce with a delay of 300ms
 
   // selected technology option
   const [selectedTechOptions, setSelectedTechOptions] = useState([])
@@ -63,9 +55,9 @@ function AddProductDetail() {
 
   const [activeTab, setActiveTab] = useState('tab1')
 
-  const handleTabClick = (tab) => {
+  const handleTabClick = useCallback((tab) => {
     setActiveTab(tab)
-  }
+  }, [])
 
   // editor
   const [editorData, setEditorData] = useState('')
@@ -76,6 +68,7 @@ function AddProductDetail() {
   // upload list of images and show images
   const [selectedFileDetail, setSelectedFileDetail] = useState([])
   const [fileDetail, setFileDetail] = useState([])
+  const [selectedIndexes, setSelectedIndexes] = useState([])
 
   const initialValues = {
     title: '',
@@ -163,17 +156,6 @@ function AddProductDetail() {
     fetchProductProperties()
   }, [choosenCategory])
 
-  useEffect(() => {
-    setTech(debouncedTempTech)
-  }, [debouncedTempTech])
-
-  const handleTextareaChange = (propId, value) => {
-    setTempTech((prevTempTech) => ({
-      ...prevTempTech,
-      [propId]: value,
-    }))
-  }
-
   //set img detail
   function onFileChange(e) {
     const files = e.target.files
@@ -229,14 +211,25 @@ function AddProductDetail() {
     setFileDetail((prevFiles) => [...prevFiles, ...selectedFiles])
   }
 
-  const removeImage = (index) => {
-    setSelectedFileDetail((prevFiles) => prevFiles.filter((_, i) => i !== index))
-    setFileDetail((prevFiles) => prevFiles.filter((_, i) => i !== index))
+  const toggleSelect = (index) => {
+    setSelectedIndexes((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
+    )
+  }
+
+  const removeSelectedImages = () => {
+    const filteredFileDetail = fileDetail.filter((_, i) => !selectedIndexes.includes(i))
+    const filteredSelectedFileDetail = selectedFileDetail.filter(
+      (_, i) => !selectedIndexes.includes(i),
+    )
+
+    setFileDetail(filteredFileDetail)
+    setSelectedFileDetail(filteredSelectedFileDetail)
+    setSelectedIndexes([])
   }
 
   const handleSubmit = async (values) => {
     //api for submit
-
     const productData = {
       title: values.title,
       description: editorData,
@@ -294,20 +287,12 @@ function AddProductDetail() {
     }
   }
 
-  const handleEditorChange = (index, content) => {
-    setOptions((prev) => {
-      const newTskt = [...prev.tskt]
-      newTskt[index] = content
-      return { ...prev, tskt: newTskt }
-    })
-  }
-
-  const handleCheckboxChange = (index, id) => {
-    setOptions((prev) => {
-      const newValue = [...prev.value]
-      newValue[index] = newValue[index] === id ? null : id
-      return { ...prev, value: newValue }
-    })
+  // Change technology in ckeditor
+  const handleEditorChange = (key, value) => {
+    setTech((prevTech) => ({
+      ...prevTech,
+      [key]: value,
+    }))
   }
 
   return (
@@ -338,8 +323,7 @@ function AddProductDetail() {
               <CRow>
                 <CCol md={9}>
                   <CCol md={12}>
-                    {/* <label htmlFor="title-input"></label> */}
-                    <Field name="title">
+                    <FastField name="title">
                       {({ field }) => (
                         <CFormInput
                           size="lg"
@@ -349,7 +333,7 @@ function AddProductDetail() {
                           placeholder="Nhập tiêu đề ở tại đây"
                         />
                       )}
-                    </Field>
+                    </FastField>
                     <ErrorMessage name="title" component="div" className="text-danger" />
                   </CCol>
                   <br />
@@ -395,7 +379,7 @@ function AddProductDetail() {
                         Thông số kỹ thuật
                       </button>
                     </div>
-                    <div className="tab-contents">
+                    <div className="tab-contents ">
                       <div className={`tab-content ${activeTab === 'tab1' ? 'active' : ''}`}>
                         <CCol md={12}>
                           <CKedtiorCustom
@@ -426,6 +410,7 @@ function AddProductDetail() {
                             className="tech-table"
                             style={{
                               tableLayout: 'fixed',
+                              backgroundColor: '#fff',
                             }}
                           >
                             {dataProductProperties &&
@@ -434,40 +419,47 @@ function AddProductDetail() {
                                 <tr key={prop.title}>
                                   <td>
                                     <strong>
-                                      {index + 1}.{prop.title}
+                                      {index + 1}. {prop.title}
                                     </strong>
-                                    <div key={index}>
-                                      <CKEditor
-                                        config={{
-                                          height: 70,
-                                          versionCheck: false,
-                                        }}
-                                        data={options.tskt[index] || ''}
-                                        onChange={(event, editor) => {
-                                          const data = event.editor.getData()
-                                          handleEditorChange(index, data)
-                                        }}
-                                      />
+                                    <CKEditor
+                                      className="mt-2"
+                                      config={{
+                                        height: 70,
+                                        versionCheck: false,
+                                      }}
+                                      id={`editor-${prop.op_id}`}
+                                      onChange={(event) => {
+                                        const data = event.editor.getData()
+                                        handleEditorChange(prop.op_id, data)
+                                      }}
+                                    />
 
-                                      <div
-                                        className="d-flex gap-4 mt-2"
-                                        style={{ overflowX: 'auto' }}
-                                      >
-                                        {Array.isArray(prop?.optionChild) &&
-                                          prop?.optionChild.length > 0 &&
-                                          prop?.optionChild.map((radioOption, childOptionIndex) => (
-                                            <CFormCheck
-                                              key={radioOption.id}
-                                              type="radio"
-                                              id={`radio-${index}-${childOptionIndex}`}
-                                              label={radioOption.title}
-                                              checked={options.value[index] === radioOption.op_id}
-                                              onChange={() =>
-                                                handleCheckboxChange(index, radioOption.op_id)
-                                              }
-                                            />
-                                          ))}
-                                      </div>
+                                    <div className="d-flex gap-3 flex-wrap mt-2">
+                                      {prop?.optionChild?.map((option) => (
+                                        <CFormCheck
+                                          key={option?.op_id}
+                                          label={option?.title}
+                                          aria-label="Default selecAt example"
+                                          defaultChecked={option?.op_id}
+                                          id={`flexCheckDefault_${option?.op_id}`}
+                                          value={option?.op_id}
+                                          checked={selectedTechOptions.includes(option?.op_id)}
+                                          onChange={(e) => {
+                                            const optionId = option?.op_id
+                                            const isChecked = e.target.checked
+                                            if (isChecked) {
+                                              setSelectedTechOptions([
+                                                ...selectedTechOptions,
+                                                optionId,
+                                              ])
+                                            } else {
+                                              setSelectedTechOptions(
+                                                selectedTechOptions.filter((id) => id !== optionId),
+                                              )
+                                            }
+                                          }}
+                                        />
+                                      ))}
                                     </div>
                                   </td>
                                 </tr>
@@ -478,98 +470,149 @@ function AddProductDetail() {
                     </div>
                   </CCol>
                   <br />
-                  <CCol>
-                    <CFormInput
-                      type="file"
-                      id="formFile"
-                      label="Hình ảnh chi tiết sản phẩm (*Có thể chọn nhiều hình cùng lúc)"
-                      multiple
-                      onChange={(e) => onFileChangeDetail(e)}
-                      size="sm"
-                    />
-                    <br />
-                    <div className="d-flex gap-4 w-100 flex-wrap">
-                      {fileDetail.length === 0 ? (
-                        <div></div>
-                      ) : (
-                        fileDetail.map((item, index) => (
-                          <div key={index} className="position-relative">
-                            <CImage className="border" src={item} fluid width={130} />
-                            <CButton
-                              color="danger"
-                              size="sm"
-                              onClick={() => removeImage(index)}
-                              style={{ position: 'absolute', top: 0, right: 0 }}
-                            >
-                              X
-                            </CButton>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                    <br />
-                  </CCol>
+
+                  <h5>HÌNH PHỤ SẢN PHẨM </h5>
+                  <div className="bg-white border p-3 position-relative">
+                    {selectedIndexes.length > 0 && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          padding: '8px',
+                          backgroundColor: '#fff',
+                          border: '1px solid #ccc',
+                          width: '100%',
+                          position: 'absolute',
+                          bottom: 0,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          zIndex: 10,
+                        }}
+                      >
+                        <CButton
+                          color="danger"
+                          className="text-white"
+                          onClick={removeSelectedImages}
+                        >
+                          Xóa ảnh đã chọn ({selectedIndexes.length})
+                        </CButton>
+                      </div>
+                    )}
+                    <CCol>
+                      <CFormInput
+                        type="file"
+                        id="formFile"
+                        label="Chọn hình ảnh phụ (*Có thể chọn nhiều hình cùng lúc)"
+                        multiple
+                        onChange={(e) => onFileChangeDetail(e)}
+                        size="sm"
+                      />
+                      <br />
+
+                      <div
+                        className="d-flex flex-wrap gap-5 p-2 "
+                        style={{ maxHeight: 400, overflowY: 'auto' }}
+                      >
+                        {fileDetail.map((item, index) => {
+                          const isSelected = selectedIndexes.includes(index)
+                          return (
+                            <div key={index} className="position-relative" style={{ width: 130 }}>
+                              <div className="d-flex align-items-start gap-2">
+                                <CFormCheck
+                                  checked={isSelected}
+                                  onChange={() => toggleSelect(index)}
+                                  style={{
+                                    marginTop: 10,
+                                    transform: 'scale(1.5)',
+                                    accentColor: '#198754',
+                                  }}
+                                />
+                                <CImage
+                                  className="border "
+                                  src={item}
+                                  fluid
+                                  style={{
+                                    aspectRatio: '1/1',
+                                    objectFit: 'cover',
+                                    border: isSelected ? '3px solid #198754' : '1px solid #dee2e6',
+                                    opacity: isSelected ? 0.8 : 1,
+                                    transition: 'all 0.2s ease-in-out',
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </CCol>
+                  </div>
 
                   <br />
                   <h6>Search Engine Optimization</h6>
-                  <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="friendlyUrl-input">Chuỗi đường dẫn</label>
-                    <Field
-                      name="friendlyUrl"
-                      type="text"
-                      as={CFormInput}
-                      id="url-input"
-                      text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
-                    />
-                    <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                  <div className="border p-3 bg-white rounded">
+                    <CCol md={12}>
+                      <label htmlFor="friendlyUrl-input">Chuỗi đường dẫn</label>
+                      <FastField
+                        name="friendlyUrl"
+                        type="text"
+                        as={CFormInput}
+                        id="url-input"
+                        text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
+                      />
+                      <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
+                    </CCol>
+                    <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="pageTitle-input">Tiêu đề trang</label>
-                    <Field
-                      name="pageTitle"
-                      type="text"
-                      as={CFormInput}
-                      id="pageTitle-input"
-                      text="Độ dài của tiêu đề trang tối đa 60 ký tự."
-                    />
-                    <ErrorMessage name="pageTitle" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
-                  <CCol md={12}>
-                    <label htmlFor="metaKeywords-input">Meta keywords</label>
-                    <Field
-                      name="metaKeywords"
-                      type="text"
-                      as={CFormTextarea}
-                      id="metaKeywords-input"
-                      text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
-                    />
-                    <ErrorMessage name="metaKeywords" component="div" className="text-danger" />
-                  </CCol>
-                  <br />
+                    <CCol md={12}>
+                      <label htmlFor="pageTitle-input">Tiêu đề trang</label>
+                      <FastField
+                        name="pageTitle"
+                        type="text"
+                        as={CFormInput}
+                        id="pageTitle-input"
+                        text="Độ dài của tiêu đề trang tối đa 60 ký tự."
+                      />
+                      <ErrorMessage name="pageTitle" component="div" className="text-danger" />
+                    </CCol>
+                    <br />
+                    <CCol md={12}>
+                      <label htmlFor="metaKeywords-input">Meta keywords</label>
+                      <FastField
+                        name="metaKeywords"
+                        type="text"
+                        as={CFormTextarea}
+                        id="metaKeywords-input"
+                        text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
+                      />
+                      <ErrorMessage name="metaKeywords" component="div" className="text-danger" />
+                    </CCol>
+                    <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="metaDescription-input">Meta description</label>
-                    <Field
-                      name="metaDescription"
-                      type="text"
-                      as={CFormTextarea}
-                      id="metaDescription-input"
-                      text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
-                    />
-                    <ErrorMessage name="metaDescription" component="div" className="text-danger" />
-                  </CCol>
+                    <CCol md={12}>
+                      <label htmlFor="metaDescription-input">Meta description</label>
+                      <FastField
+                        name="metaDescription"
+                        type="text"
+                        as={CFormTextarea}
+                        id="metaDescription-input"
+                        text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
+                      />
+                      <ErrorMessage
+                        name="metaDescription"
+                        component="div"
+                        className="text-danger"
+                      />
+                    </CCol>
+                  </div>
                   <br />
                 </CCol>
 
                 <CCol md={3}>
                   <CCol md={12}>
                     <label htmlFor="syndicationCode-input">Mã Syndication</label>
-                    <Field
+                    <FastField
                       name="syndicationCode"
                       type="text"
                       as={CFormInput}
@@ -580,25 +623,8 @@ function AddProductDetail() {
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="productCodeNumber-input">Mã số</label>
-                    <Field
-                      name="productCodeNumber"
-                      type="text"
-                      as={CFormInput}
-                      id="productCodeNumber-input"
-                      text="Nếu không nhập mã số hoặc mã số đã tồn tại. Hệ thống sẽ tự tạo mã số theo chuẩn."
-                    />
-                    <ErrorMessage
-                      name="productCodeNumber"
-                      component="div"
-                      className="text-danger"
-                    />
-                  </CCol>
-                  <br />
-
-                  <CCol md={12}>
                     <label htmlFor="productCode-input">Mã kho</label>
-                    <Field
+                    <FastField
                       name="productCode"
                       type="text"
                       as={CFormInput}
@@ -610,47 +636,47 @@ function AddProductDetail() {
                   <br />
 
                   <CCol md={12}>
-                    <Field name="marketPrice">
+                    <FastField name="marketPrice">
                       {({ field }) => (
                         <CFormInput
                           {...field}
                           type="text"
                           id="marketPrice-input"
                           value={formatNumber(field.value)}
-                          label="Giá thị trường"
+                          label="Giá thị trường (VNĐ)"
                           onChange={(e) => {
                             const rawValue = unformatNumber(e.target.value)
                             setFieldValue(field.name, rawValue)
                           }}
                         />
                       )}
-                    </Field>
+                    </FastField>
                     <ErrorMessage name="marketPrice" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <Field name="price">
+                    <FastField name="price">
                       {({ field }) => (
                         <CFormInput
                           {...field}
                           type="text"
                           id="price-input"
                           value={formatNumber(field.value)}
-                          label="Giá bán"
+                          label="Giá bán (VNĐ)"
                           onChange={(e) => {
                             const rawValue = unformatNumber(e.target.value)
                             setFieldValue(field.name, rawValue)
                           }}
                         />
                       )}
-                    </Field>
+                    </FastField>
                     <ErrorMessage name="price" component="div" className="text-danger" />
                   </CCol>
                   <br />
 
                   <CCol md={12}>
-                    <label htmlFor="categories-select">Nghành hàng</label>
+                    <label htmlFor="categories-select">Ngành hàng</label>
                     <Field
                       name="categories"
                       as={CFormSelect}
@@ -762,7 +788,7 @@ function AddProductDetail() {
 
                   <CCol md={12}>
                     <label htmlFor="star-input">Đánh giá sản phẩm</label>
-                    <Field
+                    <FastField
                       name="star"
                       type="number"
                       as={CFormInput}
@@ -771,42 +797,11 @@ function AddProductDetail() {
                       min="1"
                       max="5"
                       step="0.1"
-                      placeholder="Ví dụ: 4.5 ⭐"
+                      placeholder="Ví dụ: 4.5"
                     />
                     <ErrorMessage name="star" component="div" className="text-danger" />
                   </CCol>
                   <br />
-
-                  {/* <div className="border p-3 bg-white">
-                    <React.Fragment>
-                      <strong>Trạng thái</strong>
-                      <div className="mt-2">
-                        {status &&
-                          status.length > 0 &&
-                          status.map((item) => (
-                            <CFormCheck
-                              key={item?.status_id}
-                              label={item?.name}
-                              aria-label="Default select example"
-                              defaultChecked={item?.status_id}
-                              id={`flexCheckDefault_${item?.status_id}`}
-                              value={item?.status_id}
-                              checked={selectedStatus.includes(item?.status_id)}
-                              onChange={(e) => {
-                                const statusId = item?.status_id
-                                const isChecked = e.target.checked
-                                if (isChecked) {
-                                  setSelectedStatus([...selectedStatus, statusId])
-                                } else {
-                                  setSelectedStatus(selectedStatus.filter((id) => id !== statusId))
-                                }
-                              }}
-                            />
-                          ))}
-                      </div>
-                    </React.Fragment>
-                  </div>
-                  <br /> */}
 
                   <CCol md={12}>
                     <label htmlFor="status-select">Trạng thái</label>
@@ -827,12 +822,8 @@ function AddProductDetail() {
                           : []),
                       ]}
                     />
-                    {/* <ErrorMessage name="status" component="div" className="text-danger" /> */}
                   </CCol>
                   <br />
-
-                  {/* if flashsale */}
-                  {selectedStatus === 5}
 
                   <CCol md={12}>
                     <label htmlFor="stock-select">Tình trạng</label>
@@ -866,11 +857,7 @@ function AddProductDetail() {
                     <div>
                       {file.length == 0 ? (
                         <div>
-                          <CImage
-                            className="border"
-                            src={`${imageBaseUrl}${selectedFile}`}
-                            width={200}
-                          />
+                          <CImage className="border" src={`${imageBaseUrl}${selectedFile}`} fluid />
                         </div>
                       ) : (
                         file.map((item, index) => <CImage key={index} src={item} width={200} />)
@@ -881,7 +868,7 @@ function AddProductDetail() {
 
                   <CCol md={12}>
                     <label htmlFor="visible-select">Đăng sản phẩm</label>
-                    <Field
+                    <FastField
                       name="visible"
                       as={CFormSelect}
                       id="visible-select"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { CButton, CCol, CContainer, CRow, CTable } from '@coreui/react'
+import { CButton, CCol, CContainer, CFormSelect, CRow, CTable } from '@coreui/react'
 import ReactPaginate from 'react-paginate'
 import { axiosClient } from '../../axiosConfig'
 import { Link } from 'react-router-dom'
@@ -16,6 +16,7 @@ function AccessStatistics() {
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
   const [visitedData, setVisitedData] = useState([])
+  const [selectedMemberType, setSelectedMemberType] = useState()
 
   const [isCollapse, setIsCollapse] = useState(false)
 
@@ -139,9 +140,10 @@ function AccessStatistics() {
 
   const items =
     visitedData?.data && visitedData?.data.length > 0
-      ? visitedData?.data.map((item, index) => ({
-          index: index + 1,
-          visited: item?.count,
+      ? visitedData?.data.map((item) => ({
+          // index: index + 1,
+          // visited: item?.count,
+          date: moment(Date.now()).format('DD/MM/YYYY, HH:mm:ss A'),
           mem_id: item?.mem_id === 0 ? 'Khách vãng lai' : item?.member?.username,
           ip: item?.ip,
           url: item?.url,
@@ -152,16 +154,17 @@ function AccessStatistics() {
       : []
 
   const columns = [
-    {
-      key: 'index',
-      label: 'Thứ tự',
-      _props: { scope: 'col' },
-    },
-    {
-      key: 'visited',
-      label: 'Lượt truy cập',
-      _props: { scope: 'col' },
-    },
+    // {
+    //   key: 'index',
+    //   label: 'Thứ tự',
+    //   _props: { scope: 'col' },
+    // },
+    // {
+    //   key: 'visited',
+    //   label: 'Lượt truy cập',
+    //   _props: { scope: 'col' },
+    // },
+    { key: 'date', label: 'Ngày truy cập', _props: { scope: 'col' } },
     {
       key: 'mem_id',
       label: 'Name',
@@ -247,6 +250,37 @@ function AccessStatistics() {
                       {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
                     </td>
                   </tr>
+                  <tr>
+                    <td>Tìm kiếm theo</td>
+                    <td>
+                      <div>
+                        <CFormSelect
+                          className="component-size w-25"
+                          aria-label="Chọn yêu cầu lọc"
+                          options={[
+                            { label: '-- Chọn loại khách hàng --', value: '' },
+                            { label: 'Thành viên', value: 'member' },
+                            { label: 'Khách vãng lai', value: 'guest' },
+                            { label: 'Nội bộ', value: 'internal' },
+                          ]}
+                          value={selectedMemberType}
+                          onChange={(e) => setSelectedMemberType(e.target.value)}
+                        />
+
+                        <div className="mt-2">
+                          <input
+                            type="text"
+                            className="search-input"
+                            value={dataSearch}
+                            onChange={(e) => setDataSearch(e.target.value)}
+                          />
+                          <button onClick={handleSearch} className="submit-btn">
+                            Submit
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               )}
             </table>
@@ -271,7 +305,7 @@ function AccessStatistics() {
               <CTable
                 hover
                 bordered
-                style={{ fontSize: 13.6 }}
+                style={{ fontSize: 13 }}
                 className="mt-2 mb-4"
                 columns={columns}
                 items={items}
