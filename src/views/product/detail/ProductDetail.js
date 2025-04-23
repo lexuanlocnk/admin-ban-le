@@ -29,6 +29,7 @@ import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 import { toast } from 'react-toastify'
 import Loading from '../../../components/loading/Loading'
+import useDebounce from '../../../helper/debounce'
 
 function ProductDetail() {
   const navigate = useNavigate()
@@ -105,6 +106,7 @@ function ProductDetail() {
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
+  const debouncedSearch = useDebounce(dataSearch, 300) // Áp dụng debounce với 300ms
 
   const fetchData = async () => {
     try {
@@ -162,7 +164,7 @@ function ProductDetail() {
 
   useEffect(() => {
     fetchProductData()
-  }, [pageNumber, dataSearch, selectedBrand, selectedCategory, selectedStatus])
+  }, [pageNumber, debouncedSearch, selectedBrand, selectedCategory, selectedStatus])
 
   const handleAddNewClick = () => {
     navigate('/product/add')

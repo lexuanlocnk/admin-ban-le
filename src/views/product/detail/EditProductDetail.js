@@ -355,6 +355,7 @@ function EditProductDetail() {
 
   const handleSubmit = async (values) => {
     //api for submit
+    const mergedImages = [...imagesDetail, ...fileDetail]
 
     if (!validateComboList()) {
       alert('Vui lòng điền đầy đủ thông tin cho các combo áp dụng giảm giá.')
@@ -688,7 +689,7 @@ function EditProductDetail() {
                                   {dataProductProperties &&
                                     dataProductProperties.length > 0 &&
                                     dataProductProperties?.map((prop, index) => (
-                                      <tr key={prop.title}>
+                                      <tr key={prop.op_id}>
                                         <td>
                                           <strong>
                                             {index + 1}. {prop.title}
@@ -1369,7 +1370,7 @@ function EditProductDetail() {
                                     categories
                                       ?.filter((cate) => cate.cat_id == choosenCategory)?.[0]
                                       ?.parenty.map((subCate) => (
-                                        <>
+                                        <div key={subCate?.cat_id}>
                                           <CFormCheck
                                             key={subCate?.cat_id}
                                             label={subCate?.category_desc?.cat_name}
@@ -1423,7 +1424,7 @@ function EditProductDetail() {
                                                 }}
                                               />
                                             ))}
-                                        </>
+                                        </div>
                                       ))}
                                 </div>
                               </React.Fragment>

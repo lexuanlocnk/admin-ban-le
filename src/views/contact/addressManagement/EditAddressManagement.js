@@ -154,7 +154,7 @@ function EditAddressManagement() {
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
               >
-                {({ setFieldValue, setValues, values }) => {
+                {({ setValues, values }) => {
                   useEffect(() => {
                     fetchDataById(setValues)
                   }, [setValues, id])
@@ -179,46 +179,6 @@ function EditAddressManagement() {
                         <ErrorMessage name="companyName" component="div" className="text-danger" />
                       </CCol>
                       <br />
-
-                      {/* <CCol md={8}>
-                        <label htmlFor="address-input">Địa chỉ</label>
-                        <Field name="address">
-                          {({ field }) => (
-                            <CFormTextarea {...field} type="text" id="address-input" />
-                          )}
-                        </Field>
-                        <ErrorMessage name="address" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-
-                      <CCol md={12}>
-                        <label htmlFor="phone-input">Điện thoại</label>
-                        <Field
-                          name="phone"
-                          type="text"
-                          as={CFormTextarea}
-                          id="phone-input"
-                          style={{ height: 100 }}
-                        />
-                        <ErrorMessage name="phone" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-
-                      <CCol md={8}>
-                        <label htmlFor="mail-input">Thư điện tử</label>
-                        <Field name="mail" type="text" as={CFormInput} id="mail-input" />
-                        <ErrorMessage name="mail" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-
-                      <CCol md={8}>
-                        <label htmlFor="website-input">Website</label>
-                        <Field name="website">
-                          {({ field }) => <CFormInput {...field} type="text" id="website-input" />}
-                        </Field>
-                        <ErrorMessage name="website" component="div" className="text-danger" />
-                      </CCol>
-                      <br /> */}
 
                       <CCol md={12}>
                         <CFormLabel>Địa chỉ</CFormLabel>

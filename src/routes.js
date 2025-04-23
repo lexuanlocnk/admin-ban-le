@@ -4,6 +4,8 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
+const CreateQR = React.lazy(() => import('./views/createQRBank/createQRBank.js'))
+
 // TAB QUẢN TRỊ
 
 const AdminInfo = React.lazy(() => import('./views/admin/AdminInfo'))
@@ -251,6 +253,8 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
+
+  { path: '/create-qr', exact: true, name: 'CreateQR', element: CreateQR },
 
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
