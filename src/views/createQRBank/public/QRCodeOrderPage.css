@@ -1,0 +1,53 @@
+.qrcode-page {
+  padding: 20px;
+}
+
+.qrcode-page__title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.qrcode-page__form {
+  margin-bottom: 30px;
+}
+
+.qrcode-page__input-group {
+  display: flex;
+  max-width: 400px;
+}
+
+.qrcode-page__input {
+  flex: 1;
+  margin-right: 8px;
+}
+
+.qrcode-page__error {
+  color: red;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.qrcode-layout {
+  margin-top: 20px;
+}
+
+.qrcode-layout__title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.qrcode-layout__content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.qrcode-box__qrcode {
+  width: 200px;
+  height: 200px;
+  background: #f3f3f3;
+  margin: 0 auto 20px;
+  display: flex;
+}

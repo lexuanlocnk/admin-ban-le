@@ -101,6 +101,7 @@ function EditProductDetail() {
 
   // editor
   const [editorData, setEditorData] = useState('')
+
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
@@ -342,21 +343,39 @@ function EditProductDetail() {
     )
   }
 
-  const removeSelectedImages = () => {
-    const filteredFileDetail = fileDetail.filter((_, i) => !selectedIndexes.includes(i))
-    const filteredSelectedFileDetail = selectedFileDetail.filter(
-      (_, i) => !selectedIndexes.includes(i),
-    )
+  const removeSelectedImages = async () => {
+    const newFileDetail = []
+    const newImagesDetail = []
+    const deletedImagesIds = []
 
-    setFileDetail(filteredFileDetail)
-    setSelectedFileDetail(filteredSelectedFileDetail)
+    selectedIndexes.forEach((index) => {
+      if (index < imagesDetail.length) {
+        const imagesToDelete = imagesDetail[index]
+        deletedImagesIds.push(imagesToDelete.id) // push id image to delete in arr
+      } else {
+        const fileIndex = index - imagesDetail.length
+        newFileDetail.push(...fileDetail.filter((_, i) => i !== fileIndex))
+      }
+    })
+
+    if (deletedImagesIds.length > 0) {
+      try {
+        const res = await axiosClient.post('admin/product/delete-image', {
+          ids: deletedImagesIds,
+        })
+        toast.success('Xóa ảnh thành công!')
+      } catch (error) {
+        console.error('Error deleting images:', error)
+        toast.error('Đã xảy ra lỗi khi xóa ảnh.')
+      }
+    }
+
+    newImagesDetail(imagesDetail.filter((_, i) => !selectedIndexes.includes(i)))
+    setFileDetail(newFileDetail)
     setSelectedIndexes([])
   }
 
   const handleSubmit = async (values) => {
-    //api for submit
-    const mergedImages = [...imagesDetail, ...fileDetail]
-
     if (!validateComboList()) {
       alert('Vui lòng điền đầy đủ thông tin cho các combo áp dụng giảm giá.')
       return
@@ -1080,6 +1099,7 @@ function EditProductDetail() {
                               }}
                             >
                               <CButton
+                                size="sm"
                                 color="danger"
                                 className="text-white"
                                 onClick={removeSelectedImages}
@@ -1103,7 +1123,7 @@ function EditProductDetail() {
                               className="d-flex flex-wrap gap-5 p-2 "
                               style={{ maxHeight: 400, overflowY: 'auto' }}
                             >
-                              {fileDetail.map((item, index) => {
+                              {[...imagesDetail, ...fileDetail].map((item, index) => {
                                 const isSelected = selectedIndexes.includes(index)
                                 return (
                                   <div
@@ -1123,7 +1143,8 @@ function EditProductDetail() {
                                       />
                                       <CImage
                                         className="border "
-                                        src={item}
+                                        src={item.picture ? `${imageBaseUrl}${item.picture}` : item}
+                                        alt={`image_${index}`}
                                         fluid
                                         style={{
                                           aspectRatio: '1/1',
