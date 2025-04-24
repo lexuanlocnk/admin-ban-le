@@ -1,107 +1,178 @@
 import React from 'react'
-import { CCard, CCardBody, CCardHeader, CRow, CCol, CFormInput, CButton } from '@coreui/react'
+import { CFormInput, CImage } from '@coreui/react'
 import { Formik, Form, Field } from 'formik'
 import * as Yup from 'yup'
-import CIcon from '@coreui/icons-react'
 import './public/QRCodeOrderPage.css'
-import { cilTrash } from '@coreui/icons'
 
-// Schema validation
-const SearchSchema = Yup.object().shape({
-  mapx: Yup.string().required('Vui lòng nhập mã phiếu xuất'),
-})
+import LogoNK from '../../assets/images/logo/logo NK.png'
+
+const orderItems = [
+  {
+    name: 'NOTEBOOK',
+    price: 9981818,
+    quantity: 1,
+    total: 9981818,
+  },
+  {
+    name: '[A2NL7PA] NB HP 15-FD0306TU/CORE I3-1315U/8GB RAM/256GB SSD/INTEL GRAPHICS...',
+    price: 0,
+    quantity: 1,
+    total: 0,
+  },
+  {
+    name: 'Ổ CỨNG SSD SILICON (SOLID STATE DISK) M.2 2280 PCIE SSD A60,512GB,STD SP512GBP34A60M28',
+    price: 0,
+    quantity: 1,
+    total: 0,
+  },
+  {
+    name: 'Túi laptop 15 inch',
+    price: 0,
+    quantity: 1,
+    total: 0,
+  },
+]
+
+const orderSummary = {
+  totalQuantity: 4,
+  totalAmount: 10980000,
+}
 
 const QRCodeOrderPage = () => {
+  // Schema validation
+  const SearchSchema = Yup.object().shape({
+    mapx: Yup.string().required('Vui lòng nhập mã phiếu xuất'),
+  })
+
   const handleSearch = (values) => {
     console.log('Giá trị nhập:', values.mapx)
   }
 
   return (
-    <div className="qrcode-page">
-      <h2 className="qrcode-page__title">Tạo mã QRcode cho đơn hàng NKC</h2>
-
-      <Formik initialValues={{ mapx: '' }} validationSchema={SearchSchema} onSubmit={handleSearch}>
-        {({ errors, touched }) => (
-          <Form className="qrcode-page__form">
-            <div className="qrcode-page__input-group">
-              <Field
-                as={CFormInput}
-                name="mapx"
-                placeholder="Nhập mã phiếu xuất"
-                className="qrcode-page__input"
-                invalid={touched.mapx && !!errors.mapx}
-              />
-              <CButton type="submit" color="success" variant="outline">
-                <CIcon icon={cilTrash} className="text-white" />
-              </CButton>
-            </div>
-            {errors.mapx && touched.mapx ? (
-              <div className="qrcode-page__error">{errors.mapx}</div>
-            ) : null}
-          </Form>
-        )}
-      </Formik>
-
-      <div className="qrcode-layout">
-        <h3 className="qrcode-layout__title">
-          Thanh toán qua Banking cho đơn hàng (điền mã phiếu xuất vào đây)
-        </h3>
-
-        <CRow className="qrcode-layout__content">
-          <CCol md={5}>
-            <CCard>
-              <CCardHeader>QR Code Thanh Toán</CCardHeader>
-              <CCardBody className="text-center">
-                <div className="qrcode-box__qrcode">[ QR CODE ]</div>
-                <p>
-                  <strong>Số tiền:</strong> 1,000,000 VND
-                </p>
-                <p>
-                  <strong>Đơn hàng:</strong> PX00123
-                </p>
-                <p>
-                  <strong>Tên người thụ hưởng:</strong> Công ty ABC
-                </p>
-                <p className="qrcode-box__note">Sử dụng App Banking hoặc camera để quét mã</p>
-              </CCardBody>
-            </CCard>
-          </CCol>
-
-          <CCol md={7}>
-            <CCard>
-              <CCardHeader>Thông tin đơn hàng</CCardHeader>
-              <CCardBody>
-                <div className="order-info">
-                  <p>
-                    <strong>Tên khách hàng:</strong> Nguyễn Văn A
-                  </p>
-                  <p>
-                    <strong>MST:</strong> 0123456789
-                  </p>
-                  <p>
-                    <strong>Liên hệ:</strong> 0987654321
-                  </p>
-                  <p>
-                    <strong>Địa chỉ:</strong> 123 Đường ABC, Quận 1, TP.HCM
-                  </p>
-                  <p>
-                    <strong>Ghi chú:</strong> Giao trước 10h sáng
-                  </p>
-
-                  <div className="order-info__product-list">
-                    <p>
-                      <strong>Hàng hóa đã mua:</strong>
-                    </p>
-                    <ul>
-                      <li>Sản phẩm A - SL: 2 - 500,000 VND</li>
-                      <li>Sản phẩm B - SL: 1 - 500,000 VND</li>
-                    </ul>
+    <div className="qrcode-wrapper">
+      <div className="qrcode-header">
+        <CImage src={LogoNK} className="qrcode-header__logo" alt="Logo" width={100} />
+        <h3 className="qrcode-header__title">Tạo mã QR Thanh toán cho đơn hàng NKC</h3>
+      </div>
+      <div className="qrcode-body">
+        <div className="qrcode-body__form-layout">
+          <h4 className="qrcode-body__form-title">Nhập mã phiếu xuất đơn hàng</h4>
+          <Formik
+            initialValues={{ mapx: '' }}
+            validationSchema={SearchSchema}
+            onSubmit={handleSearch}
+          >
+            {({ errors, touched }) => (
+              <Form className="qrcode-body__form">
+                <div className="qrcode-body__input-group">
+                  <div className="qrcode-body__input-container">
+                    <input type="text" name="mapx" placeholder=" " className="qrcode-body__input" />
+                    <label htmlFor="mapx" className="qrcode-body__label">
+                      Nhập mã phiếu xuất
+                    </label>
                   </div>
+                  {errors.mapx && touched.mapx ? (
+                    <div className="qrcode-body__error">
+                      <span className="qrcode-body__error-icon">⚠️</span>
+                      {errors.mapx}
+                    </div>
+                  ) : null}
+                  <button type="submit" className="qrcode-body__button">
+                    TẠO MÃ QR
+                  </button>
                 </div>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        </CRow>
+              </Form>
+            )}
+          </Formik>
+        </div>
+        <div className="qrcode-body__content-layout">
+          <div className="qrcode-body__order-qrcode">
+            <h4>Quét mã QR để thanh toán</h4>
+            <p>Sử dụng app ngân hàng hoặc ứng dụng camera hỗ trợ QR code để quét mã</p>
+            <CImage
+              src={
+                'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg'
+              }
+              alt={'Ảnh qrcode thanh toán'}
+            />
+            <div className="order-qrcode__order-detail">
+              <div className="order-qrcode__detail-row">
+                <span className="order-qrcode__label">Ngân hàng thụ hưởng</span>
+                <span className="order-qrcode__value">ACB</span>
+              </div>
+              <div className="order-qrcode__detail-row">
+                <span className="order-qrcode__label">Số tài khoản</span>
+                <span className="order-qrcode__value">9698891059</span>
+              </div>
+              <div className="order-qrcode__detail-row">
+                <span className="order-qrcode__label">Đơn vị thụ hưởng</span>
+                <span className="order-qrcode__value">Công ty TNHH Vi Tính Nguyên Kim</span>
+              </div>
+              <div className="order-qrcode__detail-row">
+                <span className="order-qrcode__label">Số tiền thanh toán</span>
+                <span className="order-qrcode__value order-qrcode__value--amount">690.000 ₫</span>
+              </div>
+            </div>
+          </div>
+          <div className="qrcode-body__order-info">
+            <h4>Thông tin đơn hàng</h4>
+            <div className="qrcode-body__order-info-content">
+              <p>
+                <strong>Khách Hàng:</strong> CÔNG TY TRÁCH NHIỆM HỮU HẠN VI TÍNH TOÀN PHÚC
+                <br />
+                <span>
+                  (Liên hệ: <strong>MR TOÀN</strong> SĐT: 0963676076)
+                </span>
+              </p>
+              <p>
+                <strong>MST:</strong> 2100670996
+              </p>
+              <p>
+                <strong>Địa Chỉ Trụ Sở:</strong> SỐ 108 KIÊN THỊ NHÂN, PHƯỜNG 7, THÀNH PHỐ TRÀ VINH,
+                TỈNH TRÀ VINH, VIỆT NAM
+              </p>
+              <p>
+                <strong>Địa Chỉ Giao Hàng:</strong> Chành xe Thanh Thủy : 274 Trần Phú, P8, Quận 5
+                (SĐT: 02836368458)
+              </p>
+              <p>
+                <strong>Ghi Chú:</strong> A Toàn - 0963676076 đặt hàng - GH chở cf GH
+              </p>
+            </div>
+
+            <div className="order-details">
+              <h4 className="order-details__title">Chi tiết đơn hàng</h4>
+              <div className="order-details__items">
+                {Array.isArray(orderItems) &&
+                  orderItems.length > 0 &&
+                  orderItems.map((item, index) => (
+                    <div key={index} className="order-details__item">
+                      <div className="order-details__item-name">{item.name}</div>
+                      <div className="order-details__item-info">
+                        <span className="order-details__item-price">
+                          {item.price.toLocaleString()} đ
+                        </span>
+                        <span className="order-details__item-quantity"> x {item.quantity}</span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+              <div className="order-details__divider"></div>
+              <div className="order-details__summary">
+                <div className="order-details__summary-item">
+                  <span className="order-details__summary-label">Tổng số lượng:</span>
+                  <span className="order-details__summary-value">{orderSummary.totalQuantity}</span>
+                </div>
+                <div className="order-details__summary-item">
+                  <span className="order-details__summary-label">Tổng tiền thanh toán đã VAT:</span>
+                  <span className="order-details__summary-value">
+                    {orderSummary.totalAmount.toLocaleString()} đ
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
