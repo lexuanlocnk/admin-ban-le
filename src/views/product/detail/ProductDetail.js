@@ -241,6 +241,10 @@ function ProductDetail() {
       label: (
         <>
           <CFormCheck
+            style={{
+              transform: 'scale(1.4)',
+              accentColor: '#198754',
+            }}
             aria-label="Select all"
             checked={isAllCheckbox}
             onChange={(e) => {
@@ -263,7 +267,6 @@ function ProductDetail() {
     { key: 'price', label: 'Giá bán' },
     { key: 'marketPrice', label: 'Giá thị trường' },
     { key: 'status', label: 'Tình trạng' },
-    // { key: 'info', label: 'Thông tin ' },
     { key: 'create_at', label: 'Ngày đồng bộ' },
     { key: 'update_at', label: 'Cập nhật' },
     { key: 'actions', label: 'Tác vụ' },
@@ -274,6 +277,10 @@ function ProductDetail() {
       ? dataProductList?.data?.map((item) => ({
           id: (
             <CFormCheck
+              style={{
+                transform: 'scale(1.4)',
+                accentColor: '#198754',
+              }}
               key={item?.product_id}
               aria-label="Default select example"
               defaultChecked={item?.product_id}
@@ -662,11 +669,6 @@ function ProductDetail() {
                           className="prevent-select"
                         >
                           {column.label}
-                          {sortConfig.key === column.key
-                            ? sortConfig.direction === 'ascending'
-                              ? ' ▼'
-                              : ' ▲'
-                            : ''}
                         </CTableHeaderCell>
                       ))}
                     </tr>

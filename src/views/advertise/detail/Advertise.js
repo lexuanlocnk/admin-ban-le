@@ -11,7 +11,7 @@ import {
   CTable,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
 
 import ReactPaginate from 'react-paginate'
@@ -23,6 +23,15 @@ import Loading from '../../../components/loading/Loading'
 
 function Advertise() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Lấy giá trị `page` từ URL hoặc mặc định là 1
+  const pageFromUrl = parseInt(searchParams.get('page')) || 1
+  const [pageNumber, setPageNumber] = useState(pageFromUrl)
+
+  useEffect(() => {
+    setSearchParams({ page: pageNumber })
+  }, [pageNumber, setSearchParams])
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -48,9 +57,6 @@ function Advertise() {
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
   }
-
-  //pagination state
-  const [pageNumber, setPageNumber] = useState(1)
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -111,13 +117,8 @@ function Advertise() {
   // pagination data
   const handlePageChange = ({ selected }) => {
     const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
     setPageNumber(newPage)
+    window.scrollTo(0, 0)
   }
 
   // delete row
@@ -393,6 +394,7 @@ function Advertise() {
                 activeClassName={'active'}
                 previousLabel={'<<'}
                 nextLabel={'>>'}
+                forcePage={pageNumber - 1} // Đảm bảo pagination hiển thị đúng trang hiện tại
               />
             </div>
           </CRow>

@@ -345,7 +345,6 @@ function EditProductDetail() {
 
   const removeSelectedImages = async () => {
     const newFileDetail = []
-    const newImagesDetail = []
     const deletedImagesIds = []
 
     selectedIndexes.forEach((index) => {
@@ -360,17 +359,20 @@ function EditProductDetail() {
 
     if (deletedImagesIds.length > 0) {
       try {
-        const res = await axiosClient.post('admin/product/delete-image', {
+        const res = await axiosClient.post('admin/delete-detail-image', {
           ids: deletedImagesIds,
+          _method: 'delete',
         })
-        toast.success('Xóa ảnh thành công!')
+        if (res.data.status === true) {
+          toast.success('Xóa ảnh thành công!')
+        }
       } catch (error) {
         console.error('Error deleting images:', error)
         toast.error('Đã xảy ra lỗi khi xóa ảnh.')
       }
     }
 
-    newImagesDetail(imagesDetail.filter((_, i) => !selectedIndexes.includes(i)))
+    setImagesDetail(imagesDetail.filter((_, i) => !selectedIndexes.includes(i)))
     setFileDetail(newFileDetail)
     setSelectedIndexes([])
   }
@@ -732,7 +734,7 @@ function EditProductDetail() {
                                               <CFormCheck
                                                 key={option?.op_id}
                                                 label={option?.title}
-                                                aria-label="Default selecAt example"
+                                                aria-label="Default select example"
                                                 defaultChecked={option?.op_id}
                                                 id={`flexCheckDefault_${option?.op_id}`}
                                                 value={option?.op_id}
@@ -1136,7 +1138,6 @@ function EditProductDetail() {
                                         checked={isSelected}
                                         onChange={() => toggleSelect(index)}
                                         style={{
-                                          marginTop: 10,
                                           transform: 'scale(1.5)',
                                           accentColor: '#198754',
                                         }}
@@ -1385,7 +1386,7 @@ function EditProductDetail() {
                               <React.Fragment>
                                 <strong>Danh mục sản phẩm</strong>
 
-                                <div className="mt-2">
+                                <div className="mt-2" style={{ fontSize: 14 }}>
                                   {categories &&
                                     categories.length > 0 &&
                                     categories
@@ -1393,6 +1394,10 @@ function EditProductDetail() {
                                       ?.parenty.map((subCate) => (
                                         <div key={subCate?.cat_id}>
                                           <CFormCheck
+                                            style={{
+                                              transform: 'scale(1.5)',
+                                              accentColor: '#198754',
+                                            }}
                                             key={subCate?.cat_id}
                                             label={subCate?.category_desc?.cat_name}
                                             aria-label="Default select example"
@@ -1417,6 +1422,10 @@ function EditProductDetail() {
                                             subCate?.parentx.length > 0 &&
                                             subCate?.parentx.map((childCate) => (
                                               <CFormCheck
+                                                style={{
+                                                  transform: 'scale(1.5)',
+                                                  accentColor: '#198754',
+                                                }}
                                                 className="ms-3"
                                                 key={childCate?.cat_id}
                                                 label={childCate?.category_desc?.cat_name}

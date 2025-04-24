@@ -16,7 +16,7 @@ import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
@@ -30,6 +30,15 @@ import { axiosClient } from '../../axiosConfig'
 
 function Coupon() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  //pagination state
+  const pageFromUrl = parseInt(searchParams.get('page')) || 1
+  const [pageNumber, setPageNumber] = useState(pageFromUrl)
+
+  useEffect(() => {
+    setSearchParams({ page: pageNumber })
+  }, [pageNumber, setSearchParams])
+
   const [isCollapse, setIsCollapse] = useState(false)
 
   // check permission state
@@ -42,9 +51,6 @@ function Coupon() {
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
-
-  //pagination state
-  const [pageNumber, setPageNumber] = useState(1)
 
   // date picker
   const [startDate, setStartDate] = useState('')
@@ -82,13 +88,8 @@ function Coupon() {
   // pagination data
   const handlePageChange = ({ selected }) => {
     const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
     setPageNumber(newPage)
+    window.scrollTo(0, 0)
   }
 
   // search Data
@@ -354,6 +355,7 @@ function Coupon() {
                   activeClassName={'active'}
                   previousLabel={'<<'}
                   nextLabel={'>>'}
+                  forcePage={pageNumber - 1}
                 />
               </div>
             </CCol>

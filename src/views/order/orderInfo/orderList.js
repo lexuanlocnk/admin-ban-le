@@ -6,7 +6,6 @@ import {
   CContainer,
   CFormCheck,
   CFormSelect,
-  CImage,
   CRow,
   CSpinner,
   CTable,
@@ -16,7 +15,7 @@ import {
   CTableRow,
 } from '@coreui/react'
 import DatePicker from 'react-datepicker'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import CIcon from '@coreui/icons-react'
@@ -30,6 +29,16 @@ import { axiosClient } from '../../../axiosConfig'
 
 function OrderList() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Lấy giá trị `page` từ URL hoặc mặc định là 1
+  const pageFromUrl = parseInt(searchParams.get('page')) || 1
+  const [pageNumber, setPageNumber] = useState(pageFromUrl)
+
+  useEffect(() => {
+    setSearchParams({ page: pageNumber })
+  }, [pageNumber, setSearchParams])
+
   const [isCollapse, setIsCollapse] = useState(false)
 
   // check permission state
@@ -54,9 +63,6 @@ function OrderList() {
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
-
-  //pagination state
-  const [pageNumber, setPageNumber] = useState(1)
 
   // date picker
   const [startDate, setStartDate] = useState('')
@@ -100,16 +106,11 @@ function OrderList() {
     validateDates(startDate, date)
   }
 
-  // pagination data
+  // pagination dataX
   const handlePageChange = ({ selected }) => {
     const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
     setPageNumber(newPage)
+    window.scrollTo(0, 0)
   }
 
   const fetchDataStatusOrder = async () => {
@@ -555,6 +556,7 @@ function OrderList() {
                 activeClassName={'active'}
                 previousLabel={'<<'}
                 nextLabel={'>>'}
+                forcePage={pageNumber - 1} // Đảm bảo pagination hiển thị đúng trang hiện tại
               />
             </div>
           </CRow>

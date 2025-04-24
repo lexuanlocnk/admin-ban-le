@@ -11,12 +11,12 @@ import {
   CTableRow,
 } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import './css/member.scss'
 
 import CIcon from '@coreui/icons-react'
-import { cilTrash, cilColorBorder } from '@coreui/icons'
+import { cilColorBorder } from '@coreui/icons'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { axiosClient } from '../../axiosConfig'
 import moment from 'moment/moment'
@@ -24,6 +24,15 @@ import ReactPaginate from 'react-paginate'
 
 function Member() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Lấy giá trị `page` từ URL hoặc mặc định là 1
+  const pageFromUrl = parseInt(searchParams.get('page')) || 1
+  const [pageNumber, setPageNumber] = useState(pageFromUrl)
+
+  useEffect(() => {
+    setSearchParams({ page: pageNumber })
+  }, [pageNumber, setSearchParams])
 
   const [memberData, setMemberData] = useState([])
   const [countMember, setCountMember] = useState('')
@@ -34,9 +43,6 @@ function Member() {
   const [isCollapse, setIsCollapse] = useState(false)
   // search input
   const [dataSearch, setDataSearch] = useState('')
-
-  //pagination state
-  const [pageNumber, setPageNumber] = useState(1)
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -72,13 +78,8 @@ function Member() {
   // pagination data
   const handlePageChange = ({ selected }) => {
     const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
     setPageNumber(newPage)
+    window.scrollTo(0, 0)
   }
 
   // search Data
@@ -336,6 +337,7 @@ function Member() {
               activeClassName={'active'}
               previousLabel={'<<'}
               nextLabel={'>>'}
+              forcePage={pageNumber - 1} // Đảm bảo pagination hiển thị đúng trang hiện tại
             />
           </div>
         </>

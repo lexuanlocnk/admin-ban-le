@@ -706,7 +706,12 @@ function AddProductDetail() {
                   >
                     <React.Fragment>
                       <strong>Danh mục sản phẩm</strong>
-                      <div className="mt-2">
+                      <div
+                        className="mt-2"
+                        style={{
+                          fontSize: 14,
+                        }}
+                      >
                         {categories &&
                           categories.length > 0 &&
                           categories
@@ -714,6 +719,10 @@ function AddProductDetail() {
                             ?.parenty.map((subCate) => (
                               <>
                                 <CFormCheck
+                                  style={{
+                                    transform: 'scale(1.5)',
+                                    accentColor: '#198754',
+                                  }}
                                   key={subCate?.cat_id}
                                   label={subCate?.category_desc?.cat_name}
                                   aria-label="Default select example"
@@ -738,6 +747,10 @@ function AddProductDetail() {
                                   subCate?.parentx.length > 0 &&
                                   subCate?.parentx.map((childCate) => (
                                     <CFormCheck
+                                      style={{
+                                        transform: 'scale(1.5)',
+                                        accentColor: '#198754',
+                                      }}
                                       className="ms-3"
                                       key={childCate?.cat_id}
                                       label={childCate?.category_desc?.cat_name}
