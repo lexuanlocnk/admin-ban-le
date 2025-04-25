@@ -231,7 +231,6 @@ function ProductFlashSale() {
   }
 
   const handleSubmitUndeal = async () => {
-    console.log('>>> check undeal', selectedUnDealCheckbox)
     try {
       const response = await axiosClient.post(`admin/delete-all-flash-sale`, {
         data: selectedUnDealCheckbox,
@@ -257,6 +256,10 @@ function ProductFlashSale() {
       key: 'checklist',
       label: (
         <CFormCheck
+          style={{
+            transform: 'scale(1.4)',
+            accentColor: '#198754',
+          }}
           aria-label="Select all"
           checked={isAllDealCheckbox}
           onChange={(e) => {
@@ -285,6 +288,10 @@ function ProductFlashSale() {
       ? dataProductList?.data?.map((item) => ({
           checklist: (
             <CFormCheck
+              style={{
+                transform: 'scale(1.4)',
+                accentColor: '#198754',
+              }}
               key={item?.product_id}
               aria-label="Default select example"
               defaultChecked={item?.product_id}
@@ -376,6 +383,10 @@ function ProductFlashSale() {
                   <CTableRow>
                     <CTableHeaderCell scope="col">
                       <CFormCheck
+                        style={{
+                          transform: 'scale(1.4)',
+                          accentColor: '#198754',
+                        }}
                         aria-label="Select all"
                         checked={isAllUnDealCheckbox}
                         onChange={(e) => {
@@ -406,6 +417,10 @@ function ProductFlashSale() {
                       <CTableRow key={item.id}>
                         <CTableHeaderCell scope="row">
                           <CFormCheck
+                            style={{
+                              transform: 'scale(1.4)',
+                              accentColor: '#198754',
+                            }}
                             key={item?.id}
                             aria-label="Default select example"
                             defaultChecked={item?.product_id}

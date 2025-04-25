@@ -328,11 +328,11 @@ function ProductDetail() {
               </span>
               <p
                 style={{
-                  color: item.display === 1 ? '#28a745' : '#dc3545',
+                  color: item.Hienthi === 'Y' ? '#28a745' : '#dc3545',
                   fontWeight: 'bold',
                 }}
               >
-                {item.display === 1 ? 'Hiển thị' : 'Ẩn'}
+                {item.Hienthi === 'Y' ? 'Hiển thị' : 'Ẩn'}
               </p>
             </>
           ),
