@@ -1,6 +1,15 @@
-import { cilColorBorder, cilTrash } from '@coreui/icons'
+import { cilBan, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import { CButton, CCol, CContainer, CFormCheck, CFormSelect, CRow, CTable } from '@coreui/react'
+import {
+  CButton,
+  CCol,
+  CContainer,
+  CFormCheck,
+  CFormSelect,
+  CRow,
+  CTable,
+  CTooltip,
+} from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { axiosClient } from '../../axiosConfig'
@@ -34,17 +43,259 @@ function LinkManagement() {
     setIsCollapse((prevState) => !prevState)
   }
 
+  // Sample data for testing
+  const sampleDataLinks = {
+    data: [
+      {
+        news_id: 1,
+        slug: 'gioi-thieu-cong-ty',
+        module: 'About',
+        action: 'View',
+        itemId: 101,
+        date: 1714630800,
+      },
+      {
+        news_id: 2,
+        slug: 'tin-tuc-moi-nhat',
+        module: 'News',
+        action: 'Edit',
+        itemId: 102,
+        date: 1714544400,
+      },
+      {
+        news_id: 3,
+        slug: 'chi-tiet-san-pham-a',
+        module: 'Product',
+        action: 'Delete',
+        itemId: 103,
+        date: 1714458000,
+      },
+      {
+        news_id: 4,
+        slug: 'huong-dan-su-dung',
+        module: 'Guide',
+        action: 'View',
+        itemId: 201,
+        date: 1714371600,
+      },
+      {
+        news_id: 5,
+        slug: 'blog-cong-nghe-moi',
+        module: 'Blog',
+        action: 'Publish',
+        itemId: 301,
+        date: 1714285200,
+      },
+      {
+        news_id: 6,
+        slug: 'lien-he-chung-toi',
+        module: 'Contact',
+        action: 'View',
+        itemId: 401,
+        date: 1714198800,
+      },
+      {
+        news_id: 7,
+        slug: 'danh-muc-san-pham',
+        module: 'Category',
+        action: 'List',
+        itemId: 501,
+        date: 1714112400,
+      },
+      {
+        news_id: 8,
+        slug: 'profile-nguoi-dung',
+        module: 'User',
+        action: 'Update',
+        itemId: 601,
+        date: 1714026000,
+      },
+      {
+        news_id: 9,
+        slug: 'don-hang-cua-toi',
+        module: 'Order',
+        action: 'View',
+        itemId: 701,
+        date: 1713939600,
+      },
+      {
+        news_id: 10,
+        slug: 'them-san-pham-moi',
+        module: 'Product',
+        action: 'Create',
+        itemId: 104,
+        date: 1713853200,
+      },
+      {
+        news_id: 11,
+        slug: 'cap-nhat-tin-tuc',
+        module: 'News',
+        action: 'Update',
+        itemId: 102,
+        date: 1713766800,
+      },
+      {
+        news_id: 12,
+        slug: 'xoa-san-pham-b',
+        module: 'Product',
+        action: 'Delete',
+        itemId: 105,
+        date: 1713680400,
+      },
+      {
+        news_id: 13,
+        slug: 'tim-kiem-nang-cao',
+        module: 'Search',
+        action: 'Perform',
+        itemId: null,
+        date: 1713594000,
+      },
+      {
+        news_id: 14,
+        slug: 'dang-nhap',
+        module: 'Auth',
+        action: 'Login',
+        itemId: null,
+        date: 1713507600,
+      },
+      {
+        news_id: 15,
+        slug: 'dang-ky',
+        module: 'Auth',
+        action: 'Register',
+        itemId: null,
+        date: 1713421200,
+      },
+      {
+        news_id: 16,
+        slug: 'chi-tiet-blog-cu',
+        module: 'Blog',
+        action: 'View',
+        itemId: 302,
+        date: 1713334800,
+      },
+      {
+        news_id: 17,
+        slug: 'quan-ly-don-hang',
+        module: 'Order',
+        action: 'List',
+        itemId: null,
+        date: 1713248400,
+      },
+      {
+        news_id: 18,
+        slug: 'sua-thong-tin-cong-ty',
+        module: 'About',
+        action: 'Edit',
+        itemId: 101,
+        date: 1713162000,
+      },
+      {
+        news_id: 19,
+        slug: 'chi-tiet-san-pham-c',
+        module: 'Product',
+        action: 'View',
+        itemId: 106,
+        date: 1713075600,
+      },
+      {
+        news_id: 20,
+        slug: 'gui-phan-hoi',
+        module: 'Contact',
+        action: 'Submit',
+        itemId: null,
+        date: 1712989200,
+      },
+      {
+        news_id: 21,
+        slug: 'xem-tat-ca-tin-tuc',
+        module: 'News',
+        action: 'List',
+        itemId: null,
+        date: 1712902800,
+      },
+      {
+        news_id: 22,
+        slug: 'them-vao-gio-hang',
+        module: 'Cart',
+        action: 'Add',
+        itemId: 106,
+        date: 1712816400,
+      },
+      {
+        news_id: 23,
+        slug: 'xem-gio-hang',
+        module: 'Cart',
+        action: 'View',
+        itemId: null,
+        date: 1712730000,
+      },
+      {
+        news_id: 24,
+        slug: 'thanh-toan',
+        module: 'Checkout',
+        action: 'Process',
+        itemId: null,
+        date: 1712643600,
+      },
+      {
+        news_id: 25,
+        slug: 'lich-su-mua-hang',
+        module: 'Order',
+        action: 'History',
+        itemId: null,
+        date: 1712557200,
+      },
+      {
+        news_id: 26,
+        slug: 'cap-nhat-thong-tin-ca-nhan',
+        module: 'User',
+        action: 'Update',
+        itemId: 601,
+        date: 1712470800,
+      },
+      {
+        news_id: 27,
+        slug: 'xem-danh-muc-moi',
+        module: 'Category',
+        action: 'View',
+        itemId: 502,
+        date: 1712384400,
+      },
+      {
+        news_id: 28,
+        slug: 'doc-huong-dan-nang-cao',
+        module: 'Guide',
+        action: 'View',
+        itemId: 202,
+        date: 1712298000,
+      },
+      {
+        news_id: 29,
+        slug: 'viet-bai-blog',
+        module: 'Blog',
+        action: 'Create',
+        itemId: null,
+        date: 1712211600,
+      },
+      {
+        news_id: 30,
+        slug: 'xem-chi-tiet-don-hang',
+        module: 'Order',
+        action: 'View',
+        itemId: 702,
+        date: 1712125200,
+      },
+    ],
+    total: 30,
+    per_page: 10,
+  }
+
+  // Replace fetchDataLinks with sample data for testing
   const fetchDataLinks = async (dataSearch = '') => {
     try {
-      const response = await axiosClient.get(
-        `admin/seo?data=${dataSearch}&page=${pageNumber}&module=${selectedCategory}`,
-      )
-      if (response.data.status === true) {
-        setDataLinks(response.data.data)
-      }
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        setIsPermissionCheck(false)
-      }
+      // Simulate API response with sample data
+      setDataLinks(sampleDataLinks)
     } catch (error) {
       console.error('Fetch promotion news data is error', error)
     }
@@ -61,6 +312,35 @@ function LinkManagement() {
 
   const handleEditClick = (id, module) => {
     navigate(`/${module}/edit?id=${id}`)
+  }
+
+  const handleAction = async (actionType) => {
+    if (selectedCheckbox.length === 0) {
+      toast.warning('Vui lòng chọn ít nhất một mục để thực hiện hành động.')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      const response = await axiosClient.post('/api/links/action', {
+        action: actionType,
+        ids: selectedCheckbox,
+      })
+
+      if (response.status === 200) {
+        toast.success(`Hành động "${actionType}" đã được thực hiện thành công.`)
+        fetchDataLinks()
+        setSelectedCheckbox([])
+        setIsAllCheckbox(false)
+      } else {
+        toast.error('Đã xảy ra lỗi khi thực hiện hành động.')
+      }
+    } catch (error) {
+      console.error('Error performing action:', error)
+      toast.error('Đã xảy ra lỗi khi thực hiện hành động.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // pagination data
@@ -80,6 +360,10 @@ function LinkManagement() {
       ? dataLinks?.data.map((item) => ({
           id: (
             <CFormCheck
+              style={{
+                transform: 'scale(1.4)',
+                accentColor: '#198754',
+              }}
               key={item?.news_id}
               aria-label="Default select example"
               defaultChecked={item?.news_id}
@@ -116,11 +400,13 @@ function LinkManagement() {
             <div>
               <button
                 onClick={() => handleEditClick(item?.itemId, item?.module)}
-                className="button-action mr-2 bg-info"
+                className="button-action mr-2 bg-secondary"
               >
-                <CIcon icon={cilColorBorder} className="text-white" />
+                <CTooltip content="Tạm ẩn" placement="top">
+                  <CIcon icon={cilBan} className="text-white" />
+                </CTooltip>
               </button>
-              {/* <button
+              <button
                 onClick={() => {
                   setVisible(true)
                   setDeletedId(item.news_id)
@@ -128,7 +414,7 @@ function LinkManagement() {
                 className="button-action bg-danger"
               >
                 <CIcon icon={cilTrash} className="text-white" />
-              </button> */}
+              </button>
             </div>
           ),
           _cellProps: { id: { scope: 'row' } },
@@ -141,6 +427,10 @@ function LinkManagement() {
       label: (
         <>
           <CFormCheck
+            style={{
+              transform: 'scale(1.4)',
+              accentColor: '#198754',
+            }}
             aria-label="Select all"
             checked={isAllCheckbox}
             onChange={(e) => {
@@ -241,17 +531,16 @@ function LinkManagement() {
                       <td>Lọc theo vị trí</td>
                       <td>
                         <CFormSelect
-                          className="component-size w-50"
+                          className="component-size w-25"
                           aria-label="Chọn yêu cầu lọc"
                           options={[
-                            { label: '--Chọn module--', value: 'All', disabled: true },
+                            { label: '-- Tất cả --', value: 'All' },
                             { label: 'About', value: 'About' },
                             { label: 'News', value: 'News' },
                             { label: 'Product', value: 'Product' },
                             { label: 'Service', value: 'Service' },
                             { label: 'Promotion', value: 'Promotion' },
                             { label: 'Guide', value: 'Guide' },
-                            { label: 'Promotion', value: 'Promotion' },
                           ]}
                           value={selectedCategory}
                           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -277,8 +566,22 @@ function LinkManagement() {
               </table>
             </CCol>
 
+            <CCol md={12}>
+              <div className="d-flex justify-content-start gap-3 mt-3">
+                <CButton size="sm" color="primary" onClick={() => handleAction('hide')}>
+                  Tạm ẩn
+                </CButton>
+                <CButton size="sm" color="primary" onClick={() => handleAction('show')}>
+                  Hiển thị
+                </CButton>
+                <CButton size="sm" color="primary" onClick={() => handleAction('delete')}>
+                  Xóa vĩnh viễn
+                </CButton>
+              </div>
+            </CCol>
+
             <CCol>
-              <CTable hover className="mt-3" columns={columns} items={items} />
+              <CTable hover className="mt-2 border" columns={columns} items={items} />
             </CCol>
 
             <div className="d-flex justify-content-end">

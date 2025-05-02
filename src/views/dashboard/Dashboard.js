@@ -12,6 +12,7 @@ import {
   CCol,
   CContainer,
   CFormCheck,
+  CFormSelect,
   CProgress,
   CRow,
   CTable,
@@ -114,7 +115,6 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Fetch data dashboard is error', error)
-      // window.location.href = '/500'
     }
   }
 
@@ -123,16 +123,6 @@ const Dashboard = () => {
   }, [])
 
   const columnsVisited = [
-    {
-      key: 'index',
-      label: 'Thứ tự',
-      _props: { scope: 'col' },
-    },
-    {
-      key: 'visited',
-      label: 'Lượt truy cập',
-      _props: { scope: 'col' },
-    },
     {
       key: 'username',
       label: 'Name',
@@ -153,7 +143,6 @@ const Dashboard = () => {
       label: 'action',
       _props: { scope: 'col' },
     },
-
     {
       key: 'ip',
       label: 'IP Address',
@@ -295,6 +284,33 @@ const Dashboard = () => {
 
       <CRow>
         <h6>Khách hàng có lượt truy cập nhiều nhất</h6>
+
+        <CCol md={12} className="mb-3">
+          <div className="input-group">
+            <CFormSelect
+              style={{ maxWidth: '200px' }}
+              options={[
+                { label: '-- Chọn bộ lọc --', value: 'All', disabled: true },
+                { label: 'URL sản phẩm', value: 'url' },
+                { label: 'Mã sản phẩm', value: 'masp' },
+              ]}
+            />
+
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Tìm kiếm..."
+              onChange={(e) => {
+                const searchValue = e.target.value.toLowerCase()
+                const filteredData = staticData?.data.filter((item) =>
+                  item?.url?.toLowerCase().includes(searchValue),
+                )
+                setStaticData({ ...staticData, data: filteredData })
+              }}
+            />
+          </div>
+        </CCol>
+
         <CCol>
           <CTable
             hover

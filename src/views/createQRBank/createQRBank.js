@@ -1,6 +1,6 @@
 import React from 'react'
-import { CFormInput, CImage } from '@coreui/react'
-import { Formik, Form, Field } from 'formik'
+import { CImage } from '@coreui/react'
+import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
 import './public/QRCodeOrderPage.css'
 
@@ -50,12 +50,12 @@ const QRCodeOrderPage = () => {
 
   return (
     <div className="qrcode-wrapper">
-      <div className="qrcode-header">
+      <div className="qrcode-header no-print">
         <CImage src={LogoNK} className="qrcode-header__logo" alt="Logo" width={100} />
         <h3 className="qrcode-header__title">Tạo mã QR Thanh toán cho đơn hàng NKC</h3>
       </div>
       <div className="qrcode-body">
-        <div className="qrcode-body__form-layout">
+        <div className="qrcode-body__form-layout no-print">
           <h4 className="qrcode-body__form-title">Nhập mã phiếu xuất đơn hàng</h4>
           <Formik
             initialValues={{ mapx: '' }}
@@ -87,7 +87,10 @@ const QRCodeOrderPage = () => {
         </div>
         <div className="qrcode-body__content-layout">
           <div className="qrcode-body__order-qrcode">
-            <h4>Quét mã QR để thanh toán</h4>
+            <h4 className="qrcode-body__order-qrcode-title">
+              Mã QR cho phiếu xuất{' '}
+              <span className="qrcode-body__order-qrcode-title--red">X250426023-N</span>
+            </h4>
             <p>Sử dụng app ngân hàng hoặc ứng dụng camera hỗ trợ QR code để quét mã</p>
             <CImage
               src={
@@ -110,12 +113,19 @@ const QRCodeOrderPage = () => {
               </div>
               <div className="order-qrcode__detail-row">
                 <span className="order-qrcode__label">Số tiền thanh toán</span>
-                <span className="order-qrcode__value order-qrcode__value--amount">690.000 ₫</span>
+                <span className="order-qrcode__value order-qrcode__value--amount">
+                  10.980.000 ₫
+                </span>
               </div>
             </div>
           </div>
           <div className="qrcode-body__order-info">
-            <h4>Thông tin đơn hàng</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4>Thông tin đơn hàng</h4>
+              <button className="qrcode-body__order-info-print" onClick={() => window.print()}>
+                In mã QR
+              </button>
+            </div>
             <div className="qrcode-body__order-info-content">
               <p>
                 <strong>Khách Hàng:</strong> CÔNG TY TRÁCH NHIỆM HỮU HẠN VI TÍNH TOÀN PHÚC

@@ -27,9 +27,8 @@ import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
-import Loading from '../../../components/loading/Loading'
 
-function ProductBanner() {
+function ProductDemand() {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -43,16 +42,21 @@ function ProductBanner() {
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
+  // collapse state
+  const [isCollapse, setIsCollapse] = useState(false)
+
+  const handleToggleCollapse = () => {
+    setIsCollapse((prevState) => !prevState)
+  }
+
+  // category
   const [categories, setCategories] = useState([])
-  const [dataBanner, setDataBanner] = useState([])
+  const [choosenCategory, setChoosenCategory] = useState(0)
+  const [selectedCate, setSelectedCate] = useState(0)
+  const [dataProductDemand, setDataProductDemand] = useState([])
 
-  //loading
-  const [isLoading, setIsLoading] = useState({
-    page: false,
-    button: false,
-  })
-
-  const [selectedCate, setSelectedCate] = useState('')
+  // loading button
+  const [isLoading, setIsLoading] = useState(false)
 
   // selected checkbox
   const [isAllCheckbox, setIsAllCheckbox] = useState(false)
@@ -61,8 +65,6 @@ function ProductBanner() {
   // upload image and show image
   const [selectedFile, setSelectedFile] = useState('')
   const [file, setFile] = useState([])
-
-  const [isCollapse, setIsCollapse] = useState(false)
 
   // search input
   const [dataSearch, setDataSearch] = useState('')
@@ -77,23 +79,16 @@ function ProductBanner() {
   // form formik value
   const initialValues = {
     title: '',
-    image: '',
-    url: '',
-    destination: '_self',
-    categories: 'Laptop',
-    width: '',
-    height: '',
     desc: '',
+    friendlyUrl: '',
     visible: 0,
   }
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc!'),
-    url: Yup.string().required('Chuỗi đường dẫn ảnh là bắt buộc!'),
-    destination: Yup.string().required('Chọn vị trí liên kết!'),
-    categories: Yup.string().required('Danh mục đăng ảnh là bắt buộc!'),
-    width: Yup.string().required('Chiều rộng ảnh là bắt buộc.'),
-    height: Yup.string().required('Chiều cao ảnh là bắt buộc.'),
+    desc: Yup.string().required('Mô tả là bắt buộc!'),
+    friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc!'),
+    visible: Yup.number().required('Trạng thái hiển thị là bắt buộc!'),
   })
 
   useEffect(() => {
@@ -107,74 +102,65 @@ function ProductBanner() {
     }
   }, [location.search])
 
-  const fetchCategoriesData = async () => {
+  const fetchCategories = async () => {
     try {
       const response = await axiosClient.get('admin/category')
-      setCategories(response.data.data)
+      if (response.data.status === true) {
+        setCategories(response.data.data)
+      }
     } catch (error) {
-      console.error('Fetch categories data error', error)
+      console.error('No data found for categories.')
     }
   }
 
   useEffect(() => {
-    fetchCategoriesData()
+    fetchCategories()
   }, [])
 
-  const fetchDataBanner = async () => {
+  const fetchDataDemand = async (dataSearch = '') => {
     try {
-      setIsLoading((prev) => ({ ...prev, page: true }))
-
       const response = await axiosClient.get(
-        `admin/product-advertise?data=${dataSearch}&page=${pageNumber}&cat=${selectedCate}`,
+        `admin/productStatus?data=${dataSearch}&page=${pageNumber}`,
       )
-      if (response.data.status === true) {
-        setDataBanner(response.data.data)
-      }
-
-      if (response.data.status === false && response.data.mess == 'no permission') {
+      if (response.data.status === 'success') {
+        setDataProductDemand(response.data.list)
+      } else if (response.data.status === false && response.data.mess === 'no permission') {
         setIsPermissionCheck(false)
+      } else {
+        console.error('Unexpected response format:', response.data)
       }
     } catch (error) {
-      console.error('Fetch data banner is error', error)
-    } finally {
-      setIsLoading((prev) => ({ ...prev, page: false }))
+      console.error('Error fetching product demand data:', error)
     }
   }
 
   useEffect(() => {
-    fetchDataBanner()
-  }, [pageNumber, selectedCate])
+    fetchDataDemand(dataSearch)
+  }, [pageNumber, dataSearch])
 
   const fetchDataById = async (setValues) => {
-    //api?search={dataSearch}
+    if (!id) return
     try {
-      const response = await axiosClient.get(`admin/product-advertise/${id}/edit`)
-      const data = response.data.data
+      const response = await axiosClient.get(`admin/productStatus/${id}/edit`)
       if (response.data.status === true) {
+        const data = response.data.productStatus
         setValues({
-          title: data.title,
-          url: data.link,
-          destination: data.target,
-          categories: data.pos,
-          width: data.width,
-          height: data.height,
-          desc: data.description,
+          title: data.product_status_desc.title,
+          desc: data.product_status_desc.description,
+          friendlyUrl: data.product_status_desc.friendly_url,
           visible: data.display,
         })
         setSelectedFile(data.picture)
+      } else if (response.data.status === false) {
+        console.error('No data found for the given ID or insufficient permissions.')
+        if (response.data.mess === 'no permission') {
+          toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        }
       } else {
-        console.error('No data found for the given ID.')
-      }
-
-      if (
-        sub == 'edit' &&
-        response.data.status === false &&
-        response.data.mess == 'no permission'
-      ) {
-        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+        console.error('Unexpected response format:', response.data)
       }
     } catch (error) {
-      console.error('Fetch data id product banner is error', error.message)
+      console.error('Error fetching product demand by ID:', error)
     }
   }
 
@@ -182,28 +168,23 @@ function ProductBanner() {
     if (isEditing) {
       //call api update data
       try {
-        setIsLoading((prev) => ({ ...prev, button: true }))
-
-        const response = await axiosClient.put(`admin/product-advertise/${id}`, {
+        setIsLoading(true)
+        const response = await axiosClient.put(`admin/productStatus/${id}`, {
           title: values.title,
           picture: selectedFile,
-          link: values.url,
-          target: values.destination,
-          pos: values.categories,
-          width: values.width,
-          height: values.height,
           description: values.desc,
+          friendly_url: values.friendlyUrl,
           display: values.visible,
         })
 
         if (response.data.status === true) {
-          toast.success('Cập nhật trạng thái thành công')
+          toast.success('Cập nhật nhu cầu thành công')
           resetForm()
           setFile([])
           setSelectedFile([])
           setIsEditing(false)
-          navigate('/product/banner')
-          fetchDataBanner()
+          navigate('/product/demand')
+          fetchDataDemand()
         } else {
           console.error('No data found for the given ID.')
         }
@@ -215,96 +196,39 @@ function ProductBanner() {
         console.error('Put data product status is error', error.message)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading((prev) => ({ ...prev, button: false }))
+        setIsLoading(false)
       }
     } else {
       //call api post new data
       try {
-        setIsLoading((prev) => ({ ...prev, button: true }))
-
-        const response = await axiosClient.post('admin/product-advertise', {
+        setIsLoading(true)
+        const response = await axiosClient.post('admin/productStatus', {
           title: values.title,
           picture: selectedFile,
-          link: values.url,
-          target: values.destination,
-          pos: values.categories,
-          width: values.width,
-          height: values.height,
           description: values.desc,
+          friendly_url: values.friendlyUrl,
           display: values.visible,
         })
 
         if (response.data.status === true) {
-          toast.success('Cập nhật banner sản phẩm thành công!')
+          toast.success('Thêm mới nhu cầu thành công!')
           resetForm()
           setFile([])
           setSelectedFile([])
-          navigate('/product/banner?sub=add')
-          fetchDataBanner()
+          navigate('/product/demand?sub=add')
+          fetchDataDemand()
         }
 
         if (response.data.status === false && response.data.mess == 'no permission') {
           toast.warn('Bạn không có quyền thực hiện tác vụ này!')
         }
       } catch (error) {
-        console.error('Put data product banner is error', error)
+        console.error('Post data product demand is error', error)
         toast.error('Đã xảy ra lỗi. Vui lòng thử lại!')
       } finally {
-        setIsLoading((prev) => ({ ...prev, button: false }))
+        setIsLoading(false)
       }
     }
-  }
-
-  const handleAddNewClick = () => {
-    navigate('/product/banner?sub=add')
-  }
-
-  const handleEditClick = (id) => {
-    navigate(`/product/banner?id=${id}&sub=edit`)
-  }
-
-  // delete row
-  const handleDelete = async () => {
-    setVisible(true)
-    try {
-      const response = await axiosClient.delete(`admin/product-advertise/${deletedId}`)
-      if (response.data.status === true) {
-        setVisible(false)
-        fetchDataBanner()
-      } else {
-        console.error('ID not found for deleting product status')
-      }
-
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
-      }
-    } catch (error) {
-      console.error('Delete product banner id is error', error)
-      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
-    } finally {
-      setVisible(false)
-    }
-  }
-
-  const handleToggleCollapse = () => {
-    setIsCollapse((prevState) => !prevState)
-  }
-
-  // pagination data
-  const handlePageChange = ({ selected }) => {
-    const newPage = selected + 1
-    if (newPage < 2) {
-      setPageNumber(newPage)
-      window.scrollTo(0, 0)
-      return
-    }
-    window.scrollTo(0, 0)
-    setPageNumber(newPage)
-  }
-
-  // search Data
-  const handleSearch = (keyword) => {
-    fetchDataBanner(keyword)
   }
 
   //set img avatar
@@ -334,25 +258,63 @@ function ProductBanner() {
     setFile(fileUrls)
   }
 
-  const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
+  const handleAddNewClick = () => {
+    navigate('/product/status?sub=add')
+  }
 
-  const handleSort = (columnKey) => {
-    let direction = 'ascending'
-    if (sortConfig.key === columnKey && sortConfig.direction === 'ascending') {
-      direction = 'descending'
+  const handleEditClick = (id) => {
+    navigate(`/product/status?id=${id}&sub=edit`)
+  }
+
+  // delete row
+  const handleDelete = async () => {
+    setVisible(true)
+    try {
+      const response = await axiosClient.delete(`admin/productStatus/${deletedId}`)
+      if (response.data.status === true) {
+        setVisible(false)
+        fetchDataDemand()
+      } else {
+        console.error('ID not found for deleting product demand')
+      }
+
+      if (response.data.status === false && response.data.mess == 'no permission') {
+        toast.warn('Bạn không có quyền thực hiện tác vụ này!')
+      }
+    } catch (error) {
+      console.error('Delete product demand id is error', error)
+      toast.error('Đã xảy ra lỗi khi xóa. Vui lòng thử lại!')
+    } finally {
+      setVisible(false)
     }
-    setSortConfig({ key: columnKey, direction })
+  }
+
+  // pagination data
+  const handlePageChange = ({ selected }) => {
+    const newPage = selected + 1
+    if (newPage < 2) {
+      setPageNumber(newPage)
+      window.scrollTo(0, 0)
+      return
+    }
+    window.scrollTo(0, 0)
+    setPageNumber(newPage)
+  }
+
+  // search Data
+  const handleSearch = (keyword) => {
+    fetchDataDemand(keyword)
   }
 
   const handleDeleteAll = async () => {
     try {
-      const response = await axiosClient.post(`/admin/delete-all-product-advertise `, {
+      const response = await axiosClient.post(`admin/delete-all-product-status`, {
         data: selectedCheckbox,
       })
 
       if (response.data.status === true) {
-        toast.success('Xóa tất cả các danh mục thành công!')
-        fetchDataBanner()
+        toast.success('Xóa tất cả danh mục thành công!')
+        fetchDataDemand()
         setSelectedCheckbox([])
       }
 
@@ -375,7 +337,7 @@ function ProductBanner() {
             const isChecked = e.target.checked
             setIsAllCheckbox(isChecked)
             if (isChecked) {
-              const allIds = dataBanner?.data.map((item) => item.id) || []
+              const allIds = dataProductDemand?.data.map((item) => item.status_id) || []
               setSelectedCheckbox(allIds)
             } else {
               setSelectedCheckbox([])
@@ -384,41 +346,41 @@ function ProductBanner() {
         />
       ),
     },
+    { key: 'title', label: 'Tiêu đề' },
     { key: 'images', label: 'Hình ảnh' },
-    { key: 'url', label: 'Liên kết' },
-    { key: 'dimensions', label: 'Kích thước' },
+    { key: 'name', label: 'Name' },
     { key: 'actions', label: 'Tác vụ' },
   ]
 
   const items =
-    dataBanner?.data && dataBanner?.data.length > 0
-      ? dataBanner?.data.map((item) => ({
+    dataProductDemand?.data && dataProductDemand?.data.length > 0
+      ? dataProductDemand?.data.map((item) => ({
           id: (
             <CFormCheck
-              key={item?.id}
+              key={item.status_id}
               aria-label="Default select example"
-              defaultChecked={item?.id}
-              id={`flexCheckDefault_${item?.id}`}
-              value={item?.id}
-              checked={selectedCheckbox.includes(item?.id)}
+              defaultChecked={item?.status_id}
+              id={`flexCheckDefault_${item?.status_id}`}
+              value={item?.status_id}
+              checked={selectedCheckbox.includes(item?.status_id)}
               onChange={(e) => {
-                const bannerID = item?.id
+                const statusID = item?.status_id
                 const isChecked = e.target.checked
                 if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, bannerID])
+                  setSelectedCheckbox([...selectedCheckbox, statusID])
                 } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== bannerID))
+                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== statusID))
                 }
               }}
             />
           ),
-          images: <CImage className="border" fluid src={`${imageBaseUrl}${item.picture}`} />,
-          url: item.link,
-          dimensions: `${item.width}x${item.height}`,
+          title: item.product_status_desc?.title,
+          images: <CImage fluid src={`${imageBaseUrl}${item.picture}`} width={80} />,
+          name: item.name,
           actions: (
             <div>
               <button
-                onClick={() => handleEditClick(item.id)}
+                onClick={() => handleEditClick(item.status_id)}
                 className="button-action mr-2 bg-info"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
@@ -426,7 +388,7 @@ function ProductBanner() {
               <button
                 onClick={() => {
                   setVisible(true)
-                  setDeletedId(item.id)
+                  setDeletedId(item.status_id)
                 }}
                 className="button-action bg-danger"
               >
@@ -437,22 +399,6 @@ function ProductBanner() {
           _cellProps: { id: { scope: 'row' } },
         }))
       : []
-
-  const sortedItems = React.useMemo(() => {
-    let sortableItems = [...items]
-    if (sortConfig.key) {
-      sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1
-        }
-        return 0
-      })
-    }
-    return sortableItems
-  }, [items, sortConfig])
 
   return (
     <CContainer>
@@ -466,9 +412,10 @@ function ProductBanner() {
       ) : (
         <>
           <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
+
           <CRow className="mb-3">
             <CCol md={6}>
-              <h2>BANNER SẢN PHẨM</h2>
+              <h2>NHU CẦU SẢN PHẨM</h2>
             </CCol>
             <CCol md={6}>
               <div className="d-flex justify-content-end">
@@ -481,11 +428,6 @@ function ProductBanner() {
                 >
                   Thêm mới
                 </CButton>
-                <Link to={`/product/banner`}>
-                  <CButton color="primary" type="submit" size="sm">
-                    Danh sách
-                  </CButton>
-                </Link>
               </div>
             </CCol>
           </CRow>
@@ -493,13 +435,13 @@ function ProductBanner() {
           <CRow>
             {/* Form add/ edit */}
             <CCol md={4}>
-              <h6>{!isEditing ? 'Thêm mới banner' : 'Cập nhật banner'}</h6>
+              <h6>{!isEditing ? 'Thêm mới nhu cầu' : 'Cập nhật nhu cầu'}</h6>
               <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
               >
-                {({ setFieldValue, setValues }) => {
+                {({ setValues }) => {
                   useEffect(() => {
                     fetchDataById(setValues)
                   }, [setValues, id])
@@ -514,13 +456,63 @@ function ProductBanner() {
                               type="text"
                               id="title-input"
                               ref={inputRef}
-                              text="Tiêu đề được sử dụng trên trang mạng của bạn và làm thẻ ALT của banner."
+                              text="Tên riêng sẽ hiển thị trên trang mạng của bạn."
                             />
                           )}
                         </Field>
                         <ErrorMessage name="title" component="div" className="text-danger" />
                       </CCol>
                       <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="desc-input">Mô tả</label>
+                        <Field
+                          style={{ height: 100 }}
+                          name="desc"
+                          type="text"
+                          as={CFormTextarea}
+                          id="desc-input"
+                          text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
+                        />
+                        <ErrorMessage name="desc" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="url-input">Chuỗi đường dẫn</label>
+                        <Field
+                          name="friendlyUrl"
+                          type="text"
+                          as={CFormInput}
+                          id="url-input"
+                          text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
+                        />
+                        <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
+                      </CCol>
+                      <br />
+
+                      <CCol md={12}>
+                        <label htmlFor="categories-select">Ngành hàng áp dụng</label>
+                        <Field
+                          name="categories"
+                          as={CFormSelect}
+                          id="categories-select"
+                          className="select-input"
+                          value={choosenCategory}
+                          onChange={(e) => setChoosenCategory(e.target.value)}
+                          options={[
+                            { label: '-- Chọn ngành hàng --', value: 0, disabled: true },
+                            ...(categories && categories.length > 0
+                              ? categories.map((cate) => ({
+                                  label: cate?.category_desc?.cat_name,
+                                  value: cate.cat_id,
+                                }))
+                              : []),
+                          ]}
+                        />
+                      </CCol>
+                      <br />
+
                       <CCol md={12}>
                         <CFormInput
                           name="image"
@@ -536,109 +528,15 @@ function ProductBanner() {
                         <div>
                           {file.length == 0 ? (
                             <div>
-                              <CImage
-                                className="border"
-                                src={`${imageBaseUrl}${selectedFile}`}
-                                width={300}
-                              />
+                              <CImage src={`${imageBaseUrl}${selectedFile}`} width={200} />
                             </div>
                           ) : (
-                            file.map((item, index) => (
-                              <CImage className="border" key={index} src={item} fluid />
-                            ))
+                            file.map((item, index) => <CImage key={index} src={item} fluid />)
                           )}
                         </div>
                       </CCol>
                       <br />
-                      <CCol md={12}>
-                        <label htmlFor="url-input">Liên kết</label>
-                        <Field
-                          name="url"
-                          type="url"
-                          as={CFormInput}
-                          id="url-input"
-                          text="Liên kết có hoặc không: https://vitinhnguyenkim.vn/"
-                          placeholder="https://"
-                        />
-                        <ErrorMessage name="url" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="destination-select">Đích đến</label>
-                        <Field
-                          className="component-size"
-                          name="destination"
-                          as={CFormSelect}
-                          id="destination-select"
-                          text="Loại hiển thị của liên kết. Mặc định liên kết tại trang (_self)."
-                          options={[
-                            { label: 'Tại trang (_self)', value: '_self' },
-                            { label: 'Cửa sổ mới (_blank)', value: '_blank' },
-                            { label: 'Cửa sổ cha (_parent)', value: '_parent' },
-                            { label: 'Cửa sổ trên cùng (_top)', value: '_top' },
-                          ]}
-                        />
-                        <ErrorMessage name="destination" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
 
-                      <CCol md={12}>
-                        <label htmlFor="categories-select">Danh mục đăng</label>
-                        <Field
-                          className="component-size"
-                          name="categories"
-                          as={CFormSelect}
-                          id="categories-select"
-                          text="Lựa chọn danh mục sẽ hiển thị banner ngoài trang chủ."
-                          options={
-                            categories &&
-                            categories.length > 0 &&
-                            categories.map((cate) => ({
-                              label: cate.category_desc.cat_name,
-                              value: cate.cat_name,
-                            }))
-                          }
-                        />
-                        <ErrorMessage name="categories" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-
-                      <CCol md={12}>
-                        <label htmlFor="width-input">Chiều rộng</label>
-                        <Field
-                          name="width"
-                          type="width"
-                          as={CFormInput}
-                          id="width-input"
-                          text="Đơn vị chiều rộng được sử dụng đơn vị pixel."
-                        />
-                        <ErrorMessage name="width" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="height-input">Chiều cao</label>
-                        <Field
-                          name="height"
-                          type="text"
-                          as={CFormInput}
-                          id="height-input"
-                          text="Đơn vị chiều cao được sử dụng đơn vị pixel."
-                        />
-                        <ErrorMessage name="height" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
-                      <CCol md={12}>
-                        <label htmlFor="desc-input">Mô tả</label>
-                        <Field
-                          name="desc"
-                          type="text"
-                          as={CFormTextarea}
-                          id="desc-input"
-                          text="Mô tả bình thường không được sử dụng trong giao diện, tuy nhiên có vài giao diện hiện thị mô tả này."
-                        />
-                        <ErrorMessage name="desc" component="div" className="text-danger" />
-                      </CCol>
-                      <br />
                       <CCol md={12}>
                         <label htmlFor="visible-select">Hiển thị</label>
                         <Field
@@ -656,13 +554,8 @@ function ProductBanner() {
                       <br />
 
                       <CCol xs={12}>
-                        <CButton
-                          color="primary"
-                          type="submit"
-                          size="sm"
-                          disabled={isLoading.button}
-                        >
-                          {isLoading.button ? (
+                        <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
+                          {isLoading ? (
                             <>
                               <CSpinner size="sm"></CSpinner> Đang cập nhật...
                             </>
@@ -705,11 +598,11 @@ function ProductBanner() {
                           className="component-size w-50"
                           aria-label="Chọn yêu cầu lọc"
                           options={[
-                            { label: 'Chọn danh mục', value: '' },
+                            { label: '-- Chọn danh mục --', value: '', disabled: true },
                             ...(Array.isArray(categories) && categories.length > 0
                               ? categories.map((cate) => ({
-                                  label: cate.category_desc.cat_name,
-                                  value: cate.category_desc.cat_name,
+                                  label: cate?.category_desc?.cat_name,
+                                  value: cate.cat_id,
                                 }))
                               : []),
                           ]}
@@ -735,51 +628,40 @@ function ProductBanner() {
                   </tbody>
                 )}
               </table>
-
+              <CCol md={12} className="mt-3">
+                <CButton onClick={handleDeleteAll} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </CCol>
               <CCol className="mt-4">
-                <CCol md={12} className="mt-3">
-                  <CButton onClick={handleDeleteAll} color="primary" size="sm">
-                    Xóa vĩnh viễn
-                  </CButton>
-                </CCol>
-                {isLoading.page ? (
-                  <Loading />
-                ) : (
-                  <CTable>
-                    <thead>
-                      <tr>
-                        {columns.map((column) => (
-                          <CTableHeaderCell
-                            style={{ whiteSpace: 'nowrap' }}
-                            key={column.key}
-                            onClick={() => handleSort(column.key)}
-                            className="prevent-select"
-                          >
-                            {column.label}
-                            {sortConfig.key === column.key
-                              ? sortConfig.direction === 'ascending'
-                                ? ' ▼'
-                                : ' ▲'
-                              : ''}
-                          </CTableHeaderCell>
-                        ))}
-                      </tr>
-                    </thead>
-                    <CTableBody>
-                      {sortedItems.map((item, index) => (
-                        <CTableRow key={index}>
-                          {columns.map((column) => (
-                            <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
-                          ))}
-                        </CTableRow>
+                <CTable hover className="border">
+                  <thead>
+                    <tr>
+                      {columns.map((column) => (
+                        <CTableHeaderCell
+                          style={{ whiteSpace: 'nowrap' }}
+                          key={column.key}
+                          className="prevent-select"
+                        >
+                          {column.label}
+                        </CTableHeaderCell>
                       ))}
-                    </CTableBody>
-                  </CTable>
-                )}
+                    </tr>
+                  </thead>
+                  <CTableBody>
+                    {items.map((item, index) => (
+                      <CTableRow key={index}>
+                        {columns.map((column) => (
+                          <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                        ))}
+                      </CTableRow>
+                    ))}
+                  </CTableBody>
+                </CTable>
 
                 <div className="d-flex justify-content-end">
                   <ReactPaginate
-                    pageCount={Math.round(dataBanner?.total / dataBanner?.per_page)}
+                    pageCount={Math.round(dataProductDemand?.total / dataProductDemand?.per_page)}
                     pageRangeDisplayed={3}
                     marginPagesDisplayed={1}
                     pageClassName="page-item"
@@ -807,4 +689,4 @@ function ProductBanner() {
   )
 }
 
-export default ProductBanner
+export default ProductDemand

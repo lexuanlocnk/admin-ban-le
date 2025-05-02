@@ -14,7 +14,7 @@
   /* box-shadow:
     rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; */
-    border-bottom: 1px solid #e9e9f3;
+  border-bottom: 1px solid #e9e9f3;
 }
 
 .qrcode-header__title {
@@ -124,7 +124,7 @@
 
 .qrcode-body__order-info {
   padding: 16px;
-  border: 1px solid #e9e9f3;
+  border: 1px solid #ccc;
   border-radius: 6px;
 }
 
@@ -211,6 +211,11 @@
   width: 100%;
 }
 
+.qrcode-body__order-qrcode-title--red {
+  color: red;
+  font-weight: bold;
+}
+
 .order-qrcode__order-detail {
   background: #f6f7fb;
   padding: 20px;
@@ -245,3 +250,40 @@
   font-weight: bold;
   color: red;
 }
+
+.qrcode-body__order-info-print {
+  background-color: #007bff; /* Màu xanh giống nút "Tạo mã QR" */
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.qrcode-body__order-info-print:hover {
+  background-color: #0056b3; /* Màu xanh đậm hơn khi hover */
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .qrcode-body__content-layout {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    page-break-inside: avoid;
+  }
+
+  .qrcode-wrapper {
+    height: auto;
+    background-color: #fff;
+  }
+}
+
+
+
