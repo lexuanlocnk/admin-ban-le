@@ -64,7 +64,6 @@ function EditProductCategory() {
   const validationSchema = Yup.object({
     title: Yup.string().required('Tiêu đề là bắt buộc.'),
     friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc .'),
-    // parentId: Yup.string().required('Chọn danh mục cha là bắt buộc.'),
     pageTitle: Yup.string().required('Tiêu đề trang là bắt buộc.'),
     metaDesc: Yup.string().required('metaDescription là bắt buộc.'),
     metaKeyword: Yup.string().required('metaKeywords là bắt buộc.'),
@@ -320,7 +319,7 @@ function EditProductCategory() {
                                             value={subSubCategory.cat_id}
                                           >
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'|--'}
-                                            {subSubCategory?.category_desc?.cat_name}(
+                                            {subSubCategory?.category_desc.cat_name}(
                                             {subSubCategory.cat_id})
                                           </option>
                                         ))}
