@@ -45,10 +45,10 @@ const Login = () => {
   }
 
   const handleLogin = async () => {
-    // if (!recaptchaToken) {
-    //   toast.error('Vui lòng xác minh GOOGLE CAPTCHA trước khi đăng nhập!')
-    //   return
-    // }
+    if (!recaptchaToken) {
+      toast.error('Vui lòng xác minh GOOGLE CAPTCHA trước khi đăng nhập!')
+      return
+    }
 
     try {
       setLoading(true)
@@ -132,13 +132,13 @@ const Login = () => {
                         />
                       </CInputGroup>
 
-                      {/* <div>
+                      <div>
                         <ReCAPTCHA
                           style={{ marginBottom: 20, transform: 'scale(0.8)', marginRight: 100 }}
                           sitekey="6LeHyqsqAAAAAG7uKv9T_pOJUjoHg9sxvzKyL-UT"
                           onChange={handleRecaptcha}
                         />
-                      </div> */}
+                      </div>
 
                       <CRow className="justify-content-md-center">
                         <CCol xs={12}>
