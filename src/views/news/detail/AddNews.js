@@ -265,6 +265,10 @@ function AddNews() {
                           dataNewsCategory?.length > 0 &&
                           dataNewsCategory.map((item) => (
                             <CFormCheck
+                              style={{
+                                transform: 'scale(1.4)',
+                                accentColor: '#198754',
+                              }}
                               key={item?.cat_id}
                               aria-label="Default select example"
                               defaultChecked={item?.cat_id}

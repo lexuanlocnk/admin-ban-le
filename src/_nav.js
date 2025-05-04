@@ -517,6 +517,11 @@ const _nav = [
       },
       {
         component: CNavItem,
+        name: 'Quản lý link redirect',
+        to: '/seo/links-redirect',
+      },
+      {
+        component: CNavItem,
         name: 'Sitemap XML website',
         to: '/seo/sitemap',
       },

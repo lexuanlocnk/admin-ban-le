@@ -9,7 +9,7 @@ const DefaultLayout = () => {
   return (
     <div
       style={{
-        fontSize: 13.4,
+        fontSize: 14,
       }}
     >
       <ScrollUpButton />
