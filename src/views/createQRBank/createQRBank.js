@@ -5,6 +5,7 @@ import * as Yup from 'yup'
 import './public/QRCodeOrderPage.css'
 
 import LogoNK from '../../assets/images/logo/logo NK.png'
+import qrIamges from '../../assets/images/qr-phieu-xuat.png'
 
 const orderItems = [
   {
@@ -92,12 +93,7 @@ const QRCodeOrderPage = () => {
               <span className="qrcode-body__order-qrcode-title--red">X250426023-N</span>
             </h4>
             <p>Sử dụng app ngân hàng hoặc ứng dụng camera hỗ trợ QR code để quét mã</p>
-            <CImage
-              src={
-                'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg'
-              }
-              alt={'Ảnh qrcode thanh toán'}
-            />
+            <CImage src={qrIamges} alt={'Ảnh qrcode thanh toán'} />
             <div className="order-qrcode__order-detail">
               <div className="order-qrcode__detail-row">
                 <span className="order-qrcode__label">Ngân hàng thụ hưởng</span>
