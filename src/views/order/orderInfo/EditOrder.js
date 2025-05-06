@@ -202,7 +202,14 @@ function EditOrder() {
                       <p>
                         Địa chỉ:{' '}
                         <span className="order-address">
-                          {`${orderAddress?.address}, ${orderAddress?.ward}, ${orderAddress?.district}, ${orderAddress?.province}`}
+                          {[
+                            orderAddress?.address,
+                            orderAddress?.ward,
+                            orderAddress?.district,
+                            orderAddress?.province,
+                          ]
+                            .filter((part) => part && part.trim() !== '')
+                            .join(', ')}
                         </span>
                       </p>
                       <p>

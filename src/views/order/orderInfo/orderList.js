@@ -169,16 +169,6 @@ function OrderList() {
     fetchOrderListData(keyword)
   }
 
-  const [sortConfig, setSortConfig] = React.useState({ key: '', direction: 'ascending' })
-
-  const handleSort = (columnKey) => {
-    let direction = 'ascending'
-    if (sortConfig.key === columnKey && sortConfig.direction === 'ascending') {
-      direction = 'descending'
-    }
-    setSortConfig({ key: columnKey, direction })
-  }
-
   const handleDeleteAll = async () => {
     console.log('>>> check undeal', selectedCheckbox)
     alert('Chức năng đang thực hiện...')
@@ -234,6 +224,10 @@ function OrderList() {
       key: 'id',
       label: (
         <CFormCheck
+          style={{
+            transform: 'scale(1.4)',
+            accentColor: '#198754',
+          }}
           aria-label="Select all"
           checked={isAllCheckbox}
           onChange={(e) => {
@@ -262,6 +256,10 @@ function OrderList() {
       ? dataOrderList?.data.map((order) => ({
           id: (
             <CFormCheck
+              style={{
+                transform: 'scale(1.4)',
+                accentColor: '#198754',
+              }}
               id={order.order_id}
               checked={selectedCheckbox.includes(order.order_id)}
               value={order.order_id}
@@ -298,6 +296,10 @@ function OrderList() {
                 <span>Email: </span>
                 <span className="customer-email">{order.d_email}</span>
               </div>
+              {/* <div>
+                <span>Địa chỉ: </span>
+                <span className="customer-email">{order.d_email}</span>
+              </div> */}
             </React.Fragment>
           ),
           orderDate: moment.unix(Number(order.date_order)).format('hh:mm:ss A, DD-MM-YYYY'),
@@ -329,22 +331,6 @@ function OrderList() {
           _cellProps: { id: { scope: 'row' } },
         }))
       : []
-
-  const sortedItems = React.useMemo(() => {
-    let sortableItems = [...items]
-    if (sortConfig.key) {
-      sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1
-        }
-        return 0
-      })
-    }
-    return sortableItems
-  }, [items, sortConfig])
 
   return (
     <CContainer>
@@ -454,9 +440,7 @@ function OrderList() {
                     <td>Tìm kiếm</td>
                     <td>
                       <strong>
-                        <em>
-                          Tìm kiếm theo Mã đơn hàng, ID Thành viên, Họ Tên Khách Hàng, Số Điện Thoại
-                        </em>
+                        Tìm kiếm theo Mã đơn hàng, ID Thành viên, Họ Tên Khách Hàng, Số Điện Thoại
                       </strong>
                       <div className="mt-2">
                         <input
@@ -507,27 +491,22 @@ function OrderList() {
             {isLoading ? (
               <Loading />
             ) : (
-              <CTable>
+              <CTable
+                style={{
+                  fontSize: '14px',
+                }}
+              >
                 <thead>
                   <tr>
                     {columns.map((column) => (
-                      <CTableHeaderCell
-                        key={column.key}
-                        onClick={() => handleSort(column.key)}
-                        className="prevent-select"
-                      >
+                      <CTableHeaderCell key={column.key} className="prevent-select">
                         {column.label}
-                        {sortConfig.key === column.key
-                          ? sortConfig.direction === 'ascending'
-                            ? ' ▼'
-                            : ' ▲'
-                          : ''}
                       </CTableHeaderCell>
                     ))}
                   </tr>
                 </thead>
                 <CTableBody>
-                  {sortedItems.map((item, index) => (
+                  {items.map((item, index) => (
                     <CTableRow key={index}>
                       {columns.map((column) => (
                         <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>

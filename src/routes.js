@@ -77,6 +77,7 @@ const AccessStatistics = React.lazy(() => import('./views/accessstatistics/Acces
 const Seo = React.lazy(() => import('./views/seo/SocialsIcon'))
 const Sitemap = React.lazy(() => import('./views/seo/SitempaXML'))
 const Links = React.lazy(() => import('./views/seo/LinkManagement'))
+const LinksRedirect = React.lazy(() => import('./views/seo/LinkRedirect'))
 
 // GIFT
 const Gift = React.lazy(() => import('./views/gift/Gift'))
@@ -389,6 +390,7 @@ const routes = [
   { path: '/seo/social-icons', name: 'Seo', element: Seo, exact: true },
   { path: '/seo/sitemap', name: 'Sitemap', element: Sitemap, exact: true },
   { path: '/seo/links', name: 'Links', element: Links, exact: true },
+  { path: '/seo/links-redirect', name: 'LinksRedirect', element: LinksRedirect, exact: true },
 
   // gift
   { path: '/gift', name: 'Gift', element: Gift, exact: true },

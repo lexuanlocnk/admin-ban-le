@@ -261,15 +261,17 @@ function AdminLog() {
                         <strong>
                           <em>Tìm kiếm theo tên Page đã truy cập</em>
                         </strong>
-                        <input
-                          type="text"
-                          className="search-input"
-                          value={dataSearch}
-                          onChange={(e) => setDataSearch(e.target.value)}
-                        />
-                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                          Submit
-                        </button>
+                        <div>
+                          <input
+                            type="text"
+                            className="search-input"
+                            value={dataSearch}
+                            onChange={(e) => setDataSearch(e.target.value)}
+                          />
+                          <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
+                            Submit
+                          </button>
+                        </div>
                       </div>
                     </td>
                   </tr>
