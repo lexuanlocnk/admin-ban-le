@@ -378,6 +378,10 @@ function EditNews() {
                                     src={`${imageBaseUrl}${selectedFile}`}
                                     width={200}
                                     loading="lazy"
+                                    onError={(e) => {
+                                      e.target.onerror = null
+                                      e.target.src = `${imageBaseUrl}no-image.jpg`
+                                    }}
                                   />
                                 </div>
                               ) : (

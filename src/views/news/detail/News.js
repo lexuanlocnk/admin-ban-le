@@ -193,6 +193,10 @@ function News() {
               width={100}
               height={80}
               loading="lazy"
+              onError={(e) => {
+                e.target.onerror = null
+                e.target.src = `${imageBaseUrl}no-image.jpg`
+              }}
             />
           ),
           cate: <div className="cate-color">{item?.category_desc?.[0].cat_name}</div>,

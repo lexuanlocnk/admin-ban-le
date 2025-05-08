@@ -8,7 +8,6 @@ import {
   CTable,
   CTableBody,
   CTableDataCell,
-  CTableHead,
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
