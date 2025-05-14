@@ -59,9 +59,30 @@ function Menu() {
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
 
+  // Accordion state for expanded menus
+  const [expandedMenus, setExpandedMenus] = useState({})
+  // Accordion state for expanded submenus
+  const [expandedSubMenus, setExpandedSubMenus] = useState({})
+
+  // Toggle expand/collapse for a menu item
+  const handleToggleExpand = (menuId) => {
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [menuId]: !prev[menuId],
+    }))
+  }
+
+  // Toggle expand/collapse for a sub menu item
+  const handleToggleExpandSub = (subMenuId) => {
+    setExpandedSubMenus((prev) => ({
+      ...prev,
+      [subMenuId]: !prev[subMenuId],
+    }))
+  }
+
   const initialValues = {
-    title: '',
     url: '',
+    title: '',
     name: '',
     target: '',
     childOf: '',
@@ -546,6 +567,16 @@ function Menu() {
                             <React.Fragment key={item?.menu_id}>
                               <tr>
                                 <td scope="row" style={{ fontWeight: 600 }}>
+                                  {item?.parenty && item?.parenty.length > 0 && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-link btn-sm p-0 mr-2"
+                                      onClick={() => handleToggleExpand(item.menu_id)}
+                                      style={{ verticalAlign: 'middle' }}
+                                    >
+                                      {expandedMenus[item.menu_id] ? '▼' : '▶'}
+                                    </button>
+                                  )}
                                   {item?.menu_desc?.title}
                                 </td>
                                 <td>{item?.menu_desc?.link}</td>
@@ -570,48 +601,58 @@ function Menu() {
                                 </td>
                               </tr>
 
+                              {/* SubItems (children) as accordion */}
                               {item.parenty &&
-                                item.parenty.map((subItem) => (
-                                  <React.Fragment key={subItem?.menu_id}>
-                                    <tr>
-                                      <td>
-                                        <img
-                                          src={
-                                            'http://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif'
-                                          }
-                                          alt="Subcategory"
-                                          className="mr-2"
-                                        />
-                                        {subItem?.menu_desc?.title}
-                                      </td>
-
-                                      <td>{subItem?.menu_desc?.link}</td>
-
-                                      <td scope="row">
-                                        <div>
-                                          <button
-                                            onClick={() => handleEditClick(subItem.menu_id)}
-                                            className="button-action mr-2 bg-info"
-                                          >
-                                            <CIcon icon={cilColorBorder} className="text-white" />
-                                          </button>
-                                          <button
-                                            onClick={() => {
-                                              setVisible(true)
-                                              setDeletedId(subItem.menu_id)
-                                            }}
-                                            className="button-action bg-danger"
-                                          >
-                                            <CIcon icon={cilTrash} className="text-white" />
-                                          </button>
-                                        </div>
-                                      </td>
-                                    </tr>
-
-                                    {subItem.parentx &&
-                                      subItem.parentx.map((subSubItem) => (
-                                        <React.Fragment key={subSubItem.menu_id}>
-                                          <tr>
+                                item.parenty.map((subItem) =>
+                                  expandedMenus[item.menu_id] ? (
+                                    <React.Fragment key={subItem?.menu_id}>
+                                      <tr>
+                                        <td>
+                                          {subItem?.parentx && subItem?.parentx.length > 0 && (
+                                            <button
+                                              type="button"
+                                              className="btn btn-link btn-sm p-0 mr-2"
+                                              onClick={() => handleToggleExpandSub(subItem.menu_id)}
+                                              style={{ verticalAlign: 'middle' }}
+                                            >
+                                              {expandedSubMenus[subItem.menu_id] ? '▼' : '▶'}
+                                            </button>
+                                          )}
+                                          <img
+                                            src={
+                                              'http://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif'
+                                            }
+                                            alt="Subcategory"
+                                            className="mr-2"
+                                          />
+                                          {subItem?.menu_desc?.title}
+                                        </td>
+                                        <td>{subItem?.menu_desc?.link}</td>
+                                        <td scope="row">
+                                          <div>
+                                            <button
+                                              onClick={() => handleEditClick(subItem.menu_id)}
+                                              className="button-action mr-2 bg-info"
+                                            >
+                                              <CIcon icon={cilColorBorder} className="text-white" />
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                setVisible(true)
+                                                setDeletedId(subItem.menu_id)
+                                              }}
+                                              className="button-action bg-danger"
+                                            >
+                                              <CIcon icon={cilTrash} className="text-white" />
+                                            </button>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                      {/* SubSubItems (children of subItem) */}
+                                      {subItem.parentx &&
+                                        expandedSubMenus[subItem.menu_id] &&
+                                        subItem.parentx.map((subSubItem) => (
+                                          <tr key={subSubItem.menu_id}>
                                             <td>
                                               <img
                                                 src={
@@ -623,7 +664,6 @@ function Menu() {
                                               {subSubItem?.menu_desc?.title}
                                             </td>
                                             <td>{subSubItem?.menu_desc?.link}</td>
-
                                             <td scope="row">
                                               <div>
                                                 <button
@@ -649,10 +689,10 @@ function Menu() {
                                               </div>
                                             </td>
                                           </tr>
-                                        </React.Fragment>
-                                      ))}
-                                  </React.Fragment>
-                                ))}
+                                        ))}
+                                    </React.Fragment>
+                                  ) : null,
+                                )}
                             </React.Fragment>
                           ))}
                       </tbody>
