@@ -25,6 +25,6 @@ axiosClient.interceptors.request.use(
 
 // Configuration for images
 const imageBaseUrl = 'https://ap.chinhnhan.vn/uploads/'
-const mainUrl = 'http://test.chinhnhan.vn/'
+const mainUrl = 'https://test.chinhnhan.vn/'
 
 export { axiosClient, imageBaseUrl, mainUrl }
