@@ -1,6 +1,5 @@
 import {
   CButton,
-  CCallout,
   CCol,
   CContainer,
   CFormCheck,
@@ -1047,7 +1046,10 @@ function EditProductDetail() {
                                         />
                                       </td>
                                       <td style={{ color: 'orange', fontWeight: 500 }}>
-                                        {item.price.toLocaleString()} đ
+                                        {item?.price && item?.price !== null
+                                          ? item?.price.toLocaleString()
+                                          : 0}{' '}
+                                        đ
                                       </td>
                                       <td style={{ textAlign: 'center' }}>
                                         <button

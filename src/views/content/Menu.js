@@ -17,6 +17,7 @@ import Search from '../../components/search/Search'
 
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../axiosConfig'
@@ -313,7 +314,7 @@ function Menu() {
   }
 
   const handleDeleteSelectedCheckbox = async () => {
-    console.log('>>> selectedCheckbox', selectedCheckbox)
+    // console.log('>>> selectedCheckbox', selectedCheckbox)
     // try {
     //   const response = await axiosClient.post('admin/delete-all-comment', {
     //     data: selectedCheckbox,
@@ -542,164 +543,226 @@ function Menu() {
                   Xóa vĩnh viễn
                 </CButton>
               </CCol>
-
+              {/*
               {isLoading.page ? (
                 <Loading />
               ) : (
-                <>
-                  <CCol>
-                    <table className="table table-hover caption-top mt-3">
-                      <thead className="thead-dark">
-                        <tr>
-                          <th style={{ width: 320 }} scope="col">
-                            Tên
-                          </th>
-                          <th scope="col">Liên kết</th>
-                          <th style={{ width: 120 }} scope="col">
-                            Tác vụ
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {dataMenu &&
-                          dataMenu?.length > 0 &&
-                          dataMenu?.map((item) => (
-                            <React.Fragment key={item?.menu_id}>
-                              <tr>
-                                <td scope="row" style={{ fontWeight: 600 }}>
-                                  {item?.parenty && item?.parenty.length > 0 && (
-                                    <button
-                                      type="button"
-                                      className="btn btn-link btn-sm p-0 mr-2"
-                                      onClick={() => handleToggleExpand(item.menu_id)}
-                                      style={{ verticalAlign: 'middle' }}
-                                    >
-                                      {expandedMenus[item.menu_id] ? '▼' : '▶'}
-                                    </button>
-                                  )}
-                                  {item?.menu_desc?.title}
-                                </td>
-                                <td>{item?.menu_desc?.link}</td>
-                                <td scope="row">
-                                  <div>
-                                    <button
-                                      onClick={() => handleEditClick(item?.menu_id)}
-                                      className="button-action mr-2 bg-info"
-                                    >
-                                      <CIcon icon={cilColorBorder} className="text-white" />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setVisible(true)
-                                        setDeletedId(item?.menu_id)
-                                      }}
-                                      className="button-action bg-danger"
-                                    >
-                                      <CIcon icon={cilTrash} className="text-white" />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
 
-                              {/* SubItems (children) as accordion */}
-                              {item.parenty &&
-                                item.parenty.map((subItem) =>
-                                  expandedMenus[item.menu_id] ? (
-                                    <React.Fragment key={subItem?.menu_id}>
-                                      <tr>
-                                        <td>
-                                          {subItem?.parentx && subItem?.parentx.length > 0 && (
-                                            <button
-                                              type="button"
-                                              className="btn btn-link btn-sm p-0 mr-2"
-                                              onClick={() => handleToggleExpandSub(subItem.menu_id)}
-                                              style={{ verticalAlign: 'middle' }}
-                                            >
-                                              {expandedSubMenus[subItem.menu_id] ? '▼' : '▶'}
-                                            </button>
-                                          )}
-                                          <img
-                                            src={
-                                              'http://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif'
-                                            }
-                                            alt="Subcategory"
-                                            className="mr-2"
-                                          />
-                                          {subItem?.menu_desc?.title}
-                                        </td>
-                                        <td>{subItem?.menu_desc?.link}</td>
-                                        <td scope="row">
-                                          <div>
-                                            <button
-                                              onClick={() => handleEditClick(subItem.menu_id)}
-                                              className="button-action mr-2 bg-info"
-                                            >
-                                              <CIcon icon={cilColorBorder} className="text-white" />
-                                            </button>
-                                            <button
-                                              onClick={() => {
-                                                setVisible(true)
-                                                setDeletedId(subItem.menu_id)
-                                              }}
-                                              className="button-action bg-danger"
-                                            >
-                                              <CIcon icon={cilTrash} className="text-white" />
-                                            </button>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                      {/* SubSubItems (children of subItem) */}
-                                      {subItem.parentx &&
-                                        expandedSubMenus[subItem.menu_id] &&
-                                        subItem.parentx.map((subSubItem) => (
-                                          <tr key={subSubItem.menu_id}>
-                                            <td>
-                                              <img
-                                                src={
-                                                  'http://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif'
-                                                }
-                                                alt="Subcategory"
-                                                style={{ marginLeft: 16 }}
-                                              />
-                                              {subSubItem?.menu_desc?.title}
-                                            </td>
-                                            <td>{subSubItem?.menu_desc?.link}</td>
-                                            <td scope="row">
-                                              <div>
-                                                <button
-                                                  onClick={() =>
-                                                    handleEditClick(subSubItem.menu_id)
-                                                  }
-                                                  className="button-action mr-2 bg-info"
-                                                >
-                                                  <CIcon
-                                                    icon={cilColorBorder}
-                                                    className="text-white"
-                                                  />
-                                                </button>
-                                                <button
-                                                  onClick={() => {
-                                                    setVisible(true)
-                                                    setDeletedId(subSubItem.menu_id)
-                                                  }}
-                                                  className="button-action bg-danger"
-                                                >
-                                                  <CIcon icon={cilTrash} className="text-white" />
-                                                </button>
-                                              </div>
-                                            </td>
-                                          </tr>
-                                        ))}
-                                    </React.Fragment>
-                                  ) : null,
+              )} */}
+
+              <>
+                <CCol>
+                  <table className="table table-hover caption-top mt-3">
+                    <thead className="thead-dark">
+                      <tr>
+                        <th style={{ width: 320 }} scope="col">
+                          Tên
+                        </th>
+                        <th scope="col">Liên kết</th>
+                        <th scope="col">Show home</th>
+                        <th style={{ width: 120 }} scope="col">
+                          Tác vụ
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dataMenu &&
+                        dataMenu?.length > 0 &&
+                        dataMenu?.map((item) => (
+                          <React.Fragment key={item?.menu_id}>
+                            <tr>
+                              <td scope="row" style={{ fontWeight: 600 }}>
+                                {item?.parenty && item?.parenty.length > 0 && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-link btn-sm p-0 mr-2"
+                                    onClick={() => handleToggleExpand(item.menu_id)}
+                                    style={{ verticalAlign: 'middle' }}
+                                  >
+                                    {expandedMenus[item.menu_id] ? '▼' : '▶'}
+                                  </button>
                                 )}
-                            </React.Fragment>
-                          ))}
-                      </tbody>
-                    </table>
-                  </CCol>
-                </>
-              )}
+                                {item?.menu_desc?.title}
+                              </td>
+                              <td>{item?.menu_desc?.link}</td>
+                              <td>
+                                {item?.menu_desc?.display == 1 ? (
+                                  <span style={{ color: 'green', fontWeight: 600 }}>
+                                    <AiOutlineEye
+                                      title="Có"
+                                      size={20}
+                                      style={{ verticalAlign: 'middle' }}
+                                    />
+                                  </span>
+                                ) : (
+                                  <span style={{ color: 'red', fontWeight: 600 }}>
+                                    <AiOutlineEyeInvisible
+                                      title="Không"
+                                      size={20}
+                                      style={{ verticalAlign: 'middle' }}
+                                    />
+                                  </span>
+                                )}
+                              </td>
+
+                              <td scope="row">
+                                <div>
+                                  <button
+                                    onClick={() => handleEditClick(item?.menu_id)}
+                                    className="button-action mr-2 bg-info"
+                                  >
+                                    <CIcon icon={cilColorBorder} className="text-white" />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setVisible(true)
+                                      setDeletedId(item?.menu_id)
+                                    }}
+                                    className="button-action bg-danger"
+                                  >
+                                    <CIcon icon={cilTrash} className="text-white" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+
+                            {/* SubItems (children) as accordion */}
+                            {item.parenty &&
+                              item.parenty.map((subItem) =>
+                                expandedMenus[item.menu_id] ? (
+                                  <React.Fragment key={subItem?.menu_id}>
+                                    <tr>
+                                      <td>
+                                        {subItem?.parentx && subItem?.parentx.length > 0 && (
+                                          <button
+                                            type="button"
+                                            className="btn btn-link btn-sm p-0 mr-2"
+                                            onClick={() => handleToggleExpandSub(subItem.menu_id)}
+                                            style={{ verticalAlign: 'middle' }}
+                                          >
+                                            {expandedSubMenus[subItem.menu_id] ? '▼' : '▶'}
+                                          </button>
+                                        )}
+                                        <img
+                                          src={
+                                            'http://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif'
+                                          }
+                                          alt="Subcategory"
+                                          className="mr-2"
+                                        />
+                                        {subItem?.menu_desc?.title}
+                                      </td>
+                                      <td>{subItem?.menu_desc?.link}</td>
+                                      {/* <td>
+                                          {subItem?.menu_desc?.display == 1 ? (
+                                            <span style={{ color: 'green', fontWeight: 600 }}>
+                                              <AiOutlineEye
+                                                title="Có"
+                                                size={20}
+                                                style={{ verticalAlign: 'middle' }}
+                                              />
+                                            </span>
+                                          ) : (
+                                            <span style={{ color: 'red', fontWeight: 600 }}>
+                                              <AiOutlineEyeInvisible
+                                                title="Không"
+                                                size={20}
+                                                style={{ verticalAlign: 'middle' }}
+                                              />
+                                            </span>
+                                          )}
+                                        </td> */}
+                                      {/* Tới chưa trả ra */}
+                                      <td>{subItem?.menu_desc?.display}</td>
+
+                                      <td scope="row">
+                                        <div>
+                                          <button
+                                            onClick={() => handleEditClick(subItem.menu_id)}
+                                            className="button-action mr-2 bg-info"
+                                          >
+                                            <CIcon icon={cilColorBorder} className="text-white" />
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              setVisible(true)
+                                              setDeletedId(subItem.menu_id)
+                                            }}
+                                            className="button-action bg-danger"
+                                          >
+                                            <CIcon icon={cilTrash} className="text-white" />
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                    {/* SubSubItems (children of subItem) */}
+                                    {subItem.parentx &&
+                                      expandedSubMenus[subItem.menu_id] &&
+                                      subItem.parentx.map((subSubItem) => (
+                                        <tr key={subSubItem.menu_id}>
+                                          <td>
+                                            <img
+                                              src={
+                                                'http://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif'
+                                              }
+                                              alt="Subcategory"
+                                              style={{ marginLeft: 16 }}
+                                            />
+                                            {subSubItem?.menu_desc?.title}
+                                          </td>
+                                          <td>{subSubItem?.menu_desc?.link}</td>
+                                          <td>
+                                            {subSubItem?.menu_desc?.display == 1 ? (
+                                              <span style={{ color: 'green', fontWeight: 600 }}>
+                                                <AiOutlineEye
+                                                  title="Có"
+                                                  size={20}
+                                                  style={{ verticalAlign: 'middle' }}
+                                                />
+                                              </span>
+                                            ) : (
+                                              <span style={{ color: 'red', fontWeight: 600 }}>
+                                                <AiOutlineEyeInvisible
+                                                  title="Không"
+                                                  size={20}
+                                                  style={{ verticalAlign: 'middle' }}
+                                                />
+                                              </span>
+                                            )}
+                                          </td>
+                                          <td scope="row">
+                                            <div>
+                                              <button
+                                                onClick={() => handleEditClick(subSubItem.menu_id)}
+                                                className="button-action mr-2 bg-info"
+                                              >
+                                                <CIcon
+                                                  icon={cilColorBorder}
+                                                  className="text-white"
+                                                />
+                                              </button>
+                                              <button
+                                                onClick={() => {
+                                                  setVisible(true)
+                                                  setDeletedId(subSubItem.menu_id)
+                                                }}
+                                                className="button-action bg-danger"
+                                              >
+                                                <CIcon icon={cilTrash} className="text-white" />
+                                              </button>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                  </React.Fragment>
+                                ) : null,
+                              )}
+                          </React.Fragment>
+                        ))}
+                    </tbody>
+                  </table>
+                </CCol>
+              </>
             </CCol>
           </CRow>
         </>

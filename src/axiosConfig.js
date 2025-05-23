@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const axiosClient = axios.create({
-  baseURL: 'https://ap.chinhnhan.net/api/',
+  baseURL: 'https://api.chinhnhan.com/api/',
   headers: {
     'Content-Type': 'application/json',
     Authorization: localStorage.getItem('adminCN')
@@ -24,7 +24,7 @@ axiosClient.interceptors.request.use(
 )
 
 // Configuration for images
-const imageBaseUrl = 'https://ap.chinhnhan.net/uploads/'
-const mainUrl = 'https:chinhnhan.net/'
+const imageBaseUrl = 'https://api.chinhnhan.com/uploads/'
+const mainUrl = 'https://test.chinhnhan.com/'
 
 export { axiosClient, imageBaseUrl, mainUrl }

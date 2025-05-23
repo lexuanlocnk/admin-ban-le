@@ -208,6 +208,9 @@ const EditHirePost = React.lazy(() => import('./views/hire/EditHirePost.js'))
 const CandidateCV = React.lazy(() => import('./views/hire/CandidateCV.js'))
 const EditCandidateCV = React.lazy(() => import('./views/hire/EditCandidateCV.js'))
 
+// LIBRARY
+const Library = React.lazy(() => import('./views/library/Library.js'))
+
 /** ------------------------------------------------------------------------------------------------------------------ */
 
 const routes = [
@@ -774,7 +777,13 @@ const routes = [
     exact: true,
   },
 
-  // seo - socials
+  // library
+  {
+    path: '/library',
+    name: 'Library',
+    element: Library,
+    exact: true,
+  },
 ]
 
 export default routes

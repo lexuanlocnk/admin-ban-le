@@ -155,6 +155,11 @@ const _nav = [
       },
       {
         component: CNavItem,
+        name: 'Nhu cầu sản phẩm',
+        to: '/product/demand',
+      },
+      {
+        component: CNavItem,
         name: 'Thêm mới sản phẩm',
         to: '/product/add',
       },
