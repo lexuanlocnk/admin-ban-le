@@ -45,10 +45,10 @@ const Login = () => {
   }
 
   const handleLogin = async () => {
-    if (!recaptchaToken) {
-      toast.error('Vui lòng xác minh GOOGLE CAPTCHA trước khi đăng nhập!')
-      return
-    }
+    // if (!recaptchaToken) {
+    //   toast.error('Vui lòng xác minh GOOGLE CAPTCHA trước khi đăng nhập!')
+    //   return
+    // }
 
     try {
       setLoading(true)
@@ -57,7 +57,7 @@ const Login = () => {
         username,
         password,
         passwordSecurity: key,
-        captchaToken: recaptchaToken,
+        // captchaToken: recaptchaToken,
       })
 
       if (res.data.status === true) {
