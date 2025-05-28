@@ -1,8 +1,8 @@
 {
-  "name": "fe-ban-le",
+  "name": "admin-chinhnhan",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://ad.chinhnhan.net",
+  "homepage": "https://ad.chinhnhan.com",
   "dependencies": {
     "@coreui/chartjs": "^4.0.0",
     "@coreui/coreui": "^5.0.0",

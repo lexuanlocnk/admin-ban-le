@@ -30,7 +30,7 @@ $config[ 'authentication' ] = function () {
 // https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_licenseKey
 
 $config[ 'licenseName' ] = 'api.chinhnhan.com';
-$config[ 'licenseKey' ]  = 'AMUMAASADY6YXEBUEEVF3FSFT7DDM';
+$config[ 'licenseKey' ]  = 'J2222RNJHWRHDJCEK6DFA81HHKMBK';
 
 // https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_privateDir
 

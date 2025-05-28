@@ -14,9 +14,8 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -378,10 +377,15 @@ function ProductFlashSale() {
               </CButton>
             </CCol>
             <CCol>
-              <CTable className="border">
+              <CTable
+                className="border"
+                hover
+                responsive
+                style={{ borderRadius: 8, overflow: 'hidden' }}
+              >
                 <CTableHead>
-                  <CTableRow>
-                    <CTableHeaderCell scope="col">
+                  <CTableRow style={{ background: '#f5f6fa' }}>
+                    <CTableHeaderCell scope="col" style={{ textAlign: 'center', width: 40 }}>
                       <CFormCheck
                         style={{
                           transform: 'scale(1.4)',
@@ -401,24 +405,46 @@ function ProductFlashSale() {
                         }}
                       />
                     </CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Tiêu đề</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Hình ảnh</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Thời gian bắt đầu</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Thời gian kết thúc</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Giá gốc</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Giá bán</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Tác vụ</CTableHeaderCell>
+                    <CTableHeaderCell scope="col" style={{ minWidth: 180 }}>
+                      Tiêu đề
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" style={{ textAlign: 'center', width: 80 }}>
+                      Hình ảnh
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" style={{ textAlign: 'center', minWidth: 140 }}>
+                      Thời gian bắt đầu
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" style={{ textAlign: 'center', minWidth: 140 }}>
+                      Thời gian kết thúc
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" style={{ textAlign: 'center', minWidth: 110 }}>
+                      Giá gốc
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" style={{ textAlign: 'center', minWidth: 110 }}>
+                      Giá bán
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" style={{ textAlign: 'center', width: 110 }}>
+                      Tác vụ
+                    </CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
                   {flashSaleData &&
                     flashSaleData.length > 0 &&
                     flashSaleData.map((item) => (
-                      <CTableRow key={item.id}>
-                        <CTableHeaderCell scope="row">
+                      <CTableRow
+                        key={item.id}
+                        style={{
+                          verticalAlign: 'middle',
+                          transition: 'background 0.2s',
+                          cursor: 'pointer',
+                        }}
+                        className="flashsale-row"
+                      >
+                        <CTableHeaderCell scope="row" style={{ textAlign: 'center' }}>
                           <CFormCheck
                             style={{
-                              transform: 'scale(1.4)',
+                              transform: 'scale(1.3)',
                               accentColor: '#198754',
                             }}
                             key={item?.id}
@@ -440,37 +466,45 @@ function ProductFlashSale() {
                             }}
                           />
                         </CTableHeaderCell>
-                        <CTableDataCell
-                          style={{
-                            width: '30%',
-                          }}
-                        >
-                          <Link to={`/product/edit?id=${item?.product?.product_id}`}>
+                        <CTableDataCell style={{ fontWeight: 500 }}>
+                          <Link
+                            to={`/product/edit?id=${item?.product?.product_id}`}
+                            style={{ color: '#2a73cc', textDecoration: 'none' }}
+                          >
                             {item?.product?.product_desc?.title}
                           </Link>
                         </CTableDataCell>
-                        <CTableDataCell>
+                        <CTableDataCell style={{ textAlign: 'center' }}>
                           <CImage
                             className="d-flex justify-content-center align-items-center"
                             width={50}
                             src={`${imageBaseUrl}${item?.product?.picture}`}
                             alt={`image_1`}
+                            style={{
+                              borderRadius: 8,
+                              border: '1px solid #eee',
+                              background: '#fff',
+                            }}
                           />
                         </CTableDataCell>
-                        <CTableDataCell>
+                        <CTableDataCell style={{ textAlign: 'center' }}>
                           {isEditDeal === item?.id ? (
-                            <React.Fragment>
+                            <>
                               <DatePicker
                                 className="custom-datepicker"
                                 showIcon
                                 dateFormat={'dd-MM-yyyy'}
                                 selected={startDate}
                                 onChange={handleStartDateChange}
+                                popperPlacement="bottom"
+                                style={{ minWidth: 120 }}
                               />
                               {errors.startDate && (
-                                <p className="text-danger">{errors.startDate}</p>
+                                <p className="text-danger mb-0" style={{ fontSize: 12 }}>
+                                  {errors.startDate}
+                                </p>
                               )}
-                            </React.Fragment>
+                            </>
                           ) : (
                             <DatePicker
                               className="custom-datepicker"
@@ -483,21 +517,29 @@ function ProductFlashSale() {
                                     : ''
                                   : ''
                               }
+                              disabled
+                              style={{ background: '#f8f9fa', minWidth: 120 }}
                             />
                           )}
                         </CTableDataCell>
-                        <CTableDataCell>
+                        <CTableDataCell style={{ textAlign: 'center' }}>
                           {isEditDeal === item?.id ? (
-                            <React.Fragment>
+                            <>
                               <DatePicker
                                 className="custom-datepicker"
                                 showIcon
                                 dateFormat={'dd-MM-yyyy'}
                                 selected={endDate}
                                 onChange={handleEndDateChange}
+                                popperPlacement="bottom"
+                                style={{ minWidth: 120 }}
                               />
-                              {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
-                            </React.Fragment>
+                              {errors.endDate && (
+                                <p className="text-danger mb-0" style={{ fontSize: 12 }}>
+                                  {errors.endDate}
+                                </p>
+                              )}
+                            </>
                           ) : (
                             <DatePicker
                               className="custom-datepicker"
@@ -510,15 +552,20 @@ function ProductFlashSale() {
                                     : ''
                                   : ''
                               }
+                              disabled
+                              style={{ background: '#f8f9fa', minWidth: 120 }}
                             />
                           )}
                         </CTableDataCell>
-                        <CTableDataCell>
+                        <CTableDataCell style={{ textAlign: 'center' }}>
                           {isEditDeal === item?.id ? (
                             <CFormInput
                               style={{
                                 width: '100px',
                                 fontSize: 13,
+                                margin: '0 auto',
+                                borderRadius: 6,
+                                border: '1px solid #bdbdbd',
                               }}
                               type="text"
                               id="price-input"
@@ -533,37 +580,62 @@ function ProductFlashSale() {
                               style={{
                                 width: '100px',
                                 fontSize: 13,
+                                margin: '0 auto',
+                                borderRadius: 6,
+                                border: '1px solid #e0e0e0',
+                                background: '#f8f9fa',
                               }}
                               type="text"
                               id="price-input"
                               value={formatNumber(item?.discount_price)}
+                              disabled
                             />
                           )}
                         </CTableDataCell>
-                        <CTableDataCell style={{ fontSize: 13 }} className="orange-txt">
+                        <CTableDataCell
+                          style={{
+                            fontSize: 13,
+                            color: '#ff7a00',
+                            textAlign: 'center',
+                            fontWeight: 500,
+                          }}
+                        >
                           {(item?.price).toLocaleString('vi-VN')}đ
                         </CTableDataCell>
-
-                        <CTableDataCell>
+                        <CTableDataCell style={{ textAlign: 'center' }}>
                           <div>
                             {isEditDeal === item?.id ? (
                               <CButton
                                 size="sm"
-                                color={'success'}
+                                color="success"
                                 onClick={() => handleEditDeal(item?.product_id)}
-                                className="button-action mr-2 bg-info"
+                                className="button-action mr-2"
+                                style={{
+                                  minWidth: 80,
+                                  fontWeight: 600,
+                                  borderRadius: 6,
+                                  color: '#fff',
+                                }}
+                                title="Lưu cập nhật"
                               >
                                 Cập nhật
                               </CButton>
                             ) : (
                               <CButton
                                 size="sm"
-                                color={'info'}
+                                color="info"
                                 onClick={() => {
                                   setIsEditDeal(item?.id)
                                   setEditedPrice(item.discount_price)
                                 }}
-                                className="button-action mr-2 bg-info"
+                                className="button-action mr-2"
+                                style={{
+                                  minWidth: 80,
+                                  fontWeight: 600,
+                                  borderRadius: 6,
+                                  color: '#fff',
+                                }}
+                                title="Chỉnh sửa thông tin"
                               >
                                 Chỉnh sửa
                               </CButton>
