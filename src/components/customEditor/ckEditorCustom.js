@@ -13,7 +13,7 @@ function CKedtiorCustom({ data, onChangeData }) {
     <CKEditor
       config={{
         versionCheck: false,
-        extraPlugins: 'justify',
+        extraPlugins: ['justify', 'colorbutton', 'font'],
         filebrowserBrowseUrl: 'https://admin.chinhnhan.com/ckfinder/ckfinder.html',
         filebrowserImageBrowseUrl: 'https://admin.chinhnhan.com/ckfinder/ckfinder.html?type=Images',
         filebrowserUploadUrl:
