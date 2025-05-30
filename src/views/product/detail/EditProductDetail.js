@@ -343,19 +343,22 @@ function EditProductDetail() {
   }
 
   const removeSelectedImages = async () => {
-    const newFileDetail = []
     const deletedImagesIds = []
+    const fileIndexesToRemove = []
 
     selectedIndexes.forEach((index) => {
       if (index < imagesDetail.length) {
+        // Ảnh cũ trên server
         const imagesToDelete = imagesDetail[index]
-        deletedImagesIds.push(imagesToDelete.id) // push id image to delete in arr
+        deletedImagesIds.push(imagesToDelete.id)
       } else {
+        // Ảnh mới vừa upload
         const fileIndex = index - imagesDetail.length
-        newFileDetail.push(...fileDetail.filter((_, i) => i !== fileIndex))
+        fileIndexesToRemove.push(fileIndex)
       }
     })
 
+    // Xóa ảnh cũ trên server nếu có
     if (deletedImagesIds.length > 0) {
       try {
         const res = await axiosClient.post('admin/delete-detail-image', {
@@ -371,8 +374,10 @@ function EditProductDetail() {
       }
     }
 
+    // Cập nhật lại state cho ảnh cũ và ảnh mới
     setImagesDetail(imagesDetail.filter((_, i) => !selectedIndexes.includes(i)))
-    setFileDetail(newFileDetail)
+    setFileDetail(fileDetail.filter((_, i) => !fileIndexesToRemove.includes(i)))
+    setSelectedFileDetail(selectedFileDetail.filter((_, i) => !fileIndexesToRemove.includes(i)))
     setSelectedIndexes([])
   }
 
@@ -416,7 +421,7 @@ function EditProductDetail() {
       const { status, message, mess } = response.data
 
       if (status === true) {
-        toast.success('Thêm sản phẩm mới thành công!')
+        toast.success('Chính sửa sản phẩm thành công!')
       } else {
         const messages = {
           maso: 'Mã số đã tồn tại trong database!',
@@ -1475,8 +1480,8 @@ function EditProductDetail() {
                             options={
                               brands && brands.length > 0
                                 ? brands
-                                    .slice() // Tạo bản sao để tránh thay đổi mảng gốc
-                                    .sort((a, b) => a.title.localeCompare(b.title)) // Sắp xếp theo thứ tự alphabet
+                                    .slice()
+                                    .sort((a, b) => a.title.localeCompare(b.title))
                                     .map((brand) => ({
                                       label: brand?.title,
                                       value: brand.brandId,
@@ -1500,37 +1505,6 @@ function EditProductDetail() {
                           <ErrorMessage name="star" component="div" className="text-danger" />
                         </CCol>
                         <br />
-
-                        {/* <div className="border p-3 bg-white">
-                      <React.Fragment>
-                        <strong>Trạng thái</strong>
-                        <div className="mt-2">
-                          {status &&
-                            status.length > 0 &&
-                            status.map((item) => (
-                              <CFormCheck
-                                key={item?.status_id}
-                                label={item?.name}
-                                aria-label="Default select example"
-                                defaultChecked={item?.status_id}
-                                id={`flexCheckDefault_${item?.status_id}`}
-                                value={item?.status_id}
-                                checked={selectedStatus.includes(item?.status_id)}
-                                onChange={(e) => {
-                                  const statusId = item?.status_id
-                                  const isChecked = e.target.checked
-                                  if (isChecked) {
-                                    setSelectedStatus([...selectedStatus, statusId])
-                                  } else {
-                                    setSelectedStatus(selectedStatus.filter((id) => id !== statusId))
-                                  }
-                                }}
-                              />
-                            ))}
-                        </div>
-                      </React.Fragment>
-                    </div>
-                    <br /> */}
 
                         <CCol md={12}>
                           <label htmlFor="status-select">Trạng thái</label>
