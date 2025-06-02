@@ -140,6 +140,7 @@ function ProductCategory() {
                       <th scope="col">Tên</th>
                       <th scope="col">Background</th>
                       <th scope="col">Show home</th>
+                      <th scope="col">Đường dẫn</th>
                       <th scope="col">Tác vụ</th>
                     </tr>
                   </thead>
@@ -152,8 +153,13 @@ function ProductCategory() {
                             <td scope="row">
                               <CFormCheck id="flexCheckDefault" />
                             </td>
-                            <td scope="row" style={{ fontWeight: 600 }}>
-                              {cate?.category_desc?.cat_name}
+                            <td scope="row" style={{ fontWeight: 600, color: '#3c8dbc' }}>
+                              <Link
+                                to={`/product/category/edit?id=${cate.cat_id}`}
+                                style={{ color: '#3c8dbc', textDecoration: 'none' }}
+                              >
+                                {cate?.category_desc?.cat_name}
+                              </Link>
                             </td>
                             <td scope="row">
                               <CImage
@@ -162,6 +168,9 @@ function ProductCategory() {
                               />
                             </td>
                             <td scope="row">{cate.show_home === 1 ? 'Có' : 'Không'}</td>
+                            <td scope="row" style={{ color: '#f77225' }}>
+                              {cate?.category_desc?.friendly_url}
+                            </td>
                             <td scope="row">
                               <div>
                                 <button
@@ -182,7 +191,6 @@ function ProductCategory() {
                               </div>
                             </td>
                           </tr>
-
                           {cate.parenty &&
                             cate.parenty.map((subCate) => (
                               <React.Fragment key={subCate.cat_id}>
@@ -190,13 +198,18 @@ function ProductCategory() {
                                   <td scope="row">
                                     <CFormCheck id="flexCheckDefault" />
                                   </td>
-                                  <td>
-                                    <img
-                                      src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
-                                      alt="Subcategory"
-                                      className="mr-2"
-                                    />
-                                    {subCate?.category_desc?.cat_name}
+                                  <td style={{ fontWeight: 600, color: '#3c8dbc' }}>
+                                    <Link
+                                      to={`/product/category/edit?id=${subCate.cat_id}`}
+                                      style={{ color: '#3c8dbc', textDecoration: 'none' }}
+                                    >
+                                      <img
+                                        src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
+                                        alt="Subcategory"
+                                        className="mr-2"
+                                      />
+                                      {subCate?.category_desc?.cat_name}
+                                    </Link>
                                   </td>
                                   <td scope="row">
                                     <CImage
@@ -204,7 +217,10 @@ function ProductCategory() {
                                       width={50}
                                     />
                                   </td>
-                                  <td scope="row">{subCate.show_home === 1 ? 'Có' : 'Không'}</td>
+                                  <td scope="row"></td>
+                                  <td scope="row" style={{ color: '#f77225' }}>
+                                    {subCate?.category_desc?.friendly_url}
+                                  </td>
                                   <td scope="row">
                                     <div>
                                       <button
@@ -225,7 +241,6 @@ function ProductCategory() {
                                     </div>
                                   </td>
                                 </tr>
-
                                 {subCate.parentx &&
                                   subCate.parentx.map((childCate) => (
                                     <React.Fragment key={childCate.cat_id}>
@@ -233,13 +248,18 @@ function ProductCategory() {
                                         <td scope="row">
                                           <CFormCheck id="flexCheckDefault" />
                                         </td>
-                                        <td>
-                                          <img
-                                            src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
-                                            alt="Subcategory"
-                                            style={{ marginLeft: 16 }}
-                                          />
-                                          {childCate?.category_desc?.cat_name}
+                                        <td style={{ fontWeight: 600, color: '#3c8dbc' }}>
+                                          <Link
+                                            to={`/product/category/edit?id=${childCate.cat_id}`}
+                                            style={{ color: '#3c8dbc', textDecoration: 'none' }}
+                                          >
+                                            <img
+                                              src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
+                                              alt="Subcategory"
+                                              style={{ marginLeft: 16 }}
+                                            />
+                                            {childCate?.category_desc?.cat_name}
+                                          </Link>
                                         </td>
                                         <td scope="row">
                                           <CImage
@@ -247,8 +267,9 @@ function ProductCategory() {
                                             width={50}
                                           />
                                         </td>
-                                        <td scope="row">
-                                          {childCate.show_home === 1 ? 'Có' : 'Không'}
+                                        <td scope="row"></td>
+                                        <td scope="row" style={{ color: '#f77225' }}>
+                                          {childCate?.category_desc?.friendly_url}
                                         </td>
                                         <td scope="row">
                                           <div>
