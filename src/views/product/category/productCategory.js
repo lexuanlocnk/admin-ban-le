@@ -25,6 +25,7 @@ function ProductCategory() {
   const [deletedId, setDeletedId] = useState(null)
 
   // selected checkbox
+  const [isAllCheckbox, setIsAllCheckbox] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState([])
 
   const fetchDataCategories = async (dataSearch = '') => {
@@ -89,6 +90,24 @@ function ProductCategory() {
     }
   }
 
+  const handleDeleteSelectedCheckbox = async () => {
+    console.log('>>>>check selectedCheckbox', selectedCheckbox)
+
+    try {
+      const response = await axiosClient.post('admin/delete-all-product-category', {
+        ids: selectedCheckbox,
+        _method: 'DELETE',
+      })
+      if (response.data.status === true) {
+        toast.success('Xóa tất cả các mục thành công!')
+        fetchDataInstruct()
+        setSelectedCheckbox([])
+      }
+    } catch (error) {
+      console.error('Deleted all id checkbox is error', error)
+    }
+  }
+
   return (
     <CContainer>
       {!isPermissionCheck ? (
@@ -128,6 +147,11 @@ function ProductCategory() {
           <CRow>
             <CCol>
               <Search count={categories.length} onSearchData={handleSearch} />
+              <div className="mt-3">
+                <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+                  Xóa vĩnh viễn
+                </CButton>
+              </div>
               {isLoading ? (
                 <Loading />
               ) : (
@@ -135,7 +159,14 @@ function ProductCategory() {
                   <thead className="thead-dark">
                     <tr>
                       <th scope="col">
-                        <CFormCheck id="flexCheckDefault" />
+                        {/* <CFormCheck
+                          style={{
+                            transform: 'scale(1.4)',
+                            accentColor: '#198754',
+                          }}
+                          id="flexCheckDefault"
+                          value="all"
+                        /> */}
                       </th>
                       <th scope="col">Tên</th>
                       <th scope="col">Background</th>
@@ -151,7 +182,29 @@ function ProductCategory() {
                         <React.Fragment key={cate.cat_id}>
                           <tr>
                             <td scope="row">
-                              <CFormCheck id="flexCheckDefault" />
+                              <CFormCheck
+                                style={{
+                                  transform: 'scale(1.4)',
+                                  accentColor: '#198754',
+                                }}
+                                key={cate?.cat_id}
+                                aria-label="Default select example"
+                                defaultChecked={cate?.cat_id}
+                                id={`flexCheckDefault_${cate?.cat_id}`}
+                                value={cate?.cat_id}
+                                checked={selectedCheckbox.includes(cate?.cat_id)}
+                                onChange={(e) => {
+                                  const catId = cate?.cat_id
+                                  const isChecked = e.target.checked
+                                  if (isChecked) {
+                                    setSelectedCheckbox([...selectedCheckbox, catId])
+                                  } else {
+                                    setSelectedCheckbox(
+                                      selectedCheckbox.filter((id) => id !== catId),
+                                    )
+                                  }
+                                }}
+                              />
                             </td>
                             <td scope="row" style={{ fontWeight: 600, color: '#3c8dbc' }}>
                               <Link
@@ -196,7 +249,29 @@ function ProductCategory() {
                               <React.Fragment key={subCate.cat_id}>
                                 <tr>
                                   <td scope="row">
-                                    <CFormCheck id="flexCheckDefault" />
+                                    <CFormCheck
+                                      style={{
+                                        transform: 'scale(1.4)',
+                                        accentColor: '#198754',
+                                      }}
+                                      key={subCate?.cat_id}
+                                      aria-label="Default select example"
+                                      defaultChecked={subCate?.cat_id}
+                                      id={`flexCheckDefault_${subCate?.cat_id}`}
+                                      value={subCate?.cat_id}
+                                      checked={selectedCheckbox.includes(subCate?.cat_id)}
+                                      onChange={(e) => {
+                                        const catId = subCate?.cat_id
+                                        const isChecked = e.target.checked
+                                        if (isChecked) {
+                                          setSelectedCheckbox([...selectedCheckbox, catId])
+                                        } else {
+                                          setSelectedCheckbox(
+                                            selectedCheckbox.filter((id) => id !== catId),
+                                          )
+                                        }
+                                      }}
+                                    />
                                   </td>
                                   <td style={{ fontWeight: 600, color: '#3c8dbc' }}>
                                     <Link
@@ -246,7 +321,29 @@ function ProductCategory() {
                                     <React.Fragment key={childCate.cat_id}>
                                       <tr>
                                         <td scope="row">
-                                          <CFormCheck id="flexCheckDefault" />
+                                          <CFormCheck
+                                            style={{
+                                              transform: 'scale(1.4)',
+                                              accentColor: '#198754',
+                                            }}
+                                            key={childCate?.cat_id}
+                                            aria-label="Default select example"
+                                            defaultChecked={childCate?.cat_id}
+                                            id={`flexCheckDefault_${childCate?.cat_id}`}
+                                            value={childCate?.cat_id}
+                                            checked={selectedCheckbox.includes(childCate?.cat_id)}
+                                            onChange={(e) => {
+                                              const catId = childCate?.cat_id
+                                              const isChecked = e.target.checked
+                                              if (isChecked) {
+                                                setSelectedCheckbox([...selectedCheckbox, catId])
+                                              } else {
+                                                setSelectedCheckbox(
+                                                  selectedCheckbox.filter((id) => id !== catId),
+                                                )
+                                              }
+                                            }}
+                                          />
                                         </td>
                                         <td style={{ fontWeight: 600, color: '#3c8dbc' }}>
                                           <Link
