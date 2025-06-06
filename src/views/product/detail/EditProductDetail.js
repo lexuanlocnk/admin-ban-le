@@ -63,9 +63,14 @@ function EditProductDetail() {
   // selected technology option
   const [selectedTechOptions, setSelectedTechOptions] = useState([])
 
-  const [choosenCategory, setChoosenCategory] = useState(0)
-  const [selectedCategory, setSelectedCategory] = useState([])
-  const [selectedChildCate, setSelectedChildCate] = useState([])
+  // category (ngành hàng)
+  const [industryCategory, setIndustryCategory] = useState(0) // formerly choosenCategory
+
+  // danh mục cha
+  const [parentCategories, setParentCategories] = useState([]) // formerly selectedCategory
+
+  // danh mục con
+  const [childCategories, setChildCategories] = useState([]) // formerly selectedChildCate
 
   const [selectedStatus, setSelectedStatus] = useState([0])
 
@@ -192,6 +197,14 @@ function EditProductDetail() {
       const data = response.data.product
 
       if (data && response.data.status === true) {
+        // Chuẩn hóa cat_list
+        const catList = Array.isArray(data?.list_cate) ? data.list_cate : []
+        const industryCategory = catList[0] || data?.parentId || 0
+        const parentCategories = catList.slice(1, 2) || [data?.cateId]
+        const childCategories = catList.slice(2) || [data?.childId]
+
+        console.log('data fetch', { industryCategory, parentCategories, childCategories })
+
         setValues({
           title: data?.product_desc?.title,
           friendlyUrl: data?.product_desc?.friendly_url,
@@ -211,9 +224,9 @@ function EditProductDetail() {
 
         setEditorData(data?.product_desc?.description)
         setDescEditor(data?.product_desc?.short)
-        setChoosenCategory(data?.parentId)
-        setSelectedCategory([data?.cateId])
-        setSelectedChildCate([data?.childId])
+        setIndustryCategory(industryCategory)
+        setParentCategories(parentCategories)
+        setChildCategories(childCategories)
         setSelectedStatus(data?.status)
         setSelectedTechOptions(data?.op_search)
         setTech(data?.technology)
@@ -259,7 +272,7 @@ function EditProductDetail() {
 
   const fetchProductProperties = async () => {
     try {
-      const response = await axiosClient.get(`admin/cat-option?catId=${choosenCategory}`)
+      const response = await axiosClient.get(`admin/cat-option?catId=${industryCategory}`)
       const data = response.data.listOption
 
       if (data) {
@@ -272,7 +285,7 @@ function EditProductDetail() {
 
   useEffect(() => {
     fetchProductProperties()
-  }, [choosenCategory])
+  }, [industryCategory])
 
   // const handleTextareaChange = (propId, value) => {
   //   setTech((prevTech) => ({
@@ -387,13 +400,20 @@ function EditProductDetail() {
       return
     }
 
+    // Chuẩn hóa và sắp xếp cat_list theo đúng thứ tự
+    const correctedCatList = [
+      industryCategory, // Ngành hàng
+      ...parentCategories.slice(-1), // Chỉ giữ danh mục cha cuối cùng được chọn
+      ...childCategories.slice(-1), // Chỉ giữ danh mục con cuối cùng được chọn
+    ].filter((id) => id) // Loại bỏ giá trị undefined/null
+
     const productData = {
       title: values.title,
       description: editorData,
       short: descEditor,
       op_search: selectedTechOptions,
-      cat_id: selectedCategory?.[0],
-      cat_list: [choosenCategory, ...selectedCategory, ...selectedChildCate],
+      cat_id: parentCategories?.[0], // Danh mục cha đầu tiên
+      cat_list: correctedCatList, // Sử dụng cat_list đã chuẩn hóa
       friendly_title: values.pageTitle,
       friendly_url: values.friendlyUrl,
       metakey: values.metaKeywords,
@@ -421,7 +441,7 @@ function EditProductDetail() {
       const { status, message, mess } = response.data
 
       if (status === true) {
-        toast.success('Chính sửa sản phẩm thành công!')
+        toast.success('Chỉnh sửa sản phẩm thành công!')
       } else {
         const messages = {
           maso: 'Mã số đã tồn tại trong database!',
@@ -579,6 +599,12 @@ function EditProductDetail() {
       [key]: value,
     }))
   }
+
+  console.log('cehck data', {
+    industryCategory,
+    parentCategories,
+    childCategories,
+  })
 
   return (
     <CContainer>
@@ -1357,8 +1383,8 @@ function EditProductDetail() {
                             as={CFormSelect}
                             id="categories-select"
                             className="select-input"
-                            value={choosenCategory}
-                            onChange={(e) => setChoosenCategory(e.target.value)}
+                            value={industryCategory}
+                            onChange={(e) => setIndustryCategory(e.target.value)}
                             options={[
                               { label: '-- Chọn ngành hàng --', value: 0, disabled: true },
                               ...(categories && categories.length > 0
@@ -1372,7 +1398,7 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
-                        {choosenCategory !== 0 && (
+                        {industryCategory !== 0 && (
                           <>
                             <em
                               style={{
@@ -1397,7 +1423,7 @@ function EditProductDetail() {
                                   {categories &&
                                     categories.length > 0 &&
                                     categories
-                                      ?.filter((cate) => cate.cat_id == choosenCategory)?.[0]
+                                      ?.filter((cate) => cate.cat_id == industryCategory)?.[0]
                                       ?.parenty.map((subCate) => (
                                         <div key={subCate?.cat_id}>
                                           <CFormCheck
@@ -1411,15 +1437,15 @@ function EditProductDetail() {
                                             id={`flexCheckDefault_${subCate?.cat_id}`}
                                             defaultChecked={subCate?.cat_id}
                                             value={subCate?.cat_id}
-                                            checked={selectedCategory.includes(subCate?.cat_id)}
+                                            checked={parentCategories.includes(subCate?.cat_id)}
                                             onChange={(e) => {
                                               const cateId = subCate?.cat_id
                                               const isChecked = e.target.checked
                                               if (isChecked) {
-                                                setSelectedCategory([...selectedCategory, cateId])
+                                                setParentCategories([...parentCategories, cateId])
                                               } else {
-                                                setSelectedCategory(
-                                                  selectedCategory.filter((id) => id !== cateId),
+                                                setParentCategories(
+                                                  parentCategories.filter((id) => id !== cateId),
                                                 )
                                               }
                                             }}
@@ -1440,22 +1466,17 @@ function EditProductDetail() {
                                                 defaultChecked={childCate?.cat_id}
                                                 id={`flexCheckDefault_${childCate?.cat_id}`}
                                                 value={childCate?.cat_id}
-                                                checked={selectedChildCate.includes(
+                                                checked={childCategories.includes(
                                                   childCate?.cat_id,
                                                 )}
                                                 onChange={(e) => {
                                                   const cateId = childCate?.cat_id
                                                   const isChecked = e.target.checked
                                                   if (isChecked) {
-                                                    setSelectedChildCate([
-                                                      ...selectedChildCate,
-                                                      cateId,
-                                                    ])
+                                                    setChildCategories([...childCategories, cateId])
                                                   } else {
-                                                    setSelectedChildCate(
-                                                      selectedChildCate.filter(
-                                                        (id) => id !== cateId,
-                                                      ),
+                                                    setChildCategories(
+                                                      childCategories.filter((id) => id !== cateId),
                                                     )
                                                   }
                                                 }}

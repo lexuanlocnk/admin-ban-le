@@ -91,8 +91,6 @@ function ProductCategory() {
   }
 
   const handleDeleteSelectedCheckbox = async () => {
-    console.log('>>>>check selectedCheckbox', selectedCheckbox)
-
     try {
       const response = await axiosClient.post('admin/delete-all-product-category', {
         ids: selectedCheckbox,

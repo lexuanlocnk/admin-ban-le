@@ -47,10 +47,15 @@ function AddProductDetail() {
   // selected technology option
   const [selectedTechOptions, setSelectedTechOptions] = useState([])
 
-  const [choosenCategory, setChoosenCategory] = useState('1')
+  // category (ngành hàng)
+  const [industryCategory, setIndustryCategory] = useState('1') // formerly choosenCategory
 
-  const [selectedCategory, setSelectedCategory] = useState([])
-  const [selectedChildCate, setSelectedChildCate] = useState([])
+  // danh mục cha
+  const [parentCategories, setParentCategories] = useState([]) // formerly selectedCategory
+
+  // danh mục con
+  const [childCategories, setChildCategories] = useState([]) // formerly selectedChildCate
+
   const [selectedStatus, setSelectedStatus] = useState('')
 
   const [activeTab, setActiveTab] = useState('tab1')
@@ -141,7 +146,7 @@ function AddProductDetail() {
 
   const fetchProductProperties = async () => {
     try {
-      const response = await axiosClient.get(`admin/cat-option?catId=${choosenCategory}`)
+      const response = await axiosClient.get(`admin/cat-option?catId=${industryCategory}`)
       const data = response.data.listOption
 
       if (data) {
@@ -154,7 +159,7 @@ function AddProductDetail() {
 
   useEffect(() => {
     fetchProductProperties()
-  }, [choosenCategory])
+  }, [industryCategory])
 
   //set img detail
   function onFileChange(e) {
@@ -235,8 +240,8 @@ function AddProductDetail() {
       description: editorData,
       short: descEditor,
       op_search: selectedTechOptions,
-      cat_id: selectedCategory?.[0],
-      cat_list: [...choosenCategory, ...selectedCategory, ...selectedChildCate],
+      cat_id: parentCategories?.[0],
+      cat_list: [industryCategory, ...parentCategories, ...childCategories],
       friendly_title: values.pageTitle,
       friendly_url: values.friendlyUrl,
       metakey: values.metaKeywords,
@@ -682,8 +687,8 @@ function AddProductDetail() {
                       as={CFormSelect}
                       id="categories-select"
                       className="select-input"
-                      value={choosenCategory}
-                      onChange={(e) => setChoosenCategory(e.target.value)}
+                      value={industryCategory}
+                      onChange={(e) => setIndustryCategory(e.target.value)}
                       options={
                         categories && categories.length > 0
                           ? categories.map((cate) => ({
@@ -715,7 +720,7 @@ function AddProductDetail() {
                         {categories &&
                           categories.length > 0 &&
                           categories
-                            ?.filter((cate) => cate.cat_id == choosenCategory)?.[0]
+                            ?.filter((cate) => cate.cat_id == industryCategory)?.[0]
                             ?.parenty.map((subCate) => (
                               <>
                                 <CFormCheck
@@ -729,15 +734,15 @@ function AddProductDetail() {
                                   defaultChecked={subCate?.cat_id}
                                   id={`flexCheckDefault_${subCate?.cat_id}`}
                                   value={subCate?.cat_id}
-                                  checked={selectedCategory.includes(subCate?.cat_id)}
+                                  checked={parentCategories.includes(subCate?.cat_id)}
                                   onChange={(e) => {
                                     const cateId = subCate?.cat_id
                                     const isChecked = e.target.checked
                                     if (isChecked) {
-                                      setSelectedCategory([...selectedCategory, cateId])
+                                      setParentCategories([...parentCategories, cateId])
                                     } else {
-                                      setSelectedCategory(
-                                        selectedCategory.filter((id) => id !== cateId),
+                                      setParentCategories(
+                                        parentCategories.filter((id) => id !== cateId),
                                       )
                                     }
                                   }}
@@ -758,15 +763,15 @@ function AddProductDetail() {
                                       defaultChecked={childCate?.cat_id}
                                       id={`flexCheckDefault_${childCate?.cat_id}`}
                                       value={childCate?.cat_id}
-                                      checked={selectedChildCate.includes(childCate?.cat_id)}
+                                      checked={childCategories.includes(childCate?.cat_id)}
                                       onChange={(e) => {
                                         const cateId = childCate?.cat_id
                                         const isChecked = e.target.checked
                                         if (isChecked) {
-                                          setSelectedChildCate([...selectedChildCate, cateId])
+                                          setChildCategories([...childCategories, cateId])
                                         } else {
-                                          setSelectedChildCate(
-                                            selectedChildCate.filter((id) => id !== cateId),
+                                          setChildCategories(
+                                            childCategories.filter((id) => id !== cateId),
                                           )
                                         }
                                       }}
