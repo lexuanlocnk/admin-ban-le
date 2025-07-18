@@ -249,7 +249,7 @@ const Dashboard = () => {
         </CCol>
       </CRow>
       <WidgetsDropdown className="mb-4" dashBoardData={dashBoardData} />
-      <CCard className="mb-4">
+      {/* <CCard className="mb-4">
         <CCardBody>
           <CRow>
             <CCol sm={5}>
@@ -280,7 +280,7 @@ const Dashboard = () => {
           </CRow>
           <MainChart timePeriod={timePeriod} />
         </CCardBody>
-      </CCard>
+      </CCard> */}
 
       <CRow>
         <h6>Khách hàng có lượt truy cập nhiều nhất</h6>

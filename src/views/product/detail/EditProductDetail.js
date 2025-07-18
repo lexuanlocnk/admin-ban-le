@@ -1377,7 +1377,7 @@ function EditProductDetail() {
                         <br />
 
                         <CCol md={12}>
-                          <label htmlFor="categories-select">Nghành hàng</label>
+                          <label htmlFor="categories-select">Ngành hàng</label>
                           <Field
                             name="categories"
                             as={CFormSelect}
