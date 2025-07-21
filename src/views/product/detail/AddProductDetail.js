@@ -42,10 +42,7 @@ function AddProductDetail() {
   const [dataProductProperties, setDataProductProperties] = useState([])
 
   // technology
-  const [tech, setTech] = useState({})
-
-  // selected technology option
-  const [selectedTechOptions, setSelectedTechOptions] = useState([])
+  const [tech, setTech] = useState([])
 
   // category (ngành hàng)
   const [industryCategory, setIndustryCategory] = useState('1') // formerly choosenCategory
@@ -146,8 +143,10 @@ function AddProductDetail() {
 
   const fetchProductProperties = async () => {
     try {
-      const response = await axiosClient.get(`admin/cat-option?catId=${industryCategory}`)
-      const data = response.data.listOption
+      const response = await axiosClient.get(
+        `admin/show-properties-category?cat_id=${industryCategory}`,
+      )
+      const data = response.data.data
 
       if (data) {
         setDataProductProperties(data)
@@ -239,7 +238,12 @@ function AddProductDetail() {
       title: values.title,
       description: editorData,
       short: descEditor,
-      op_search: selectedTechOptions,
+      // op_search: tech.reduce((acc, item) => {
+      //   if (item.properties_value) {
+      //     return [...acc, ...item.properties_value.map((prop) => prop.id)]
+      //   }
+      //   return acc
+      // }, []),
       cat_id: parentCategories?.[0],
       cat_list: [industryCategory, ...parentCategories, ...childCategories],
       friendly_title: values.pageTitle,
@@ -256,7 +260,7 @@ function AddProductDetail() {
       stock: values.stock,
       display: values.visible,
       picture: selectedFile,
-      technology: tech,
+      technologies: tech,
       picture_detail: selectedFileDetail,
       votes: values.star,
     }
@@ -293,12 +297,77 @@ function AddProductDetail() {
   }
 
   // Change technology in ckeditor
-  const handleEditorChange = (key, value) => {
-    setTech((prevTech) => ({
-      ...prevTech,
-      [key]: value,
-    }))
+  const handleEditorChange = (propId, description) => {
+    setTech((prevTech) => {
+      const existingIndex = prevTech.findIndex((item) => item.id === propId)
+
+      if (existingIndex !== -1) {
+        // Update existing item
+        const updatedTech = [...prevTech]
+        updatedTech[existingIndex] = {
+          ...updatedTech[existingIndex],
+          description: description,
+        }
+        return updatedTech
+      } else {
+        // Add new item
+        return [
+          ...prevTech,
+          {
+            id: propId,
+            description: description,
+          },
+        ]
+      }
+    })
   }
+
+  // Handle checkbox changes for properties
+  const handleCheckboxChange = (propId, optionId, isChecked) => {
+    setTech((prevTech) => {
+      const existingIndex = prevTech.findIndex((item) => item.id === propId)
+
+      if (existingIndex !== -1) {
+        // Update existing item
+        const updatedTech = [...prevTech]
+        const currentItem = updatedTech[existingIndex]
+
+        if (isChecked) {
+          // Add option to properties_value
+          const properties_value = currentItem.properties_value || []
+          if (!properties_value.some((prop) => prop.id === optionId)) {
+            updatedTech[existingIndex] = {
+              ...currentItem,
+              properties_value: [...properties_value, { id: optionId }],
+            }
+          }
+        } else {
+          // Remove option from properties_value
+          const properties_value = currentItem.properties_value || []
+          updatedTech[existingIndex] = {
+            ...currentItem,
+            properties_value: properties_value.filter((prop) => prop.id !== optionId),
+          }
+        }
+
+        return updatedTech
+      } else {
+        if (isChecked) {
+          return [
+            ...prevTech,
+            {
+              id: propId,
+              description: '',
+              properties_value: [{ id: optionId }],
+            },
+          ]
+        }
+        return prevTech
+      }
+    })
+  }
+
+  console.log('tech ', tech)
 
   return (
     <CContainer>
@@ -420,55 +489,57 @@ function AddProductDetail() {
                           >
                             {dataProductProperties &&
                               dataProductProperties.length > 0 &&
-                              dataProductProperties?.map((prop, index) => (
-                                <tr key={prop.title}>
-                                  <td>
-                                    <strong>
-                                      {index + 1}. {prop.title}
-                                    </strong>
-                                    <CKEditor
-                                      className="mt-2"
-                                      config={{
-                                        height: 70,
-                                        versionCheck: false,
-                                      }}
-                                      id={`editor-${prop.op_id}`}
-                                      onChange={(event) => {
-                                        const data = event.editor.getData()
-                                        handleEditorChange(prop.op_id, data)
-                                      }}
-                                    />
+                              dataProductProperties?.map((prop, index) => {
+                                // Find existing tech item for this property
+                                const existingTechItem = tech.find((item) => item.id === prop.id)
 
-                                    <div className="d-flex gap-3 flex-wrap mt-2">
-                                      {prop?.optionChild?.map((option) => (
-                                        <CFormCheck
-                                          key={option?.op_id}
-                                          label={option?.title}
-                                          aria-label="Default selecAt example"
-                                          defaultChecked={option?.op_id}
-                                          id={`flexCheckDefault_${option?.op_id}`}
-                                          value={option?.op_id}
-                                          checked={selectedTechOptions.includes(option?.op_id)}
-                                          onChange={(e) => {
-                                            const optionId = option?.op_id
-                                            const isChecked = e.target.checked
-                                            if (isChecked) {
-                                              setSelectedTechOptions([
-                                                ...selectedTechOptions,
-                                                optionId,
-                                              ])
-                                            } else {
-                                              setSelectedTechOptions(
-                                                selectedTechOptions.filter((id) => id !== optionId),
-                                              )
-                                            }
-                                          }}
-                                        />
-                                      ))}
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
+                                return (
+                                  <tr key={prop.id}>
+                                    <td>
+                                      <strong>
+                                        {index + 1}. {prop.title}
+                                      </strong>
+                                      <CKEditor
+                                        className="mt-2"
+                                        config={{
+                                          height: 70,
+                                          versionCheck: false,
+                                        }}
+                                        id={`editor-${prop.id}`}
+                                        data={existingTechItem?.description || ''}
+                                        onChange={(event) => {
+                                          const data = event.editor.getData()
+                                          handleEditorChange(prop.id, data)
+                                        }}
+                                      />
+
+                                      <div className="d-flex gap-3 flex-wrap mt-2">
+                                        {prop?.properties_value?.map((option) => {
+                                          const isSelected =
+                                            existingTechItem?.properties_value?.some(
+                                              (propValue) => propValue.id === option.id,
+                                            ) || false
+
+                                          return (
+                                            <CFormCheck
+                                              key={option?.id}
+                                              label={option?.name}
+                                              aria-label="Default select example"
+                                              id={`flexCheckDefault_${option?.id}`}
+                                              value={option?.id}
+                                              checked={isSelected}
+                                              onChange={(e) => {
+                                                const isChecked = e.target.checked
+                                                handleCheckboxChange(prop.id, option.id, isChecked)
+                                              }}
+                                            />
+                                          )
+                                        })}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )
+                              })}
                           </table>
                         </CCol>
                       </div>

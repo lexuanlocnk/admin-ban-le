@@ -51,6 +51,9 @@ function EditProductDetail() {
   // brand
   const [brands, setBrands] = useState([])
 
+  // brand filter
+  const [brandFilter, setBrandFilter] = useState('')
+
   // status
   const [status, setStatus] = useState([])
 
@@ -58,19 +61,15 @@ function EditProductDetail() {
   const [dataProductProperties, setDataProductProperties] = useState([])
 
   // technology cũ của CN
-  const [tech, setTech] = useState({})
-
-  // selected technology option
-  const [selectedTechOptions, setSelectedTechOptions] = useState([])
+  const [tech, setTech] = useState([])
 
   // category (ngành hàng)
-  const [industryCategory, setIndustryCategory] = useState(0) // formerly choosenCategory
+  const [industryCategory, setIndustryCategory] = useState(0)
 
   // danh mục cha
-  const [parentCategories, setParentCategories] = useState([]) // formerly selectedCategory
-
+  const [parentCategories, setParentCategories] = useState([])
   // danh mục con
-  const [childCategories, setChildCategories] = useState([]) // formerly selectedChildCate
+  const [childCategories, setChildCategories] = useState([])
 
   const [selectedStatus, setSelectedStatus] = useState([0])
 
@@ -228,8 +227,21 @@ function EditProductDetail() {
         setParentCategories(parentCategories)
         setChildCategories(childCategories)
         setSelectedStatus(data?.status)
-        setSelectedTechOptions(data?.op_search)
-        setTech(data?.technology)
+
+        const technologies = data?.technologies
+
+        if (technologies && typeof technologies === 'object' && !Array.isArray(technologies)) {
+          // Convert object to array format
+          const techArray = Object.entries(technologies).map(([id, description]) => ({
+            id: parseInt(id),
+            description: description,
+          }))
+          setTech(techArray)
+        } else if (Array.isArray(technologies)) {
+          setTech(technologies)
+        } else {
+          setTech([])
+        }
 
         setSelectedFile(data?.picture)
         setImagesDetail(data?.product_picture)
@@ -270,10 +282,25 @@ function EditProductDetail() {
     fetchProductListData()
   }, [dataSearch, selectedFilterCategory])
 
+  // const fetchProductProperties = async () => {
+  //   try {
+  //     const response = await axiosClient.get(`admin/cat-option?catId=${industryCategory}`)
+  //     const data = response.data.listOption
+
+  //     if (data) {
+  //       setDataProductProperties(data)
+  //     }
+  //   } catch (error) {
+  //     console.error('Fetch data categories is error', error)
+  //   }
+  // }
+
   const fetchProductProperties = async () => {
     try {
-      const response = await axiosClient.get(`admin/cat-option?catId=${industryCategory}`)
-      const data = response.data.listOption
+      const response = await axiosClient.get(
+        `admin/show-properties-category?cat_id=${industryCategory}`,
+      )
+      const data = response.data.data
 
       if (data) {
         setDataProductProperties(data)
@@ -411,7 +438,12 @@ function EditProductDetail() {
       title: values.title,
       description: editorData,
       short: descEditor,
-      op_search: selectedTechOptions,
+      op_search: tech.reduce((acc, item) => {
+        if (item.properties_value) {
+          return [...acc, ...item.properties_value.map((prop) => prop.id)]
+        }
+        return acc
+      }, []),
       cat_id: parentCategories?.[0], // Danh mục cha đầu tiên
       cat_list: correctedCatList, // Sử dụng cat_list đã chuẩn hóa
       friendly_title: values.pageTitle,
@@ -593,18 +625,79 @@ function EditProductDetail() {
   }
 
   // Change technology in ckeditor
-  const handleEditorChange = (key, value) => {
-    setTech((prevTech) => ({
-      ...prevTech,
-      [key]: value,
-    }))
+  const handleEditorChange = (propId, description) => {
+    setTech((prevTech) => {
+      const existingIndex = prevTech.findIndex((item) => item.id === propId)
+
+      if (existingIndex !== -1) {
+        // Update existing item
+        const updatedTech = [...prevTech]
+        updatedTech[existingIndex] = {
+          ...updatedTech[existingIndex],
+          description: description,
+        }
+        return updatedTech
+      } else {
+        // Add new item
+        return [
+          ...prevTech,
+          {
+            id: propId,
+            description: description,
+          },
+        ]
+      }
+    })
   }
 
-  console.log('cehck data', {
-    industryCategory,
-    parentCategories,
-    childCategories,
-  })
+  // Handle checkbox changes for properties
+  const handleCheckboxChange = (propId, optionId, isChecked) => {
+    setTech((prevTech) => {
+      const existingIndex = prevTech.findIndex((item) => item.id === propId)
+
+      if (existingIndex !== -1) {
+        // Update existing item
+        const updatedTech = [...prevTech]
+        const currentItem = updatedTech[existingIndex]
+
+        if (isChecked) {
+          // Add option to properties_value
+          const properties_value = currentItem.properties_value || []
+          if (!properties_value.some((prop) => prop.id === optionId)) {
+            updatedTech[existingIndex] = {
+              ...currentItem,
+              properties_value: [...properties_value, { id: optionId }],
+            }
+          }
+        } else {
+          // Remove option from properties_value
+          const properties_value = currentItem.properties_value || []
+          updatedTech[existingIndex] = {
+            ...currentItem,
+            properties_value: properties_value.filter((prop) => prop.id !== optionId),
+          }
+        }
+
+        return updatedTech
+      } else {
+        // Create new item with properties_value if checked
+        if (isChecked) {
+          return [
+            ...prevTech,
+            {
+              id: propId,
+              description: '',
+              properties_value: [{ id: optionId }],
+            },
+          ]
+        }
+        return prevTech
+      }
+    })
+  }
+
+  console.log('data properties', dataProductProperties)
+  console.log('tech array', tech)
 
   return (
     <CContainer>
@@ -739,60 +832,65 @@ function EditProductDetail() {
                                 >
                                   {dataProductProperties &&
                                     dataProductProperties.length > 0 &&
-                                    dataProductProperties?.map((prop, index) => (
-                                      <tr key={prop.op_id}>
-                                        <td>
-                                          <strong>
-                                            {index + 1}. {prop.title}
-                                          </strong>
-                                          <CKEditor
-                                            className="mt-2"
-                                            config={{
-                                              height: 70,
-                                              versionCheck: false,
-                                            }}
-                                            id={`editor-${prop.op_id}`}
-                                            initData={tech[prop.op_id] || ''}
-                                            onChange={(event) => {
-                                              const data = event.editor.getData()
-                                              handleEditorChange(prop.op_id, data)
-                                            }}
-                                          />
+                                    dataProductProperties?.map((prop, index) => {
+                                      // Find existing tech item for this property
+                                      const existingTechItem = tech.find(
+                                        (item) => item.id === prop.id,
+                                      )
 
-                                          <div className="d-flex gap-3 flex-wrap mt-2">
-                                            {prop?.optionChild?.map((option) => (
-                                              <CFormCheck
-                                                key={option?.op_id}
-                                                label={option?.title}
-                                                aria-label="Default select example"
-                                                defaultChecked={option?.op_id}
-                                                id={`flexCheckDefault_${option?.op_id}`}
-                                                value={option?.op_id}
-                                                checked={selectedTechOptions.includes(
-                                                  option?.op_id,
-                                                )}
-                                                onChange={(e) => {
-                                                  const optionId = option?.op_id
-                                                  const isChecked = e.target.checked
-                                                  if (isChecked) {
-                                                    setSelectedTechOptions([
-                                                      ...selectedTechOptions,
-                                                      optionId,
-                                                    ])
-                                                  } else {
-                                                    setSelectedTechOptions(
-                                                      selectedTechOptions.filter(
-                                                        (id) => id !== optionId,
-                                                      ),
-                                                    )
-                                                  }
-                                                }}
-                                              />
-                                            ))}
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    ))}
+                                      return (
+                                        <tr key={prop.id}>
+                                          <td>
+                                            <strong>
+                                              {index + 1}. {prop.title}
+                                            </strong>
+                                            <CKEditor
+                                              key={`editor-${prop.id}`}
+                                              className="mt-2"
+                                              config={{
+                                                height: 70,
+                                                versionCheck: false,
+                                              }}
+                                              id={`editor-${prop.id}`}
+                                              initData={existingTechItem?.description || ''}
+                                              onChange={(event) => {
+                                                const data = event.editor.getData()
+                                                handleEditorChange(prop.id, data)
+                                              }}
+                                            />
+
+                                            <div className="d-flex gap-3 flex-wrap mt-2">
+                                              {prop?.properties_value?.map((option) => {
+                                                // Check if this option is selected in tech array
+                                                const isSelected =
+                                                  existingTechItem?.properties_value?.some(
+                                                    (propValue) => propValue.id === option.id,
+                                                  ) || false
+
+                                                return (
+                                                  <CFormCheck
+                                                    key={option?.id}
+                                                    label={option?.name}
+                                                    aria-label="Default select example"
+                                                    id={`flexCheckDefault_${option?.id}`}
+                                                    value={option?.id}
+                                                    checked={isSelected}
+                                                    onChange={(e) => {
+                                                      const isChecked = e.target.checked
+                                                      handleCheckboxChange(
+                                                        prop.id,
+                                                        option.id,
+                                                        isChecked,
+                                                      )
+                                                    }}
+                                                  />
+                                                )
+                                              })}
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      )
+                                    })}
                                 </table>
                               </CCol>
                             </div>
@@ -954,7 +1052,6 @@ function EditProductDetail() {
                             ))}
                           </div>
                         </CCol>
-                        <br />
 
                         <CCol md={12}>
                           <table className="filter-table">
@@ -1024,249 +1121,257 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
-                        <h5>LỰA CHỌN SẢN PHẨM COMBO ĐI KÈM</h5>
-                        <CCol>
-                          <div
-                            className="border p-3 bg-white"
-                            style={{
-                              maxHeight: 400,
-                              minHeight: 'auto',
-                              overflowY: 'scroll',
-                            }}
-                          >
-                            <table
-                              className="table-combo"
+                        <div className="bg-white border p-3">
+                          <h5>LỰA CHỌN SẢN PHẨM COMBO ĐI KÈM</h5>
+                          <CCol>
+                            <div
+                              className="border p-3 bg-white"
                               style={{
-                                fontSize: 13,
-                                width: '100%',
-                                textAlign: 'left',
-                                borderCollapse: 'collapse',
+                                maxHeight: 400,
+                                minHeight: 'auto',
+                                overflowY: 'scroll',
                               }}
                             >
-                              <thead
+                              <table
+                                className="table-combo"
                                 style={{
-                                  background: '#ddd',
+                                  fontSize: 13,
+                                  width: '100%',
+                                  textAlign: 'left',
+                                  borderCollapse: 'collapse',
                                 }}
                               >
-                                <tr>
-                                  <th>Tiêu đề</th>
-                                  <th>Hình ảnh</th>
-                                  <th>Giá bán</th>
-                                  <th>Tác vụ</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {isDataComboLoading ? (
-                                  <Loading />
-                                ) : dataProductList && dataProductList.length > 0 ? (
-                                  dataProductList.map((item) => (
-                                    <tr key={item.product_id}>
-                                      <td
-                                        style={{
-                                          maxWidth: 300,
-                                          fontWeight: 500,
-                                        }}
-                                      >
-                                        {item.product_desc.title}
-                                      </td>
-                                      <td>
-                                        <CImage
-                                          src={`${imageBaseUrl}${item.picture}`}
-                                          alt={`image_${item.product_id}`}
-                                          width={50}
-                                        />
-                                      </td>
-                                      <td style={{ color: 'orange', fontWeight: 500 }}>
-                                        {item?.price && item?.price !== null
-                                          ? item?.price.toLocaleString()
-                                          : 0}{' '}
-                                        đ
-                                      </td>
-                                      <td style={{ textAlign: 'center' }}>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleAddCombo({
-                                              productId: item.product_id,
-                                              productTitle: item.product_desc.title,
-                                              productImage: item.picture,
-                                              productPrice: item.price,
-                                            })
-                                          }
+                                <thead
+                                  style={{
+                                    background: '#ddd',
+                                  }}
+                                >
+                                  <tr>
+                                    <th>Tiêu đề</th>
+                                    <th>Hình ảnh</th>
+                                    <th>Giá bán</th>
+                                    <th>Tác vụ</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {isDataComboLoading ? (
+                                    <Loading />
+                                  ) : dataProductList && dataProductList.length > 0 ? (
+                                    dataProductList.map((item) => (
+                                      <tr key={item.product_id}>
+                                        <td
                                           style={{
-                                            backgroundColor: '#008CBA',
-                                            color: 'white',
-                                            padding: '5px 10px',
-                                            border: 'none',
+                                            maxWidth: 300,
+                                            fontWeight: 500,
                                           }}
                                         >
-                                          +
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  ))
-                                ) : (
-                                  []
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
-                        </CCol>
-                        <br />
-
-                        <h5>HÌNH PHỤ SẢN PHẨM </h5>
-                        <div className="bg-white border p-3 position-relative">
-                          {selectedIndexes.length > 0 && (
-                            <div
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                padding: '8px',
-                                backgroundColor: '#fff',
-                                border: '1px solid #ccc',
-                                width: '100%',
-                                position: 'absolute',
-                                bottom: 0,
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                zIndex: 10,
-                              }}
-                            >
-                              <CButton
-                                size="sm"
-                                color="danger"
-                                className="text-white"
-                                onClick={removeSelectedImages}
-                              >
-                                Xóa ảnh đã chọn ({selectedIndexes.length})
-                              </CButton>
-                            </div>
-                          )}
-                          <CCol>
-                            <CFormInput
-                              type="file"
-                              id="formFile"
-                              label="Chọn hình ảnh phụ (*Có thể chọn nhiều hình cùng lúc)"
-                              multiple
-                              onChange={(e) => onFileChangeDetail(e)}
-                              size="sm"
-                            />
-                            <br />
-
-                            <div
-                              className="d-flex flex-wrap gap-5 p-2 "
-                              style={{ maxHeight: 400, overflowY: 'auto' }}
-                            >
-                              {[...imagesDetail, ...fileDetail].map((item, index) => {
-                                const isSelected = selectedIndexes.includes(index)
-                                return (
-                                  <div
-                                    key={index}
-                                    className="position-relative"
-                                    style={{ width: 130 }}
-                                  >
-                                    <div className="d-flex align-items-start gap-2">
-                                      <CFormCheck
-                                        checked={isSelected}
-                                        onChange={() => toggleSelect(index)}
-                                        style={{
-                                          transform: 'scale(1.5)',
-                                          accentColor: '#198754',
-                                        }}
-                                      />
-                                      <CImage
-                                        className="border "
-                                        src={item.picture ? `${imageBaseUrl}${item.picture}` : item}
-                                        alt={`image_${index}`}
-                                        fluid
-                                        style={{
-                                          aspectRatio: '1/1',
-                                          objectFit: 'cover',
-                                          border: isSelected
-                                            ? '3px solid #198754'
-                                            : '1px solid #dee2e6',
-                                          opacity: isSelected ? 0.8 : 1,
-                                          transition: 'all 0.2s ease-in-out',
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                )
-                              })}
+                                          {item.product_desc.title}
+                                        </td>
+                                        <td>
+                                          <CImage
+                                            src={`${imageBaseUrl}${item.picture}`}
+                                            alt={`image_${item.product_id}`}
+                                            width={50}
+                                          />
+                                        </td>
+                                        <td style={{ color: 'orange', fontWeight: 500 }}>
+                                          {item?.price && item?.price !== null
+                                            ? item?.price.toLocaleString()
+                                            : 0}{' '}
+                                          đ
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              handleAddCombo({
+                                                productId: item.product_id,
+                                                productTitle: item.product_desc.title,
+                                                productImage: item.picture,
+                                                productPrice: item.price,
+                                              })
+                                            }
+                                            style={{
+                                              backgroundColor: '#008CBA',
+                                              color: 'white',
+                                              padding: '5px 10px',
+                                              border: 'none',
+                                            }}
+                                          >
+                                            +
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))
+                                  ) : (
+                                    []
+                                  )}
+                                </tbody>
+                              </table>
                             </div>
                           </CCol>
                         </div>
                         <br />
 
-                        <h5>SEARCH ENGINE OPTIMIZATION</h5>
-                        <div className="p-3 border bg-white">
-                          <CCol md={12}>
-                            <label htmlFor="friendlyUrl-input">Chuỗi đường dẫn</label>
-                            <Field
-                              name="friendlyUrl"
-                              type="text"
-                              as={CFormInput}
-                              id="url-input"
-                              text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
-                            />
-                            <ErrorMessage
-                              name="friendlyUrl"
-                              component="div"
-                              className="text-danger"
-                            />
-                          </CCol>
-                          <br />
+                        <div className="bg-white border p-3">
+                          <h5>HÌNH PHỤ SẢN PHẨM </h5>
+                          <div className="bg-white border p-3 position-relative">
+                            {selectedIndexes.length > 0 && (
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  padding: '8px',
+                                  backgroundColor: '#fff',
+                                  border: '1px solid #ccc',
+                                  width: '100%',
+                                  position: 'absolute',
+                                  bottom: 0,
+                                  left: '50%',
+                                  transform: 'translateX(-50%)',
+                                  zIndex: 10,
+                                }}
+                              >
+                                <CButton
+                                  size="sm"
+                                  color="danger"
+                                  className="text-white"
+                                  onClick={removeSelectedImages}
+                                >
+                                  Xóa ảnh đã chọn ({selectedIndexes.length})
+                                </CButton>
+                              </div>
+                            )}
+                            <CCol>
+                              <CFormInput
+                                type="file"
+                                id="formFile"
+                                label="Chọn hình ảnh phụ (*Có thể chọn nhiều hình cùng lúc)"
+                                multiple
+                                onChange={(e) => onFileChangeDetail(e)}
+                                size="sm"
+                              />
+                              <br />
 
-                          <CCol md={12}>
-                            <label htmlFor="pageTitle-input">Tiêu đề trang</label>
-                            <Field
-                              name="pageTitle"
-                              type="text"
-                              as={CFormInput}
-                              id="pageTitle-input"
-                              text="Độ dài của tiêu đề trang tối đa 60 ký tự."
-                            />
-                            <ErrorMessage
-                              name="pageTitle"
-                              component="div"
-                              className="text-danger"
-                            />
-                          </CCol>
-                          <br />
-                          <CCol md={12}>
-                            <label htmlFor="metaKeywords-input">Meta keywords</label>
-                            <Field
-                              name="metaKeywords"
-                              type="text"
-                              as={CFormTextarea}
-                              id="metaKeywords-input"
-                              text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
-                            />
-                            <ErrorMessage
-                              name="metaKeywords"
-                              component="div"
-                              className="text-danger"
-                            />
-                          </CCol>
-                          <br />
+                              <div
+                                className="d-flex flex-wrap gap-5 p-2 "
+                                style={{ maxHeight: 400, overflowY: 'auto' }}
+                              >
+                                {[...imagesDetail, ...fileDetail].map((item, index) => {
+                                  const isSelected = selectedIndexes.includes(index)
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="position-relative"
+                                      style={{ width: 130 }}
+                                    >
+                                      <div className="d-flex align-items-start gap-2">
+                                        <CFormCheck
+                                          checked={isSelected}
+                                          onChange={() => toggleSelect(index)}
+                                          style={{
+                                            transform: 'scale(1.5)',
+                                            accentColor: '#198754',
+                                          }}
+                                        />
+                                        <CImage
+                                          className="border "
+                                          src={
+                                            item.picture ? `${imageBaseUrl}${item.picture}` : item
+                                          }
+                                          alt={`image_${index}`}
+                                          fluid
+                                          style={{
+                                            aspectRatio: '1/1',
+                                            objectFit: 'cover',
+                                            border: isSelected
+                                              ? '3px solid #198754'
+                                              : '1px solid #dee2e6',
+                                            opacity: isSelected ? 0.8 : 1,
+                                            transition: 'all 0.2s ease-in-out',
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </CCol>
+                          </div>
+                        </div>
+                        <br />
 
-                          <CCol md={12}>
-                            <label htmlFor="metaDescription-input">Meta description</label>
-                            <Field
-                              name="metaDescription"
-                              type="text"
-                              as={CFormTextarea}
-                              id="metaDescription-input"
-                              text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
-                            />
-                            <ErrorMessage
-                              name="metaDescription"
-                              component="div"
-                              className="text-danger"
-                            />
-                          </CCol>
-                          <br />
+                        <div className="bg-white border p-3">
+                          <h5>SEARCH ENGINE OPTIMIZATION</h5>
+                          <div className="p-3 border bg-white">
+                            <CCol md={12}>
+                              <label htmlFor="friendlyUrl-input">Chuỗi đường dẫn</label>
+                              <Field
+                                name="friendlyUrl"
+                                type="text"
+                                as={CFormInput}
+                                id="url-input"
+                                text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
+                              />
+                              <ErrorMessage
+                                name="friendlyUrl"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </CCol>
+                            <br />
+
+                            <CCol md={12}>
+                              <label htmlFor="pageTitle-input">Tiêu đề trang</label>
+                              <Field
+                                name="pageTitle"
+                                type="text"
+                                as={CFormInput}
+                                id="pageTitle-input"
+                                text="Độ dài của tiêu đề trang tối đa 60 ký tự."
+                              />
+                              <ErrorMessage
+                                name="pageTitle"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </CCol>
+                            <br />
+                            <CCol md={12}>
+                              <label htmlFor="metaKeywords-input">Meta keywords</label>
+                              <Field
+                                name="metaKeywords"
+                                type="text"
+                                as={CFormTextarea}
+                                id="metaKeywords-input"
+                                text="Độ dài của meta keywords chuẩn là từ 100 đến 150 ký tự, trong đó có ít nhất 4 dấu phẩy (,)."
+                              />
+                              <ErrorMessage
+                                name="metaKeywords"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </CCol>
+                            <br />
+
+                            <CCol md={12}>
+                              <label htmlFor="metaDescription-input">Meta description</label>
+                              <Field
+                                name="metaDescription"
+                                type="text"
+                                as={CFormTextarea}
+                                id="metaDescription-input"
+                                text="Thẻ meta description chỉ nên dài khoảng 140 kí tự để có thể hiển thị hết được trên Google. Tối đa 200 ký tự."
+                              />
+                              <ErrorMessage
+                                name="metaDescription"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </CCol>
+                            <br />
+                          </div>
                         </div>
                       </CCol>
 
@@ -1282,20 +1387,22 @@ function EditProductDetail() {
                             )}
                           </CButton>
                         </CCol>
-                        <CCol md={12}>
-                          <label htmlFor="syndicationCode-input">Mã Syndication</label>
-                          <Field
-                            name="syndicationCode"
-                            type="text"
-                            as={CFormInput}
-                            id="syndicationCode-input"
-                          />
-                          <ErrorMessage
-                            name="syndicationCode"
-                            component="div"
-                            className="text-danger"
-                          />
-                        </CCol>
+                        <div>
+                          <CCol md={12}>
+                            <label htmlFor="syndicationCode-input">Mã Syndication</label>
+                            <Field
+                              name="syndicationCode"
+                              type="text"
+                              as={CFormInput}
+                              id="syndicationCode-input"
+                            />
+                            <ErrorMessage
+                              name="syndicationCode"
+                              component="div"
+                              className="text-danger"
+                            />
+                          </CCol>
+                        </div>
                         <br />
 
                         <CCol md={12}>
@@ -1315,65 +1422,71 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
-                        <CCol md={12}>
-                          <label htmlFor="productCode-input">Mã kho</label>
-                          <Field
-                            name="productCode"
-                            type="text"
-                            as={CFormInput}
-                            id="productCode-input"
-                            text="Nếu không nhập mã kho hoặc mã kho đã tồn tại. Hệ thống sẽ tự tạo mã kho theo chuẩn."
-                          />
-                          <ErrorMessage
-                            name="productCode"
-                            component="div"
-                            className="text-danger"
-                          />
-                        </CCol>
+                        <div className="bg-white border p-2">
+                          <CCol md={12}>
+                            <label htmlFor="productCode-input">Mã kho</label>
+                            <Field
+                              name="productCode"
+                              type="text"
+                              as={CFormInput}
+                              id="productCode-input"
+                              text="Nếu không nhập mã kho hoặc mã kho đã tồn tại. Hệ thống sẽ tự tạo mã kho theo chuẩn."
+                            />
+                            <ErrorMessage
+                              name="productCode"
+                              component="div"
+                              className="text-danger"
+                            />
+                          </CCol>
+                        </div>
                         <br />
 
-                        <CCol md={12}>
-                          <Field name="marketPrice">
-                            {({ field }) => (
-                              <CFormInput
-                                {...field}
-                                type="text"
-                                id="marketPrice-input"
-                                value={formatNumber(field.value)}
-                                label="Giá thị trường (VNĐ)"
-                                onChange={(e) => {
-                                  const rawValue = unformatNumber(e.target.value)
-                                  setFieldValue(field.name, rawValue)
-                                }}
-                              />
-                            )}
-                          </Field>
-                          <ErrorMessage
-                            name="marketPrice"
-                            component="div"
-                            className="text-danger"
-                          />
-                        </CCol>
+                        <div className="bg-white border p-2">
+                          <CCol md={12}>
+                            <Field name="marketPrice">
+                              {({ field }) => (
+                                <CFormInput
+                                  {...field}
+                                  type="text"
+                                  id="marketPrice-input"
+                                  value={formatNumber(field.value)}
+                                  label="Giá thị trường (VNĐ)"
+                                  onChange={(e) => {
+                                    const rawValue = unformatNumber(e.target.value)
+                                    setFieldValue(field.name, rawValue)
+                                  }}
+                                />
+                              )}
+                            </Field>
+                            <ErrorMessage
+                              name="marketPrice"
+                              component="div"
+                              className="text-danger"
+                            />
+                          </CCol>
+                        </div>
                         <br />
 
-                        <CCol md={12}>
-                          <Field name="price">
-                            {({ field }) => (
-                              <CFormInput
-                                {...field}
-                                type="text"
-                                id="price-input"
-                                value={formatNumber(field.value)}
-                                label="Giá bán (VNĐ)"
-                                onChange={(e) => {
-                                  const rawValue = unformatNumber(e.target.value)
-                                  setFieldValue(field.name, rawValue)
-                                }}
-                              />
-                            )}
-                          </Field>
-                          <ErrorMessage name="price" component="div" className="text-danger" />
-                        </CCol>
+                        <div className="bg-white border p-2">
+                          <CCol md={12}>
+                            <Field name="price">
+                              {({ field }) => (
+                                <CFormInput
+                                  {...field}
+                                  type="text"
+                                  id="price-input"
+                                  value={formatNumber(field.value)}
+                                  label="Giá bán (VNĐ)"
+                                  onChange={(e) => {
+                                    const rawValue = unformatNumber(e.target.value)
+                                    setFieldValue(field.name, rawValue)
+                                  }}
+                                />
+                              )}
+                            </Field>
+                            <ErrorMessage name="price" component="div" className="text-danger" />
+                          </CCol>
+                        </div>
                         <br />
 
                         <CCol md={12}>
@@ -1403,7 +1516,8 @@ function EditProductDetail() {
                             <em
                               style={{
                                 color: 'red',
-                                fontSize: 12,
+                                fontSize: 14,
+                                fontWeight: 'medium',
                               }}
                             >
                               Lưu ý: Không chọn 2 danh mục cùng cấp.
@@ -1493,23 +1607,44 @@ function EditProductDetail() {
 
                         <CCol md={12}>
                           <label htmlFor="brand-select">Thương hiệu</label>
-                          <Field
-                            name="brand"
-                            as={CFormSelect}
-                            id="brand-select"
-                            className="select-input"
-                            options={
-                              brands && brands.length > 0
-                                ? brands
-                                    .slice()
-                                    .sort((a, b) => a.title.localeCompare(b.title))
-                                    .map((brand) => ({
-                                      label: brand?.title,
-                                      value: brand.brandId,
-                                    }))
-                                : []
-                            }
+
+                          {/* Thêm input filter */}
+                          <CFormInput
+                            type="text"
+                            placeholder="Tìm kiếm thương hiệu..."
+                            value={brandFilter}
+                            onChange={(e) => setBrandFilter(e.target.value)}
+                            className="mb-2"
+                            size="sm"
                           />
+
+                          <Field name="brand">
+                            {({ field, form }) => (
+                              <CFormSelect
+                                {...field}
+                                id="brand-select"
+                                className="select-input"
+                                options={
+                                  brands && brands.length > 0
+                                    ? brands
+                                        .filter((brand) =>
+                                          brand.title
+                                            .toLowerCase()
+                                            .includes(brandFilter.toLowerCase()),
+                                        )
+                                        .sort((a, b) => a.title.localeCompare(b.title))
+                                        .map((brand) => ({
+                                          label: brand?.title,
+                                          value: brand.brandId,
+                                        }))
+                                    : []
+                                }
+                                onChange={(e) => {
+                                  form.setFieldValue('brand', e.target.value)
+                                }}
+                              />
+                            )}
+                          </Field>
                           <ErrorMessage name="brand" component="div" className="text-danger" />
                         </CCol>
                         <br />
@@ -1596,20 +1731,22 @@ function EditProductDetail() {
                         </CCol>
                         <br />
 
-                        <CCol md={12}>
-                          <label htmlFor="visible-select">Đăng sản phẩm</label>
-                          <Field
-                            name="visible"
-                            as={CFormSelect}
-                            id="visible-select"
-                            className="select-input"
-                            options={[
-                              { label: 'Không', value: 0 },
-                              { label: 'Có', value: 1 },
-                            ]}
-                          />
-                          <ErrorMessage name="visible" component="div" className="text-danger" />
-                        </CCol>
+                        <div className="bg-white border p-2">
+                          <CCol md={12}>
+                            <label htmlFor="visible-select">Đăng sản phẩm</label>
+                            <Field
+                              name="visible"
+                              as={CFormSelect}
+                              id="visible-select"
+                              className="select-input"
+                              options={[
+                                { label: 'Không', value: 0 },
+                                { label: 'Có', value: 1 },
+                              ]}
+                            />
+                            <ErrorMessage name="visible" component="div" className="text-danger" />
+                          </CCol>
+                        </div>
                         <br />
                       </CCol>
                     </CRow>
