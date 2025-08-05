@@ -226,6 +226,64 @@ function EditOrder() {
                 </CCol>
               </CRow>
 
+              {dataOrderDetail?.invoiceOrder ? (
+                <CRow className="mt-3">
+                  <CCol md={12} className="border p-3 white-background">
+                    <h6 className="horizontal-line pb-2">Thông tin xuất hóa đơn công ty</h6>
+                    <div className="row">
+                      <div className="col-md-6">
+                        <p>
+                          <strong>Tên công ty:</strong>{' '}
+                          <span className="company-name">
+                            {dataOrderDetail.invoiceOrder.nameCompany}
+                          </span>
+                        </p>
+                        <p>
+                          <strong>Mã số thuế:</strong>{' '}
+                          <span className="fw-bold">
+                            {dataOrderDetail.invoiceOrder.taxCodeCompany}
+                          </span>
+                        </p>
+                        <p>
+                          <strong>Email công ty:</strong>{' '}
+                          <span className="company-email">
+                            {dataOrderDetail.invoiceOrder.emailCompany}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <p>
+                          <strong>Địa chỉ công ty:</strong>{' '}
+                          <span className="company-address">
+                            {dataOrderDetail.invoiceOrder.addressCompany}
+                          </span>
+                        </p>
+                        <p>
+                          <strong>Ngày tạo hóa đơn:</strong>{' '}
+                          <span className="invoice-date">
+                            {moment(dataOrderDetail.invoiceOrder.created_at).format(
+                              'DD-MM-YYYY, hh:mm:ss A',
+                            )}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </CCol>
+                </CRow>
+              ) : (
+                <CRow className="mt-3">
+                  <CCol md={12} className="border p-3 white-background">
+                    <h6 className="horizontal-line pb-2">Thông tin xuất hóa đơn công ty</h6>
+                    <div
+                      className="text-center py-3"
+                      style={{ color: '#6c757d', fontStyle: 'italic' }}
+                    >
+                      <p>Đơn hàng này không yêu cầu xuất hóa đơn công ty</p>
+                    </div>
+                  </CCol>
+                </CRow>
+              )}
+
               <CRow>
                 <CCol className="cart my-2 border p-3 white-background" md={12}>
                   <h6>Thông tin giỏ hàng</h6>

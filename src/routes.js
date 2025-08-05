@@ -16,6 +16,7 @@ const PermissionGroup = React.lazy(() => import('./views/admin/PermissionGroup')
 const EditPermission = React.lazy(() => import('./views/admin/EditPermissions'))
 
 // PRODUCT
+const ProductOutOfSync = React.lazy(() => import('./views/product/productOutOfSync.js'))
 const ProductBrand = React.lazy(() => import('./views/product/productBrand'))
 const ProductCategory = React.lazy(() => import('./views/product/category/productCategory'))
 const AddProductCategory = React.lazy(() => import('./views/product/category/AddProductCategory'))
@@ -225,11 +226,6 @@ const routes = [
   { path: '/admin/groups', name: 'AdminGroup', element: AdminGroup },
   { path: '/admin/list', name: 'AdminList', element: AdminList },
   { path: '/admin/log', name: 'AdminLog', element: AdminLog },
-  {
-    path: '/admin/update-excel-price',
-    name: 'AdminUpdateExcelPrice',
-    element: AdminUpdateExcelPrice,
-  },
 
   { path: '/admin', name: 'Admin', element: AdminInfo, exact: true },
 
@@ -248,6 +244,17 @@ const routes = [
   },
 
   // product detail
+  {
+    path: '/product/update-excel-price',
+    name: 'AdminUpdateExcelPrice',
+    element: AdminUpdateExcelPrice,
+  },
+
+  {
+    path: '/product/out-of-sync',
+    name: 'ProductOutOfSync',
+    element: ProductOutOfSync,
+  },
 
   { path: '/product', name: 'ProductDetail', element: ProductDetail },
 

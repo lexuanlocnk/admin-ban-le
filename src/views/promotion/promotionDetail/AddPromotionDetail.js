@@ -45,25 +45,24 @@ function AddPromotionDetail() {
   }
 
   const validationSchema = Yup.object({
-    title: Yup.string().min(6, 'Tối thiểu 6 ký tự').required('Tên đợt phát hành là bắt buộc.'),
-    releaseCode: Yup.string().min(6, 'Tối thiểu 6 ký tự').required('Mã đợt phát hành là bắt buộc'),
-    startDate: Yup.date().required('Thời gian bắt đầu là bắt buộc.'),
-    endDate: Yup.date()
-      .required('Thời gian kết thúc là bắt buộc.')
-      .test('is-greater', 'Ngày kết thúc không được nhỏ hơn ngày bắt đầu!', function (value) {
-        const { startDate } = this.parent
-        return value && startDate ? value > startDate : true
-      }),
-
-    minPrice: Yup.number()
-      .required('Bắt buộc')
-      .positive('Giá phải lớn hơn 0')
-      .integer('Giá phải là số nguyên'),
-    maxPrice: Yup.number()
-      .required('Bắt buộc')
-      .positive('Giá phải lớn hơn 0')
-      .integer('Giá phải là số nguyên')
-      .moreThan(Yup.ref('minPrice'), 'Giá sau phải lớn hơn giá trước'),
+    // title: Yup.string().min(6, 'Tối thiểu 6 ký tự').required('Tên đợt phát hành là bắt buộc.'),
+    // releaseCode: Yup.string().min(6, 'Tối thiểu 6 ký tự').required('Mã đợt phát hành là bắt buộc'),
+    // startDate: Yup.date().required('Thời gian bắt đầu là bắt buộc.'),
+    // endDate: Yup.date()
+    //   .required('Thời gian kết thúc là bắt buộc.')
+    //   .test('is-greater', 'Ngày kết thúc không được nhỏ hơn ngày bắt đầu!', function (value) {
+    //     const { startDate } = this.parent
+    //     return value && startDate ? value > startDate : true
+    //   }),
+    // minPrice: Yup.number()
+    //   .required('Bắt buộc')
+    //   .positive('Giá phải lớn hơn 0')
+    //   .integer('Giá phải là số nguyên'),
+    // maxPrice: Yup.number()
+    //   .required('Bắt buộc')
+    //   .positive('Giá phải lớn hơn 0')
+    //   .integer('Giá phải là số nguyên')
+    //   .moreThan(Yup.ref('minPrice'), 'Giá sau phải lớn hơn giá trước'),
   })
 
   const fetchCategoriesData = async () => {
@@ -205,9 +204,10 @@ function AddPromotionDetail() {
                     id="applyGiftType-select"
                     className="select-input"
                     options={[
-                      { label: 'Nghành hàng', value: '0' },
-                      { label: 'Mã SP chỉ định', value: '1' },
+                      { label: 'Nghành hàng', value: 0 },
+                      { label: 'Mã SP chỉ định', value: 1 },
                     ]}
+                    onChange={(e) => setFieldValue('applyGiftType', Number(e.target.value))}
                   />
                   <ErrorMessage name="applyGiftType" component="div" className="text-danger" />
                 </CCol>

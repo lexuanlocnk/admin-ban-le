@@ -82,7 +82,7 @@ a {
   font-weight: bold;
   text-align: right;
 
-  span  {
+  span {
     color: $orange-color;
   }
 }
@@ -93,4 +93,29 @@ a {
 
 .order-time {
   color: $orange-color;
+}
+
+.company-name {
+  font-weight: 600;
+  color: #0066cc;
+}
+
+.tax-code {
+  font-family: monospace;
+  background-color: #f8f9fa;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.company-email {
+  color: #666;
+}
+
+.company-address {
+  font-style: italic;
+}
+
+.invoice-date {
+  color: #28a745;
+  font-weight: 500;
 }

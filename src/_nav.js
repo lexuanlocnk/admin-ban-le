@@ -94,11 +94,6 @@ const _nav = [
         name: 'Lịch sử hoạt động admin',
         to: '/admin/log',
       },
-      {
-        component: CNavItem,
-        name: 'Cập nhật giá Excel',
-        to: '/admin/update-excel-price',
-      },
     ],
   },
 
@@ -108,6 +103,16 @@ const _nav = [
     to: '/product',
     icon: <CIcon icon={cilDevices} customClassName="nav-icon" />,
     items: [
+      {
+        component: CNavItem,
+        name: 'Cập nhật TSKT Excel',
+        to: '/product/update-excel-price',
+      },
+      {
+        component: CNavItem,
+        name: 'Sản phẩm không đồng bộ',
+        to: '/product/out-of-sync',
+      },
       {
         component: CNavItem,
         name: 'Cấu hình sản phẩm',

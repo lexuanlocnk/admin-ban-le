@@ -65,22 +65,24 @@ function AdminExcelUpdatePrice() {
     const formData = new FormData()
     formData.append('file', valueForm)
     formData.append('cat_parent_id', selectedCategory)
+
     try {
-      const response = await fetch('http://api.vitinhnguyenkim.com.vn/api/import/technology', {
-        method: 'POST',
-        body: formData,
+      const response = await axiosClient.post('admin/import-technology', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       })
 
-      const result = await response.json()
+      const result = response.data
       if (result.status === true) {
         alert('Tải lên thành công!')
         setCurrentUploads({
           date: result.imported_at,
           fileName: result.filename,
-          importedCount: result.importedCount,
+          importedCount: result.imported_count,
           message: result.message,
-          notFoundCount: result.notFoundCount,
-          notFoundProducts: result.notFoundProducts,
+          notFoundCount: result.not_found_count,
+          notFoundProducts: result.not_found_product,
         })
       }
     } catch (error) {
@@ -95,7 +97,7 @@ function AdminExcelUpdatePrice() {
     <CContainer>
       <CRow className="mb-3">
         <CCol md={12}>
-          <h3>CẬP NHẬT GIÁ, BẢO HÀNH EXCEL</h3>
+          <h3>CẬP NHẬT THÔNG SỐ KỸ THUẬT SẢN PHẨM</h3>
         </CCol>
       </CRow>
 
@@ -190,7 +192,7 @@ function AdminExcelUpdatePrice() {
         </CCol>
         <CCol md={9}>
           <div className="value_admin">
-            <img className="w-100 h-100" src="/example_excel.jpg" alt="File excel mẫu" />
+            <img className="w-100 h-100" src="/excel_import_tskt.png" alt="File excel mẫu" />
           </div>
         </CCol>
       </CRow>
@@ -219,21 +221,10 @@ function AdminExcelUpdatePrice() {
               <CAccordionItem className="border mb-2" style={{ borderRadius: 0 }}>
                 <CAccordionHeader>
                   <div className="d-flex justify-content-between align-items-center w-100 px-2">
-                    <div
-                      style={{
-                        flex: '0 0 40%',
-                      }}
-                      className="fw-semibold"
-                    >
+                    <div style={{ flex: '0 0 40%' }} className="fw-semibold">
                       {`Ngày ${currentUploads.date}`}
                     </div>
-                    <div
-                      style={{
-                        flex: '0 0 40%',
-                      }}
-                    >
-                      {currentUploads.fileName}
-                    </div>
+                    <div style={{ flex: '0 0 40%' }}>{currentUploads.fileName}</div>
                     <div
                       className={`fw-bold text-${currentUploads.message === 'success' ? 'success' : 'danger'}`}
                       style={{ fontSize: '1rem', flex: '0 0 20%' }}
@@ -252,19 +243,15 @@ function AdminExcelUpdatePrice() {
                     fontSize: '1rem',
                   }}
                 >
-                  {currentUploads.message === 'success' ? (
+                  <div className="mt-2">
+                    <strong>{`Đã import ${currentUploads.importedCount} sản phẩm.`}</strong>
+                  </div>
+                  {currentUploads.notFoundCount > 0 && (
                     <div className="mt-2">
-                      <strong>{`Đã import ${currentUploads.importedCount} sản phẩm.`}</strong>
-                    </div>
-                  ) : (
-                    <div className="mt-2">
-                      <strong>{`Đã import ${currentUploads.importedCount} sản phẩm.`} </strong>
                       <strong>{`Có ${currentUploads.notFoundCount} sản phẩm không tìm thấy.`}</strong>
                       <div className="mt-2">
-                        <div>
-                          <strong>Danh sách mã không tìm thấy: </strong>
-                        </div>
-                        <strong>{`${currentUploads.notFoundProducts}`}</strong>
+                        <strong>Danh sách mã không tìm thấy: </strong>
+                        <span>{currentUploads.notFoundProducts}</span>
                       </div>
                     </div>
                   )}
