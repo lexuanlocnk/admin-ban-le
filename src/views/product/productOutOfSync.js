@@ -117,7 +117,7 @@ function ProductOutOfSync() {
   const handleDelete = async () => {
     setVisible(true)
     try {
-      const response = await axiosClient.delete(`admin/news/${deletedId}`)
+      const response = await axiosClient.delete(`admin/price-skip/${deletedId}`)
       if (response.data.status === true) {
         setVisible(false)
         fetchDataProductSkip()
@@ -134,7 +134,7 @@ function ProductOutOfSync() {
 
   const handleDeleteSelectedCheckbox = async () => {
     try {
-      const response = await axiosClient.post('admin/delete-all-news', {
+      const response = await axiosClient.post('admin/price-skip-delete', {
         data: selectedCheckbox,
       })
       if (response.data.status === true) {
