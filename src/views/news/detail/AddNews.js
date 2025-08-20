@@ -27,6 +27,7 @@ function AddNews() {
 
   // loading button
   const [isLoading, setIsLoading] = useState(false)
+  const [categoryError, setCategoryError] = useState('')
 
   const initialValues = {
     title: '',
@@ -39,12 +40,32 @@ function AddNews() {
   }
 
   const validationSchema = Yup.object({
-    // title: Yup.string().required('Tiêu đề là bắt buộc.'),
-    // friendlyUrl: Yup.string().required('Chuỗi đường dẫn là bắt buộc.'),
-    // pageTitle: Yup.string().required('Tiêu đề bài viết là bắt buộc.'),
-    // metaKeyword: Yup.string().required('Meta keywords là bắt buộc.'),
-    // metaDesc: Yup.string().required('Meta description là bắt buộc.'),
-    // visible: Yup.string().required('Cho phép hiển thị là bắt buộc.'),
+    title: Yup.string().required('Tiêu đề là bắt buộc.'),
+    desc: Yup.string().required('Mô tả ngắn là bắt buộc.'),
+    friendlyUrl: Yup.string()
+      .required('Chuỗi đường dẫn là bắt buộc.')
+      .matches(
+        /^[a-z0-9-]+$/,
+        'Chuỗi đường dẫn chỉ bao gồm chữ thường, số và dấu gạch ngang (-), không dấu cách, không ký tự đặc biệt.',
+      ),
+    pageTitle: Yup.string()
+      .required('Tiêu đề trang là bắt buộc.')
+      .max(60, 'Tiêu đề trang tối đa 60 ký tự.'),
+    metaKeyword: Yup.string()
+      .required('Meta keywords là bắt buộc.')
+      .min(100, 'Meta keywords tối thiểu 100 ký tự.')
+      .max(150, 'Meta keywords tối đa 150 ký tự.')
+      .test(
+        'has-commas',
+        'Meta keywords phải có ít nhất 1 dấu phẩy (,).',
+        (value) => (value?.match(/,/g) || []).length >= 1,
+      ),
+    metaDesc: Yup.string()
+      .required('Meta description là bắt buộc.')
+      .min(140, 'Meta description tối thiểu 140 ký tự.')
+      .max(200, 'Meta description tối đa 200 ký tự.'),
+    visible: Yup.string().required('Chọn trạng thái hiển thị.'),
+    // Không kiểm tra danh mục ở đây vì nó không nằm trong Formik values
   })
 
   const fetchDataNewsCategory = async () => {
@@ -62,7 +83,27 @@ function AddNews() {
     fetchDataNewsCategory()
   }, [])
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    let hasError = false
+
+    if (selectedCateCheckbox.length === 0) {
+      toast.error('Vui lòng chọn ít nhất một danh mục bài viết!')
+      setCategoryError('Vui lòng chọn ít nhất một danh mục bài viết!')
+      hasError = true
+    } else {
+      setCategoryError('')
+    }
+
+    if (!selectedFile || selectedFile.length === 0) {
+      toast.error('Vui lòng chọn ảnh đại diện!')
+      hasError = true
+    }
+
+    if (hasError) {
+      setSubmitting(false)
+      return
+    }
+
     try {
       setIsLoading(true)
       const response = await axiosClient.post('admin/news', {
@@ -200,7 +241,7 @@ function AddNews() {
                           type="text"
                           as={CFormInput}
                           id="url-input"
-                          text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-). VD: vi-tinh-nguyen-kim-to-chuc-su-kien-tri-an-dip-20-nam-thanh-lap"
+                          text="Chuỗi dẫn tĩnh là phiên bản của tên hợp chuẩn với Đường dẫn (URL). Chuỗi này bao gồm chữ cái thường, số và dấu gạch ngang (-)."
                         />
                         <ErrorMessage name="friendlyUrl" component="div" className="text-danger" />
                       </CCol>
@@ -258,7 +299,7 @@ function AddNews() {
                           }}
                           htmlFor="visible-input"
                         >
-                          Danh mục bài viết
+                          Danh mục bài viết <span style={{ color: 'red' }}>*</span>
                         </label>
 
                         {dataNewsCategory &&
@@ -289,6 +330,23 @@ function AddNews() {
                               }}
                             />
                           ))}
+                        {categoryError && (
+                          <div
+                            style={{
+                              color: '#fff',
+                              background: '#dc3545',
+                              padding: '8px 12px',
+                              borderRadius: 4,
+                              marginTop: 8,
+                              fontWeight: 600,
+                              fontSize: 15,
+                              textAlign: 'center',
+                              boxShadow: '0 2px 8px rgba(220,53,69,0.15)',
+                            }}
+                          >
+                            {categoryError}
+                          </div>
+                        )}
                       </CCol>
                       <br />
 
@@ -302,8 +360,8 @@ function AddNews() {
                           onChange={(e) => onFileChange(e)}
                         />
                         <br />
-                        <ErrorMessage name="avatar" component="div" className="text-danger" />
 
+                        <ErrorMessage name="avatar" component="div" className="text-danger" />
                         <div>
                           {file.length == 0 ? (
                             <div>
