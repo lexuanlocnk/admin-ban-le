@@ -120,10 +120,10 @@ function ProductDemand() {
   const fetchDataDemand = async (dataSearch = '') => {
     try {
       const response = await axiosClient.get(
-        `admin/productStatus?data=${dataSearch}&page=${pageNumber}`,
+        `admin/customer-need?data=${dataSearch}&page=${pageNumber}`,
       )
-      if (response.data.status === 'success') {
-        setDataProductDemand(response.data.list)
+      if (response.data.status === true) {
+        setDataProductDemand(response.data.data)
       } else if (response.data.status === false && response.data.mess === 'no permission') {
         setIsPermissionCheck(false)
       } else {

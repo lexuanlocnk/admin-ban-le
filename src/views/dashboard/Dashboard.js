@@ -1,62 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import classNames from 'classnames'
 
-import {
-  CAvatar,
-  CButton,
-  CButtonGroup,
-  CCard,
-  CCardBody,
-  CCardFooter,
-  CCardHeader,
-  CCol,
-  CContainer,
-  CFormCheck,
-  CFormSelect,
-  CProgress,
-  CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import {
-  cibCcAmex,
-  cibCcApplePay,
-  cibCcMastercard,
-  cibCcPaypal,
-  cibCcStripe,
-  cibCcVisa,
-  cibGoogle,
-  cibFacebook,
-  cibLinkedin,
-  cifBr,
-  cifEs,
-  cifFr,
-  cifIn,
-  cifPl,
-  cifUs,
-  cibTwitter,
-  cilCloudDownload,
-  cilPeople,
-  cilUser,
-  cilUserFemale,
-  cilMoney,
-} from '@coreui/icons'
+import { CCol, CContainer, CFormSelect, CRow, CTable } from '@coreui/react'
 
-// import avatar1 from '../../assets/images/avatars/1.jpg'
-// import avatar2 from '../../assets/images/avatars/2.jpg'
-// import avatar3 from '../../assets/images/avatars/3.jpg'
-// import avatar4 from '../../assets/images/avatars/4.jpg'
-// import avatar5 from '../../assets/images/avatars/5.jpg'
-// import avatar6 from '../../assets/images/avatars/6.jpg'
-
-import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
-import MainChart from './MainChart'
 import { axiosClient } from '../../axiosConfig'
 import moment from 'moment'
 
@@ -249,38 +195,6 @@ const Dashboard = () => {
         </CCol>
       </CRow>
       <WidgetsDropdown className="mb-4" dashBoardData={dashBoardData} />
-      {/* <CCard className="mb-4">
-        <CCardBody>
-          <CRow>
-            <CCol sm={5}>
-              <h5 id="traffic" className="card-title mb-0">
-                Thống kê lượt truy cập
-              </h5>
-              <div className="small text-body-secondary">{dateRange}</div>
-            </CCol>
-            <CCol sm={7} className="d-none d-md-block">
-              <CButton color="primary" className="float-end" size="sm">
-                <CIcon icon={cilCloudDownload} />
-              </CButton>
-              <CButtonGroup className="float-end me-3">
-                {['Tuần', 'Tháng', 'Năm'].map((value) => (
-                  <CButton
-                    size="sm"
-                    color="outline-secondary"
-                    key={value}
-                    className="mx-0"
-                    active={value === timePeriod}
-                    onClick={() => setTimePeriod(value)}
-                  >
-                    {value}
-                  </CButton>
-                ))}
-              </CButtonGroup>
-            </CCol>
-          </CRow>
-          <MainChart timePeriod={timePeriod} />
-        </CCardBody>
-      </CCard> */}
 
       <CRow>
         <h6>Khách hàng có lượt truy cập nhiều nhất</h6>

@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { CButton, CCol, CContainer, CFormSelect, CRow, CTable } from '@coreui/react'
 import ReactPaginate from 'react-paginate'
-import { axiosClient } from '../../axiosConfig'
+import { axiosClient, mainUrl } from '../../axiosConfig'
 import { Link } from 'react-router-dom'
-import DatePicker from 'react-datepicker'
+import DatePicker, { registerLocale } from 'react-datepicker'
+import { vi } from 'date-fns/locale'
+import { getYear, getMonth } from 'date-fns'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import moment from 'moment'
 import Loading from '../../components/loading/Loading'
+
+// Đăng ký locale tiếng Việt
+registerLocale('vi', vi)
 
 function AccessStatistics() {
   // check permission state
@@ -16,6 +21,7 @@ function AccessStatistics() {
   //pagination state
   const [pageNumber, setPageNumber] = useState(1)
   const [visitedData, setVisitedData] = useState([])
+  const [paginateData, setPaginateData] = useState([])
   const [selectedMemberType, setSelectedMemberType] = useState()
 
   const [isCollapse, setIsCollapse] = useState(false)
@@ -32,6 +38,24 @@ function AccessStatistics() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [errors, setErrors] = useState({ startDate: '', endDate: '' })
+
+  // Cấu hình cho custom header của DatePicker
+  const months = [
+    'Tháng 1',
+    'Tháng 2',
+    'Tháng 3',
+    'Tháng 4',
+    'Tháng 5',
+    'Tháng 6',
+    'Tháng 7',
+    'Tháng 8',
+    'Tháng 9',
+    'Tháng 10',
+    'Tháng 11',
+    'Tháng 12',
+  ]
+
+  const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - 25 + i)
 
   const handleToggleCollapse = () => {
     setIsCollapse((prevState) => !prevState)
@@ -75,11 +99,12 @@ function AccessStatistics() {
     try {
       setIsLoading((prev) => ({ ...prev, page: true }))
       const response = await axiosClient.get(
-        `admin/get-statistics?page=${pageNumber}&fromDate=${startDate !== null ? convertStringToTimeStamp(startDate) : ''}&toDate=${endDate !== null ? convertStringToTimeStamp(endDate) : ''}`,
+        `admin/get-statistics?page=${pageNumber}&fromDate=${startDate !== null ? convertStringToTimeStamp(startDate) : ''}&toDate=${endDate !== null ? convertStringToTimeStamp(endDate) : ''}&member_type=${selectedMemberType ? selectedMemberType : ''}&keyword=${dataSearch ? dataSearch : ''}`,
       )
 
       if (response.data.status === true) {
         setVisitedData(response.data.data)
+        setPaginateData(response.data.pagination)
       }
       if (response.data.status === false && response.data.mess == 'no permission') {
         setIsPermissionCheck(false)
@@ -93,16 +118,9 @@ function AccessStatistics() {
 
   useEffect(() => {
     fetchStatictical()
-  }, [pageNumber, startDate, endDate])
-
-  // dowload excel file statics
+  }, [pageNumber, startDate, endDate, selectedMemberType])
 
   const downloadForm = async () => {
-    // if (!startDate || !endDate) {
-    //   alert('Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc trước khi xuất Excel.')
-    //   return
-    // }
-
     try {
       setIsLoading((prev) => ({ ...prev, button: true }))
 
@@ -139,14 +157,16 @@ function AccessStatistics() {
   }
 
   const items =
-    visitedData?.data && visitedData?.data.length > 0
-      ? visitedData?.data.map((item) => ({
-          // index: index + 1,
-          // visited: item?.count,
-          date: moment(Date.now()).format('DD/MM/YYYY, HH:mm:ss A'),
+    visitedData && visitedData.length > 0
+      ? visitedData.map((item) => ({
+          date: moment(item.date, 'X').format('DD/MM/YYYY, HH:mm:ss A'),
           mem_id: item?.mem_id === 0 ? 'Khách vãng lai' : item?.member?.username,
           ip: item?.ip,
-          url: item?.url,
+          url: (
+            <Link target="_blank" to={`${mainUrl}${item?.url}`}>
+              {item?.url}
+            </Link>
+          ),
           module: item?.module,
           action: item?.action,
           _cellProps: { id: { scope: 'row' } },
@@ -154,16 +174,6 @@ function AccessStatistics() {
       : []
 
   const columns = [
-    // {
-    //   key: 'index',
-    //   label: 'Thứ tự',
-    //   _props: { scope: 'col' },
-    // },
-    // {
-    //   key: 'visited',
-    //   label: 'Lượt truy cập',
-    //   _props: { scope: 'col' },
-    // },
     { key: 'date', label: 'Ngày truy cập', _props: { scope: 'col' } },
     {
       key: 'mem_id',
@@ -194,7 +204,7 @@ function AccessStatistics() {
   ]
 
   return (
-    <CContainer>
+    <div>
       {!isPermissionCheck ? (
         <h5>
           <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
@@ -223,9 +233,8 @@ function AccessStatistics() {
                 <tbody>
                   <tr>
                     <td>Tổng cộng</td>
-                    <td className="total-count">{6}</td>
+                    <td className="total-count">{paginateData?.total}</td>
                   </tr>
-
                   <tr>
                     <td>Lọc từ ngày</td>
                     <td>
@@ -236,6 +245,67 @@ function AccessStatistics() {
                           dateFormat={'dd-MM-yyyy'}
                           selected={startDate}
                           onChange={handleStartDateChange}
+                          locale="vi"
+                          renderCustomHeader={({
+                            date,
+                            changeYear,
+                            changeMonth,
+                            decreaseMonth,
+                            increaseMonth,
+                            prevMonthButtonDisabled,
+                            nextMonthButtonDisabled,
+                          }) => (
+                            <div
+                              style={{
+                                margin: 10,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                gap: 8,
+                                alignItems: 'center',
+                              }}
+                            >
+                              <button
+                                onClick={decreaseMonth}
+                                disabled={prevMonthButtonDisabled}
+                                type="button"
+                                className="react-datepicker__navigation react-datepicker__navigation--previous"
+                              >
+                                {'<'}
+                              </button>
+                              <select
+                                value={getYear(date)}
+                                onChange={({ target: { value } }) =>
+                                  changeYear(parseInt(value, 10))
+                                }
+                              >
+                                {years.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              <select
+                                value={months[getMonth(date)]}
+                                onChange={({ target: { value } }) =>
+                                  changeMonth(months.indexOf(value))
+                                }
+                              >
+                                {months.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={increaseMonth}
+                                disabled={nextMonthButtonDisabled}
+                                type="button"
+                                className="react-datepicker__navigation react-datepicker__navigation--next"
+                              >
+                                {'>'}
+                              </button>
+                            </div>
+                          )}
                         />
                         <p className="datepicker-label">{'đến ngày'}</p>
                         <DatePicker
@@ -244,6 +314,67 @@ function AccessStatistics() {
                           dateFormat={'dd-MM-yyyy'}
                           selected={endDate}
                           onChange={handleEndDateChange}
+                          locale="vi"
+                          renderCustomHeader={({
+                            date,
+                            changeYear,
+                            changeMonth,
+                            decreaseMonth,
+                            increaseMonth,
+                            prevMonthButtonDisabled,
+                            nextMonthButtonDisabled,
+                          }) => (
+                            <div
+                              style={{
+                                margin: 10,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                gap: 8,
+                                alignItems: 'center',
+                              }}
+                            >
+                              <button
+                                onClick={decreaseMonth}
+                                disabled={prevMonthButtonDisabled}
+                                type="button"
+                                className="react-datepicker__navigation react-datepicker__navigation--previous"
+                              >
+                                {'<'}
+                              </button>
+                              <select
+                                value={getYear(date)}
+                                onChange={({ target: { value } }) =>
+                                  changeYear(parseInt(value, 10))
+                                }
+                              >
+                                {years.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              <select
+                                value={months[getMonth(date)]}
+                                onChange={({ target: { value } }) =>
+                                  changeMonth(months.indexOf(value))
+                                }
+                              >
+                                {months.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={increaseMonth}
+                                disabled={nextMonthButtonDisabled}
+                                type="button"
+                                className="react-datepicker__navigation react-datepicker__navigation--next"
+                              >
+                                {'>'}
+                              </button>
+                            </div>
+                          )}
                         />
                       </div>
                       {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
@@ -266,10 +397,10 @@ function AccessStatistics() {
                           value={selectedMemberType}
                           onChange={(e) => setSelectedMemberType(e.target.value)}
                         />
-
                         <div className="mt-2">
                           <input
                             type="text"
+                            placeholder="Tìm kiếm theo Tên KH, Mã KH"
                             className="search-input"
                             value={dataSearch}
                             onChange={(e) => setDataSearch(e.target.value)}
@@ -314,7 +445,7 @@ function AccessStatistics() {
             <CCol>
               <div className="d-flex justify-content-end">
                 <ReactPaginate
-                  pageCount={Math.ceil(visitedData?.total / visitedData?.per_page)}
+                  pageCount={Math.ceil(paginateData?.total / paginateData?.perPage)}
                   pageRangeDisplayed={3}
                   marginPagesDisplayed={1}
                   pageClassName="page-item"
@@ -337,7 +468,7 @@ function AccessStatistics() {
           </CCol>
         </CRow>
       )}
-    </CContainer>
+    </div>
   )
 }
 
