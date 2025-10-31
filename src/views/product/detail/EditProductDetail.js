@@ -132,6 +132,7 @@ function EditProductDetail() {
     stock: 0,
     visible: 0,
     star: 4.5,
+    newTitle: '',
   }
 
   const validationSchema = Yup.object({
@@ -201,10 +202,9 @@ function EditProductDetail() {
         const parentCategories = catList.slice(1, 2) || [data?.cateId]
         const childCategories = catList.slice(2) || [data?.childId]
 
-        console.log('data fetch', { industryCategory, parentCategories, childCategories })
-
         setValues({
           title: data?.product_desc?.title,
+          newTitle: data?.TenHHCu,
           friendlyUrl: data?.product_desc?.friendly_url,
           pageTitle: data?.product_desc?.friendly_title,
           metaKeywords: data?.product_desc?.metakey,
@@ -435,6 +435,7 @@ function EditProductDetail() {
 
     const productData = {
       title: values.title,
+      newTitle: values.TenHHCu,
       description: editorData,
       short: descEditor,
       op_search: tech.reduce((acc, item) => {
@@ -695,9 +696,6 @@ function EditProductDetail() {
     })
   }
 
-  console.log('data properties', dataProductProperties)
-  console.log('tech array', tech)
-
   return (
     <CContainer>
       {!isPermissionCheck ? (
@@ -755,12 +753,27 @@ function EditProductDetail() {
                         <br />
 
                         <CCol md={12}>
+                          <label htmlFor="visible-select">Tên sản phẩm cũ theo SAP </label>
+                          <Field name="newTitle">
+                            {({ field }) => (
+                              <CFormTextarea
+                                rows={3}
+                                {...field}
+                                id="newTitle-input"
+                                placeholder="Nhập tên sản phẩm cũ..."
+                              />
+                            )}
+                          </Field>
+                        </CCol>
+                        <br />
+
+                        <CCol md={12}>
                           <label htmlFor="visible-select">Bài viết mô tả sản phẩm</label>
-                          <CKedtiorCustom
-                            key={`product-desc-${id}`}
-                            data={editorData}
-                            onChangeData={(data) => setEditorData(data)}
-                            config={{ height: 300 }}
+                          <CFormTextarea
+                            rows={8}
+                            value={editorData}
+                            onChange={(e) => setEditorData(e.target.value)}
+                            placeholder="Nhập mô tả sản phẩm..."
                           />
                         </CCol>
 

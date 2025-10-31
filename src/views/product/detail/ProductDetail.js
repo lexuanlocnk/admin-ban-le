@@ -301,10 +301,17 @@ function ProductDetail() {
           title: (
             <>
               <Link to={`/product/edit?id=${item?.product_id}`}>
-                <p className="blue-txt m-0">
-                  {item?.TenHH ? item?.TenHH : item?.product_desc?.title}
-                </p>
+                <p className="blue-txt m-0">{item?.TenHH ? item?.TenHH : item?.TenHHCu}</p>
               </Link>
+              <p
+                style={{
+                  fontWeight: '600',
+                  marginBottom: '4px',
+                  color: '#333',
+                }}
+              >
+                {item?.TenHH ? item?.TenTrenWeb2SAP : ''}
+              </p>
               <p className="orange-txt">{`#${item?.MaHH ? item?.MaHH : item?.macn}`}</p>
             </>
           ),
