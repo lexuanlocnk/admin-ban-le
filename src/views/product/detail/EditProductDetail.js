@@ -769,11 +769,11 @@ function EditProductDetail() {
 
                         <CCol md={12}>
                           <label htmlFor="visible-select">Bài viết mô tả sản phẩm</label>
-                          <CFormTextarea
-                            rows={8}
-                            value={editorData}
-                            onChange={(e) => setEditorData(e.target.value)}
-                            placeholder="Nhập mô tả sản phẩm..."
+                          <CKedtiorCustom
+                            key={`product-desc-${id}`}
+                            data={editorData}
+                            onChangeData={(data) => setEditorData(data)}
+                            config={{ height: 300 }}
                           />
                         </CCol>
 
