@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import {
+  CBadge,
   CButton,
   CCol,
   CContainer,
@@ -22,7 +23,7 @@ import CIcon from '@coreui/icons-react'
 import { cilTrash, cilColorBorder } from '@coreui/icons'
 import Loading from '../../../components/loading/Loading'
 
-import '../css/orderList.scss'
+import '../css/orderList.css'
 import moment from 'moment'
 import ReactPaginate from 'react-paginate'
 import { axiosClient } from '../../../axiosConfig'
@@ -30,6 +31,22 @@ import { axiosClient } from '../../../axiosConfig'
 function OrderList() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+
+  // Helper function for hh_status color
+  const getHHStatusColor = (status) => {
+    switch (status) {
+      case 0:
+        return 'secondary' // Chờ xử lý
+      case 1:
+        return 'warning' // Đang chuẩn bị hàng
+      case 2:
+        return 'info' // Chuẩn bị hàng hoàn tất
+      case 3:
+        return 'success' // Đã bàn giao
+      default:
+        return 'secondary'
+    }
+  }
 
   // Lấy giá trị `page` từ URL hoặc mặc định là 1
   const pageFromUrl = parseInt(searchParams.get('page')) || 1
@@ -274,7 +291,22 @@ function OrderList() {
               }}
             />
           ),
-          orderCode: <span className="order-code">{order.order_code}</span>,
+          orderCode: (
+            <div>
+              <span className="order-code">{order.order_code}</span>
+              {order.is_household === true && (
+                <div className="mt-1">
+                  <span className="hh-label">Đơn gia dụng</span>
+                  <CBadge
+                    color={getHHStatusColor(order.hh_status)}
+                    className="hh-status-badge ms-1"
+                  >
+                    {order.hh_status_text || 'Chờ xử lý'}
+                  </CBadge>
+                </div>
+              )}
+            </div>
+          ),
           customerInfo: (
             <React.Fragment>
               <div>

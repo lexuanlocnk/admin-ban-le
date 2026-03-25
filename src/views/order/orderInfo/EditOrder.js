@@ -1,9 +1,10 @@
 import {
+  CBadge,
   CButton,
   CCol,
   CContainer,
   CForm,
-  CFormInput,
+  CFormCheck,
   CFormLabel,
   CFormSelect,
   CFormTextarea,
@@ -13,7 +14,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-import '../css/editOrder.scss'
+import '../css/editOrder.css'
 import moment from 'moment'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
@@ -33,8 +34,38 @@ function EditOrder() {
   const [dataStatus, setDataStatus] = useState([])
   const [choosenStatus, setChoosenStatus] = useState('')
   const [orderNote, setOrderNote] = useState(null)
-  const [spx, setSpx] = useState(null)
   const [orderAddress, setOrderAddress] = useState({})
+  const [hhIsTransfer, setHhIsTransfer] = useState(0)
+  const [dataDeliveryUnits, setDataDeliveryUnits] = useState([])
+  const [selectedDeliveryUnit, setSelectedDeliveryUnit] = useState('')
+
+  // Helper function for packaging status (hh_status)
+  const getHHStatusColor = (status) => {
+    switch (status) {
+      case 0:
+        return 'secondary'
+      case 1:
+        return 'warning'
+      case 2:
+        return 'info'
+      case 3:
+        return 'success'
+      default:
+        return 'secondary'
+    }
+  }
+
+  // Fetch delivery units
+  const fetchDeliveryUnits = async () => {
+    try {
+      const response = await axiosClient.get('admin/delivery-units')
+      if (response.data.status === true) {
+        setDataDeliveryUnits(response.data.data || [])
+      }
+    } catch (error) {
+      console.error('Fetch delivery units error', error)
+    }
+  }
 
   const fetchDataStatusOrder = async () => {
     try {
@@ -50,6 +81,7 @@ function EditOrder() {
 
   useEffect(() => {
     fetchDataStatusOrder()
+    fetchDeliveryUnits()
   }, [])
 
   const fetchOrderDataDetail = async () => {
@@ -58,9 +90,11 @@ function EditOrder() {
 
       const data = response.data.dataOrder || {}
       setDataOrderDetail(data)
-      setOrderNote(data.comment || '')
+      setOrderNote(data.cn_note || '')
       setChoosenStatus(data.status || null)
       setOrderAddress(data.orderAddress)
+      setHhIsTransfer(data.hh_is_transfer || 0)
+      setSelectedDeliveryUnit(data.delivery_unit_id || '')
 
       if (response.data.status === false && response.data.mess == 'no permission') {
         setIsPermissionCheck(false)
@@ -76,15 +110,16 @@ function EditOrder() {
 
   // const total = dataOrderDetail.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
-  console.log('dataOrderDetail:', dataOrderDetail)
-
   const handleUpdateClick = async () => {
     // submit api put
     try {
       setIsLoading(true)
       const response = await axiosClient.put(`admin/order/${id}`, {
+        _method: 'PUT',
         status: choosenStatus,
-        comment: orderNote,
+        cn_note: orderNote,
+        delivery_unit_id: selectedDeliveryUnit,
+        hh_is_transfer: hhIsTransfer ? 1 : 0,
       })
 
       if (response.data.status === true) {
@@ -102,8 +137,6 @@ function EditOrder() {
       setIsLoading(false)
     }
   }
-
-  console.log('data:', dataOrderDetail?.orderDetail)
 
   return (
     <CContainer>
@@ -145,9 +178,21 @@ function EditOrder() {
                     </strong>
                   </div>
 
-                  <div>
-                    <strong>Trạng thái: </strong>
-                    <span className="order-status border">{dataOrderDetail?.order_status}</span>
+                  <div className="status-wrapper">
+                    <div className="status-item">
+                      <span className="status-label">Trạng thái đơn hàng:</span>
+                      <span className="status-value-order">{dataOrderDetail?.order_status}</span>
+                    </div>
+
+                    <div className="status-item">
+                      <span className="status-label">Trạng thái đóng gói:</span>
+                      <CBadge
+                        color={getHHStatusColor(dataOrderDetail?.hh_status)}
+                        className="status-badge"
+                      >
+                        {dataOrderDetail?.hh_status_text || 'Chờ xử lý'}
+                      </CBadge>
+                    </div>
                   </div>
 
                   <div>
@@ -169,7 +214,7 @@ function EditOrder() {
                         Họ tên:{' '}
                         <span className="customer-info-name">{dataOrderDetail?.d_name}</span>{' '}
                         <span className="customer-info-type">
-                          {dataOrderDetail?.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
+                          {dataOrderDetail?.mem_id ? '(Thành viên)' : '(Khách vãng lai)'}
                         </span>
                       </p>
                       <p>
@@ -184,7 +229,8 @@ function EditOrder() {
                       </p>
 
                       <strong>Phương thức thanh toán:</strong>
-                      <p>{dataOrderDetail?.payment_method}</p>
+                      {/* <p>{dataOrderDetail?.payment_method}</p> */}
+                      <p>Chuyển khoản qua Ngân hàng, quét QR</p>
                     </div>
                     <div className="col-md-6">
                       <strong>Thông tin giao hàng</strong>
@@ -192,7 +238,7 @@ function EditOrder() {
                         Họ tên:{' '}
                         <span className="customer-info-name">{dataOrderDetail?.d_name}</span>{' '}
                         <span className="customer-info-type">
-                          {dataOrderDetail?.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
+                          {dataOrderDetail?.mem_id ? '(Thành viên)' : '(Khách vãng lai)'}
                         </span>
                       </p>
                       <p>
@@ -221,6 +267,28 @@ function EditOrder() {
                       </p>
                       <strong>Phương thức giao hàng:</strong>
                       <p>{dataOrderDetail?.shipping_method}</p>
+                    </div>
+                  </div>
+
+                  {/* Ghi chú của khách hàng - nổi bật riêng */}
+                  <div className="row mt-3">
+                    <div className="col-md-12">
+                      <div className="customer-note-highlight">
+                        <strong>📝 Ghi chú của khách hàng:</strong>
+                        <p className="mb-0 mt-2">{dataOrderDetail?.note || 'Không có ghi chú'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ghi chú từ FBM_HCM - kho đối tác Fujihome */}
+                  <div className="row mt-3">
+                    <div className="col-md-12">
+                      <div className="customer-note-highlight">
+                        <strong>📝 Ghi chú từ FBM_HCM - kho đối tác Fujihome:</strong>
+                        <p className="mb-0 mt-2">
+                          {dataOrderDetail?.hh_note || 'Không có ghi chú'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </CCol>
@@ -468,10 +536,10 @@ function EditOrder() {
                 <CCol className="cart my-1 border p-3 white-background" md={12}>
                   <h6 className="horizontal-line pb-2">Cập nhật đơn hàng</h6>
                   <CForm className="row g-3">
-                    <CCol className="mt-3">
+                    <CCol md={6} className="mt-3">
                       <CFormLabel htmlFor="status-select">Cập nhật trạng thái</CFormLabel>
                       <CFormSelect
-                        className="component-size w-25"
+                        className="component-size"
                         aria-label="Chọn yêu cầu lọc"
                         id="status-select"
                         options={[
@@ -487,8 +555,37 @@ function EditOrder() {
                         onChange={(e) => setChoosenStatus(e.target.value)}
                       />
                     </CCol>
+                    <CCol md={6} className="mt-3">
+                      <CFormLabel htmlFor="delivery-unit-select">Đơn vị vận chuyển</CFormLabel>
+                      <CFormSelect
+                        className="component-size"
+                        aria-label="Chọn đơn vị vận chuyển"
+                        id="delivery-unit-select"
+                        options={[
+                          { label: 'Chọn đơn vị vận chuyển', value: '' },
+                          ...(dataDeliveryUnits && dataDeliveryUnits.length > 0
+                            ? dataDeliveryUnits.map((unit) => ({
+                                label: unit.name,
+                                value: unit.id,
+                              }))
+                            : []),
+                        ]}
+                        value={selectedDeliveryUnit}
+                        onChange={(e) => setSelectedDeliveryUnit(e.target.value)}
+                      />
+                    </CCol>
+                    <CCol md={12} className="mt-3">
+                      <div className="large-checkbox">
+                        <CFormCheck
+                          id="hh-is-transfer"
+                          label="Khách hàng xác nhận, chuyển giao đơn hàng cho FBM_HCM - kho đối tác Fujihome"
+                          checked={hhIsTransfer === 1}
+                          onChange={(e) => setHhIsTransfer(e.target.checked ? 1 : 0)}
+                        />
+                      </div>
+                    </CCol>
                     <CCol md={12}>
-                      <CFormLabel htmlFor="order-note">Ghi chú đơn hàng</CFormLabel>
+                      <CFormLabel htmlFor="order-note">Ghi chú cho Admin gia dụng</CFormLabel>
                       <CFormTextarea
                         style={{ height: '100px', fontSize: 14 }}
                         type="text"
@@ -497,16 +594,6 @@ function EditOrder() {
                         value={orderNote}
                         onChange={(e) => setOrderNote(e.target.value)}
                       />
-                    </CCol>
-                    <CCol md={12}>
-                      <CFormLabel
-                        htmlFor="spx"
-                        value={spx}
-                        onChange={(e) => setSpx(e.target.value)}
-                      >
-                        Số phiếu xuất
-                      </CFormLabel>
-                      <CFormInput type="text" id="spx" />
                     </CCol>
                   </CForm>
                 </CCol>

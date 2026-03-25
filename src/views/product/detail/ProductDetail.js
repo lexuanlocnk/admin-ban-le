@@ -1,4 +1,5 @@
 import {
+  CBadge,
   CButton,
   CCol,
   CContainer,
@@ -20,7 +21,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import CIcon from '@coreui/icons-react'
-import { cilTrash, cilColorBorder } from '@coreui/icons'
+import { cilTrash, cilColorBorder, cilColorPalette, cilHome } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
 import moment from 'moment'
 
@@ -313,6 +314,25 @@ function ProductDetail() {
                 {item?.TenHH ? item?.TenTrenWeb2SAP : ''}
               </p>
               <p className="orange-txt">{`#${item?.MaHH ? item?.MaHH : item?.macn}`}</p>
+              {item.type === 2 && (
+                <div
+                  style={{
+                    display: 'inline-block',
+                    padding: '2px 8px',
+                    background: 'linear-gradient(135deg, #ff8a00, #ff5e00)',
+                    color: '#fff',
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    borderRadius: '4px',
+                    boxShadow: '0 2px 4px rgba(255, 94, 0, 0.2)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  <CIcon icon={cilHome} size="custom" height={10} className="me-1" />
+                  Đồ gia dụng - Fujihome
+                </div>
+              )}
             </>
           ),
           image: (
@@ -325,7 +345,17 @@ function ProductDetail() {
             />
           ),
           price: (
-            <span className="orange-txt">{`${Number(item.price).toLocaleString('vi-VN')}đ`}</span>
+            <div style={{ minWidth: 110, lineHeight: 1.5 }}>
+              <div className="orange-txt" style={{ fontWeight: 500 }}>
+                <span>Bán:</span>{' '}
+                {item.price ? `${Number(item.price).toLocaleString('vi-VN')}đ` : '—'}
+              </div>
+              {item.type === 2 && item.price_purchase !== null && (
+                <div className="text-danger" style={{ fontWeight: 500 }}>
+                  <span>Nhập:</span> {`${Number(item.price_purchase).toLocaleString('vi-VN')}đ`}
+                </div>
+              )}
+            </div>
           ),
           marketPrice: `${Number(item.price_old).toLocaleString('vi-VN')}đ`,
           status: (

@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const axiosClient = axios.create({
   baseURL: 'https://api.chinhnhan.com/api/',
+  // baseURL: 'http://192.168.245.190:8010/api/',
   headers: {
     'Content-Type': 'application/json',
     Authorization: localStorage.getItem('adminCN')

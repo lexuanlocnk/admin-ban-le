@@ -127,12 +127,14 @@ function EditProductDetail() {
     productCodeNumber: '',
     productCode: '',
     price: 0,
+    price_purchase: 0,
     marketPrice: 0,
     brand: '',
     stock: 0,
     visible: 0,
     star: 4.5,
     newTitle: '',
+    type: 1,
   }
 
   const validationSchema = Yup.object({
@@ -213,11 +215,13 @@ function EditProductDetail() {
           productCodeNumber: data?.maso,
           productCode: data?.macn,
           price: data?.price,
+          price_purchase: data?.price_purchase,
           marketPrice: data?.price_old,
           brand: data?.brand_id,
           stock: data?.stock,
           visible: data?.display,
           star: data?.votes,
+          type: data?.type,
         })
 
         setEditorData(data?.product_desc?.description)
@@ -454,6 +458,7 @@ function EditProductDetail() {
       maso: values.productCodeNumber,
       macn: values.productCode,
       price: values.price,
+      price_purchase: values.price_purchase,
       price_old: values.marketPrice,
       brand_id: values.brand,
       status: selectedStatus,
@@ -1501,6 +1506,36 @@ function EditProductDetail() {
                           </CCol>
                         </div>
                         <br />
+
+                        {values.type === 2 && (
+                          <>
+                            <div className="bg-white border p-2">
+                              <CCol md={12}>
+                                <Field name="price_purchase">
+                                  {({ field }) => (
+                                    <CFormInput
+                                      {...field}
+                                      type="text"
+                                      id="price_purchase-input"
+                                      value={formatNumber(field.value)}
+                                      label="Giá nhập (VNĐ)"
+                                      onChange={(e) => {
+                                        const rawValue = unformatNumber(e.target.value)
+                                        setFieldValue(field.name, rawValue)
+                                      }}
+                                    />
+                                  )}
+                                </Field>
+                                <ErrorMessage
+                                  name="price_purchase"
+                                  component="div"
+                                  className="text-danger"
+                                />
+                              </CCol>
+                            </div>
+                            <br />
+                          </>
+                        )}
 
                         <CCol md={12}>
                           <label htmlFor="categories-select">Ngành hàng</label>
