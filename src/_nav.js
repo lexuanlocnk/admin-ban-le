@@ -167,44 +167,6 @@ const _nav = [
   },
 
   // ─────────────────────────────────────────────────────────────
-  // TAB 4: QUẢN TRỊ GIA DỤNG
-  // ─────────────────────────────────────────────────────────────
-  {
-    component: CNavTitle,
-    name: 'QUẢN TRỊ GIA DỤNG',
-  },
-  {
-    // Quảng cáo dành riêng cho danh mục gia dụng
-    component: CNavGroup,
-    name: 'QUẢN LÝ ADS GIA DỤNG',
-    to: '/household',
-    icon: <CIcon icon={cilImage} customClassName="nav-icon" />,
-    items: [
-      { component: CNavItem, name: 'Quản lý vị trí', to: '/household/category' },
-      { component: CNavItem, name: 'Quản lý ads gia dụng', to: '/household' },
-      { component: CNavItem, name: 'Thêm mới ads gia dụng', to: '/household/add' },
-    ],
-  },
-
-  {
-    // Footer dành riêng cho danh mục gia dụng
-    component: CNavGroup,
-    name: 'FOOTER GIA DỤNG',
-    to: '/household/footer',
-    icon: <CIcon icon={cilImage} customClassName="nav-icon" />,
-    items: [{ component: CNavItem, name: 'Quản lý footer gia dụng', to: '/household/footer' }],
-  },
-
-  {
-    // Bình luận & đánh giá sản phẩm gia dụng
-    component: CNavGroup,
-    name: 'COMMENT GIA DỤNG',
-    to: '/household/comment',
-    icon: <CIcon icon={cilCommentBubble} customClassName="nav-icon" />,
-    items: [{ component: CNavItem, name: 'Quản lý bình luận gia dụng', to: '/household/comment' }],
-  },
-
-  // ─────────────────────────────────────────────────────────────
   // TAB 5: NỘI DUNG & TRUYỀN THÔNG
   // ─────────────────────────────────────────────────────────────
   {
