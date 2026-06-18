@@ -76,6 +76,7 @@ const Text = React.lazy(() => import('./views/coupon/Text'))
 // --- Đơn hàng (danh sách, trạng thái, vận chuyển, thanh toán) ---
 const OrderList = React.lazy(() => import('./views/order/orderInfo/orderList'))
 const EditOrder = React.lazy(() => import('./views/order/orderInfo/EditOrder'))
+const OrderNotifications = React.lazy(() => import('./views/order/orderNotifications'))
 const OrderStatus = React.lazy(() => import('./views/order/orderStatus'))
 const PaymentMethod = React.lazy(() => import('./views/order/paymentMethod'))
 const ShippingMethod = React.lazy(() => import('./views/order/shippingMethod'))
@@ -350,6 +351,12 @@ const routes = [
   // 3c. Đơn hàng
   { path: '/order', exact: true, name: 'OrderList', element: OrderList },
   { path: '/order/edit', exact: true, name: 'EditOrder', element: EditOrder },
+  {
+    path: '/order/notifications',
+    exact: true,
+    name: 'OrderNotifications',
+    element: OrderNotifications,
+  },
   { path: '/order/status', exact: true, name: 'OrderStatus', element: OrderStatus },
   { path: '/order/payment-method', exact: true, name: 'PaymentMethod', element: PaymentMethod },
   { path: '/order/shipping-method', exact: true, name: 'ShippingMethod', element: ShippingMethod },

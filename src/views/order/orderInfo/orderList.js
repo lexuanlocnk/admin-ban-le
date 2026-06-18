@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import {
   CBadge,
@@ -27,10 +27,12 @@ import '../css/orderList.css'
 import moment from 'moment'
 import ReactPaginate from 'react-paginate'
 import { axiosClient } from '../../../axiosConfig'
+import { useOrderNotifications } from '../../../context/OrderNotificationContext'
 
 function OrderList() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { latestSocketEvent } = useOrderNotifications()
 
   // Helper function for hh_status color
   const getHHStatusColor = (status) => {
@@ -159,7 +161,7 @@ function OrderList() {
     }
   }
 
-  const fetchOrderListData = async () => {
+  const fetchOrderListData = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await axiosClient.get(
@@ -175,11 +177,19 @@ function OrderList() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [choosenStatus, dataSearch, endDate, pageNumber, startDate, typeMember])
 
   useEffect(() => {
     fetchOrderListData()
-  }, [pageNumber, dataSearch, choosenStatus, typeMember, startDate, endDate])
+  }, [fetchOrderListData])
+
+  useEffect(() => {
+    if (!latestSocketEvent) {
+      return
+    }
+
+    fetchOrderListData()
+  }, [fetchOrderListData, latestSocketEvent])
 
   // search Data
   const handleSearch = (keyword) => {

@@ -3,6 +3,7 @@ import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/inde
 import { ToastContainer, Slide } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+import { OrderNotificationProvider } from '../context/OrderNotificationContext'
 import ScrollUpButton from '../components/scrollUp/ScrollUpButton'
 
 const DefaultLayout = () => {
@@ -26,14 +27,16 @@ const DefaultLayout = () => {
         theme="light"
         transition={Slide}
       />
-      <AppSidebar />
-      <div className="wrapper d-flex flex-column min-vh-100">
-        <AppHeader />
-        <div className="body flex-grow-1">
-          <AppContent />
+      <OrderNotificationProvider>
+        <AppSidebar />
+        <div className="wrapper d-flex flex-column min-vh-100">
+          <AppHeader />
+          <div className="body flex-grow-1">
+            <AppContent />
+          </div>
+          <AppFooter />
         </div>
-        <AppFooter />
-      </div>
+      </OrderNotificationProvider>
     </div>
   )
 }

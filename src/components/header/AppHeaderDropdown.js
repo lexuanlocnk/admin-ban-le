@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
   CAvatar,
-  CBadge,
   CButton,
   CDropdown,
   CDropdownDivider,
@@ -10,7 +9,7 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
-import { cilBell, cilEnvelopeOpen, cilLockLocked, cilUser } from '@coreui/icons'
+import { cilLockLocked, cilUser } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import '../css/headerLogout.css'
 
@@ -52,22 +51,6 @@ const AppHeaderDropdown = () => {
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
-        <CDropdownItem href="#">
-          <CIcon icon={cilBell} className="me-2" />
-          Updates
-          <CBadge color="info" className="ms-2">
-            42
-          </CBadge>
-        </CDropdownItem>
-        <CDropdownItem href="#">
-          <CIcon icon={cilEnvelopeOpen} className="me-2" />
-          Messages
-          <CBadge color="success" className="ms-2">
-            42
-          </CBadge>
-        </CDropdownItem>
-
-        <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
         <CDropdownItem href="#">
           <CIcon icon={cilUser} className="me-2" />
           Thông tin tài khoản

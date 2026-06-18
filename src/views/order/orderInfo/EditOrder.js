@@ -11,18 +11,22 @@ import {
   CRow,
   CSpinner,
 } from '@coreui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import '../css/editOrder.css'
 import moment from 'moment'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import { useOrderNotifications } from '../../../context/OrderNotificationContext'
 
 function EditOrder() {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const id = searchParams.get('id')
+  const { latestSocketEvent, refreshNotifications } = useOrderNotifications()
+  const hasSyncedNotificationRef = useRef(false)
+  const fromNotification = Boolean(location.state?.fromNotification)
 
   // check permission state
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
@@ -84,29 +88,48 @@ function EditOrder() {
     fetchDeliveryUnits()
   }, [])
 
-  const fetchOrderDataDetail = async () => {
-    try {
-      const response = await axiosClient.get(`admin/order/${id}/edit`)
+  const fetchOrderDataDetail = useCallback(
+    async ({ syncNotification = false } = {}) => {
+      try {
+        const response = await axiosClient.get(`admin/order/${id}/edit`)
 
-      const data = response.data.dataOrder || {}
-      setDataOrderDetail(data)
-      setOrderNote(data.cn_note || '')
-      setChoosenStatus(data.status || null)
-      setOrderAddress(data.orderAddress)
-      setHhIsTransfer(data.hh_is_transfer || 0)
-      setSelectedDeliveryUnit(data.delivery_unit_id || '')
+        const data = response.data.dataOrder || {}
+        setDataOrderDetail(data)
+        setOrderNote(data.cn_note || '')
+        setChoosenStatus(data.status || null)
+        setOrderAddress(data.orderAddress)
+        setHhIsTransfer(data.hh_is_transfer || 0)
+        setSelectedDeliveryUnit(data.delivery_unit_id || '')
 
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        setIsPermissionCheck(false)
+        if (response.data.status === false && response.data.mess == 'no permission') {
+          setIsPermissionCheck(false)
+        }
+
+        if (syncNotification && !hasSyncedNotificationRef.current) {
+          hasSyncedNotificationRef.current = true
+          await refreshNotifications(1)
+        }
+      } catch (error) {
+        console.error('Fetch data order detail is error', error.message)
       }
-    } catch (error) {
-      console.error('Fetch data order detail is error', error.message)
-    }
-  }
+    },
+    [id, refreshNotifications],
+  )
 
   useEffect(() => {
+    hasSyncedNotificationRef.current = false
+    fetchOrderDataDetail({ syncNotification: fromNotification })
+  }, [fetchOrderDataDetail, fromNotification])
+
+  useEffect(() => {
+    const latestOrderId = latestSocketEvent?.payload?.order_id
+
+    if (!latestOrderId || Number(latestOrderId) !== Number(id)) {
+      return
+    }
+
     fetchOrderDataDetail()
-  }, [])
+  }, [fetchOrderDataDetail, id, latestSocketEvent])
 
   // const total = dataOrderDetail.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
@@ -114,13 +137,22 @@ function EditOrder() {
     // submit api put
     try {
       setIsLoading(true)
-      const response = await axiosClient.put(`admin/order/${id}`, {
+
+      const payload = {
         _method: 'PUT',
         status: choosenStatus,
         cn_note: orderNote,
-        delivery_unit_id: selectedDeliveryUnit,
-        hh_is_transfer: hhIsTransfer ? 1 : 0,
-      })
+      }
+
+      if (dataOrderDetail?.is_household === true) {
+        payload.delivery_unit_id = selectedDeliveryUnit
+        payload.hh_is_transfer = hhIsTransfer ? 1 : 0
+      } else {
+        payload.delivery_unit_id = null
+        payload.hh_is_transfer = null
+      }
+
+      const response = await axiosClient.put(`admin/order/${id}`, payload)
 
       if (response.data.status === true) {
         toast.success('Cập nhật đơn hàng thành công!')
@@ -184,15 +216,17 @@ function EditOrder() {
                       <span className="status-value-order">{dataOrderDetail?.order_status}</span>
                     </div>
 
-                    <div className="status-item">
-                      <span className="status-label">Trạng thái đóng gói:</span>
-                      <CBadge
-                        color={getHHStatusColor(dataOrderDetail?.hh_status)}
-                        className="status-badge"
-                      >
-                        {dataOrderDetail?.hh_status_text || 'Chờ xử lý'}
-                      </CBadge>
-                    </div>
+                    {dataOrderDetail?.is_household === true && (
+                      <div className="status-item">
+                        <span className="status-label">Trạng thái đóng gói:</span>
+                        <CBadge
+                          color={getHHStatusColor(dataOrderDetail?.hh_status)}
+                          className="status-badge"
+                        >
+                          {dataOrderDetail?.hh_status_text || 'Chờ xử lý'}
+                        </CBadge>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -281,16 +315,18 @@ function EditOrder() {
                   </div>
 
                   {/* Ghi chú từ FBM_HCM - kho đối tác Fujihome */}
-                  <div className="row mt-3">
-                    <div className="col-md-12">
-                      <div className="customer-note-highlight">
-                        <strong>📝 Ghi chú từ FBM_HCM - kho đối tác Fujihome:</strong>
-                        <p className="mb-0 mt-2">
-                          {dataOrderDetail?.hh_note || 'Không có ghi chú'}
-                        </p>
+                  {dataOrderDetail?.is_household === true && (
+                    <div className="row mt-3">
+                      <div className="col-md-12">
+                        <div className="customer-note-highlight">
+                          <strong>📝 Ghi chú từ FBM_HCM - kho đối tác Fujihome:</strong>
+                          <p className="mb-0 mt-2">
+                            {dataOrderDetail?.hh_note || 'Không có ghi chú'}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </CCol>
               </CRow>
 
@@ -555,37 +591,45 @@ function EditOrder() {
                         onChange={(e) => setChoosenStatus(e.target.value)}
                       />
                     </CCol>
-                    <CCol md={6} className="mt-3">
-                      <CFormLabel htmlFor="delivery-unit-select">Đơn vị vận chuyển</CFormLabel>
-                      <CFormSelect
-                        className="component-size"
-                        aria-label="Chọn đơn vị vận chuyển"
-                        id="delivery-unit-select"
-                        options={[
-                          { label: 'Chọn đơn vị vận chuyển', value: '' },
-                          ...(dataDeliveryUnits && dataDeliveryUnits.length > 0
-                            ? dataDeliveryUnits.map((unit) => ({
-                                label: unit.name,
-                                value: unit.id,
-                              }))
-                            : []),
-                        ]}
-                        value={selectedDeliveryUnit}
-                        onChange={(e) => setSelectedDeliveryUnit(e.target.value)}
-                      />
-                    </CCol>
-                    <CCol md={12} className="mt-3">
-                      <div className="large-checkbox">
-                        <CFormCheck
-                          id="hh-is-transfer"
-                          label="Khách hàng xác nhận, chuyển giao đơn hàng cho FBM_HCM - kho đối tác Fujihome"
-                          checked={hhIsTransfer === 1}
-                          onChange={(e) => setHhIsTransfer(e.target.checked ? 1 : 0)}
-                        />
-                      </div>
-                    </CCol>
+                    {dataOrderDetail?.is_household === true && (
+                      <>
+                        <CCol md={6} className="mt-3">
+                          <CFormLabel htmlFor="delivery-unit-select">Đơn vị vận chuyển</CFormLabel>
+                          <CFormSelect
+                            className="component-size"
+                            aria-label="Chọn đơn vị vận chuyển"
+                            id="delivery-unit-select"
+                            options={[
+                              { label: 'Chọn đơn vị vận chuyển', value: '' },
+                              ...(dataDeliveryUnits && dataDeliveryUnits.length > 0
+                                ? dataDeliveryUnits.map((unit) => ({
+                                    label: unit.name,
+                                    value: unit.id,
+                                  }))
+                                : []),
+                            ]}
+                            value={selectedDeliveryUnit}
+                            onChange={(e) => setSelectedDeliveryUnit(e.target.value)}
+                          />
+                        </CCol>
+                        <CCol md={12} className="mt-3">
+                          <div className="large-checkbox">
+                            <CFormCheck
+                              id="hh-is-transfer"
+                              label="Khách hàng xác nhận, chuyển giao đơn hàng cho FBM_HCM - kho đối tác Fujihome"
+                              checked={hhIsTransfer === 1}
+                              onChange={(e) => setHhIsTransfer(e.target.checked ? 1 : 0)}
+                            />
+                          </div>
+                        </CCol>
+                      </>
+                    )}
                     <CCol md={12}>
-                      <CFormLabel htmlFor="order-note">Ghi chú cho Admin gia dụng</CFormLabel>
+                      <CFormLabel htmlFor="order-note">
+                        {dataOrderDetail?.is_household === true
+                          ? 'Ghi chú cho Admin Gia dụng'
+                          : 'Ghi chú cho Sale Chính Nhân'}
+                      </CFormLabel>
                       <CFormTextarea
                         style={{ height: '100px', fontSize: 14 }}
                         type="text"
