@@ -224,8 +224,8 @@ function EditProductDetail() {
           type: data?.type,
         })
 
-        setEditorData(data?.product_desc?.description)
-        setDescEditor(data?.product_desc?.short)
+        setEditorData(data?.product_desc?.description ?? '')
+        setDescEditor(data?.product_desc?.short ?? '')
         setIndustryCategory(industryCategory)
         setParentCategories(parentCategories)
         setChildCategories(childCategories)
@@ -775,7 +775,7 @@ function EditProductDetail() {
                         <CCol md={12}>
                           <label htmlFor="visible-select">Bài viết mô tả sản phẩm</label>
                           <CKedtiorCustom
-                            key={`product-desc-${id}`}
+                            key={`product-desc-${id}-${editorData ? 'loaded' : 'empty'}`}
                             data={editorData}
                             onChangeData={(data) => setEditorData(data)}
                             config={{ height: 300 }}

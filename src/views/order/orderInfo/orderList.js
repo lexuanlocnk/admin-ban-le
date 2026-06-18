@@ -322,9 +322,7 @@ function OrderList() {
               <div>
                 <span>Họ tên: </span>
                 <span className="customer-name">
-                  {order.member === null || order?.member.full_name === null
-                    ? order.d_name
-                    : order?.member.full_name}
+                  {order?.member?.full_name ? order?.member?.full_name : order?.d_name}
                 </span>
                 <span className="customer-type">
                   {order.mem_id === 0 ? '(Khách vãng lai)' : '(Thành viên)'}
@@ -347,8 +345,13 @@ function OrderList() {
           orderDate: moment.unix(Number(order.date_order)).format('hh:mm:ss A, DD-MM-YYYY'),
           total: <span className="total">{Number(order.total_cart).toLocaleString('vi-VN')}đ</span>,
           status: (
-            <span style={{ fontWeight: 600, color: order?.order_status.color }}>
-              {order?.order_status.title}
+            <span
+              style={{
+                fontWeight: 600,
+                color: order?.order_status?.color || '#6c757d',
+              }}
+            >
+              {order?.order_status?.title || 'Chờ xử lý'}
             </span>
           ),
           actions: (

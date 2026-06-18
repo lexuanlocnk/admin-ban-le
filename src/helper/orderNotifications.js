@@ -107,12 +107,25 @@ export const formatOrderNotificationTime = (value) => {
 
 export const normalizeOrderNotification = (notification) => {
   const content = getOrderNotificationContent(notification)
+  const detailUrl =
+    notification?.detail_url ||
+    notification?.payload?.detail_url ||
+    notification?.payload?.detailUrl ||
+    ''
+  const sourceSystem =
+    notification?.source_system ||
+    notification?.payload?.source_system ||
+    notification?.payload?.sourceSystem ||
+    ''
 
   return {
     ...notification,
     ...content,
+    detailUrl,
+    sourceSystem,
+    isHousehold: sourceSystem === 'giadung',
     createdAtLabel: formatOrderNotificationTime(notification?.created_at),
-    canOpen: Boolean(notification?.order_id),
+    canOpen: Boolean(detailUrl || notification?.order_id),
     isUnread: notification?.is_read === false,
   }
 }

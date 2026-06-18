@@ -86,6 +86,16 @@ export const OrderNotificationProvider = ({ children }) => {
 
   const openOrderNotification = useCallback(
     (notification) => {
+      const detailUrl = notification?.detailUrl || notification?.detail_url || ''
+      if (detailUrl) {
+        if (/^https?:\/\//i.test(detailUrl)) {
+          window.location.assign(detailUrl)
+        } else {
+          navigate(detailUrl)
+        }
+        return true
+      }
+
       if (!notification?.order_id) {
         return false
       }
