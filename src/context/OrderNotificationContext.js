@@ -299,6 +299,23 @@ export const OrderNotificationProvider = ({ children }) => {
     }
   }, [refreshNotifications])
 
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await axiosClient.post('admin/order-notifies/read-all')
+      setUnreadCount(0)
+      setUnreadNewOrderCount(0)
+      setItems((prevItems) =>
+        prevItems.map((item) => ({
+          ...item,
+          isUnread: false,
+        })),
+      )
+      toast.success('Đã đánh dấu đọc tất cả thông báo!')
+    } catch (error) {
+      console.error('Mark all notifications as read error', error)
+    }
+  }, [])
+
   const value = useMemo(
     () => ({
       items,
@@ -310,6 +327,7 @@ export const OrderNotificationProvider = ({ children }) => {
       fetchNotificationHistory,
       refreshNotifications,
       openOrderNotification,
+      markAllAsRead,
     }),
     [
       currentPage,
@@ -320,6 +338,7 @@ export const OrderNotificationProvider = ({ children }) => {
       openOrderNotification,
       refreshNotifications,
       unreadCount,
+      markAllAsRead,
     ],
   )
 

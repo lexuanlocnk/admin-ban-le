@@ -98,7 +98,6 @@ const _nav = [
     icon: <CIcon icon={cilDevices} customClassName="nav-icon" />,
     items: [
       { component: CNavItem, name: 'Quản lý sản phẩm', to: '/product' },
-      { component: CNavItem, name: 'Thêm mới sản phẩm', to: '/product/add' },
       { component: CNavItem, name: 'Sản phẩm không đồng bộ', to: '/product/out-of-sync' },
       { component: CNavItem, name: 'Cập nhật TSKT Excel', to: '/product/update-excel-price' },
       { component: CNavItem, name: 'Cấu hình sản phẩm', to: '/product/config' },

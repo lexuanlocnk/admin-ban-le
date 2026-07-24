@@ -34,9 +34,10 @@ const ScrollUpButton = () => {
       color="primary"
       style={{
         position: 'fixed',
-        bottom: '40px',
-        right: '40px',
-        display: visible ? 'inline' : 'none',
+        bottom: '50px',
+        right: '25px',
+        zIndex: 9999,
+        display: visible ? 'inline-block' : 'none',
       }}
       onClick={scrollToTop}
     >

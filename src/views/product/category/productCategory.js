@@ -277,7 +277,7 @@ function ProductCategory() {
                                       style={{ color: '#3c8dbc', textDecoration: 'none' }}
                                     >
                                       <img
-                                        src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
+                                        src="https://media.vitinhnguyenkim.vn/uploads/row-sub.gif"
                                         alt="Subcategory"
                                         className="mr-2"
                                       />
@@ -349,7 +349,7 @@ function ProductCategory() {
                                             style={{ color: '#3c8dbc', textDecoration: 'none' }}
                                           >
                                             <img
-                                              src="https://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif"
+                                              src="https://media.vitinhnguyenkim.vn/uploads/row-sub.gif"
                                               alt="Subcategory"
                                               style={{ marginLeft: 16 }}
                                             />

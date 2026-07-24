@@ -16,6 +16,17 @@
 // If you want to add custom CSS you can put it here
 @import 'custom';
 
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
 .container-lg {
   padding-right: 1rem !important;
   padding-left: 1rem !important;
@@ -76,51 +87,114 @@ label {
 
 .filter-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background-color: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  th,
+  td {
+    padding: 10px 16px;
+    border: none;
+    border-bottom: 1px solid #cbd5e1;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  td:first-child {
+    border-right: 1px solid #cbd5e1;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  thead th {
+    background-color: #f8fafc;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #334155;
+    border-bottom: 2px solid #94a3b8;
+  }
+
+  .total-count {
+    color: #dc2626;
+    font-weight: 700;
+  }
+
+  .search-input {
+    min-width: 360px;
+    max-width: 500px;
+    width: 380px;
+    padding: 6px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .search-input:focus {
+    border-color: #696cff;
+    box-shadow: 0 0 0 3px rgba(105, 108, 255, 0.2);
+  }
+
+  .submit-btn {
+    padding: 6px 18px;
+    margin-left: 8px;
+    background-color: #696cff;
+    color: white;
+    border: 1px solid #696cff;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(105, 108, 255, 0.25);
+  }
+
+  .submit-btn:hover {
+    background-color: #5b5ee0;
+    border-color: #5b5ee0;
+  }
 }
 
-.filter-table th,
-.filter-table td {
-  padding: 8px;
-  border: 1px solid #ddd;
-  text-align: left;
+.product-table-card {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
-.filter-table thead th {
-  background-color: #f9f9f9;
-  font-size: 1.1em;
-}
+.custom-product-table {
+  border: none !important;
 
-.filter-table .total-count {
-  color: red;
-  text-align: left;
-  font-weight: 600;
-}
+  thead th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+    padding: 12px 16px !important;
+    border: none !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+  }
 
-.filter-table .search-input {
-  width: 80%;
-  padding: 4px;
-  box-sizing: border-box;
-  border: 1px solid #ddd;
-}
+  tbody td {
+    padding: 12px 16px !important;
+    color: #1e293b;
+    font-size: 0.9rem;
+    border: none !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+  }
 
-.filter-table .search-input:focus {
-  border-color: lightblue;
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-.filter-table .submit-btn {
-  padding: 4px 8px;
-  margin-left: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.filter-table .submit-btn:hover {
-  background-color: lightgray;
-  transition: all ease-in 0.3;
+  tbody tr:hover {
+    background-color: #f8fafc !important;
+  }
 }
 
 .select-input {
@@ -177,6 +251,43 @@ label {
 .customer-phone,
 .customer-email {
   color: $blue-color;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.body.flex-grow-1,
+.body {
+  flex: 1 0 auto !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0.5rem !important;
+}
+
+footer.footer,
+.footer,
+footer {
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  background-color: #ffffff !important;
 }
 
 .customer-type,

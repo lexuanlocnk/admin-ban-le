@@ -86,7 +86,7 @@ function AddProductDetail() {
     brand: '',
     stock: 0,
     visible: 0,
-    star: 4.5,
+    star: 5,
   }
 
   const validationSchema = Yup.object({
@@ -429,21 +429,6 @@ function AddProductDetail() {
                       >
                         Mô tả
                       </button>
-                      <button
-                        type="button"
-                        className={activeTab === 'tab2' ? 'active' : ''}
-                        onClick={() => handleTabClick('tab2')}
-                      >
-                        Thông tin khuyến mãi
-                      </button>
-
-                      <button
-                        type="button"
-                        className={activeTab === 'tab3' ? 'active' : ''}
-                        onClick={() => handleTabClick('tab3')}
-                      >
-                        Video
-                      </button>
 
                       <button
                         type="button"
@@ -459,22 +444,6 @@ function AddProductDetail() {
                           <CKedtiorCustom
                             data={descEditor}
                             onChangeData={(data) => setDescEditor(data)}
-                          />
-                        </CCol>
-                      </div>
-                      <div className={`tab-content ${activeTab === 'tab2' ? 'active' : ''}`}>
-                        <CCol md={12}>
-                          <CKedtiorCustom
-                            data={promotionEditor}
-                            onChangeData={(data) => setPromotionEditor(data)}
-                          />
-                        </CCol>
-                      </div>
-                      <div className={`tab-content ${activeTab === 'tab3' ? 'active' : ''}`}>
-                        <CCol md={12}>
-                          <CKedtiorCustom
-                            data={videoEditor}
-                            onChangeData={(data) => setVideoEditor(data)}
                           />
                         </CCol>
                       </div>
@@ -686,69 +655,80 @@ function AddProductDetail() {
                 </CCol>
 
                 <CCol md={3}>
-                  <CCol md={12}>
-                    <label htmlFor="syndicationCode-input">Mã Syndication</label>
-                    <FastField
-                      name="syndicationCode"
-                      type="text"
-                      as={CFormInput}
-                      id="syndicationCode-input"
-                    />
-                    <ErrorMessage name="syndicationCode" component="div" className="text-danger" />
-                  </CCol>
+                  <div className="bg-white border p-2">
+                    <CCol md={12}>
+                      <label htmlFor="productCodeNumber-input">Mã sản phẩm</label>
+                      <FastField
+                        name="productCodeNumber"
+                        type="text"
+                        as={CFormInput}
+                        id="productCodeNumber-input"
+                      />
+                      <ErrorMessage
+                        name="productCodeNumber"
+                        component="div"
+                        className="text-danger"
+                      />
+                    </CCol>
+                  </div>
                   <br />
 
-                  <CCol md={12}>
-                    <label htmlFor="productCode-input">Mã kho</label>
-                    <FastField
-                      name="productCode"
-                      type="text"
-                      as={CFormInput}
-                      id="productCode-input"
-                      text="Nếu không nhập mã kho hoặc mã kho đã tồn tại. Hệ thống sẽ tự tạo mã kho theo chuẩn."
-                    />
-                    <ErrorMessage name="productCode" component="div" className="text-danger" />
-                  </CCol>
+                  <div className="bg-white border p-2">
+                    <CCol md={12}>
+                      <label htmlFor="productCode-input">Mã kho</label>
+                      <FastField
+                        name="productCode"
+                        type="text"
+                        as={CFormInput}
+                        id="productCode-input"
+                      />
+                      <ErrorMessage name="productCode" component="div" className="text-danger" />
+                    </CCol>
+                  </div>
                   <br />
 
-                  <CCol md={12}>
-                    <FastField name="marketPrice">
-                      {({ field }) => (
-                        <CFormInput
-                          {...field}
-                          type="text"
-                          id="marketPrice-input"
-                          value={formatNumber(field.value)}
-                          label="Giá thị trường (VNĐ)"
-                          onChange={(e) => {
-                            const rawValue = unformatNumber(e.target.value)
-                            setFieldValue(field.name, rawValue)
-                          }}
-                        />
-                      )}
-                    </FastField>
-                    <ErrorMessage name="marketPrice" component="div" className="text-danger" />
-                  </CCol>
+                  <div className="bg-white border p-2">
+                    <CCol md={12}>
+                      <FastField name="marketPrice">
+                        {({ field }) => (
+                          <CFormInput
+                            {...field}
+                            type="text"
+                            id="marketPrice-input"
+                            value={formatNumber(field.value)}
+                            label="Giá thị trường (VNĐ)"
+                            onChange={(e) => {
+                              const rawValue = unformatNumber(e.target.value)
+                              setFieldValue(field.name, rawValue)
+                            }}
+                          />
+                        )}
+                      </FastField>
+                      <ErrorMessage name="marketPrice" component="div" className="text-danger" />
+                    </CCol>
+                  </div>
                   <br />
 
-                  <CCol md={12}>
-                    <FastField name="price">
-                      {({ field }) => (
-                        <CFormInput
-                          {...field}
-                          type="text"
-                          id="price-input"
-                          value={formatNumber(field.value)}
-                          label="Giá bán (VNĐ)"
-                          onChange={(e) => {
-                            const rawValue = unformatNumber(e.target.value)
-                            setFieldValue(field.name, rawValue)
-                          }}
-                        />
-                      )}
-                    </FastField>
-                    <ErrorMessage name="price" component="div" className="text-danger" />
-                  </CCol>
+                  <div className="bg-white border p-2">
+                    <CCol md={12}>
+                      <FastField name="price">
+                        {({ field }) => (
+                          <CFormInput
+                            {...field}
+                            type="text"
+                            id="price-input"
+                            value={formatNumber(field.value)}
+                            label="Giá bán (VNĐ)"
+                            onChange={(e) => {
+                              const rawValue = unformatNumber(e.target.value)
+                              setFieldValue(field.name, rawValue)
+                            }}
+                          />
+                        )}
+                      </FastField>
+                      <ErrorMessage name="price" component="div" className="text-danger" />
+                    </CCol>
+                  </div>
                   <br />
 
                   <CCol md={12}>
@@ -886,7 +866,7 @@ function AddProductDetail() {
                       min="1"
                       max="5"
                       step="0.1"
-                      placeholder="Ví dụ: 4.5"
+                      placeholder="Ví dụ: 5"
                     />
                     <ErrorMessage name="star" component="div" className="text-danger" />
                   </CCol>

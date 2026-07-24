@@ -11,6 +11,7 @@ const DefaultLayout = () => {
     <div
       style={{
         fontSize: 14,
+        minHeight: '100vh',
       }}
     >
       <ScrollUpButton />

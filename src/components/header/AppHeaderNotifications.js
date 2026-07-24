@@ -10,8 +10,14 @@ import '../css/orderNotifications.css'
 const AppHeaderNotifications = () => {
   const navigate = useNavigate()
   const [visible, setVisible] = useState(false)
-  const { items, unreadCount, isLoading, refreshNotifications, openOrderNotification } =
-    useOrderNotifications()
+  const {
+    items,
+    unreadCount,
+    isLoading,
+    refreshNotifications,
+    openOrderNotification,
+    markAllAsRead,
+  } = useOrderNotifications()
 
   console.log('items', items)
 
@@ -44,8 +50,20 @@ const AppHeaderNotifications = () => {
         </span>
       </CDropdownToggle>
       <CDropdownMenu className="order-notification-dropdown pt-0" placement="bottom-end">
-        <div className="order-notification-dropdown__header">
+        <div className="order-notification-dropdown__header d-flex justify-content-between align-items-center">
           <span className="order-notification-dropdown__title">Tin nhắn hệ thống</span>
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              className="btn btn-link btn-sm text-primary text-decoration-none p-0 me-2 fw-semibold fs-7"
+              onClick={(e) => {
+                e.stopPropagation()
+                markAllAsRead()
+              }}
+            >
+              Đọc tất cả
+            </button>
+          )}
         </div>
 
         <div className="order-notification-dropdown__body">
@@ -115,7 +133,17 @@ const AppHeaderNotifications = () => {
           )}
         </div>
 
-        <div className="order-notification-dropdown__footer">
+        <div className="order-notification-dropdown__footer d-flex justify-content-between align-items-center">
+          <button
+            type="button"
+            className="order-notification-dropdown__view-all text-primary border-0 bg-transparent"
+            style={{ fontSize: '0.825rem', fontWeight: 600 }}
+            onClick={() => {
+              markAllAsRead()
+            }}
+          >
+            Đánh dấu đọc tất cả
+          </button>
           <button
             type="button"
             className="order-notification-dropdown__view-all"

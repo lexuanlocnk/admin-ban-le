@@ -109,6 +109,10 @@ function ProductDetail() {
   const [dataSearch, setDataSearch] = useState('')
   const debouncedSearch = useDebounce(dataSearch, 300) // Áp dụng debounce với 300ms
 
+  // filter states
+  const [selectedDisplay, setSelectedDisplay] = useState('')
+  const [selectedStock, setSelectedStock] = useState('')
+
   const fetchData = async () => {
     try {
       const [categoriesResult, brandsResult, statusResult] = await Promise.allSettled([
@@ -147,7 +151,7 @@ function ProductDetail() {
     try {
       setIsLoading(true)
       const response = await axiosClient.get(
-        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}`,
+        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}&display=${selectedDisplay}&stock=${selectedStock}`,
       )
       if (response.data.status === true) {
         setDataProductList(response.data.product)
@@ -165,7 +169,15 @@ function ProductDetail() {
 
   useEffect(() => {
     fetchProductData()
-  }, [pageNumber, debouncedSearch, selectedBrand, selectedCategory, selectedStatus])
+  }, [
+    pageNumber,
+    debouncedSearch,
+    selectedBrand,
+    selectedCategory,
+    selectedStatus,
+    selectedDisplay,
+    selectedStock,
+  ])
 
   const handleAddNewClick = () => {
     navigate('/product/add')
@@ -240,10 +252,10 @@ function ProductDetail() {
     {
       key: 'id',
       label: (
-        <>
+        <div className="d-flex justify-content-center align-items-center">
           <CFormCheck
             style={{
-              transform: 'scale(1.4)',
+              transform: 'scale(1.2)',
               accentColor: '#198754',
             }}
             aria-label="Select all"
@@ -259,66 +271,133 @@ function ProductDetail() {
               }
             }}
           />
-        </>
+        </div>
       ),
-      _props: { scope: 'col' },
+      _props: {
+        scope: 'col',
+        style: { width: '40px', textAlign: 'center', verticalAlign: 'middle' },
+      },
     },
-    { key: 'title', label: 'Tiêu đề' },
-    { key: 'image', label: 'Hình ảnh' },
-    { key: 'price', label: 'Giá bán' },
-    { key: 'marketPrice', label: 'Giá thị trường' },
-    { key: 'status', label: 'Tình trạng' },
-    { key: 'create_at', label: 'Ngày đồng bộ' },
-    { key: 'update_at', label: 'Cập nhật' },
-    { key: 'actions', label: 'Tác vụ' },
+    {
+      key: 'title',
+      label: 'Tiêu đề',
+      _props: { scope: 'col', style: { verticalAlign: 'middle' } },
+    },
+    {
+      key: 'image',
+      label: 'Hình ảnh',
+      _props: {
+        scope: 'col',
+        style: { width: '65px', textAlign: 'center', verticalAlign: 'middle' },
+      },
+    },
+    {
+      key: 'price',
+      label: 'Giá bán',
+      _props: {
+        scope: 'col',
+        style: { whiteSpace: 'nowrap', width: '110px', verticalAlign: 'middle' },
+      },
+    },
+    {
+      key: 'marketPrice',
+      label: 'Giá thị trường',
+      _props: {
+        scope: 'col',
+        style: { whiteSpace: 'nowrap', width: '95px', verticalAlign: 'middle' },
+      },
+    },
+    {
+      key: 'status',
+      label: 'Tình trạng',
+      _props: {
+        scope: 'col',
+        style: { whiteSpace: 'nowrap', width: '95px', verticalAlign: 'middle' },
+      },
+    },
+    {
+      key: 'create_at',
+      label: 'Ngày đồng bộ',
+      _props: {
+        scope: 'col',
+        style: { whiteSpace: 'nowrap', width: '115px', verticalAlign: 'middle' },
+      },
+    },
+    {
+      key: 'update_at',
+      label: 'Cập nhật',
+      _props: {
+        scope: 'col',
+        style: { whiteSpace: 'nowrap', width: '115px', verticalAlign: 'middle' },
+      },
+    },
+    {
+      key: 'actions',
+      label: 'Tác vụ',
+      _props: {
+        scope: 'col',
+        style: {
+          whiteSpace: 'nowrap',
+          width: '95px',
+          textAlign: 'center',
+          verticalAlign: 'middle',
+        },
+      },
+    },
   ]
 
   const items =
     dataProductList?.data && dataProductList?.data.length > 0
       ? dataProductList?.data?.map((item) => ({
           id: (
-            <CFormCheck
-              style={{
-                transform: 'scale(1.4)',
-                accentColor: '#198754',
-              }}
-              key={item?.product_id}
-              aria-label="Default select example"
-              defaultChecked={item?.product_id}
-              id={`flexCheckDefault_${item?.product_id}`}
-              value={item?.product_id}
-              checked={selectedCheckbox.includes(item?.product_id)}
-              onChange={(e) => {
-                const productId = item?.product_id
-                const isChecked = e.target.checked
-                if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, productId])
-                } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== productId))
-                }
-              }}
-            />
+            <div className="d-flex justify-content-center align-items-center">
+              <CFormCheck
+                style={{
+                  transform: 'scale(1.2)',
+                  accentColor: '#198754',
+                }}
+                key={item?.product_id}
+                aria-label="Default select example"
+                defaultChecked={item?.product_id}
+                id={`flexCheckDefault_${item?.product_id}`}
+                value={item?.product_id}
+                checked={selectedCheckbox.includes(item?.product_id)}
+                onChange={(e) => {
+                  const productId = item?.product_id
+                  const isChecked = e.target.checked
+                  if (isChecked) {
+                    setSelectedCheckbox([...selectedCheckbox, productId])
+                  } else {
+                    setSelectedCheckbox(selectedCheckbox.filter((id) => id !== productId))
+                  }
+                }}
+              />
+            </div>
           ),
           title: (
             <>
               <Link to={`/product/edit?id=${item?.product_id}`}>
-                <p className="blue-txt m-0">{item?.TenHH ? item?.TenHH : item?.TenHHCu}</p>
+                <p className="blue-txt m-0 fw-semibold">
+                  {item?.TenHH ? item?.TenHH : item?.TenHHCu}
+                </p>
               </Link>
               <p
                 style={{
                   fontWeight: '600',
-                  marginBottom: '4px',
+                  marginBottom: '2px',
                   color: '#333',
+                  fontSize: '0.825rem',
                 }}
               >
                 {item?.TenHH ? item?.TenTrenWeb2SAP : ''}
               </p>
-              <p className="orange-txt">{`#${item?.MaHH ? item?.MaHH : item?.macn}`}</p>
+              <p className="orange-txt font-monospace m-0">{`#${item?.MaHH ? item?.MaHH : item?.macn}`}</p>
               {item.type === 2 && (
                 <div
+                  className="mt-1"
                   style={{
                     display: 'inline-block',
-                    padding: '2px 8px',
+                    padding: '2px 6px',
                     background: 'linear-gradient(135deg, #ff8a00, #ff5e00)',
                     color: '#fff',
                     fontSize: '10px',
@@ -336,17 +415,19 @@ function ProductDetail() {
             </>
           ),
           image: (
-            <CImage
-              className="d-flex justify-content-center align-items-center"
-              width={50}
-              src={`${imageBaseUrl}${item.picture}`}
-              alt={`image_${item?.macn}`}
-              loading="lazy"
-            />
+            <div className="d-flex justify-content-center align-items-center">
+              <CImage
+                width={45}
+                src={`${imageBaseUrl}${item.picture}`}
+                alt={`image_${item?.macn}`}
+                loading="lazy"
+                className="rounded border"
+              />
+            </div>
           ),
           price: (
-            <div style={{ minWidth: 110, lineHeight: 1.5 }}>
-              <div className="orange-txt" style={{ fontWeight: 500 }}>
+            <div style={{ lineHeight: 1.4 }}>
+              <div className="orange-txt" style={{ fontWeight: 600 }}>
                 <span>Bán:</span>{' '}
                 {item.price ? `${Number(item.price).toLocaleString('vi-VN')}đ` : '—'}
               </div>
@@ -357,47 +438,47 @@ function ProductDetail() {
               )}
             </div>
           ),
-          marketPrice: `${Number(item.price_old).toLocaleString('vi-VN')}đ`,
+          marketPrice: (
+            <div className="fw-semibold text-secondary">
+              {`${Number(item.price_old).toLocaleString('vi-VN')}đ`}
+            </div>
+          ),
           status: (
-            <>
-              <span>
-                {item.stock > 0 ? (item.stock === 1 ? 'Còn hàng' : 'Ngừng kinh doanh') : 'Hết hàng'}
+            <div>
+              <span className="fw-medium text-dark d-block fs-7">
+                {item.stock > 0 ? (item.stock === 1 ? 'Còn hàng' : 'Ngừng KD') : 'Hết hàng'}
               </span>
-              <p
-                style={{
-                  color: item.Hienthi === 'Y' ? '#28a745' : '#dc3545',
-                  fontWeight: 'bold',
-                }}
+              <span
+                className={`badge ${
+                  item.Hienthi === 'Y'
+                    ? 'bg-success-subtle text-success border border-success-subtle'
+                    : 'bg-danger-subtle text-danger border border-danger-subtle'
+                } px-2 py-1 mt-1`}
               >
                 {item.Hienthi === 'Y' ? 'Hiển thị' : 'Ẩn'}
-              </p>
-            </>
+              </span>
+            </div>
           ),
 
-          // info: (
-          //   <>
-          //     <p>{item.views} lượt xem</p>
-          //     <p>{moment.unix(item.date_post).format('DD-MM-YYYY, hh:mm:ss A')}</p>
-          //   </>
-          // ),
-
           create_at: (
-            <>
-              <p>{moment(item?.created_at).format('DD-MM-YYYY, HH:mm:ss A')}</p>
-            </>
+            <div className="fs-7 text-secondary">
+              <p className="m-0">{moment(item?.created_at).format('DD-MM-YYYY HH:mm')}</p>
+            </div>
           ),
 
           update_at: (
-            <>
-              <p>{moment(item?.updated_at).format('DD-MM-YYYY, HH:mm:ss A')}</p>
-            </>
+            <div className="fs-7 text-secondary">
+              <p className="m-0">{moment(item?.updated_at).format('DD-MM-YYYY HH:mm')}</p>
+            </div>
           ),
 
           actions: (
-            <div className="d-flex justify-content-start">
+            <div className="d-flex justify-content-center align-items-center gap-1">
               <button
                 onClick={() => handleUpdateClick(item.product_id)}
-                className="button-action mr-2 bg-info"
+                className="button-action bg-info text-white rounded border-0 p-1 d-inline-flex align-items-center justify-content-center shadow-sm"
+                style={{ width: '32px', height: '32px' }}
+                title="Sửa"
               >
                 <CIcon icon={cilColorBorder} className="text-white" />
               </button>
@@ -407,7 +488,9 @@ function ProductDetail() {
                   setVisible(true)
                   setDeletedId(item.product_id)
                 }}
-                className="button-action bg-danger"
+                className="button-action bg-danger text-white rounded border-0 p-1 d-inline-flex align-items-center justify-content-center shadow-sm"
+                style={{ width: '32px', height: '32px' }}
+                title="Xóa"
               >
                 <CIcon icon={cilTrash} className="text-white" />
               </button>
@@ -534,9 +617,12 @@ function ProductDetail() {
                 <thead>
                   <tr>
                     <th colSpan="2">
-                      <div className="d-flex justify-content-between">
-                        <span>Bộ lọc tìm kiếm</span>
-                        <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span className="fw-bold text-dark">Bộ lọc tìm kiếm</span>
+                        <span
+                          className="toggle-pointer text-secondary px-2"
+                          onClick={handleToggleCollapse}
+                        >
                           {isCollapse ? '▼' : '▲'}
                         </span>
                       </div>
@@ -546,20 +632,22 @@ function ProductDetail() {
                 {!isCollapse && (
                   <tbody>
                     <tr>
-                      <td>Tổng cộng</td>
-                      <td className="total-count">{dataProductList?.total}</td>
+                      <td style={{ width: '220px' }} className="fw-semibold text-secondary">
+                        Tổng cộng
+                      </td>
+                      <td>
+                        <span className="text-danger fs-6 fw-bold">
+                          {dataProductList?.total || 0}
+                        </span>
+                      </td>
                     </tr>
                     <tr>
-                      <td>Lọc</td>
+                      <td className="fw-semibold text-secondary">Lọc</td>
                       <td>
-                        <div
-                          className="d-flex"
-                          style={{
-                            columnGap: 10,
-                          }}
-                        >
+                        <div className="d-flex flex-wrap gap-2">
                           <CFormSelect
-                            className="component-size w-25"
+                            className="component-size w-auto"
+                            style={{ width: '185px' }}
                             aria-label="Chọn yêu cầu lọc"
                             value={selectedCategory}
                             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -574,7 +662,8 @@ function ProductDetail() {
                             ]}
                           />
                           <CFormSelect
-                            className="component-size w-25"
+                            className="component-size w-auto"
+                            style={{ width: '185px' }}
                             aria-label="Chọn thương hiệu"
                             value={selectedBrand}
                             onChange={(e) => setSelectedBrand(e.target.value)}
@@ -588,26 +677,36 @@ function ProductDetail() {
                                 : []),
                             ]}
                           />
+
                           <CFormSelect
-                            className="component-size w-25"
-                            aria-label="Chọn trạng thái"
-                            value={selectedStatus}
-                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            className="component-size w-auto"
+                            style={{ width: '185px' }}
+                            aria-label="Chọn hiển thị"
+                            value={selectedDisplay}
+                            onChange={(e) => setSelectedDisplay(e.target.value)}
                             options={[
-                              { label: 'Chọn trạng thái', value: '' },
-                              ...(status && status.length > 0
-                                ? status.map((status) => ({
-                                    label: status.name,
-                                    value: status.status_id,
-                                  }))
-                                : []),
+                              { label: 'Tất cả hiển thị', value: '' },
+                              { label: 'Hiển thị', value: 'Y' },
+                              { label: 'Ẩn', value: 'N' },
+                            ]}
+                          />
+                          <CFormSelect
+                            className="component-size w-auto"
+                            style={{ width: '185px' }}
+                            aria-label="Chọn tình trạng kho"
+                            value={selectedStock}
+                            onChange={(e) => setSelectedStock(e.target.value)}
+                            options={[
+                              { label: 'Tất cả kho', value: '' },
+                              { label: 'Còn hàng', value: '1' },
+                              { label: 'Hết hàng', value: '0' },
                             ]}
                           />
                         </div>
                       </td>
                     </tr>
                     <tr>
-                      <td>Xem từ ngày</td>
+                      <td className="fw-semibold text-secondary">Xem từ ngày</td>
                       <td>
                         <div className="custom-datepicker-wrapper">
                           <DatePicker
@@ -631,20 +730,30 @@ function ProductDetail() {
                       </td>
                     </tr>
                     <tr>
-                      <td>Tìm kiếm</td>
+                      <td className="fw-semibold text-secondary">Tìm kiếm</td>
                       <td>
-                        <strong>
+                        <div className="mb-1 text-muted fs-7">
                           <em>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</em>
-                        </strong>
-                        <input
-                          type="text"
-                          className="search-input"
-                          value={dataSearch}
-                          onChange={(e) => setDataSearch(e.target.value)}
-                        />
-                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                          Submit
-                        </button>
+                        </div>
+                        <div className="d-flex align-items-center gap-2">
+                          <input
+                            type="text"
+                            className="search-input"
+                            placeholder="Nhập thông tin tìm kiếm..."
+                            value={dataSearch}
+                            onChange={(e) => setDataSearch(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSearch(dataSearch)
+                            }}
+                          />
+                          <CButton
+                            color="primary"
+                            size="sm"
+                            onClick={() => handleSearch(dataSearch)}
+                          >
+                            Submit
+                          </CButton>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -652,79 +761,63 @@ function ProductDetail() {
               </table>
             </CCol>
 
-            <div className="d-flex gap-3 mt-3">
-              {' '}
-              <div>
-                <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
+            <CCol md={12} className="mt-3">
+              <div className="d-flex gap-2 align-items-center flex-wrap">
+                <CButton
+                  onClick={handleDeleteSelectedCheckbox}
+                  color="primary"
+                  size="sm"
+                  className="px-3 shadow-sm"
+                >
                   Xóa vĩnh viễn
                 </CButton>
               </div>
-              <div>
-                <CButton
-                  onClick={handleExportExcelByCategoryAndBrand}
-                  color="primary"
-                  size="sm"
-                  disabled={isLoadingButton.excelCategoryButton}
-                >
-                  {isLoadingButton.excelCategoryButton ? (
-                    <>
-                      Đang tải xuống <CSpinner size="sm" />
-                    </>
-                  ) : (
-                    'Xuất excel sản phẩm theo danh mục, thương hiệu'
-                  )}
-                </CButton>
-              </div>
-              <div>
-                <CButton
-                  onClick={handleExportExcelAllProductByCategoryAndBrand}
-                  color="primary"
-                  size="sm"
-                  disabled={isLoadingButton.excelAllButton}
-                >
-                  {isLoadingButton.excelAllButton ? (
-                    <>
-                      Đang tải xuống <CSpinner size="sm" />
-                    </>
-                  ) : (
-                    'Xuất excel toàn bộ thông tin sản phẩm'
-                  )}
-                </CButton>
-              </div>
-            </div>
-            <CCol>
+            </CCol>
+
+            <CCol md={12} className="mt-3">
               {isLoading ? (
                 <Loading />
               ) : (
-                <CTable hover className="mt-3 border">
-                  <thead>
-                    <tr>
-                      {columns.map((column) => (
-                        <CTableHeaderCell
-                          key={column.key}
-                          onClick={() => handleSort(column.key)}
-                          className="prevent-select"
-                        >
-                          {column.label}
-                        </CTableHeaderCell>
-                      ))}
-                    </tr>
-                  </thead>
-                  <CTableBody>
-                    {sortedItems.map((item, index) => (
-                      <CTableRow key={index}>
+                <div className="card product-table-card">
+                  <CTable hover align="middle" className="mb-0 custom-product-table">
+                    <thead>
+                      <tr>
                         {columns.map((column) => (
-                          <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                          <CTableHeaderCell
+                            key={column.key}
+                            onClick={() => handleSort(column.key)}
+                            className="prevent-select"
+                            style={column._props?.style}
+                          >
+                            {column.label}
+                          </CTableHeaderCell>
                         ))}
-                      </CTableRow>
-                    ))}
-                  </CTableBody>
-                </CTable>
+                      </tr>
+                    </thead>
+                    <CTableBody>
+                      {sortedItems.map((item, index) => (
+                        <CTableRow key={index}>
+                          {columns.map((column) => (
+                            <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                          ))}
+                        </CTableRow>
+                      ))}
+                    </CTableBody>
+                  </CTable>
+                </div>
               )}
+            </CCol>
 
-              <div className="d-flex justify-content-end">
+            <CCol md={12} className="mt-4 mb-4">
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="text-muted fs-7">
+                  Hiển thị <strong>{sortedItems.length}</strong> trên tổng số{' '}
+                  <strong>{dataProductList?.total || 0}</strong> sản phẩm
+                </div>
                 <ReactPaginate
-                  pageCount={Math.ceil(dataProductList?.total / dataProductList?.per_page)}
+                  pageCount={Math.ceil(
+                    (dataProductList?.total || 0) / (dataProductList?.per_page || 10),
+                  )}
                   pageRangeDisplayed={3}
                   marginPagesDisplayed={1}
                   pageClassName="page-item"
@@ -737,11 +830,11 @@ function ProductDetail() {
                   breakClassName="page-item"
                   breakLinkClassName="page-link"
                   onPageChange={handlePageChange}
-                  containerClassName={'pagination'}
+                  containerClassName={'pagination mb-0'}
                   activeClassName={'active'}
                   previousLabel={'<<'}
                   nextLabel={'>>'}
-                  forcePage={pageNumber - 1} // Đảm bảo pagination hiển thị đúng trang hiện tại
+                  forcePage={pageNumber - 1}
                 />
               </div>
             </CCol>

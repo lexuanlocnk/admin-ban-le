@@ -33,6 +33,14 @@ function ProductOutOfSync() {
   const [editModalVisible, setEditModalVisible] = useState(false)
   const [editRecord, setEditRecord] = useState(null)
   const [editForm, setEditForm] = useState({})
+  const [addModalVisible, setAddModalVisible] = useState(false)
+  const [addForm, setAddForm] = useState({
+    TenHH: '',
+    MaHH: '',
+    price: '',
+    type: 'skip',
+    display: 1,
+  })
 
   // Lấy giá trị `page` từ URL hoặc mặc định là 1
   const pageFromUrl = parseInt(searchParams.get('page')) || 1
@@ -48,6 +56,7 @@ function ProductOutOfSync() {
   const [isPermissionCheck, setIsPermissionCheck] = useState(true)
 
   const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedDisplay, setSelectedDisplay] = useState('')
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -71,12 +80,23 @@ function ProductOutOfSync() {
       const res = await axiosClient.get(`admin/price-skip/${id}`)
       if (res.data.status === true) {
         setEditRecord(res.data.data)
-        setEditForm(res.data.data)
+        setEditForm({
+          ...res.data.data,
+          display: Number(res.data.data?.display ?? 1),
+        })
         setEditModalVisible(true)
       }
     } catch (error) {
       toast.error('Không thể lấy dữ liệu chi tiết!')
     }
+  }
+
+  const getTypeLabel = (type) => {
+    return type === 'skip' ? 'Điều chỉnh giá' : 'So sánh giá'
+  }
+
+  const getDisplayLabel = (display) => {
+    return Number(display) === 1 ? 'Hiển thị' : 'Ẩn'
   }
 
   // search Data
@@ -87,7 +107,7 @@ function ProductOutOfSync() {
   const fetchDataProductSkip = async (dataSearch = '') => {
     try {
       const response = await axiosClient.get(
-        `admin/price-skip?search=${dataSearch}&page=${pageNumber}&type=${selectedCategory}`,
+        `admin/price-skip?search=${dataSearch}&page=${pageNumber}&type=${selectedCategory}&display=${selectedDisplay}`,
       )
 
       if (response.data.status === true) {
@@ -104,7 +124,7 @@ function ProductOutOfSync() {
 
   useEffect(() => {
     fetchDataProductSkip()
-  }, [pageNumber, selectedCategory])
+  }, [pageNumber, selectedCategory, selectedDisplay])
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -135,7 +155,7 @@ function ProductOutOfSync() {
   const handleDeleteSelectedCheckbox = async () => {
     try {
       const response = await axiosClient.post('admin/price-skip-delete', {
-        data: selectedCheckbox,
+        ids: selectedCheckbox,
       })
       if (response.data.status === true) {
         toast.success('Xóa tất cả các mục thành công!')
@@ -151,37 +171,75 @@ function ProductOutOfSync() {
     dataProductSkip?.data && dataProductSkip?.data?.length > 0
       ? dataProductSkip?.data.map((item) => ({
           id: (
-            <CFormCheck
-              key={item?.id}
-              aria-label="Default select example"
-              defaultChecked={item?.id}
-              id={`flexCheckDefault_${item?.id}`}
-              value={item?.id}
-              checked={selectedCheckbox.includes(item?.id)}
-              onChange={(e) => {
-                const newsId = item?.id
-                const isChecked = e.target.checked
-                if (isChecked) {
-                  setSelectedCheckbox([...selectedCheckbox, newsId])
-                } else {
-                  setSelectedCheckbox(selectedCheckbox.filter((id) => id !== newsId))
-                }
-              }}
-            />
+            <div className="d-flex justify-content-center align-items-center">
+              <CFormCheck
+                key={item?.id}
+                aria-label="Default select example"
+                defaultChecked={item?.id}
+                id={`flexCheckDefault_${item?.id}`}
+                value={item?.id}
+                checked={selectedCheckbox.includes(item?.id)}
+                onChange={(e) => {
+                  const newsId = item?.id
+                  const isChecked = e.target.checked
+                  if (isChecked) {
+                    setSelectedCheckbox([...selectedCheckbox, newsId])
+                  } else {
+                    setSelectedCheckbox(selectedCheckbox.filter((id) => id !== newsId))
+                  }
+                }}
+              />
+            </div>
           ),
-          title: <div>{item?.TenHH}</div>,
+          title: (
+            <div
+              className="fw-semibold text-dark text-truncate"
+              style={{ maxWidth: '340px', cursor: 'pointer' }}
+              title={item?.TenHH}
+            >
+              {item?.TenHH}
+            </div>
+          ),
           macn: (
             <div>
-              <span className="macn-color">{item?.MaHH}</span>
+              <span
+                className="badge bg-light text-primary border font-monospace px-2 py-1"
+                style={{ fontSize: '0.825rem' }}
+              >
+                {item?.MaHH}
+              </span>
             </div>
           ),
           type: (
-            <div className="cate-color">
-              {item?.type === 'skip' ? 'Điêu chỉnh giá' : 'So sánh giá'}
+            <div>
+              <span
+                className="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 fw-medium"
+                style={{ fontSize: '0.825rem' }}
+              >
+                {getTypeLabel(item?.type)}
+              </span>
             </div>
           ),
 
-          price: <div>{item?.price ? Number(item.price).toLocaleString('vi-VN') : 0} đ</div>,
+          price: (
+            <div className="text-end fw-bold text-dark fs-6" style={{ letterSpacing: '0.2px' }}>
+              {item?.price ? Number(item.price).toLocaleString('vi-VN') + ' đ' : '0 đ'}
+            </div>
+          ),
+          display: (
+            <div className="text-center">
+              <span
+                className={`badge ${
+                  Number(item?.display) === 1
+                    ? 'bg-success-subtle text-success border border-success-subtle'
+                    : 'bg-secondary-subtle text-secondary border border-secondary-subtle'
+                } px-2 py-1 fw-medium`}
+                style={{ fontSize: '0.825rem' }}
+              >
+                {getDisplayLabel(item?.display)}
+              </span>
+            </div>
+          ),
 
           info: (
             <div>
@@ -189,21 +247,25 @@ function ProductOutOfSync() {
             </div>
           ),
           actions: (
-            <div className="d-flex">
+            <div className="d-flex justify-content-center align-items-center gap-2">
               <button
                 onClick={() => handleEditClick(item.id)}
-                className="button-action mr-2 bg-info"
+                className="button-action bg-info text-white rounded border-0 p-2 d-inline-flex align-items-center justify-content-center shadow-sm"
+                style={{ width: '36px', height: '36px' }}
+                title="Sửa"
               >
-                <CIcon icon={cilColorBorder} className="text-white" />
+                <CIcon icon={cilColorBorder} className="text-white" size="lg" />
               </button>
               <button
                 onClick={() => {
                   setVisible(true)
                   setDeletedId(item.id)
                 }}
-                className="button-action bg-danger"
+                className="button-action bg-danger text-white rounded border-0 p-2 d-inline-flex align-items-center justify-content-center shadow-sm"
+                style={{ width: '36px', height: '36px' }}
+                title="Xóa"
               >
-                <CIcon icon={cilTrash} className="text-white" />
+                <CIcon icon={cilTrash} className="text-white" size="lg" />
               </button>
             </div>
           ),
@@ -215,7 +277,7 @@ function ProductOutOfSync() {
     {
       key: 'id',
       label: (
-        <>
+        <div className="d-flex justify-content-center align-items-center">
           <CFormCheck
             aria-label="Select all"
             checked={isAllCheckbox}
@@ -223,42 +285,80 @@ function ProductOutOfSync() {
               const isChecked = e.target.checked
               setIsAllCheckbox(isChecked)
               if (isChecked) {
-                const allIds = dataProductSkip?.data.map((item) => item.news_id) || []
+                const allIds = dataProductSkip?.data.map((item) => item.id) || []
                 setSelectedCheckbox(allIds)
               } else {
                 setSelectedCheckbox([])
               }
             }}
           />
-        </>
+        </div>
       ),
-      _props: { scope: 'col' },
+      _props: {
+        scope: 'col',
+        style: { width: '50px', textAlign: 'center', verticalAlign: 'middle' },
+      },
     },
     {
       key: 'title',
       label: 'Tên sản phẩm',
-      _props: { scope: 'col' },
+      _props: { scope: 'col', style: { minWidth: '260px', verticalAlign: 'middle' } },
     },
     {
       key: 'macn',
       label: 'Mã sản phẩm',
-      _props: { scope: 'col' },
+      _props: {
+        scope: 'col',
+        style: { whiteSpace: 'nowrap', minWidth: '170px', verticalAlign: 'middle' },
+      },
     },
     {
       key: 'type',
       label: 'Loại',
-      _props: { scope: 'col' },
+      _props: {
+        scope: 'col',
+        style: { whiteSpace: 'nowrap', minWidth: '130px', verticalAlign: 'middle' },
+      },
     },
     {
       key: 'price',
       label: 'Giá sản phẩm',
-      _props: { scope: 'col' },
+      _props: {
+        scope: 'col',
+        style: {
+          whiteSpace: 'nowrap',
+          minWidth: '130px',
+          textAlign: 'right',
+          verticalAlign: 'middle',
+        },
+      },
+    },
+    {
+      key: 'display',
+      label: 'Hiển thị',
+      _props: {
+        scope: 'col',
+        style: {
+          whiteSpace: 'nowrap',
+          minWidth: '100px',
+          textAlign: 'center',
+          verticalAlign: 'middle',
+        },
+      },
     },
 
     {
       key: 'actions',
       label: 'Tác vụ',
-      _props: { scope: 'col' },
+      _props: {
+        scope: 'col',
+        style: {
+          whiteSpace: 'nowrap',
+          minWidth: '100px',
+          textAlign: 'center',
+          verticalAlign: 'middle',
+        },
+      },
     },
   ]
 
@@ -327,10 +427,58 @@ function ProductOutOfSync() {
     setEditForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleAddFormChange = (e) => {
+    const { name, value } = e.target
+    setAddForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleAddClick = () => {
+    setAddForm({
+      TenHH: '',
+      MaHH: '',
+      price: '',
+      type: 'skip',
+      display: 1,
+    })
+    setAddModalVisible(true)
+  }
+
+  const handleAddModalClose = () => {
+    setAddModalVisible(false)
+    setAddForm({
+      TenHH: '',
+      MaHH: '',
+      price: '',
+      type: 'skip',
+      display: 1,
+    })
+  }
+
+  const handleAddSave = async () => {
+    try {
+      const res = await axiosClient.post('admin/price-skip', {
+        ...addForm,
+        display: Number(addForm.display),
+      })
+      if (res.data.status === true) {
+        handleAddModalClose()
+        fetchDataProductSkip()
+        toast.success('Thêm thành công!')
+      } else {
+        toast.error(res.data.message || 'Thêm thất bại!')
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Có lỗi khi thêm!')
+    }
+  }
+
   // Call api put to update product skip
   const handleEditSave = async () => {
     try {
-      const res = await axiosClient.put(`admin/price-skip/${editRecord.id}`, editForm)
+      const res = await axiosClient.put(`admin/price-skip/${editRecord.id}`, {
+        ...editForm,
+        display: Number(editForm.display),
+      })
       if (res.data.status === true) {
         setEditModalVisible(false)
         setEditRecord(null)
@@ -369,7 +517,7 @@ function ProductOutOfSync() {
               <h3>QUẢN LÝ SẢN PHẨM KHÔNG ĐỒNG BỘ</h3>
             </CCol>
             <CCol md={6}>
-              <div className="d-flex justify-content-end">
+              <div className="d-flex justify-content-end gap-2">
                 <Link to={'/product-out-of-sync'}>
                   <CButton color="primary" type="submit" size="sm">
                     Danh sách
@@ -497,15 +645,18 @@ function ProductOutOfSync() {
             </CAccordion>
           )}
 
-          <CRow>
-            <CCol>
+          <CRow className="mb-4">
+            <CCol md={12}>
               <table className="filter-table">
                 <thead>
                   <tr>
                     <th colSpan="2">
-                      <div className="d-flex justify-content-between">
-                        <span>Bộ lọc tìm kiếm</span>
-                        <span className="toggle-pointer" onClick={handleToggleCollapse}>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span className="fw-bold text-dark">Bộ lọc tìm kiếm</span>
+                        <span
+                          className="toggle-pointer text-secondary px-2"
+                          onClick={handleToggleCollapse}
+                        >
                           {isCollapse ? '▼' : '▲'}
                         </span>
                       </div>
@@ -515,14 +666,21 @@ function ProductOutOfSync() {
                 {!isCollapse && (
                   <tbody>
                     <tr>
-                      <td>Tổng cộng</td>
-                      <td className="total-count">{dataProductSkip?.pagination?.total}</td>
+                      <td style={{ width: '220px' }} className="fw-semibold text-secondary">
+                        Tổng cộng
+                      </td>
+                      <td>
+                        <span className="text-danger fs-6 fw-bold">
+                          {dataProductSkip?.pagination?.total || 0}
+                        </span>
+                      </td>
                     </tr>
                     <tr>
-                      <td>Lọc theo loại sản phẩm</td>
+                      <td className="fw-semibold text-secondary">Lọc theo loại sản phẩm</td>
                       <td>
                         <CFormSelect
-                          className="component-size w-50"
+                          className="component-size w-auto"
+                          style={{ minWidth: '240px' }}
                           aria-label="Chọn loại lọc"
                           options={[
                             { label: 'Chọn loại lọc', value: '' },
@@ -535,37 +693,103 @@ function ProductOutOfSync() {
                       </td>
                     </tr>
                     <tr>
-                      <td>Tìm kiếm</td>
+                      <td className="fw-semibold text-secondary">Lọc theo hiển thị</td>
                       <td>
-                        <input
-                          type="text"
-                          className="search-input"
-                          value={dataSearch}
-                          onChange={(e) => setDataSearch(e.target.value)}
+                        <CFormSelect
+                          className="component-size w-auto"
+                          style={{ minWidth: '240px' }}
+                          aria-label="Chọn trạng thái hiển thị"
+                          options={[
+                            { label: 'Tất cả trạng thái', value: '' },
+                            { label: 'Hiển thị', value: '1' },
+                            { label: 'Ẩn', value: '0' },
+                          ]}
+                          value={selectedDisplay}
+                          onChange={(e) => setSelectedDisplay(e.target.value)}
                         />
-                        <button onClick={() => handleSearch(dataSearch)} className="submit-btn">
-                          Submit
-                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="fw-semibold text-secondary">Tìm kiếm</td>
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <input
+                            type="text"
+                            className="search-input"
+                            placeholder="Nhập từ khóa tìm kiếm..."
+                            value={dataSearch}
+                            onChange={(e) => setDataSearch(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSearch(dataSearch)
+                            }}
+                          />
+                          <CButton
+                            color="primary"
+                            size="sm"
+                            onClick={() => handleSearch(dataSearch)}
+                          >
+                            Submit
+                          </CButton>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
                 )}
               </table>
             </CCol>
+          </CRow>
 
-            <CCol md={12} className="mt-3">
-              <CButton onClick={handleDeleteSelectedCheckbox} color="primary" size="sm">
-                Xóa vĩnh viễn
+          <CRow className="mb-3 align-items-center">
+            <CCol md={12} className="d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center gap-2">
+                <CButton
+                  onClick={handleDeleteSelectedCheckbox}
+                  color="primary"
+                  size="sm"
+                  className="px-3 shadow-sm"
+                >
+                  Xóa vĩnh viễn
+                </CButton>
+                {selectedCheckbox.length > 0 && (
+                  <span className="text-muted fs-7">
+                    (Đã chọn <strong>{selectedCheckbox.length}</strong> mục)
+                  </span>
+                )}
+              </div>
+              <CButton
+                color="primary"
+                type="button"
+                size="sm"
+                onClick={handleAddClick}
+                className="px-3 shadow-sm"
+              >
+                Thêm sản phẩm
               </CButton>
             </CCol>
+          </CRow>
 
-            <CCol>
-              <CTable hover className="mt-3" columns={columns} items={items} />
+          <CRow className="mb-4">
+            <CCol md={12}>
+              <div className="card product-table-card">
+                <CTable
+                  hover
+                  align="middle"
+                  className="mb-0 custom-product-table"
+                  columns={columns}
+                  items={items}
+                />
+              </div>
             </CCol>
+          </CRow>
 
-            <div className="d-flex justify-content-end">
+          <CRow className="mb-4 align-items-center">
+            <CCol md={6} className="text-muted fs-7">
+              Hiển thị <strong>{items.length}</strong> trên tổng số{' '}
+              <strong>{dataProductSkip?.pagination?.total || 0}</strong> sản phẩm
+            </CCol>
+            <CCol md={6} className="d-flex justify-content-end">
               <ReactPaginate
-                pageCount={Math.ceil(dataProductSkip?.pagination?.total / 10)}
+                pageCount={Math.ceil((dataProductSkip?.pagination?.total || 0) / 10)}
                 pageRangeDisplayed={3}
                 marginPagesDisplayed={1}
                 pageClassName="page-item"
@@ -578,54 +802,184 @@ function ProductOutOfSync() {
                 breakClassName="page-item"
                 breakLinkClassName="page-link"
                 onPageChange={handlePageChange}
-                containerClassName={'pagination'}
+                containerClassName={'pagination mb-0'}
                 activeClassName={'active'}
                 previousLabel={'<<'}
                 nextLabel={'>>'}
                 forcePage={pageNumber - 1}
               />
-            </div>
+            </CCol>
           </CRow>
 
-          <CModal visible={editModalVisible} onClose={handleEditModalClose}>
-            <CModalHeader closeButton>
-              <strong>Cập nhật sản phẩm</strong>
+          <CModal
+            visible={addModalVisible}
+            onClose={handleAddModalClose}
+            alignment="center"
+            className="shadow-lg"
+          >
+            <CModalHeader closeButton className="bg-light border-bottom px-4 py-3">
+              <strong className="fs-5 text-dark">Thêm sản phẩm không đồng bộ</strong>
             </CModalHeader>
-            <CModalBody>
+            <CModalBody className="p-4">
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-secondary fs-7 mb-1">
+                  Tên sản phẩm
+                </label>
+                <CFormInput
+                  name="TenHH"
+                  placeholder="Nhập tên sản phẩm..."
+                  value={addForm.TenHH}
+                  onChange={handleAddFormChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-secondary fs-7 mb-1">
+                  Mã sản phẩm
+                </label>
+                <CFormInput
+                  name="MaHH"
+                  placeholder="Nhập mã sản phẩm (vd: MHSS_...)"
+                  value={addForm.MaHH}
+                  onChange={handleAddFormChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-secondary fs-7 mb-1">Giá (VNĐ)</label>
+                <CFormInput
+                  name="price"
+                  placeholder="Nhập giá..."
+                  value={addForm.price}
+                  onChange={handleAddFormChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-secondary fs-7 mb-1">Loại</label>
+                <CFormSelect
+                  name="type"
+                  value={addForm.type}
+                  onChange={handleAddFormChange}
+                  options={[
+                    { label: 'Điều chỉnh giá', value: 'skip' },
+                    { label: 'So sánh giá', value: 'adjustment' },
+                  ]}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-secondary fs-7 mb-1">
+                  Trạng thái hiển thị
+                </label>
+                <CFormSelect
+                  name="display"
+                  value={addForm.display}
+                  onChange={handleAddFormChange}
+                  options={[
+                    { label: 'Hiển thị', value: 1 },
+                    { label: 'Ẩn', value: 0 },
+                  ]}
+                />
+              </div>
+            </CModalBody>
+            <CModalFooter className="bg-light border-top px-4 py-3">
+              <CButton color="secondary" size="sm" className="px-3" onClick={handleAddModalClose}>
+                Đóng
+              </CButton>
+              <CButton
+                color="primary"
+                size="sm"
+                className="px-4 shadow-sm"
+                style={{ backgroundColor: '#696cff', borderColor: '#696cff' }}
+                onClick={handleAddSave}
+              >
+                Thêm mới
+              </CButton>
+            </CModalFooter>
+          </CModal>
+
+          <CModal
+            visible={editModalVisible}
+            onClose={handleEditModalClose}
+            alignment="center"
+            className="shadow-lg"
+          >
+            <CModalHeader closeButton className="bg-light border-bottom px-4 py-3">
+              <strong className="fs-5 text-dark">Cập nhật sản phẩm không đồng bộ</strong>
+            </CModalHeader>
+            <CModalBody className="p-4">
               {editForm && (
                 <>
-                  <div className="mb-2">
-                    <label>Tên sản phẩm</label>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-secondary fs-7 mb-1">
+                      Tên sản phẩm
+                    </label>
                     <CFormInput
                       name="TenHH"
+                      placeholder="Nhập tên sản phẩm..."
                       value={editForm.TenHH || ''}
                       onChange={handleEditFormChange}
                     />
                   </div>
-                  <div className="mb-2">
-                    <label>Mã sản phẩm</label>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-secondary fs-7 mb-1">
+                      Mã sản phẩm
+                    </label>
                     <CFormInput
                       name="MaHH"
+                      placeholder="Nhập mã sản phẩm..."
                       value={editForm.MaHH || ''}
                       onChange={handleEditFormChange}
                     />
                   </div>
-                  <div className="mb-2">
-                    <label>Giá</label>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-secondary fs-7 mb-1">
+                      Giá (VNĐ)
+                    </label>
                     <CFormInput
                       name="price"
+                      placeholder="Nhập giá..."
                       value={editForm.price || ''}
                       onChange={handleEditFormChange}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-secondary fs-7 mb-1">Loại</label>
+                    <CFormSelect
+                      name="type"
+                      value={editForm.type || 'skip'}
+                      onChange={handleEditFormChange}
+                      options={[
+                        { label: 'Điều chỉnh giá', value: 'skip' },
+                        { label: 'So sánh giá', value: 'adjustment' },
+                      ]}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-secondary fs-7 mb-1">
+                      Trạng thái hiển thị
+                    </label>
+                    <CFormSelect
+                      name="display"
+                      value={editForm.display ?? 1}
+                      onChange={handleEditFormChange}
+                      options={[
+                        { label: 'Hiển thị', value: 1 },
+                        { label: 'Ẩn', value: 0 },
+                      ]}
                     />
                   </div>
                 </>
               )}
             </CModalBody>
-            <CModalFooter>
-              <CButton color="secondary" size="sm" onClick={handleEditModalClose}>
+            <CModalFooter className="bg-light border-top px-4 py-3">
+              <CButton color="secondary" size="sm" className="px-3" onClick={handleEditModalClose}>
                 Đóng
               </CButton>
-              <CButton color="primary" size="sm" onClick={handleEditSave}>
+              <CButton
+                color="primary"
+                size="sm"
+                className="px-4 shadow-sm"
+                style={{ backgroundColor: '#696cff', borderColor: '#696cff' }}
+                onClick={handleEditSave}
+              >
                 Lưu thay đổi
               </CButton>
             </CModalFooter>

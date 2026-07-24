@@ -1,14 +1,19 @@
 .tabs {
   display: flex;
+  width: 100%;
   border-bottom: 1px solid #ccc;
 }
 
 .tabs button {
+  flex: 1 1 50%;
+  width: 50%;
+  text-align: center;
   padding: 10px 20px;
   border: none;
   background: none;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
   transition:
     color 0.3s ease,
     border-bottom 0.3s ease;

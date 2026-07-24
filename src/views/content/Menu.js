@@ -645,7 +645,7 @@ function Menu() {
                                         )}
                                         <img
                                           src={
-                                            'http://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif'
+                                            'https://media.vitinhnguyenkim.vn/uploads/row-sub.gif'
                                           }
                                           alt="Subcategory"
                                           className="mr-2"
@@ -703,7 +703,7 @@ function Menu() {
                                           <td>
                                             <img
                                               src={
-                                                'http://media.vitinhnguyenkim.com.vn/uploads/row-sub.gif'
+                                                'https://media.vitinhnguyenkim.vn/uploads/row-sub.gif'
                                               }
                                               alt="Subcategory"
                                               style={{ marginLeft: 16 }}

@@ -132,7 +132,7 @@ function EditProductDetail() {
     brand: '',
     stock: 0,
     visible: 0,
-    star: 4.5,
+    star: 5,
     newTitle: '',
     type: 1,
   }
@@ -220,7 +220,7 @@ function EditProductDetail() {
           brand: data?.brand_id,
           stock: data?.stock,
           visible: data?.display,
-          star: data?.votes,
+          star: data?.votes ? data?.votes : 5,
           type: data?.type,
         })
 
@@ -261,45 +261,9 @@ function EditProductDetail() {
     }
   }
 
-  const fetchProductListData = async () => {
-    try {
-      setIsDataComboLoading(true)
-      const response = await axiosClient.get(
-        `admin/product?data=${dataSearch}&category=${selectedFilterCategory}&isNotPaginate=${true}&stock=${true}`,
-      )
-      if (response.data.status === true) {
-        setDataProductList(response.data.product)
-      }
-
-      if (response.data.status === false && response.data.mess == 'no permission') {
-        setIsPermissionCheck(false)
-      }
-    } catch (error) {
-      console.error('Fetch product data list is error', error.message)
-    } finally {
-      setIsDataComboLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchProductListData()
-  }, [dataSearch, selectedFilterCategory])
-
-  // const fetchProductProperties = async () => {
-  //   try {
-  //     const response = await axiosClient.get(`admin/cat-option?catId=${industryCategory}`)
-  //     const data = response.data.listOption
-
-  //     if (data) {
-  //       setDataProductProperties(data)
-  //     }
-  //   } catch (error) {
-  //     console.error('Fetch data categories is error', error)
-  //   }
-  // }
-
   const fetchProductProperties = async () => {
     try {
+      if (!industryCategory) return
       const response = await axiosClient.get(
         `admin/show-properties-category?cat_id=${industryCategory}`,
       )
@@ -314,7 +278,9 @@ function EditProductDetail() {
   }
 
   useEffect(() => {
-    fetchProductProperties()
+    if (industryCategory) {
+      fetchProductProperties()
+    }
   }, [industryCategory])
 
   // const handleTextareaChange = (propId, value) => {
@@ -791,21 +757,6 @@ function EditProductDetail() {
                             >
                               Mô tả
                             </button>
-                            <button
-                              type="button"
-                              className={activeTab === 'tab2' ? 'active' : ''}
-                              onClick={() => handleTabClick('tab2')}
-                            >
-                              Thông tin khuyến mãi
-                            </button>
-
-                            <button
-                              type="button"
-                              className={activeTab === 'tab3' ? 'active' : ''}
-                              onClick={() => handleTabClick('tab3')}
-                            >
-                              Video
-                            </button>
 
                             <button
                               type="button"
@@ -821,22 +772,6 @@ function EditProductDetail() {
                                 <CKedtiorCustom
                                   data={descEditor}
                                   onChangeData={(data) => setDescEditor(data)}
-                                />
-                              </CCol>
-                            </div>
-                            <div className={`tab-content ${activeTab === 'tab2' ? 'active' : ''}`}>
-                              <CCol md={12}>
-                                <CKedtiorCustom
-                                  data={promotionEditor}
-                                  onChangeData={(data) => setPromotionEditor(data)}
-                                />
-                              </CCol>
-                            </div>
-                            <div className={`tab-content ${activeTab === 'tab3' ? 'active' : ''}`}>
-                              <CCol md={12}>
-                                <CKedtiorCustom
-                                  data={videoEditor}
-                                  onChangeData={(data) => setVideoEditor(data)}
                                 />
                               </CCol>
                             </div>
@@ -1071,164 +1006,6 @@ function EditProductDetail() {
                           </div>
                         </CCol>
 
-                        <CCol md={12}>
-                          <table className="filter-table">
-                            <thead>
-                              <tr>
-                                <th colSpan="2">
-                                  <div className="d-flex justify-content-between">
-                                    <span>Tìm kiếm sản phẩm</span>
-                                    <span className="toggle-pointer" onClick={handleToggleCollapse}>
-                                      {isCollapse ? '▼' : '▲'}
-                                    </span>
-                                  </div>
-                                </th>
-                              </tr>
-                            </thead>
-                            {!isCollapse && (
-                              <tbody>
-                                <tr>
-                                  <td>Lọc</td>
-                                  <td>
-                                    <div
-                                      className="d-flex"
-                                      style={{
-                                        columnGap: 10,
-                                      }}
-                                    >
-                                      <CFormSelect
-                                        className="component-size w-25"
-                                        aria-label="Chọn yêu cầu lọc"
-                                        value={selectedFilterCategory}
-                                        onChange={(e) => setSelectedFilterCategory(e.target.value)}
-                                        options={[
-                                          { label: 'Chọn danh mục', value: '' },
-                                          ...(categories && categories.length > 0
-                                            ? categories.map((cate) => ({
-                                                label: cate.category_desc.cat_name,
-                                                value: cate.cat_id,
-                                              }))
-                                            : []),
-                                        ]}
-                                      />
-                                    </div>
-                                  </td>
-                                </tr>
-
-                                <tr>
-                                  <td>Tìm kiếm</td>
-                                  <td>
-                                    <strong>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</strong>
-                                    <input
-                                      type="text"
-                                      className="search-input"
-                                      value={dataSearch}
-                                      onChange={(e) => setDataSearch(e.target.value)}
-                                    />
-                                    {/* <button
-                                      onClick={() => handleSearch(dataSearch)}
-                                      className="submit-btn"
-                                    >
-                                      Submit
-                                    </button> */}
-                                  </td>
-                                </tr>
-                              </tbody>
-                            )}
-                          </table>
-                        </CCol>
-                        <br />
-
-                        <div className="bg-white border p-3">
-                          <h5>LỰA CHỌN SẢN PHẨM COMBO ĐI KÈM</h5>
-                          <CCol>
-                            <div
-                              className="border p-3 bg-white"
-                              style={{
-                                maxHeight: 400,
-                                minHeight: 'auto',
-                                overflowY: 'scroll',
-                              }}
-                            >
-                              <table
-                                className="table-combo"
-                                style={{
-                                  fontSize: 13,
-                                  width: '100%',
-                                  textAlign: 'left',
-                                  borderCollapse: 'collapse',
-                                }}
-                              >
-                                <thead
-                                  style={{
-                                    background: '#ddd',
-                                  }}
-                                >
-                                  <tr>
-                                    <th>Tiêu đề</th>
-                                    <th>Hình ảnh</th>
-                                    <th>Giá bán</th>
-                                    <th>Tác vụ</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {isDataComboLoading ? (
-                                    <Loading />
-                                  ) : dataProductList && dataProductList.length > 0 ? (
-                                    dataProductList.map((item) => (
-                                      <tr key={item.product_id}>
-                                        <td
-                                          style={{
-                                            maxWidth: 300,
-                                            fontWeight: 500,
-                                          }}
-                                        >
-                                          {item.product_desc.title}
-                                        </td>
-                                        <td>
-                                          <CImage
-                                            src={`${imageBaseUrl}${item.picture}`}
-                                            alt={`image_${item.product_id}`}
-                                            width={50}
-                                          />
-                                        </td>
-                                        <td style={{ color: 'orange', fontWeight: 500 }}>
-                                          {item?.price && item?.price !== null
-                                            ? item?.price.toLocaleString()
-                                            : 0}{' '}
-                                          đ
-                                        </td>
-                                        <td style={{ textAlign: 'center' }}>
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              handleAddCombo({
-                                                productId: item.product_id,
-                                                productTitle: item.product_desc.title,
-                                                productImage: item.picture,
-                                                productPrice: item.price,
-                                              })
-                                            }
-                                            style={{
-                                              backgroundColor: '#008CBA',
-                                              color: 'white',
-                                              padding: '5px 10px',
-                                              border: 'none',
-                                            }}
-                                          >
-                                            +
-                                          </button>
-                                        </td>
-                                      </tr>
-                                    ))
-                                  ) : (
-                                    []
-                                  )}
-                                </tbody>
-                              </table>
-                            </div>
-                          </CCol>
-                        </div>
                         <br />
 
                         <div className="bg-white border p-3">
@@ -1394,7 +1171,7 @@ function EditProductDetail() {
                       </CCol>
 
                       <CCol md={3}>
-                        <CCol md={12} className="sticky-button">
+                        <CCol md={12} className="sticky-button mb-3">
                           <CButton color="primary" type="submit" size="sm" disabled={isLoading}>
                             {isLoading ? (
                               <>
@@ -1405,39 +1182,23 @@ function EditProductDetail() {
                             )}
                           </CButton>
                         </CCol>
-                        <div>
+
+                        <div className="bg-white border p-2">
                           <CCol md={12}>
-                            <label htmlFor="syndicationCode-input">Mã Syndication</label>
+                            <label htmlFor="productCodeNumber-input">Mã sản phẩm</label>
                             <Field
-                              name="syndicationCode"
+                              name="productCodeNumber"
                               type="text"
                               as={CFormInput}
-                              id="syndicationCode-input"
+                              id="productCodeNumber-input"
                             />
                             <ErrorMessage
-                              name="syndicationCode"
+                              name="productCodeNumber"
                               component="div"
                               className="text-danger"
                             />
                           </CCol>
                         </div>
-                        <br />
-
-                        <CCol md={12}>
-                          <label htmlFor="productCodeNumber-input">Mã số</label>
-                          <Field
-                            name="productCodeNumber"
-                            type="text"
-                            as={CFormInput}
-                            id="productCodeNumber-input"
-                            text="Nếu không nhập mã số hoặc mã số đã tồn tại. Hệ thống sẽ tự tạo mã số theo chuẩn."
-                          />
-                          <ErrorMessage
-                            name="productCodeNumber"
-                            component="div"
-                            className="text-danger"
-                          />
-                        </CCol>
                         <br />
 
                         <div className="bg-white border p-2">
@@ -1448,7 +1209,6 @@ function EditProductDetail() {
                               type="text"
                               as={CFormInput}
                               id="productCode-input"
-                              text="Nếu không nhập mã kho hoặc mã kho đã tồn tại. Hệ thống sẽ tự tạo mã kho theo chuẩn."
                             />
                             <ErrorMessage
                               name="productCode"
@@ -1710,7 +1470,7 @@ function EditProductDetail() {
                             step={0.1}
                             onBlur={(e) => {
                               if (!e.target.value) {
-                                setFieldValue('star', 4.5)
+                                setFieldValue('star', 5)
                               }
                             }}
                           />
