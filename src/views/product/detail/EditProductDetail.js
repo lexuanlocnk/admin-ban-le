@@ -390,7 +390,7 @@ function EditProductDetail() {
     setSelectedIndexes([])
   }
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { setValues }) => {
     if (!validateComboList()) {
       alert('Vui lòng điền đầy đủ thông tin cho các combo áp dụng giảm giá.')
       return
@@ -445,6 +445,12 @@ function EditProductDetail() {
 
       if (status === true) {
         toast.success('Chỉnh sửa sản phẩm thành công!')
+        setSelectedFileDetail([])
+        setFileDetail([])
+        setSelectedIndexes([])
+        if (typeof setValues === 'function') {
+          fetchProductData(setValues)
+        }
       } else {
         const messages = {
           maso: 'Mã số đã tồn tại trong database!',
