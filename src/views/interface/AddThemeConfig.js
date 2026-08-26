@@ -1637,10 +1637,10 @@ function AddThemeConfig() {
                                 transition: 'all 0.2s',
                               }}
                             >
-                              1900 6739
+                              1900 571 200
                             </strong>
                             <span className="text-secondary" style={{ fontSize: '12px' }}>
-                              (8h - 17h45, T2 - T7)
+                              (8h - 17h30, T2 - T7)
                             </span>
                           </div>
                         </div>
@@ -2663,7 +2663,7 @@ function AddThemeConfig() {
                                   <img
                                     src={
                                       newTheme?.decorations?.logoUrl ||
-                                      'https://vitinhnguyenkim.vn/wp-content/uploads/2023/10/logo-nguyen-kim.png'
+                                      'https://api.chinhnhan.com/uploads/logo/logo.png'
                                     }
                                     alt="Logo Preview"
                                     style={{ maxHeight: '42px', objectFit: 'contain' }}

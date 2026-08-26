@@ -2505,7 +2505,7 @@ const ThemeConfig = () => {
               style={{ width: '10px', height: '10px' }}
             ></span>
             <span className="ms-2 fw-semibold text-secondary">
-              https://vitinhnguyenkim.vn • Vi Tính Nguyên Kim
+              https://chinhnhan.vn • Công Ty TNHH Công Nghệ Chính Nhân
             </span>
           </div>
           <span
@@ -2579,7 +2579,7 @@ const ThemeConfig = () => {
             >
               <img
                 src={logoNk}
-                alt="Vi Tính Nguyên Kim Logo"
+                alt="Chính Nhân Logo"
                 style={{ width: '100%', height: '70px', objectFit: 'contain' }}
               />
             </div>
@@ -2994,8 +2994,7 @@ const ThemeConfig = () => {
                               style={{ fontSize: '13px', borderColor: '#e5e7eb' }}
                             >
                               <div style={{ color: '#374151' }}>
-                                Hotline: <strong className="text-dark fw-bold">1900 6739</strong> 8h
-                                - 17h45 (Từ thứ Hai đến thứ Sáu), Thứ 7: 8h - 16h
+                                Hotline: <strong className="text-dark fw-bold">1900 571 200</strong> - <strong className="text-dark fw-bold">0948 200 400</strong> (8h - 17h30, Thứ Hai - Thứ Bảy)
                               </div>
                               <div>
                                 <span className="text-dark fw-normal cursor-pointer d-flex align-items-center gap-1">
