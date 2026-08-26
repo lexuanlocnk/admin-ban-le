@@ -82,6 +82,14 @@ const _nav = [
     icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
     items: [{ component: CNavItem, name: 'Thống kê truy cập', to: '/access-statistics' }],
   },
+  {
+    // Quản lý và cấu hình chiến dịch giao diện website
+    component: CNavGroup,
+    name: 'QUẢN LÝ GIAO DIỆN',
+    to: '/admin/theme',
+    icon: <CIcon icon={cilColorPalette} customClassName="nav-icon" />,
+    items: [{ component: CNavItem, name: 'Cấu hình giao diện', to: '/admin/theme' }],
+  },
 
   // ─────────────────────────────────────────────────────────────
   // TAB 3: KINH DOANH

@@ -228,6 +228,14 @@ const LinksRedirect = React.lazy(() => import('./views/seo/LinkRedirect'))
 // ══════════════════════════════════════════════════════════════
 const Library = React.lazy(() => import('./views/library/Library.js'))
 
+// --- Giao diện & Theme Chiến dịch ---
+const ThemeConfigView = React.lazy(() => import('./views/interface/ThemeConfig'))
+const AddThemeConfigView = React.lazy(() => import('./views/interface/AddThemeConfig'))
+const EditThemeConfigView = React.lazy(() => import('./views/interface/EditThemeConfig'))
+const MenuCategory = React.lazy(() => import('./views/interface/MenuCategory'))
+const StaticPages = React.lazy(() => import('./views/interface/StaticPages'))
+const BannerManager = React.lazy(() => import('./views/interface/BannerManager'))
+
 /** ============================================================
  *  ROUTES ARRAY
  *  Các section được sắp xếp theo thứ tự tab trong _nav.js:
@@ -246,6 +254,17 @@ const routes = [
   { path: '/theme', exact: true, name: 'Theme', element: Colors },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
+
+  // Giao diện & Theme Chiến dịch
+  { path: '/theme-custom/config', name: 'ThemeConfig', element: ThemeConfigView },
+  { path: '/theme-custom/config/add', name: 'AddThemeConfig', element: AddThemeConfigView },
+  { path: '/theme-custom/config/edit/:id', name: 'EditThemeConfig', element: EditThemeConfigView },
+  { path: '/admin/theme', name: 'ThemeConfig', element: ThemeConfigView },
+  { path: '/admin/theme/add', name: 'AddThemeConfig', element: AddThemeConfigView },
+  { path: '/admin/theme/edit/:id', name: 'EditThemeConfig', element: EditThemeConfigView },
+  { path: '/theme-custom/menu', name: 'MenuCategory', element: MenuCategory },
+  { path: '/theme-custom/status', name: 'StaticPages', element: StaticPages },
+  { path: '/theme-custom/banner', name: 'BannerManager', element: BannerManager },
 
   // ── 2. QUẢN TRỊ HỆ THỐNG ──────────────────────────────────
   // 2a. Thông tin quản trị
