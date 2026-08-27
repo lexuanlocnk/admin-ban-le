@@ -988,7 +988,7 @@ const ThemeConfig = () => {
   }
 
   const handleChangeBannerGroupColumns = (id, count) => {
-    const validCount = Math.min(5, Math.max(1, count))
+    const validCount = Math.min(5, Math.max(1, Number(count) || 1))
     const updatedBanners = { ...banners }
     const updated = sections.map((sec) => {
       if (sec.id === id) {
@@ -1015,7 +1015,8 @@ const ThemeConfig = () => {
             }
           })
         } else {
-          const currentSlots = sec.slots || []
+          // Custom banner group
+          const currentSlots = Array.isArray(sec.slots) ? sec.slots : []
           for (let i = 0; i < validCount; i++) {
             if (currentSlots[i]) {
               newSlots.push(currentSlots[i])
@@ -1024,13 +1025,22 @@ const ThemeConfig = () => {
               newSlots.push(newKey)
               if (!updatedBanners[newKey]) {
                 updatedBanners[newKey] = [
-                  'https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=600&q=80',
+                  'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
                 ]
               }
             }
           }
         }
-        return { ...sec, columns: validCount, slots: newSlots }
+        const updatedName = sec.name
+          ? sec.name.replace(/\d+\s*vị trí/i, `${validCount} vị trí`).replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
+          : `Banner ${validCount} vị trí`
+        return {
+          ...sec,
+          columns: validCount,
+          slots: newSlots,
+          name: updatedName,
+          description: `Nhóm ${validCount} banner ngang tùy chỉnh (1 đến 5 banner)`,
+        }
       }
       return sec
     })
@@ -2725,7 +2735,7 @@ const ThemeConfig = () => {
                 )}
                 {section.type === 'banner_group' && (
                   <span className="text-secondary fw-semibold">
-                    (Nhóm {section.columns || 4} banner)
+                    (Nhóm {typeof section.columns === 'number' ? section.columns : 4} banner)
                   </span>
                 )}
               </div>
@@ -2734,7 +2744,8 @@ const ThemeConfig = () => {
                 {/* 1-5 Columns selector & Height selector for Banner Groups */}
                 {section.type === 'banner_group' &&
                   (() => {
-                    const currentHeight = section.height || (section.columns === 1 ? 220 : 160)
+                    const currentCols = typeof section.columns === 'number' ? section.columns : 4
+                    const currentHeight = section.height || (currentCols === 1 ? 220 : 160)
                     return (
                       <>
                         <div className="d-flex align-items-center gap-1 me-1 bg-white rounded px-2 py-0.5 border shadow-2xs">
@@ -2744,7 +2755,7 @@ const ThemeConfig = () => {
                               key={cnt}
                               type="button"
                               className={`btn btn-xs py-0 px-1.5 fw-bold ${
-                                (section.columns || 4) === cnt
+                                currentCols === cnt
                                   ? 'btn-primary text-white'
                                   : 'btn-light'
                               }`}
@@ -3152,14 +3163,17 @@ const ThemeConfig = () => {
 
           // 3. DYNAMIC BANNER GROUP (1 to 5 Banners)
           if (section.type === 'banner_group') {
-            const cols = Math.min(5, Math.max(1, section.columns || 4))
-            const slots =
-              section.slots ||
-              (cols === 4
+            const cols = typeof section.columns === 'number' ? Math.min(5, Math.max(1, section.columns)) : 4
+            const defaultSlots =
+              cols === 4
                 ? ['promo1', 'promo2', 'promo3', 'promo4']
                 : cols === 3
                   ? ['subPromo1', 'subPromo2', 'subPromo3']
-                  : [`customSlot_${section.id}_1`])
+                  : Array.from({ length: cols }, (_, idx) => `customSlot_${section.id}_${idx + 1}`)
+            const slots =
+              Array.isArray(section.slots) && section.slots.length >= cols
+                ? section.slots.slice(0, cols)
+                : defaultSlots
 
             return (
               <div
