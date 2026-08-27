@@ -1633,7 +1633,7 @@ const ThemeConfig = () => {
       return (
         <div
           aria-hidden="true"
-          className="position-absolute top-0 start-0 w-100 h-100 pointer-events-none select-none"
+          className="position-absolute top-0 start-0 w-100 h-100 select-none pe-none"
           style={{
             backgroundImage: `url(${background.customUrl})`,
             backgroundRepeat: background.mode === 'cover' ? 'no-repeat' : 'repeat',
@@ -1641,6 +1641,7 @@ const ThemeConfig = () => {
             backgroundPosition: 'center top',
             opacity: opacityVal,
             zIndex: 0,
+            pointerEvents: 'none',
           }}
         />
       )
@@ -1655,8 +1656,8 @@ const ThemeConfig = () => {
     return (
       <div
         aria-hidden="true"
-        className="position-absolute top-0 start-0 w-100 h-100 overflow-hidden pointer-events-none select-none"
-        style={{ opacity: opacityVal, zIndex: 0 }}
+        className="position-absolute top-0 start-0 w-100 h-100 overflow-hidden select-none pe-none"
+        style={{ opacity: opacityVal, zIndex: 0, pointerEvents: 'none' }}
       >
         {(presetKey === 'mooncakes' || presetKey === 'trungthu') && (
           <svg className="w-100 h-100" xmlns="http://www.w3.org/2000/svg">
@@ -2326,10 +2327,11 @@ const ThemeConfig = () => {
                         }}
                       />
                       <div
-                        className="position-absolute top-0 start-0 w-100 h-100 pointer-events-none"
+                        className="position-absolute top-0 start-0 w-100 h-100 pe-none"
                         style={{
                           background:
                             'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%)',
+                          pointerEvents: 'none',
                         }}
                       ></div>
 
@@ -2726,8 +2728,8 @@ const ThemeConfig = () => {
           // SECTION CONTROL BAR
           const renderSectionControls = () => (
             <div
-              className="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-1.5 bg-dark bg-opacity-10 border-bottom"
-              style={{ fontSize: '12px' }}
+              className="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-1.5 bg-dark bg-opacity-10 border-bottom position-relative"
+              style={{ fontSize: '12px', zIndex: 10, pointerEvents: 'auto' }}
             >
               <div className="d-flex align-items-center gap-2">
                 {editingSectionId === section.id ? (
@@ -3208,7 +3210,11 @@ const ThemeConfig = () => {
           // 2. FEATURED CATEGORIES
           if (section.type === 'featured_categories') {
             return (
-              <div key={section.id} className="bg-white border-bottom w-100">
+              <div
+                key={section.id}
+                className="bg-white border-bottom w-100 position-relative"
+                style={{ zIndex: 2 }}
+              >
                 {renderSectionControls()}
                 <div
                   style={{
@@ -3293,8 +3299,8 @@ const ThemeConfig = () => {
             return (
               <div
                 key={section.id}
-                className="border-bottom w-100"
-                style={{ backgroundColor: colors.background || '#f7f7f7' }}
+                className="border-bottom w-100 position-relative"
+                style={{ backgroundColor: colors.background || '#f7f7f7', zIndex: 2 }}
               >
                 {renderSectionControls()}
                 <div
@@ -3392,7 +3398,11 @@ const ThemeConfig = () => {
           // 4. FEATURED PRODUCTS SECTION
           if (section.type === 'featured_products') {
             return (
-              <div key={section.id} className="bg-white border-bottom w-100">
+              <div
+                key={section.id}
+                className="bg-white border-bottom w-100 position-relative"
+                style={{ zIndex: 2 }}
+              >
                 {renderSectionControls()}
                 <div
                   style={{
@@ -3561,7 +3571,11 @@ const ThemeConfig = () => {
           // 5. CATEGORY PRODUCTS (Tabs & Sliders)
           if (section.type === 'category_products') {
             return (
-              <div key={section.id} className="border-bottom bg-white w-100">
+              <div
+                key={section.id}
+                className="border-bottom bg-white w-100 position-relative"
+                style={{ zIndex: 2 }}
+              >
                 {renderSectionControls()}
                 <div
                   style={{
@@ -3614,8 +3628,8 @@ const ThemeConfig = () => {
             return (
               <div
                 key={section.id}
-                className="border-bottom w-100"
-                style={{ backgroundColor: colors.background || '#f7f7f7' }}
+                className="border-bottom w-100 position-relative"
+                style={{ backgroundColor: colors.background || '#f7f7f7', zIndex: 2 }}
               >
                 {renderSectionControls()}
                 <div
@@ -3687,7 +3701,11 @@ const ThemeConfig = () => {
           // 7. NEWS LATEST
           if (section.type === 'news_latest') {
             return (
-              <div key={section.id} className="bg-white border-bottom w-100">
+              <div
+                key={section.id}
+                className="bg-white border-bottom w-100 position-relative"
+                style={{ zIndex: 2 }}
+              >
                 {renderSectionControls()}
                 <div
                   style={{
