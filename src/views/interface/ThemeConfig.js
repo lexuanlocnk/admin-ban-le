@@ -3568,7 +3568,7 @@ const ThemeConfig = () => {
                     width: '100%',
                     maxWidth: '1440px',
                     margin: '0 auto',
-                    padding: '16px 20px',
+                    padding: '20px 20px',
                     boxSizing: 'border-box',
                   }}
                 >
@@ -3576,13 +3576,33 @@ const ThemeConfig = () => {
                     <h5 className="fw-bold text-dark m-0" style={{ fontSize: '18px' }}>
                       Danh mục sản phẩm theo tab & slider
                     </h5>
-                    <span className="badge bg-light text-secondary border">
+                    <span className="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2.5 py-1">
                       Slider sản phẩm tự động
                     </span>
                   </div>
-                  <div className="p-4 bg-light rounded-2 text-center text-muted">
-                    Khối hiển thị danh mục sản phẩm kết hợp banner trái/phải và slider trượt sản
-                    phẩm.
+                  <div className="row g-3">
+                    {CATEGORIES_LIST.slice(0, 4).map((cat, cIdx) => (
+                      <div key={cat} className="col-md-3 col-6">
+                        <div className="border rounded-2 p-3 bg-light text-center h-100 d-flex flex-column justify-content-between shadow-2xs">
+                          <div>
+                            <div className="fw-bold text-dark mb-1" style={{ fontSize: '14px' }}>
+                              {cat}
+                            </div>
+                            <span className="text-muted" style={{ fontSize: '12px' }}>
+                              {cIdx * 5 + 10} sản phẩm đang bán
+                            </span>
+                          </div>
+                          <div className="mt-3">
+                            <span
+                              className="btn btn-xs btn-outline-primary fw-bold px-3 py-1"
+                              style={{ fontSize: '11.5px', borderRadius: '15px' }}
+                            >
+                              Xem danh mục &gt;
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -3603,15 +3623,61 @@ const ThemeConfig = () => {
                     width: '100%',
                     maxWidth: '1440px',
                     margin: '0 auto',
-                    padding: '16px 20px',
+                    padding: '20px 20px',
                     boxSizing: 'border-box',
                   }}
                 >
-                  <h5 className="fw-bold text-dark mb-2" style={{ fontSize: '18px' }}>
-                    Sản phẩm bạn có thể quan tâm
-                  </h5>
-                  <div className="p-3 bg-white rounded-2 border text-center text-muted">
-                    Khối sản phẩm gợi ý thông minh dựa trên lịch sử xem của người dùng.
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="fw-bold text-dark m-0" style={{ fontSize: '18px' }}>
+                      Sản phẩm bạn có thể quan tâm
+                    </h5>
+                    <span className="text-muted text-xs">Gợi ý thông minh cho khách hàng</span>
+                  </div>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
+                      gap: '12px',
+                    }}
+                  >
+                    {FEATURED_PRODUCTS.slice(0, 5).map((prod) => (
+                      <div
+                        key={prod.id}
+                        className="card border rounded-2 p-2 bg-white d-flex flex-column justify-content-between shadow-2xs"
+                        style={{ borderColor: '#e2e8f0', minHeight: '260px' }}
+                      >
+                        <div
+                          className="w-100 mb-2 bg-white rounded d-flex align-items-center justify-content-center p-1"
+                          style={{ height: '110px' }}
+                        >
+                          <img
+                            src={prod.img}
+                            alt={prod.name}
+                            className="w-100 h-100"
+                            style={{ objectFit: 'contain' }}
+                          />
+                        </div>
+                        <div>
+                          <div
+                            className="text-dark mb-1 fw-medium"
+                            style={{
+                              fontSize: '12px',
+                              lineHeight: '1.3',
+                              minHeight: '32px',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {prod.name}
+                          </div>
+                          <span className="fw-bold text-danger" style={{ fontSize: '13px' }}>
+                            {prod.price}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -3628,15 +3694,61 @@ const ThemeConfig = () => {
                     width: '100%',
                     maxWidth: '1440px',
                     margin: '0 auto',
-                    padding: '16px 20px',
+                    padding: '20px 20px',
                     boxSizing: 'border-box',
                   }}
                 >
-                  <h5 className="fw-bold text-dark mb-2" style={{ fontSize: '18px' }}>
-                    Tin tức công nghệ mới nhất
-                  </h5>
-                  <div className="p-3 bg-light rounded-2 text-center text-muted">
-                    Khối danh sách bài viết & tin tức nổi bật trên trang chủ.
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="fw-bold text-dark m-0" style={{ fontSize: '18px' }}>
+                      Tin tức công nghệ mới nhất
+                    </h5>
+                    <span
+                      className="text-primary fw-semibold cursor-pointer"
+                      style={{ fontSize: '13px' }}
+                    >
+                      Xem tất cả bài viết &gt;
+                    </span>
+                  </div>
+                  <div className="row g-3">
+                    {[
+                      {
+                        title: 'Top 5 Laptop Doanh Nhân HP & Dell Đáng Mua Nhất 2026',
+                        date: '27/08/2026',
+                        tag: 'Đánh giá',
+                      },
+                      {
+                        title: 'Xu Hướng Máy Trạm Workstation AI Cho Doanh Nghiệp',
+                        date: '26/08/2026',
+                        tag: 'Công nghệ',
+                      },
+                      {
+                        title: 'Chính Nhân Đồng Hành Cùng Doanh Nghiệp Chuyển Đổi Số',
+                        date: '25/08/2026',
+                        tag: 'Sự kiện',
+                      },
+                    ].map((news, nIdx) => (
+                      <div key={nIdx} className="col-md-4 col-12">
+                        <div className="border rounded-2 p-3 bg-light h-100 d-flex flex-column justify-content-between shadow-2xs hover-shadow-sm transition-all">
+                          <div>
+                            <span
+                              className="badge bg-primary text-white mb-2"
+                              style={{ fontSize: '10.5px' }}
+                            >
+                              {news.tag}
+                            </span>
+                            <h6
+                              className="fw-bold text-dark mb-2"
+                              style={{ fontSize: '13.5px', lineHeight: '1.4' }}
+                            >
+                              {news.title}
+                            </h6>
+                          </div>
+                          <span className="text-muted" style={{ fontSize: '11.5px' }}>
+                            📅 {news.date} • Tin tức Chính Nhân
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
