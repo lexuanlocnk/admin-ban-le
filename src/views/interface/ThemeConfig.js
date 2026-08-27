@@ -990,86 +990,90 @@ const ThemeConfig = () => {
   const handleChangeBannerGroupColumns = (id, count) => {
     const validCount = Math.min(5, Math.max(1, Number(count) || 1))
     const updatedBanners = { ...banners }
-    const updated = sections.map((sec) => {
-      if (sec.id === id) {
-        let newSlots = []
-        if (sec.id === 'banner_group_1') {
-          newSlots = ['promo1', 'promo2', 'promo3', 'promo4', 'promo5'].slice(0, validCount)
-          newSlots.forEach((slotKey) => {
-            if (!updatedBanners[slotKey]) {
-              updatedBanners[slotKey] = [
-                'https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=600&q=80',
-              ]
+    let nextSections = []
+
+    setSections((prevSections) => {
+      nextSections = prevSections.map((sec) => {
+        if (sec.id === id) {
+          let newSlots = []
+          if (sec.id === 'banner_group_1') {
+            newSlots = ['promo1', 'promo2', 'promo3', 'promo4', 'promo5'].slice(0, validCount)
+          } else if (sec.id === 'banner_group_2') {
+            newSlots = ['subPromo1', 'subPromo2', 'subPromo3', 'subPromo4', 'subPromo5'].slice(
+              0,
+              validCount,
+            )
+          } else {
+            // Custom banner group
+            const currentSlots = Array.isArray(sec.slots) ? sec.slots : []
+            for (let i = 0; i < validCount; i++) {
+              if (currentSlots[i]) {
+                newSlots.push(currentSlots[i])
+              } else {
+                const newKey = `customSlot_${sec.id}_${i + 1}`
+                newSlots.push(newKey)
+              }
             }
-          })
-        } else if (sec.id === 'banner_group_2') {
-          newSlots = ['subPromo1', 'subPromo2', 'subPromo3', 'subPromo4', 'subPromo5'].slice(
-            0,
-            validCount,
-          )
+          }
+
+          // Ensure banner images exist for new slots
           newSlots.forEach((slotKey) => {
-            if (!updatedBanners[slotKey]) {
+            if (!updatedBanners[slotKey] || updatedBanners[slotKey].length === 0) {
               updatedBanners[slotKey] = [
                 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
               ]
             }
           })
-        } else {
-          // Custom banner group
-          const currentSlots = Array.isArray(sec.slots) ? sec.slots : []
-          for (let i = 0; i < validCount; i++) {
-            if (currentSlots[i]) {
-              newSlots.push(currentSlots[i])
-            } else {
-              const newKey = `customSlot_${sec.id}_${i + 1}`
-              newSlots.push(newKey)
-              if (!updatedBanners[newKey]) {
-                updatedBanners[newKey] = [
-                  'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
-                ]
-              }
-            }
+
+          const currentTitle = sec.name || getCleanSectionName(sec)
+          const updatedName = currentTitle.includes('vị trí')
+            ? currentTitle.replace(/\d+\s*vị trí/i, `${validCount} vị trí`)
+            : currentTitle.includes('Nhóm')
+              ? currentTitle.replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
+              : `Banner ${validCount} vị trí`
+
+          return {
+            ...sec,
+            columns: validCount,
+            slots: newSlots,
+            name: updatedName,
+            description: `Nhóm ${validCount} banner ngang tùy chỉnh (1 đến 5 banner)`,
           }
         }
-        const updatedName = sec.name
-          ? sec.name
-              .replace(/\d+\s*vị trí/i, `${validCount} vị trí`)
-              .replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
-          : `Banner ${validCount} vị trí`
-        return {
-          ...sec,
-          columns: validCount,
-          slots: newSlots,
-          name: updatedName,
-          description: `Nhóm ${validCount} banner ngang tùy chỉnh (1 đến 5 banner)`,
-        }
-      }
-      return sec
+        return sec
+      })
+      return nextSections
     })
-    setSections(updated)
+
     setBanners(updatedBanners)
-    persistCampaignConfig({ sections: updated, banners: updatedBanners })
-    toast.success(`Đã đổi nhóm sang ${validCount} banner!`)
+    persistCampaignConfig({ sections: nextSections, banners: updatedBanners })
+    toast.success(`Đã chuyển nhóm sang ${validCount} banner!`)
   }
 
   const handleChangeBannerGroupHeight = (id, height) => {
     const validHeight = Math.min(1000, Math.max(60, Number(height) || 160))
-    const updated = sections.map((sec) => (sec.id === id ? { ...sec, height: validHeight } : sec))
-    setSections(updated)
+    let nextSections = []
+    setSections((prev) => {
+      nextSections = prev.map((sec) => (sec.id === id ? { ...sec, height: validHeight } : sec))
+      return nextSections
+    })
     if (heightDebounceTimerRef.current) {
       clearTimeout(heightDebounceTimerRef.current)
     }
     heightDebounceTimerRef.current = setTimeout(() => {
-      persistCampaignConfig({ sections: updated })
+      persistCampaignConfig({ sections: nextSections })
     }, 450)
   }
 
   const handleConfirmDeleteSection = () => {
     if (!sectionToDelete) return
     const targetName = sectionToDelete.name || 'Nhóm banner'
-    const updated = sections.filter((sec) => sec.id !== sectionToDelete.id)
-    setSections(updated)
-    persistCampaignConfig({ sections: updated })
+    let nextSections = []
+    setSections((prev) => {
+      nextSections = prev.filter((sec) => sec.id !== sectionToDelete.id)
+      return nextSections
+    })
+    persistCampaignConfig({ sections: nextSections })
     toast.info(`Đã xóa "${targetName}" thành công!`)
     setSectionToDelete(null)
   }
@@ -1092,9 +1096,13 @@ const ThemeConfig = () => {
       setEditingSectionId(null)
       return
     }
-    const updated = sections.map((sec) => (sec.id === id ? { ...sec, name: trimmed } : sec))
-    setSections(updated)
-    persistCampaignConfig({ sections: updated })
+    let nextSections = []
+    setSections((prev) => {
+      nextSections = prev.map((sec) => (sec.id === id ? { ...sec, name: trimmed } : sec))
+      return nextSections
+    })
+    persistCampaignConfig({ sections: nextSections })
+    toast.success(`Đã đổi tên thành "${trimmed}"!`)
     setEditingSectionId(null)
   }
 
@@ -2702,13 +2710,12 @@ const ThemeConfig = () => {
                     <input
                       type="text"
                       className="form-control form-control-sm py-0 px-2 fw-bold text-dark border-primary shadow-xs"
-                      style={{ height: '26px', fontSize: '12px', minWidth: '220px' }}
+                      style={{ height: '26px', fontSize: '12px', minWidth: '200px' }}
                       value={tempSectionName}
                       onChange={(e) => setTempSectionName(e.target.value)}
-                      onBlur={() => handleBlurSectionName(section.id)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                          handleBlurSectionName(section.id)
+                          handleSaveSectionName(section.id)
                         }
                         if (e.key === 'Escape') {
                           setEditingSectionId(null)
@@ -2717,22 +2724,36 @@ const ThemeConfig = () => {
                       placeholder="Nhập tên nhóm banner..."
                       autoFocus
                     />
-                    <span className="text-muted" style={{ fontSize: '10.5px' }}>
-                      (Bấm ra ngoài / Enter để lưu)
-                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-primary px-1.5 py-0.5 fw-bold"
+                      style={{ fontSize: '11px' }}
+                      onClick={() => handleSaveSectionName(section.id)}
+                    >
+                      Lưu
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-light px-1.5 py-0.5"
+                      style={{ fontSize: '11px' }}
+                      onClick={() => setEditingSectionId(null)}
+                    >
+                      ✕
+                    </button>
                   </div>
                 ) : (
                   <span
-                    className="badge px-2 py-1 fw-bold rounded cursor-pointer"
+                    className="badge px-2 py-1 fw-bold rounded cursor-pointer d-flex align-items-center gap-1"
                     style={{
                       backgroundColor: colors.primary || '#2356c4',
                       color: '#ffffff',
                       fontSize: '11px',
+                      cursor: 'pointer',
                     }}
                     onClick={() => handleStartEditSectionName(section)}
                     title="Nhấn vào đây để đổi tên"
                   >
-                    #{sIdx + 1} {section.name || getCleanSectionName(section)}
+                    #{sIdx + 1} {section.name || getCleanSectionName(section)} ✏️
                   </span>
                 )}
                 {section.type === 'banner_group' && (
@@ -3192,8 +3213,57 @@ const ThemeConfig = () => {
                     boxSizing: 'border-box',
                   }}
                 >
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6 className="fw-bold text-dark m-0">{getCleanSectionName(section)}</h6>
+                  <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                    {editingSectionId === section.id ? (
+                      <div
+                        className="d-flex align-items-center gap-1.5 flex-grow-1"
+                        style={{ maxWidth: '420px' }}
+                      >
+                        <input
+                          type="text"
+                          className="form-control form-control-sm py-1 px-2 fw-bold text-dark border-primary shadow-xs"
+                          style={{ fontSize: '14px' }}
+                          value={tempSectionName}
+                          onChange={(e) => setTempSectionName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveSectionName(section.id)
+                            if (e.key === 'Escape') setEditingSectionId(null)
+                          }}
+                          placeholder="Nhập tên tiêu đề nhóm banner..."
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-primary px-2.5 py-0.5 fw-bold"
+                          style={{ fontSize: '12px', whiteSpace: 'nowrap' }}
+                          onClick={() => handleSaveSectionName(section.id)}
+                        >
+                          Lưu
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-light px-2 py-0.5"
+                          style={{ fontSize: '12px' }}
+                          onClick={() => setEditingSectionId(null)}
+                        >
+                          Hủy
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className="d-flex align-items-center gap-1.5 cursor-pointer py-0.5 px-1 rounded hover-bg-light"
+                        onClick={() => handleStartEditSectionName(section)}
+                        title="Nhấn vào đây để đổi tên tiêu đề nhóm banner"
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <h6 className="fw-bold text-dark m-0">
+                          {section.name || getCleanSectionName(section)}
+                        </h6>
+                        <span className="text-primary opacity-75" style={{ fontSize: '12px' }}>
+                          ✏️
+                        </span>
+                      </div>
+                    )}
                     <span className="text-muted text-xs">
                       {cols} vị trí banner ngang tùy chỉnh (1 đến 5 banner)
                     </span>
