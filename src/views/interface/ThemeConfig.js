@@ -665,10 +665,17 @@ const ThemeConfig = () => {
           sections: payloadSections,
         },
       })
-      const savedBanners = res?.data?.data?.theme_config?.banners
-        ? normalizeBannersMap(res.data.data.theme_config.banners)
-        : payloadBanners
-      if (res?.data?.data?.theme_config?.banners) {
+      const savedBanners =
+        res?.data?.data?.theme_config?.banners &&
+        typeof res.data.data.theme_config.banners === 'object' &&
+        !Array.isArray(res.data.data.theme_config.banners) &&
+        Object.keys(res.data.data.theme_config.banners).length > 0
+          ? normalizeBannersMap(res.data.data.theme_config.banners)
+          : payloadBanners
+      if (
+        res?.data?.data?.theme_config?.banners &&
+        !Array.isArray(res.data.data.theme_config.banners)
+      ) {
         setBanners(savedBanners)
       }
       setThemes((prev) =>
@@ -1051,19 +1058,28 @@ const ThemeConfig = () => {
           }
         })
 
-        const currentTitle = sec.name || getCleanSectionName(sec)
-        const updatedName = currentTitle.includes('vị trí')
-          ? currentTitle.replace(/\d+\s*vị trí/i, `${validCount} vị trí`)
-          : currentTitle.includes('Nhóm')
-            ? currentTitle.replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
-            : `Banner ${validCount} vị trí`
+        let updatedName = sec.name || getCleanSectionName(sec)
+        if (sec.id !== 'banner_group_1' && sec.id !== 'banner_group_2') {
+          if (updatedName.includes('vị trí')) {
+            updatedName = updatedName.replace(/\d+\s*vị trí/i, `${validCount} vị trí`)
+          } else if (updatedName.includes('Nhóm')) {
+            updatedName = updatedName.replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
+          } else {
+            updatedName = `Banner ${validCount} vị trí`
+          }
+        }
 
         return {
           ...sec,
           columns: validCount,
           slots: newSlots,
           name: updatedName,
-          description: `Nhóm ${validCount} banner ngang tùy chỉnh (1 đến 5 banner)`,
+          description:
+            sec.id === 'banner_group_1'
+              ? 'Vị trí banner ngang bên dưới danh mục nổi bật'
+              : sec.id === 'banner_group_2'
+                ? 'Vị trí banner ngang bên dưới khối sản phẩm nổi bật'
+                : `Nhóm ${validCount} banner ngang tùy chỉnh (1 đến 5 banner)`,
         }
       }
       return sec
@@ -2798,8 +2814,17 @@ const ThemeConfig = () => {
                               className={`btn btn-xs py-0 px-1.5 fw-bold ${
                                 currentCols === cnt ? 'btn-primary text-white' : 'btn-light'
                               }`}
-                              style={{ fontSize: '11px', borderRadius: '3px' }}
-                              onClick={() => handleChangeBannerGroupColumns(section.id, cnt)}
+                              style={{
+                                fontSize: '11px',
+                                borderRadius: '3px',
+                                cursor: 'pointer',
+                                pointerEvents: 'auto',
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleChangeBannerGroupColumns(section.id, cnt)
+                              }}
                               title={`Đổi nhóm thành ${cnt} banner`}
                             >
                               {cnt}
@@ -2816,8 +2841,17 @@ const ThemeConfig = () => {
                               className={`btn btn-xs py-0 px-1.5 fw-bold ${
                                 currentHeight === h ? 'btn-primary text-white' : 'btn-light'
                               }`}
-                              style={{ fontSize: '11px', borderRadius: '3px' }}
-                              onClick={() => handleChangeBannerGroupHeight(section.id, h)}
+                              style={{
+                                fontSize: '11px',
+                                borderRadius: '3px',
+                                cursor: 'pointer',
+                                pointerEvents: 'auto',
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleChangeBannerGroupHeight(section.id, h)
+                              }}
                               title={`Đổi chiều cao thành ${h}px`}
                             >
                               {h}px
@@ -2828,10 +2862,17 @@ const ThemeConfig = () => {
                             <button
                               type="button"
                               className="btn btn-xs btn-light px-1.5 py-0 fw-bold border-end text-secondary"
-                              style={{ height: '22px', fontSize: '13px', lineHeight: 1 }}
-                              onClick={() =>
+                              style={{
+                                height: '22px',
+                                fontSize: '13px',
+                                lineHeight: 1,
+                                cursor: 'pointer',
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
                                 handleChangeBannerGroupHeight(section.id, currentHeight - 20)
-                              }
+                              }}
                               title="Giảm 20px"
                             >
                               −
@@ -2850,10 +2891,17 @@ const ThemeConfig = () => {
                             <button
                               type="button"
                               className="btn btn-xs btn-light px-1.5 py-0 fw-bold border-start text-secondary"
-                              style={{ height: '22px', fontSize: '13px', lineHeight: 1 }}
-                              onClick={() =>
+                              style={{
+                                height: '22px',
+                                fontSize: '13px',
+                                lineHeight: 1,
+                                cursor: 'pointer',
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
                                 handleChangeBannerGroupHeight(section.id, currentHeight + 20)
-                              }
+                              }}
                               title="Tăng 20px"
                             >
                               +
@@ -2872,8 +2920,12 @@ const ThemeConfig = () => {
                   type="button"
                   disabled={sIdx === 0}
                   className="btn btn-light btn-xs px-2 py-0.5 border shadow-2xs fw-bold"
-                  style={{ fontSize: '11.5px' }}
-                  onClick={() => handleMoveSection(sIdx, 'up')}
+                  style={{ fontSize: '11.5px', cursor: 'pointer', pointerEvents: 'auto' }}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleMoveSection(sIdx, 'up')
+                  }}
                   title="Di chuyển lên trên"
                 >
                   ▲ Lên
@@ -2882,8 +2934,12 @@ const ThemeConfig = () => {
                   type="button"
                   disabled={sIdx === sections.length - 1}
                   className="btn btn-light btn-xs px-2 py-0.5 border shadow-2xs fw-bold"
-                  style={{ fontSize: '11.5px' }}
-                  onClick={() => handleMoveSection(sIdx, 'down')}
+                  style={{ fontSize: '11.5px', cursor: 'pointer', pointerEvents: 'auto' }}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleMoveSection(sIdx, 'down')
+                  }}
                   title="Di chuyển xuống dưới"
                 >
                   ▼ Xuống
@@ -2895,8 +2951,12 @@ const ThemeConfig = () => {
                   className={`btn btn-xs px-2 py-0.5 border shadow-2xs fw-bold ${
                     isEnabled ? 'btn-success text-white' : 'btn-secondary text-white'
                   }`}
-                  style={{ fontSize: '11.5px' }}
-                  onClick={() => handleToggleSection(section.id)}
+                  style={{ fontSize: '11.5px', cursor: 'pointer', pointerEvents: 'auto' }}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleToggleSection(section.id)
+                  }}
                   title={isEnabled ? 'Ẩn khỏi trang chủ' : 'Bật hiển thị trên trang chủ'}
                 >
                   {isEnabled ? '👁️ Đang hiện' : '🔒 Đang ẩn'}
@@ -2907,8 +2967,12 @@ const ThemeConfig = () => {
                   <button
                     type="button"
                     className="btn btn-danger btn-xs text-white px-2 py-0.5 border shadow-2xs fw-bold"
-                    style={{ fontSize: '11.5px' }}
-                    onClick={() => setSectionToDelete(section)}
+                    style={{ fontSize: '11.5px', cursor: 'pointer', pointerEvents: 'auto' }}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setSectionToDelete(section)
+                    }}
                     title="Xóa nhóm banner này"
                   >
                     🗑️ Xóa nhóm
