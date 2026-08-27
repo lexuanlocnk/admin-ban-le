@@ -990,61 +990,57 @@ const ThemeConfig = () => {
   const handleChangeBannerGroupColumns = (id, count) => {
     const validCount = Math.min(5, Math.max(1, Number(count) || 1))
     const updatedBanners = { ...banners }
-    let nextSections = []
-
-    setSections((prevSections) => {
-      nextSections = prevSections.map((sec) => {
-        if (sec.id === id) {
-          let newSlots = []
-          if (sec.id === 'banner_group_1') {
-            newSlots = ['promo1', 'promo2', 'promo3', 'promo4', 'promo5'].slice(0, validCount)
-          } else if (sec.id === 'banner_group_2') {
-            newSlots = ['subPromo1', 'subPromo2', 'subPromo3', 'subPromo4', 'subPromo5'].slice(
-              0,
-              validCount,
-            )
-          } else {
-            // Custom banner group
-            const currentSlots = Array.isArray(sec.slots) ? sec.slots : []
-            for (let i = 0; i < validCount; i++) {
-              if (currentSlots[i]) {
-                newSlots.push(currentSlots[i])
-              } else {
-                const newKey = `customSlot_${sec.id}_${i + 1}`
-                newSlots.push(newKey)
-              }
+    const nextSections = sections.map((sec) => {
+      if (sec.id === id) {
+        let newSlots = []
+        if (sec.id === 'banner_group_1') {
+          newSlots = ['promo1', 'promo2', 'promo3', 'promo4', 'promo5'].slice(0, validCount)
+        } else if (sec.id === 'banner_group_2') {
+          newSlots = ['subPromo1', 'subPromo2', 'subPromo3', 'subPromo4', 'subPromo5'].slice(
+            0,
+            validCount,
+          )
+        } else {
+          // Custom banner group
+          const currentSlots = Array.isArray(sec.slots) ? sec.slots : []
+          for (let i = 0; i < validCount; i++) {
+            if (currentSlots[i]) {
+              newSlots.push(currentSlots[i])
+            } else {
+              const newKey = `customSlot_${sec.id}_${i + 1}`
+              newSlots.push(newKey)
             }
-          }
-
-          // Ensure banner images exist for new slots
-          newSlots.forEach((slotKey) => {
-            if (!updatedBanners[slotKey] || updatedBanners[slotKey].length === 0) {
-              updatedBanners[slotKey] = [
-                'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
-              ]
-            }
-          })
-
-          const currentTitle = sec.name || getCleanSectionName(sec)
-          const updatedName = currentTitle.includes('vị trí')
-            ? currentTitle.replace(/\d+\s*vị trí/i, `${validCount} vị trí`)
-            : currentTitle.includes('Nhóm')
-              ? currentTitle.replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
-              : `Banner ${validCount} vị trí`
-
-          return {
-            ...sec,
-            columns: validCount,
-            slots: newSlots,
-            name: updatedName,
-            description: `Nhóm ${validCount} banner ngang tùy chỉnh (1 đến 5 banner)`,
           }
         }
-        return sec
-      })
-      return nextSections
+
+        // Ensure banner images exist for new slots
+        newSlots.forEach((slotKey) => {
+          if (!updatedBanners[slotKey] || updatedBanners[slotKey].length === 0) {
+            updatedBanners[slotKey] = [
+              'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
+            ]
+          }
+        })
+
+        const currentTitle = sec.name || getCleanSectionName(sec)
+        const updatedName = currentTitle.includes('vị trí')
+          ? currentTitle.replace(/\d+\s*vị trí/i, `${validCount} vị trí`)
+          : currentTitle.includes('Nhóm')
+            ? currentTitle.replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
+            : `Banner ${validCount} vị trí`
+
+        return {
+          ...sec,
+          columns: validCount,
+          slots: newSlots,
+          name: updatedName,
+          description: `Nhóm ${validCount} banner ngang tùy chỉnh (1 đến 5 banner)`,
+        }
+      }
+      return sec
     })
 
+    setSections(nextSections)
     setBanners(updatedBanners)
     persistCampaignConfig({ sections: nextSections, banners: updatedBanners })
     toast.success(`Đã chuyển nhóm sang ${validCount} banner!`)
@@ -1052,11 +1048,10 @@ const ThemeConfig = () => {
 
   const handleChangeBannerGroupHeight = (id, height) => {
     const validHeight = Math.min(1000, Math.max(60, Number(height) || 160))
-    let nextSections = []
-    setSections((prev) => {
-      nextSections = prev.map((sec) => (sec.id === id ? { ...sec, height: validHeight } : sec))
-      return nextSections
-    })
+    const nextSections = sections.map((sec) =>
+      sec.id === id ? { ...sec, height: validHeight } : sec,
+    )
+    setSections(nextSections)
     if (heightDebounceTimerRef.current) {
       clearTimeout(heightDebounceTimerRef.current)
     }
@@ -1068,11 +1063,8 @@ const ThemeConfig = () => {
   const handleConfirmDeleteSection = () => {
     if (!sectionToDelete) return
     const targetName = sectionToDelete.name || 'Nhóm banner'
-    let nextSections = []
-    setSections((prev) => {
-      nextSections = prev.filter((sec) => sec.id !== sectionToDelete.id)
-      return nextSections
-    })
+    const nextSections = sections.filter((sec) => sec.id !== sectionToDelete.id)
+    setSections(nextSections)
     persistCampaignConfig({ sections: nextSections })
     toast.info(`Đã xóa "${targetName}" thành công!`)
     setSectionToDelete(null)
@@ -1096,11 +1088,8 @@ const ThemeConfig = () => {
       setEditingSectionId(null)
       return
     }
-    let nextSections = []
-    setSections((prev) => {
-      nextSections = prev.map((sec) => (sec.id === id ? { ...sec, name: trimmed } : sec))
-      return nextSections
-    })
+    const nextSections = sections.map((sec) => (sec.id === id ? { ...sec, name: trimmed } : sec))
+    setSections(nextSections)
     persistCampaignConfig({ sections: nextSections })
     toast.success(`Đã đổi tên thành "${trimmed}"!`)
     setEditingSectionId(null)
@@ -1122,7 +1111,7 @@ const ThemeConfig = () => {
     const slots = []
     const updatedBanners = { ...banners }
     for (let i = 0; i < validCols; i++) {
-      const slotKey = `customSlot_${Date.now()}_${i + 1}`
+      const slotKey = `customSlot_${newId}_${i + 1}`
       slots.push(slotKey)
       updatedBanners[slotKey] = [
         'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
@@ -1132,8 +1121,8 @@ const ThemeConfig = () => {
     const newSection = {
       id: newId,
       type: 'banner_group',
-      name: `Banner nhóm ${validCols} vị trí`,
-      description: `Nhóm ${validCols} banner ngang tùy chỉnh`,
+      name: `Banner ${validCols} vị trí`,
+      description: `Nhóm ${validCols} banner ngang tùy chỉnh (1 đến 5 banner)`,
       enabled: true,
       canDelete: true,
       canChangeColumns: true,
