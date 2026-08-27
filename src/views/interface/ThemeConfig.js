@@ -416,7 +416,7 @@ const FEATURED_PRODUCTS = [
     price: '29.900.000 đ',
     originalPrice: '37.900.000 đ',
     discount: '-21%',
-    img: 'https://media.vitinhnguyenkim.vn/uploads/products/2026-06/20260602_094012_mtf2oieBgl.png',
+    img: 'https://api.chinhnhan.com/uploads/products/2026-06/20260602_094012_mtf2oieBgl.png',
   },
   {
     id: 2,
@@ -424,7 +424,7 @@ const FEATURED_PRODUCTS = [
     price: '37.300.000 đ',
     originalPrice: '44.000.000 đ',
     discount: '-15%',
-    img: 'https://media.vitinhnguyenkim.vn/uploads/products/2026-02/20260223_034322_exDumZVvI6.png',
+    img: 'https://api.chinhnhan.com/uploads/products/2026-02/20260223_034322_exDumZVvI6.png',
   },
   {
     id: 3,
@@ -432,7 +432,7 @@ const FEATURED_PRODUCTS = [
     price: '19.800.000 đ',
     originalPrice: '24.900.000 đ',
     discount: '-20%',
-    img: 'https://media.vitinhnguyenkim.vn/uploads/products/2026-04/20260410_094240_UbimfZq9Gp.png',
+    img: 'https://api.chinhnhan.com/uploads/products/2026-04/20260410_094240_UbimfZq9Gp.png',
   },
   {
     id: 4,
@@ -440,7 +440,7 @@ const FEATURED_PRODUCTS = [
     price: '29.900.000 đ',
     originalPrice: '37.990.000 đ',
     discount: '-21%',
-    img: 'https://media.vitinhnguyenkim.vn/uploads/products/2026-08/20260806_054030_fEuFoFdtmY.png',
+    img: 'https://api.chinhnhan.com/uploads/products/2026-08/20260806_054030_fEuFoFdtmY.png',
   },
   {
     id: 5,
@@ -448,7 +448,7 @@ const FEATURED_PRODUCTS = [
     price: '33.000.000 đ',
     originalPrice: '39.990.000 đ',
     discount: '-17%',
-    img: 'https://media.vitinhnguyenkim.vn/uploads/products/2026-06/20260602_094012_mtf2oieBgl.png',
+    img: 'https://api.chinhnhan.com/uploads/products/2026-06/20260602_094012_mtf2oieBgl.png',
   },
 ]
 

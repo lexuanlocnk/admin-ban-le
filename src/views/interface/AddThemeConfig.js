@@ -1056,7 +1056,7 @@ function AddThemeConfig() {
                       type: 'dual',
                       label: 'Footer website (Nền & Chữ tiêu đề)',
                       key: 'footer',
-                      desc: 'Màu nền footer & màu các tiêu đề (Về Nguyên Kim, Đối tác...)',
+                      desc: 'Màu nền footer & màu các tiêu đề (Về Chính Nhân, Chính sách...)',
                       bgKey: 'footer_bg',
                       textKey: 'footer_heading',
                       defaultBg: '#ffffff',
@@ -2003,10 +2003,10 @@ function AddThemeConfig() {
                       >
                         <div className="d-flex justify-content-between flex-wrap gap-2">
                           {[
-                            'VỀ NGUYÊN KIM',
-                            'CHÍNH SÁCH & ĐIỀU KHOẢN',
-                            'TỔNG ĐÀI HỖ TRỢ',
-                            'ĐỐI TÁC HÀNG ĐẦU',
+                            'VỀ CHÍNH NHÂN',
+                            'CHÍNH SÁCH MUA HÀNG',
+                            'THÔNG TIN LIÊN HỆ',
+                            'KẾT NỐI VỚI CHÍNH NHÂN',
                           ].map((col) => (
                             <span
                               key={col}
@@ -2845,70 +2845,93 @@ function AddThemeConfig() {
 
                             {/* FOOTER REALISTIC CONTENT */}
                             <div className="position-relative px-2 py-1" style={{ zIndex: 2 }}>
+                              {/* TOP TRUST BADGES */}
+                              <div
+                                className="d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 border-bottom mb-3"
+                                style={{ fontSize: '9px', color: '#475569' }}
+                              >
+                                <span>🎧 Hỗ trợ 24h/7 ngày</span>
+                                <span>💳 Thanh toán tiện lợi, an toàn</span>
+                                <span>🔄 Đổi trả miễn phí</span>
+                                <span>🏷️ Giá cả cạnh tranh</span>
+                                <span>🛡️ Cam kết hàng chính hãng</span>
+                              </div>
+
                               {/* TOP ROW: 4 COLUMNS */}
                               <CRow className="g-3 mb-3">
-                                {/* Cột 1: Về Nguyên Kim */}
+                                {/* Cột 1: Về Chính Nhân */}
                                 <CCol md={3} xs={6}>
                                   <div
                                     className="fw-bold mb-2"
-                                    style={{ color: '#d97706', fontSize: '11.5px' }}
+                                    style={{ color: '#d97706', fontSize: '11px' }}
                                   >
-                                    Về Nguyên Kim
+                                    VỀ CHÍNH NHÂN
                                   </div>
                                   <div
                                     className="d-flex flex-column gap-1 text-secondary"
                                     style={{ fontSize: '9.5px', lineHeight: '1.4' }}
                                   >
                                     <span>Giới thiệu công ty</span>
+                                    <span>Dịch vụ</span>
                                     <span>Tư vấn hỏi đáp</span>
                                     <span>Liên hệ và góp ý</span>
                                     <span>Yêu cầu báo giá</span>
+                                    <span>Tuyển dụng</span>
                                   </div>
                                 </CCol>
 
-                                {/* Cột 2: Chính sách & Điều khoản */}
+                                {/* Cột 2: Chính sách mua hàng */}
                                 <CCol md={3} xs={6}>
                                   <div
                                     className="fw-bold mb-2"
-                                    style={{ color: '#d97706', fontSize: '11.5px' }}
+                                    style={{ color: '#d97706', fontSize: '11px' }}
                                   >
-                                    Chính sách &amp; Điều khoản
+                                    CHÍNH SÁCH MUA HÀNG
                                   </div>
                                   <div
                                     className="d-flex flex-column gap-1 text-secondary"
                                     style={{ fontSize: '9.5px', lineHeight: '1.4' }}
                                   >
-                                    <span>Hướng dẫn gửi bảo hành</span>
+                                    <span>Hệ thống bảo hành Fujihome</span>
+                                    <span>Chính sách cookie</span>
                                     <span>Chính sách bảo mật TT cá nhân</span>
-                                    <span>Chính sách giao hàng</span>
-                                    <span>Chính sách bảo hành</span>
+                                    <span>Giao hàng và lắp đặt</span>
+                                    <span>Chính sách bảo hành đổi trả</span>
                                     <span>Quy định thanh toán</span>
-                                    <span>Chính sách hoàn tiền</span>
-                                    <span>Chính sách đổi sản phẩm</span>
-                                    <span>Chính sách kiểm hàng</span>
                                   </div>
                                 </CCol>
 
-                                {/* Cột 3: Tổng đài hỗ trợ */}
+                                {/* Cột 3: Thông tin liên hệ */}
                                 <CCol md={3} xs={6}>
                                   <div
                                     className="fw-bold mb-2"
-                                    style={{ color: '#d97706', fontSize: '11.5px' }}
+                                    style={{ color: '#d97706', fontSize: '11px' }}
                                   >
-                                    Tổng đài hỗ trợ
+                                    THÔNG TIN LIÊN HỆ
+                                  </div>
+                                  <div
+                                    className="d-flex flex-column gap-1 text-secondary"
+                                    style={{ fontSize: '9px', lineHeight: '1.4' }}
+                                  >
+                                    <div>📍 245A Trần Quang Khải, P. Tân Định, TP. HCM</div>
+                                    <div>🕒 8h - 17h45 (T2 - T6), T7: 8h - 16h</div>
+                                    <div>
+                                      📞 Hotline:{' '}
+                                      <strong className="text-dark">1900 571 200</strong>
+                                    </div>
+                                    <div>✉ cskh@chinhnhan.vn</div>
+                                  </div>
+                                </CCol>
+
+                                {/* Cột 4: Kết nối với Chính Nhân */}
+                                <CCol md={3} xs={6}>
+                                  <div
+                                    className="fw-bold mb-2"
+                                    style={{ color: '#d97706', fontSize: '11px' }}
+                                  >
+                                    KẾT NỐI VỚI CHÍNH NHÂN
                                   </div>
                                   <div className="d-flex align-items-center gap-1.5 mb-2">
-                                    <span
-                                      className="d-inline-flex align-items-center justify-content-center text-white rounded"
-                                      style={{
-                                        backgroundColor: '#cc181e',
-                                        width: '22px',
-                                        height: '22px',
-                                        fontSize: '9px',
-                                      }}
-                                    >
-                                      ▶
-                                    </span>
                                     <span
                                       className="d-inline-flex align-items-center justify-content-center text-white rounded fw-bold"
                                       style={{
@@ -2920,16 +2943,28 @@ function AddThemeConfig() {
                                     >
                                       f
                                     </span>
-                                  </div>
-                                </CCol>
-
-                                {/* Cột 4: Vị trí của chúng tôi */}
-                                <CCol md={3} xs={6}>
-                                  <div
-                                    className="fw-bold mb-2"
-                                    style={{ color: '#d97706', fontSize: '11.5px' }}
-                                  >
-                                    Vị trí của chúng tôi
+                                    <span
+                                      className="d-inline-flex align-items-center justify-content-center text-white rounded fw-bold"
+                                      style={{
+                                        backgroundColor: '#0068ff',
+                                        width: '22px',
+                                        height: '22px',
+                                        fontSize: '9px',
+                                      }}
+                                    >
+                                      Zalo
+                                    </span>
+                                    <span
+                                      className="d-inline-flex align-items-center justify-content-center text-white rounded"
+                                      style={{
+                                        backgroundColor: '#cc181e',
+                                        width: '22px',
+                                        height: '22px',
+                                        fontSize: '9px',
+                                      }}
+                                    >
+                                      ▶
+                                    </span>
                                   </div>
                                 </CCol>
                               </CRow>
@@ -2939,32 +2974,21 @@ function AddThemeConfig() {
                                 {/* Thông tin công ty & Logo */}
                                 <CCol xs={12}>
                                   <div className="mb-1.5">
-                                    <div className="lh-1 mb-1">
-                                      <span
-                                        className="fw-bold"
-                                        style={{ color: '#e11d48', fontSize: '15px' }}
-                                      >
-                                        nguyên kim
-                                      </span>
-                                      <br />
-                                      <span
-                                        className="fw-bold"
-                                        style={{ color: '#2563eb', fontSize: '13px' }}
-                                      >
-                                        computer
-                                      </span>
-                                      <small
-                                        className="d-block text-danger fw-semibold"
-                                        style={{ fontSize: '7.5px' }}
-                                      >
-                                        Since 2004
-                                      </small>
-                                    </div>
+                                    <img
+                                      src={newTheme?.decorations?.logoUrl || logoNk}
+                                      alt="Chính Nhân Logo"
+                                      style={{
+                                        height: '34px',
+                                        maxWidth: '140px',
+                                        objectFit: 'contain',
+                                      }}
+                                      className="mb-1.5 d-block"
+                                    />
                                     <div
                                       className="fw-bold"
-                                      style={{ color: '#2563eb', fontSize: '10.5px' }}
+                                      style={{ color: '#2356c4', fontSize: '10.5px' }}
                                     >
-                                      Công ty TNHH Vi tính Nguyên Kim
+                                      Công Ty TNHH Công Nghệ Chính Nhân
                                     </div>
                                   </div>
 
@@ -2973,16 +2997,17 @@ function AddThemeConfig() {
                                     style={{ fontSize: '8.5px', lineHeight: '1.35' }}
                                   >
                                     <div>
-                                      📍 245B Trần Quang Khải, khu phố 9, Phường Tân Định, TP. Hồ
-                                      Chí Minh
+                                      Giấy CNĐKDN số: 0310279545 do Sở Kế hoạch &amp; Đầu tư TP. HCM
+                                      cấp ngày 28/09/2010.
                                     </div>
                                     <div>
-                                      📞 CSKH: <strong className="text-dark">1800 6739</strong> - Mã
-                                      Số Thuế: 0303753468
+                                      📍 Trụ sở: 245A Trần Quang Khải, Phường Tân Định, Quận 1, TP.
+                                      Hồ Chí Minh
                                     </div>
-                                    <div>✉ cskh@nguyenkimvn.vn</div>
                                     <div>
-                                      🕒 8h - 17h45 (Từ thứ Hai đến thứ Sáu), Thứ 7: 8h - 16h
+                                      📞 Tổng đài CSKH:{' '}
+                                      <strong className="text-dark">1900 571 200</strong> - Hotline:{' '}
+                                      <strong className="text-dark">0948 200 400</strong>
                                     </div>
                                   </div>
                                 </CCol>

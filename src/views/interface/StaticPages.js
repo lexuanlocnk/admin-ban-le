@@ -20,7 +20,7 @@ const StaticPages = () => {
   const [pages, setPages] = useState([
     {
       id: 1,
-      title: 'Giới thiệu về Nguyên Kim',
+      title: 'Giới thiệu về Chính Nhân',
       slug: 'gioi-thieu',
       updatedAt: '2026-08-10',
       status: 'Xuất bản',
