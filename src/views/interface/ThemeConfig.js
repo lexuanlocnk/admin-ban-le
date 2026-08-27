@@ -355,6 +355,35 @@ const getCleanSectionName = (sec) => {
   return sec.type
 }
 
+const normalizeSections = (rawSections) => {
+  if (!Array.isArray(rawSections) || rawSections.length === 0) {
+    return DEFAULT_SECTIONS
+  }
+  return rawSections.map((sec) => {
+    if (sec.type === 'banner_group') {
+      const defaultCols = sec.id === 'banner_group_1' ? 4 : sec.id === 'banner_group_2' ? 3 : 4
+      const cols =
+        typeof sec.columns === 'number' ? Math.min(5, Math.max(1, sec.columns)) : defaultCols
+      const defaultSlots =
+        sec.id === 'banner_group_1'
+          ? ['promo1', 'promo2', 'promo3', 'promo4', 'promo5'].slice(0, cols)
+          : sec.id === 'banner_group_2'
+            ? ['subPromo1', 'subPromo2', 'subPromo3', 'subPromo4', 'subPromo5'].slice(0, cols)
+            : Array.isArray(sec.slots) && sec.slots.length >= cols
+              ? sec.slots.slice(0, cols)
+              : Array.from({ length: cols }, (_, idx) => `customSlot_${sec.id}_${idx + 1}`)
+      return {
+        ...sec,
+        columns: cols,
+        slots: defaultSlots,
+        canChangeColumns: true,
+        canDelete: sec.id !== 'banner_group_1' && sec.id !== 'banner_group_2',
+      }
+    }
+    return sec
+  })
+}
+
 const CATEGORIES_LIST = [
   'Máy tính xách tay',
   'Máy tính để bàn',
@@ -732,14 +761,14 @@ const ThemeConfig = () => {
             DEFAULT_BANNERS
           setBanners(loadedBanners)
           if (activeItem.theme_config?.sections) {
-            setSections(activeItem.theme_config.sections)
+            setSections(normalizeSections(activeItem.theme_config.sections))
           }
         } else if (dbThemes.length > 0) {
           setAppliedThemeId(dbThemes[0].id)
           setSelectedThemeId(dbThemes[0].id)
           if (dbThemes[0].colors) setColors(dbThemes[0].colors)
           setBanners(populatedBanners || normalizeBannersMap(dbThemes[0].banners))
-          if (dbThemes[0].sections) setSections(dbThemes[0].sections)
+          if (dbThemes[0].sections) setSections(normalizeSections(dbThemes[0].sections))
         }
       }
     } catch (err) {
@@ -3173,18 +3202,29 @@ const ThemeConfig = () => {
 
           // 3. DYNAMIC BANNER GROUP (1 to 5 Banners)
           if (section.type === 'banner_group') {
+            const defaultCols =
+              section.id === 'banner_group_1' ? 4 : section.id === 'banner_group_2' ? 3 : 4
             const cols =
-              typeof section.columns === 'number' ? Math.min(5, Math.max(1, section.columns)) : 4
-            const defaultSlots =
-              cols === 4
-                ? ['promo1', 'promo2', 'promo3', 'promo4']
-                : cols === 3
-                  ? ['subPromo1', 'subPromo2', 'subPromo3']
-                  : Array.from({ length: cols }, (_, idx) => `customSlot_${section.id}_${idx + 1}`)
-            const slots =
-              Array.isArray(section.slots) && section.slots.length >= cols
-                ? section.slots.slice(0, cols)
-                : defaultSlots
+              typeof section.columns === 'number'
+                ? Math.min(5, Math.max(1, section.columns))
+                : defaultCols
+
+            let slots = []
+            if (section.id === 'banner_group_1') {
+              slots = ['promo1', 'promo2', 'promo3', 'promo4', 'promo5'].slice(0, cols)
+            } else if (section.id === 'banner_group_2') {
+              slots = ['subPromo1', 'subPromo2', 'subPromo3', 'subPromo4', 'subPromo5'].slice(
+                0,
+                cols,
+              )
+            } else if (Array.isArray(section.slots) && section.slots.length >= cols) {
+              slots = section.slots.slice(0, cols)
+            } else {
+              slots = Array.from(
+                { length: cols },
+                (_, idx) => `customSlot_${section.id}_${idx + 1}`,
+              )
+            }
 
             return (
               <div
