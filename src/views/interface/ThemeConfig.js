@@ -1032,7 +1032,9 @@ const ThemeConfig = () => {
           }
         }
         const updatedName = sec.name
-          ? sec.name.replace(/\d+\s*vị trí/i, `${validCount} vị trí`).replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
+          ? sec.name
+              .replace(/\d+\s*vị trí/i, `${validCount} vị trí`)
+              .replace(/Nhóm\s*\d+/i, `Nhóm ${validCount}`)
           : `Banner ${validCount} vị trí`
         return {
           ...sec,
@@ -2755,9 +2757,7 @@ const ThemeConfig = () => {
                               key={cnt}
                               type="button"
                               className={`btn btn-xs py-0 px-1.5 fw-bold ${
-                                currentCols === cnt
-                                  ? 'btn-primary text-white'
-                                  : 'btn-light'
+                                currentCols === cnt ? 'btn-primary text-white' : 'btn-light'
                               }`}
                               style={{ fontSize: '11px', borderRadius: '3px' }}
                               onClick={() => handleChangeBannerGroupColumns(section.id, cnt)}
@@ -3163,7 +3163,8 @@ const ThemeConfig = () => {
 
           // 3. DYNAMIC BANNER GROUP (1 to 5 Banners)
           if (section.type === 'banner_group') {
-            const cols = typeof section.columns === 'number' ? Math.min(5, Math.max(1, section.columns)) : 4
+            const cols =
+              typeof section.columns === 'number' ? Math.min(5, Math.max(1, section.columns)) : 4
             const defaultSlots =
               cols === 4
                 ? ['promo1', 'promo2', 'promo3', 'promo4']
@@ -3241,15 +3242,16 @@ const ThemeConfig = () => {
                 >
                   {/* Section Title Centered */}
                   <div className="text-center mb-3">
-                    <h4 className="fw-bold text-dark m-0" style={{ fontSize: '20px', letterSpacing: '0.5px' }}>
+                    <h4
+                      className="fw-bold text-dark m-0"
+                      style={{ fontSize: '20px', letterSpacing: '0.5px' }}
+                    >
                       SẢN PHẨM NỔI BẬT
                     </h4>
                   </div>
 
                   {/* Category Tabs Styled as Pills */}
-                  <div
-                    className="d-flex align-items-center justify-content-center gap-2 mb-3 pb-1 overflow-auto"
-                  >
+                  <div className="d-flex align-items-center justify-content-center gap-2 mb-3 pb-1 overflow-auto">
                     {FEATURED_TABS.map((tab, idx) => {
                       const isActive = selectedFeaturedTab === idx
                       return (
@@ -3367,9 +3369,7 @@ const ThemeConfig = () => {
                             >
                               ★ {prod.rating || '5.0'}
                             </span>
-                            <span style={{ color: '#2356c4', fontSize: '15px' }}>
-                              ♡
-                            </span>
+                            <span style={{ color: '#2356c4', fontSize: '15px' }}>♡</span>
                           </div>
 
                           <button
