@@ -412,43 +412,48 @@ const FEATURED_TABS = ['Laptop', 'PC', 'Máy in', 'Phụ kiện', 'Phần mềm'
 const FEATURED_PRODUCTS = [
   {
     id: 1,
-    name: 'Laptop HP ProBook 440 G11 (A74BLPA)',
-    price: '29.900.000 đ',
-    originalPrice: '37.900.000 đ',
-    discount: '-21%',
-    img: 'https://api.chinhnhan.com/uploads/products/2026-06/20260602_094012_mtf2oieBgl.png',
+    name: 'NB DELL PRO MAX 16 MC16250',
+    price: '78.650.000 đ',
+    originalPrice: '81.000.000 đ',
+    discount: '-3%',
+    rating: '5.0',
+    img: 'https://api.chinhnhan.com/uploads/product/2026-04/NBDE_MC16250_U732G512/69d8a79001b09.png',
   },
   {
     id: 2,
-    name: 'Laptop HP EliteBook 8 G1I 14 (D85ZNAT)',
-    price: '37.300.000 đ',
-    originalPrice: '44.000.000 đ',
-    discount: '-15%',
-    img: 'https://api.chinhnhan.com/uploads/products/2026-02/20260223_034322_exDumZVvI6.png',
+    name: 'Laptop HP EliteBook 640 G11 (A7LB4PT)',
+    price: '33.920.000 đ',
+    originalPrice: '34.940.000 đ',
+    discount: '-3%',
+    rating: '4.0',
+    img: 'https://api.chinhnhan.com/uploads/product/66b0851527279.png',
   },
   {
     id: 3,
-    name: '[C3SG9AT]* LAPTOP HP 240R G10',
-    price: '19.800.000 đ',
-    originalPrice: '24.900.000 đ',
-    discount: '-20%',
-    img: 'https://api.chinhnhan.com/uploads/products/2026-04/20260410_094240_UbimfZq9Gp.png',
+    name: 'MÁY TÍNH XÁCH TAY LENOVO THINKPAD T14',
+    price: '47.510.000 đ',
+    originalPrice: '48.930.000 đ',
+    discount: '-3%',
+    rating: '4.5',
+    img: 'https://api.chinhnhan.com/uploads/product/2026-02/NBLE_T14_004EVA/698e7e1b70a19.png',
   },
   {
     id: 4,
-    name: 'Laptop Lenovo ThinkPad E14 G7 (21SX002QVA)',
-    price: '29.900.000 đ',
-    originalPrice: '37.990.000 đ',
-    discount: '-21%',
-    img: 'https://api.chinhnhan.com/uploads/products/2026-08/20260806_054030_fEuFoFdtmY.png',
+    name: 'Laptop HP ProBook 440 G11 (A74BLPA)',
+    price: '31.780.000 đ',
+    originalPrice: '32.730.000 đ',
+    discount: '-3%',
+    rating: '4.0',
+    img: 'https://api.chinhnhan.com/uploads/product/67c7ca1c74e71.png',
   },
   {
     id: 5,
-    name: 'Laptop HP EliteBook 640 G11 (A7LA3PT)',
-    price: '33.000.000 đ',
-    originalPrice: '39.990.000 đ',
-    discount: '-17%',
-    img: 'https://api.chinhnhan.com/uploads/products/2026-06/20260602_094012_mtf2oieBgl.png',
+    name: '[C3SG9AT]* LAPTOP HP 240R G10',
+    price: '21.080.000 đ',
+    originalPrice: '21.710.000 đ',
+    discount: '-3%',
+    rating: '4.5',
+    img: 'https://api.chinhnhan.com/uploads/product/2026-02/NBHP_240RG10_C3SG9AT/698173f8e39c5.png',
   },
 ]
 
@@ -3216,20 +3221,20 @@ const ThemeConfig = () => {
                     width: '100%',
                     maxWidth: '1440px',
                     margin: '0 auto',
-                    padding: '16px 20px',
+                    padding: '20px 20px',
                     boxSizing: 'border-box',
                   }}
                 >
-                  <div className="mb-2">
-                    <h5 className="fw-bold text-dark m-0" style={{ fontSize: '20px' }}>
-                      Sản phẩm nổi bật
-                    </h5>
+                  {/* Section Title Centered */}
+                  <div className="text-center mb-3">
+                    <h4 className="fw-bold text-dark m-0" style={{ fontSize: '20px', letterSpacing: '0.5px' }}>
+                      SẢN PHẨM NỔI BẬT
+                    </h4>
                   </div>
 
-                  {/* Category Tabs */}
+                  {/* Category Tabs Styled as Pills */}
                   <div
-                    className="d-flex align-items-center gap-4 border-bottom mb-3 pb-0 overflow-auto"
-                    style={{ borderColor: '#e5e7eb' }}
+                    className="d-flex align-items-center justify-content-center gap-2 mb-3 pb-1 overflow-auto"
                   >
                     {FEATURED_TABS.map((tab, idx) => {
                       const isActive = selectedFeaturedTab === idx
@@ -3238,15 +3243,16 @@ const ThemeConfig = () => {
                           key={tab}
                           type="button"
                           onClick={() => setSelectedFeaturedTab(idx)}
-                          className="btn btn-link p-0 pb-2 text-decoration-none fw-bold"
+                          className="btn btn-sm text-decoration-none fw-bold"
                           style={{
-                            fontSize: '15px',
-                            color: isActive ? '#e20000' : '#4b5563',
-                            borderBottom: isActive
-                              ? '2.5px solid #e20000'
-                              : '2.5px solid transparent',
-                            borderRadius: 0,
+                            fontSize: '13px',
+                            backgroundColor: isActive ? '#2356c4' : '#f1f5f9',
+                            color: isActive ? '#ffffff' : '#475569',
+                            borderRadius: '20px',
+                            padding: '6px 18px',
+                            border: 'none',
                             whiteSpace: 'nowrap',
+                            transition: 'all 0.2s',
                           }}
                         >
                           {tab}
@@ -3255,6 +3261,7 @@ const ThemeConfig = () => {
                     })}
                   </div>
 
+                  {/* 5-Column Product Grid */}
                   <div
                     style={{
                       display: 'grid',
@@ -3265,17 +3272,16 @@ const ThemeConfig = () => {
                     {FEATURED_PRODUCTS.map((prod) => (
                       <div
                         key={prod.id}
-                        className="card border rounded-1 p-2 bg-white d-flex flex-column justify-content-between transition-all"
+                        className="card border rounded-2 p-2.5 bg-white d-flex flex-column justify-content-between transition-all shadow-sm"
                         style={{
-                          borderColor: '#f1f5f9',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                          minHeight: '310px',
+                          borderColor: '#e2e8f0',
+                          minHeight: '340px',
                         }}
                       >
                         <div>
                           <div
-                            className="position-relative w-100 mb-2 bg-white rounded d-flex align-items-center justify-content-center"
-                            style={{ height: '155px' }}
+                            className="position-relative w-100 mb-2 bg-white rounded d-flex align-items-center justify-content-center p-2"
+                            style={{ height: '160px' }}
                           >
                             <img
                               src={prod.img}
@@ -3289,8 +3295,8 @@ const ThemeConfig = () => {
                             className="text-dark mb-2"
                             style={{
                               fontSize: '13px',
-                              fontWeight: '400',
-                              lineHeight: '1.3',
+                              fontWeight: '500',
+                              lineHeight: '1.35',
                               minHeight: '36px',
                               display: '-webkit-box',
                               WebkitLineClamp: 2,
@@ -3317,10 +3323,10 @@ const ThemeConfig = () => {
                             <span
                               className="badge px-1 py-0.5 fw-bold"
                               style={{
-                                fontSize: '10.5px',
+                                fontSize: '11px',
                                 backgroundColor: '#dc2626',
                                 color: '#ffffff',
-                                borderRadius: '2px',
+                                borderRadius: '3px',
                               }}
                             >
                               {prod.discount}
@@ -3328,9 +3334,9 @@ const ThemeConfig = () => {
                           </div>
 
                           <div
-                            className="text-muted mb-2"
+                            className="text-muted mb-1.5"
                             style={{
-                              fontSize: '11px',
+                              fontSize: '12px',
                               textDecoration: 'line-through',
                               color: '#9ca3af',
                               minHeight: '16px',
@@ -3339,19 +3345,32 @@ const ThemeConfig = () => {
                             {prod.originalPrice}
                           </div>
 
+                          {/* Rating and Favorite */}
+                          <div className="d-flex align-items-center justify-content-between mb-2">
+                            <span
+                              className="badge bg-warning bg-opacity-10 text-warning px-1.5 py-0.5"
+                              style={{ fontSize: '11px', fontWeight: '600' }}
+                            >
+                              ★ {prod.rating || '5.0'}
+                            </span>
+                            <span style={{ color: '#2356c4', fontSize: '15px' }}>
+                              ♡
+                            </span>
+                          </div>
+
                           <button
                             type="button"
                             className="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-1.5 py-1.5"
                             style={{
-                              backgroundColor: '#F1F8FE',
-                              color: '#2a83e9',
-                              border: 'none',
+                              backgroundColor: '#ffffff',
+                              color: '#2356c4',
+                              border: '1px solid #2356c4',
                               fontSize: '13px',
-                              fontWeight: '500',
-                              borderRadius: '2px',
+                              fontWeight: '600',
+                              borderRadius: '4px',
                             }}
                           >
-                            <CIcon icon={cilCart} size="sm" /> Thêm vào giỏ
+                            <CIcon icon={cilCart} size="sm" /> Thêm vào giỏ hàng
                           </button>
                         </div>
                       </div>
