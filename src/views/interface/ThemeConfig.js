@@ -2994,7 +2994,9 @@ const ThemeConfig = () => {
                               style={{ fontSize: '13px', borderColor: '#e5e7eb' }}
                             >
                               <div style={{ color: '#374151' }}>
-                                Hotline: <strong className="text-dark fw-bold">1900 571 200</strong> - <strong className="text-dark fw-bold">0948 200 400</strong> (8h - 17h30, Thứ Hai - Thứ Bảy)
+                                Hotline: <strong className="text-dark fw-bold">1900 571 200</strong>{' '}
+                                - <strong className="text-dark fw-bold">0948 200 400</strong> (8h -
+                                17h30, Thứ Hai - Thứ Bảy)
                               </div>
                               <div>
                                 <span className="text-dark fw-normal cursor-pointer d-flex align-items-center gap-1">

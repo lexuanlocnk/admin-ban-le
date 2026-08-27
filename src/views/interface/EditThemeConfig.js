@@ -20,7 +20,7 @@ import {
   CRow,
   CSpinner,
 } from '@coreui/react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 import logoNk from '../../assets/images/logo/logo CN.png'
@@ -295,8 +295,9 @@ const DEFAULT_THEME_COLORS = {
 
 function EditThemeConfig() {
   const navigate = useNavigate()
+  const { id: paramId } = useParams()
   const [searchParams] = useSearchParams()
-  const themeId = searchParams.get('id')
+  const themeId = paramId || searchParams.get('id')
 
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)

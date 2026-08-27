@@ -258,9 +258,11 @@ const routes = [
   // Giao diện & Theme Chiến dịch
   { path: '/theme-custom/config', name: 'ThemeConfig', element: ThemeConfigView },
   { path: '/theme-custom/config/add', name: 'AddThemeConfig', element: AddThemeConfigView },
+  { path: '/theme-custom/config/edit', name: 'EditThemeConfig', element: EditThemeConfigView },
   { path: '/theme-custom/config/edit/:id', name: 'EditThemeConfig', element: EditThemeConfigView },
   { path: '/admin/theme', name: 'ThemeConfig', element: ThemeConfigView },
   { path: '/admin/theme/add', name: 'AddThemeConfig', element: AddThemeConfigView },
+  { path: '/admin/theme/edit', name: 'EditThemeConfig', element: EditThemeConfigView },
   { path: '/admin/theme/edit/:id', name: 'EditThemeConfig', element: EditThemeConfigView },
   { path: '/theme-custom/menu', name: 'MenuCategory', element: MenuCategory },
   { path: '/theme-custom/status', name: 'StaticPages', element: StaticPages },
