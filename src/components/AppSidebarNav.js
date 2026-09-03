@@ -36,22 +36,22 @@ export const AppSidebarNav = ({ items }) => {
                 <span className="nav-icon-bullet"></span>
               </span>
             )}
-        <div style={{ fontSize: '13.6px' }}>{name && name}</div>
-        {badge && <span className="shopify-nav-badge ms-auto">{badge.text}</span>}
+        <div className="nav-label-text flex-grow-1">{name && name}</div>
+        {badge && <span className="shopify-nav-badge">{badge.text}</span>}
         {name == 'QUẢN LÝ ĐƠN HÀNG' && dataNotSeen?.countOrderSum > 0 && (
-          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countOrderSum}</span>
+          <span className="shopify-nav-badge">{dataNotSeen?.countOrderSum}</span>
         )}
         {name == 'QUẢN LÝ TUYỂN DỤNG' && dataNotSeen?.countCandidates > 0 && (
-          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countCandidates}</span>
+          <span className="shopify-nav-badge">{dataNotSeen?.countCandidates}</span>
         )}
         {name == 'QUẢN LÝ COMMENT' && dataNotSeen?.countComment > 0 && (
-          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countComment}</span>
+          <span className="shopify-nav-badge">{dataNotSeen?.countComment}</span>
         )}
         {name == 'QUẢN LÝ LIÊN HỆ' && dataNotSeen?.countContactQoute > 0 && (
-          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countContactQoute}</span>
+          <span className="shopify-nav-badge">{dataNotSeen?.countContactQoute}</span>
         )}
         {name == 'QUẢN LÝ NEWSLETTER' && dataNotSeen?.countMailList > 0 && (
-          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countMailList}</span>
+          <span className="shopify-nav-badge">{dataNotSeen?.countMailList}</span>
         )}
       </>
     )
