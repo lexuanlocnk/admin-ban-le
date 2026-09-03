@@ -220,7 +220,7 @@ function EditProductDetail() {
           brand: data?.brand_id,
           stock: data?.stock,
           visible: data?.display,
-          star: data?.votes ? data?.votes : 5,
+          star: data?.votes && parseFloat(data.votes) > 0 ? data.votes : 5,
           type: data?.type,
         })
 
