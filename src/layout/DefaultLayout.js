@@ -1,7 +1,6 @@
 import React from 'react'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
-import { ToastContainer, Slide } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+
 
 import { OrderNotificationProvider } from '../context/OrderNotificationContext'
 import ScrollUpButton from '../components/scrollUp/ScrollUpButton'
@@ -15,19 +14,6 @@ const DefaultLayout = () => {
       }}
     >
       <ScrollUpButton />
-      <ToastContainer
-        position="top-center"
-        autoClose={2500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        transition={Slide}
-      />
       <OrderNotificationProvider>
         <AppSidebar />
         <div className="wrapper d-flex flex-column min-vh-100">

@@ -23,6 +23,16 @@ const Login = () => {
 
   const navigate = useNavigate()
 
+  const notify = (msg, type = 'error') => {
+    try {
+      if (type === 'success') toast.success(msg)
+      else if (type === 'warning') toast.warning(msg)
+      else toast.error(msg)
+    } catch (e) {
+      console.warn('Toast notification failed:', e)
+    }
+  }
+
   const triggerShake = () => {
     setIsShaking(true)
     setTimeout(() => setIsShaking(false), 500)
@@ -41,7 +51,7 @@ const Login = () => {
       const msg = 'Vui lòng nhập tên tài khoản!'
       setErrorMessage(msg)
       triggerShake()
-      toast.warning(msg)
+      notify(msg, 'warning')
       return
     }
 
@@ -49,7 +59,7 @@ const Login = () => {
       const msg = 'Vui lòng nhập mật khẩu!'
       setErrorMessage(msg)
       triggerShake()
-      toast.warning(msg)
+      notify(msg, 'warning')
       return
     }
 
@@ -67,7 +77,7 @@ const Login = () => {
         setErrorMessage('')
         localStorage.setItem('adminCN', res.data.token)
         localStorage.setItem('username', res.data.username)
-        toast.success('Đăng nhập thành công! Đang chuyển hướng...')
+        notify('Đăng nhập thành công! Đang chuyển hướng...', 'success')
         navigate('/')
       } else {
         // 2. Lấy thông báo lỗi từ backend
@@ -83,7 +93,7 @@ const Login = () => {
 
         setErrorMessage(errorMsg)
         triggerShake()
-        toast.error(errorMsg)
+        notify(errorMsg, 'error')
         console.error('Đăng nhập thất bại:', res?.data)
       }
     } catch (error) {
@@ -96,7 +106,7 @@ const Login = () => {
 
       setErrorMessage(errorMsg)
       triggerShake()
-      toast.error(errorMsg)
+      notify(errorMsg, 'error')
     } finally {
       setLoading(false)
     }
