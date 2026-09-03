@@ -1917,9 +1917,9 @@ function EditThemeConfig() {
                     },
                     {
                       type: 'dual',
-                      label: 'Thanh Header Topbar (Tin khuyến mãi, Showroom...)',
+                      label: 'Thanh Menu Topbar (Tin khuyến mãi, Sản phẩm, Tin tức...)',
                       key: 'header_menu',
-                      desc: 'Màu nền & màu chữ thanh điều hướng topbar trên cùng',
+                      desc: 'Màu nền & màu chữ thanh menu ngang trên cùng (Tin khuyến mãi, Trang SP, Cấu hình, Tin tức, Liên hệ)',
                       bgKey: 'header_menu_bg',
                       textKey: 'header_menu_text',
                       defaultBg: '#ffb716',
@@ -2649,8 +2649,10 @@ function EditThemeConfig() {
                             selectAndScrollToColor('header_menu')
                           }}
                         >
-                          <span className="fw-medium opacity-90" style={{ fontSize: '12px' }}>
-                            {'Tin khuyến mãi  |  Hệ thống showroom  |  Tra cứu đơn hàng  |  Hỗ trợ'}
+                          <span className="fw-medium opacity-90" style={{ fontSize: '11.5px' }}>
+                            {
+                              '🏷️ Tin khuyến mãi  |  📦 Trang sản phẩm  |  ⚙️ Cấu hình  |  📰 Tin tức  |  📞 Liên hệ'
+                            }
                           </span>
                         </div>
 
