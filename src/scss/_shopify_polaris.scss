@@ -1,0 +1,325 @@
+/* =========================================================
+   SHOPIFY POLARIS ADMIN THEME - CHÍNH NHÂN
+========================================================= */
+
+// 1. Root & Typography
+body, .wrapper {
+  background-color: #f6f6f7 !important;
+  color: #202223 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI',
+    Roboto, 'Helvetica Neue', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+// 2. Sidebar Navigation (Khớp 100% ảnh mẫu Shopify)
+.sidebar,
+.shopify-sidebar {
+  background-color: #ebebeb !important;
+  border-right: 1px solid #dedfe1 !important;
+  box-shadow: none !important;
+
+  .sidebar-header {
+    background-color: #ebebeb !important;
+    border-bottom: 1px solid #dedfe1 !important;
+    padding: 14px 16px !important;
+  }
+
+  .sidebar-footer {
+    background-color: #ebebeb !important;
+    border-top: 1px solid #dedfe1 !important;
+
+    .sidebar-toggler {
+      color: #5c5f62 !important;
+      background-color: transparent !important;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        color: #202223 !important;
+      }
+    }
+  }
+
+  .sidebar-nav {
+    padding: 8px !important;
+
+    .nav-item {
+      margin: 2px 0 !important;
+    }
+
+    .nav-link {
+      display: flex !important;
+      align-items: center !important;
+      border-radius: 8px !important;
+      padding: 7px 12px !important;
+      color: #303030 !important;
+      font-size: 13.5px !important;
+      font-weight: 500 !important;
+      transition: all 0.15s ease !important;
+      text-decoration: none !important;
+
+      .nav-icon {
+        color: #5c5f62 !important;
+        margin-right: 10px !important;
+        font-size: 16px !important;
+        transition: color 0.15s ease !important;
+      }
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        color: #1a1a1a !important;
+
+        .nav-icon {
+          color: #1a1a1a !important;
+        }
+      }
+
+      // Trạng thái ACTIVE (Như Launchpad trong ảnh mẫu!)
+      &.active {
+        background-color: #ffffff !important;
+        color: #1a1a1a !important;
+        font-weight: 600 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+
+        .nav-icon {
+          color: #1a1a1a !important;
+        }
+
+        .shopify-nav-badge {
+          background-color: #f1f2f4 !important;
+          color: #1a1a1a !important;
+        }
+      }
+    }
+
+    // Nav Group (Dropdown menu trong sidebar)
+    .nav-group-toggle {
+      border-radius: 8px !important;
+      color: #303030 !important;
+      font-size: 13.5px !important;
+      font-weight: 500 !important;
+      padding: 7px 12px !important;
+
+      .nav-icon {
+        color: #5c5f62 !important;
+        margin-right: 10px !important;
+      }
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        color: #1a1a1a !important;
+      }
+    }
+
+    .nav-group.show {
+      background-color: transparent !important;
+    }
+
+    .nav-group-items {
+      padding-left: 10px !important;
+      background-color: transparent !important;
+    }
+
+    .nav-title {
+      color: #6d7175 !important;
+      font-size: 11.5px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      padding: 12px 12px 4px !important;
+    }
+  }
+}
+
+// 3. Shopify Pill Badge (Như số 10 trong ảnh mẫu)
+.shopify-nav-badge {
+  display: inline-block;
+  background-color: #e4e4e4;
+  color: #303030;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  line-height: 1.2;
+  transition: all 0.15s ease;
+}
+
+// 4. Header / Topbar
+header.header {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e1e3e5 !important;
+  min-height: 56px !important;
+  box-shadow: none !important;
+
+  .header-toggler {
+    color: #5c5f62 !important;
+    &:hover {
+      color: #202223 !important;
+    }
+  }
+
+  .nav-link {
+    color: #202223 !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+  }
+}
+
+// 5. Cards (Khung nội dung chuẩn Shopify)
+.card {
+  background-color: #ffffff !important;
+  border: 1px solid #e1e3e5 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 20px !important;
+  overflow: hidden;
+
+  .card-header {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e1e3e5 !important;
+    padding: 14px 20px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #202223 !important;
+  }
+
+  .card-body {
+    padding: 20px !important;
+  }
+
+  .card-footer {
+    background-color: #fafbfb !important;
+    border-top: 1px solid #e1e3e5 !important;
+    padding: 12px 20px !important;
+  }
+}
+
+// 6. Tables (Bảng dữ liệu Shopify)
+.table {
+  color: #202223 !important;
+  border-color: #e1e3e5 !important;
+
+  thead th {
+    background-color: #f7f7f8 !important;
+    color: #4a4a4a !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border-bottom: 1px solid #e1e3e5 !important;
+    padding: 10px 14px !important;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    vertical-align: middle !important;
+    padding: 12px 14px !important;
+    border-bottom: 1px solid #f1f2f4 !important;
+    font-size: 13.5px !important;
+    color: #202223 !important;
+  }
+
+  tbody tr:hover {
+    background-color: #f6f6f7 !important;
+  }
+}
+
+// 7. Buttons (Shopify Polaris Button Styles)
+.btn-primary,
+.button-add {
+  background: #1a1a1a !important;
+  border-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  padding: 8px 16px !important;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.15s ease !important;
+
+  &:hover {
+    background: #303030 !important;
+    border-color: #303030 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  &:active {
+    background: #202223 !important;
+  }
+}
+
+.btn-secondary,
+.btn-light {
+  background: #ffffff !important;
+  border: 1px solid #c9cccf !important;
+  color: #202223 !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  padding: 8px 16px !important;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.15s ease !important;
+
+  &:hover {
+    background: #f6f6f7 !important;
+    border-color: #8c9196 !important;
+    color: #202223 !important;
+  }
+}
+
+.btn-success {
+  background: #008060 !important;
+  border-color: #008060 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+
+  &:hover {
+    background: #006e52 !important;
+    border-color: #006e52 !important;
+  }
+}
+
+.btn-danger {
+  border-radius: 8px !important;
+}
+
+// 8. Form Controls (Inputs, Selects)
+.form-control,
+.form-select {
+  border-radius: 8px !important;
+  border: 1px solid #8c9196 !important;
+  font-size: 13.5px !important;
+  color: #202223 !important;
+  padding: 8px 12px !important;
+  background-color: #ffffff !important;
+  transition: all 0.15s ease !important;
+
+  &:focus {
+    border-color: #303030 !important;
+    box-shadow: 0 0 0 1px #303030 !important;
+    outline: none !important;
+  }
+}
+
+// 9. Badges
+.badge {
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  font-size: 11.5px !important;
+  padding: 3px 8px !important;
+}
+
+// 10. Breadcrumbs
+.breadcrumb {
+  margin-bottom: 0 !important;
+  .breadcrumb-item {
+    font-size: 13px !important;
+    color: #6d7175 !important;
+    a {
+      color: #202223 !important;
+      text-decoration: none !important;
+      &:hover {
+        text-decoration: underline !important;
+      }
+    }
+  }
+}

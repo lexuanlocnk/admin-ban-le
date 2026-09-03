@@ -37,35 +37,21 @@ export const AppSidebarNav = ({ items }) => {
               </span>
             )}
         <div style={{ fontSize: '13.6px' }}>{name && name}</div>
-        {badge && (
-          <CBadge color={badge.color} className="ms-auto">
-            {badge.text}
-          </CBadge>
+        {badge && <span className="shopify-nav-badge ms-auto">{badge.text}</span>}
+        {name == 'QUẢN LÝ ĐƠN HÀNG' && dataNotSeen?.countOrderSum > 0 && (
+          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countOrderSum}</span>
         )}
-        {name == 'QUẢN LÝ ĐƠN HÀNG' && (
-          <CBadge color={'danger'} className="ms-auto" size="sm">
-            {dataNotSeen?.countOrderSum}
-          </CBadge>
+        {name == 'QUẢN LÝ TUYỂN DỤNG' && dataNotSeen?.countCandidates > 0 && (
+          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countCandidates}</span>
         )}
-        {name == 'QUẢN LÝ TUYỂN DỤNG' && (
-          <CBadge color={'danger'} className="ms-auto" size="sm">
-            {dataNotSeen?.countCandidates}
-          </CBadge>
+        {name == 'QUẢN LÝ COMMENT' && dataNotSeen?.countComment > 0 && (
+          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countComment}</span>
         )}
-        {name == 'QUẢN LÝ COMMENT' && (
-          <CBadge color={'danger'} className="ms-auto" size="sm">
-            {dataNotSeen?.countComment}
-          </CBadge>
+        {name == 'QUẢN LÝ LIÊN HỆ' && dataNotSeen?.countContactQoute > 0 && (
+          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countContactQoute}</span>
         )}
-        {name == 'QUẢN LÝ LIÊN HỆ' && (
-          <CBadge color={'danger'} className="ms-auto" size="sm">
-            {dataNotSeen?.countContactQoute}
-          </CBadge>
-        )}
-        {name == 'QUẢN LÝ NEWSLETTER' && (
-          <CBadge color={'danger'} className="ms-auto" size="sm">
-            {dataNotSeen?.countMailList}
-          </CBadge>
+        {name == 'QUẢN LÝ NEWSLETTER' && dataNotSeen?.countMailList > 0 && (
+          <span className="shopify-nav-badge ms-auto">{dataNotSeen?.countMailList}</span>
         )}
       </>
     )

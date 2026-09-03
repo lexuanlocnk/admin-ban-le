@@ -1,42 +1,30 @@
+/* =========================================================
+   SHOPIFY POLARIS LOGIN THEME - CHÍNH NHÂN ADMIN
+========================================================= */
+
 .login-page-wrapper {
   min-height: 100vh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.07) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.05) 0%, transparent 40%),
-              radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%);
-  background-color: #f8fafc;
+  background-color: #f6f6f7;
   position: relative;
-  overflow: hidden;
-  padding: 24px;
+  padding: 32px 20px;
   box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI',
+    Roboto, 'Helvetica Neue', sans-serif;
 }
 
-/* Subtle background grid mesh */
-.login-page-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
-  background-size: 32px 32px;
-  pointer-events: none;
-}
-
-/* Crisp White Card */
+/* Crisp Shopify White Card */
 .login-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
   background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.08), 0 0 1px rgba(15, 23, 42, 0.1) !important;
-  padding: 38px 34px !important;
+  border: 1px solid #e1e3e5 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 28px -6px rgba(0, 0, 0, 0.05) !important;
+  padding: 40px 32px 32px !important;
   position: relative;
   z-index: 2;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -48,11 +36,11 @@
 
 @keyframes loginShake {
   0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-8px); }
-  40%, 80% { transform: translateX(8px); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
 }
 
-/* Logo & Headers */
+/* Header & Logo */
 .login-logo-container {
   display: flex;
   flex-direction: column;
@@ -61,160 +49,174 @@
 }
 
 .login-logo-img {
-  max-width: 210px;
+  max-width: 195px;
   height: auto;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .login-title {
-  color: #1e293b;
+  color: #202223;
   font-size: 20px;
   font-weight: 700;
+  letter-spacing: -0.2px;
   margin-bottom: 4px;
   text-align: center;
 }
 
 .login-subtitle {
-  color: #64748b;
+  color: #6d7175;
   font-size: 13px;
   text-align: center;
   margin-bottom: 0;
 }
 
-/* Input Group Styles */
+/* Shopify Polaris Alert Banner */
+.login-alert-banner {
+  background: #fed3d1;
+  border: 1px solid #fec0be;
+  border-left: 4px solid #d72c0d;
+  color: #202223;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: loginFadeIn 0.25s ease;
+}
+
+.login-alert-banner svg {
+  color: #d72c0d;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+@keyframes loginFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form Groups */
 .login-input-group {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   position: relative;
 }
 
 .login-input-label {
   display: block;
   font-size: 13px;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 6px;
+  font-weight: 500;
+  color: #202223;
+  margin-bottom: 5px;
 }
 
 .login-input-wrapper {
   display: flex;
   align-items: center;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 2px 14px;
-  transition: all 0.25s ease;
+  background: #ffffff;
+  border: 1px solid #8c9196;
+  border-radius: 8px;
+  padding: 0 12px;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  min-height: 40px;
+}
+
+.login-input-wrapper:hover:not(:focus-within) {
+  border-color: #5c5f62;
 }
 
 .login-input-wrapper:focus-within {
-  border-color: #2563eb;
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  border-color: #303030 !important;
+  box-shadow: 0 0 0 2px #303030 !important;
 }
 
 .login-input-wrapper.is-error {
-  border-color: #ef4444 !important;
-  background: #fef2f2 !important;
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
+  border-color: #d72c0d !important;
+  background: #fff8f8 !important;
+  box-shadow: 0 0 0 2px rgba(215, 44, 13, 0.2) !important;
 }
 
 .login-input-icon {
-  color: #94a3b8;
-  font-size: 15px;
-  margin-right: 12px;
+  color: #6d7175;
+  font-size: 14px;
+  margin-right: 10px;
   flex-shrink: 0;
-  transition: color 0.25s ease;
+  transition: color 0.15s ease;
 }
 
 .login-input-wrapper:focus-within .login-input-icon {
-  color: #2563eb;
+  color: #202223;
 }
 
 .login-input-field {
   flex: 1;
   background: transparent !important;
   border: none !important;
-  color: #0f172a !important;
-  font-size: 14.5px !important;
-  padding: 10px 0 !important;
+  color: #202223 !important;
+  font-size: 14px !important;
+  padding: 8px 0 !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
 .login-input-field::placeholder {
-  color: #94a3b8 !important;
-  font-size: 13.5px;
+  color: #8c9196 !important;
+  font-size: 13px;
 }
 
 .login-password-toggle {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #6d7175;
   cursor: pointer;
-  padding: 6px;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
-  transition: color 0.2s ease;
+  font-size: 14px;
+  transition: color 0.15s ease;
 }
 
 .login-password-toggle:hover {
-  color: #334155;
+  color: #202223;
 }
 
-/* Submit button */
+/* Shopify Polaris Button */
 .login-submit-btn {
   width: 100%;
-  padding: 12px 20px !important;
-  font-size: 15px !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
-  border-radius: 12px !important;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-  border: none !important;
+  border-radius: 8px !important;
+  background: #1a1a1a !important;
+  border: 1px solid #1a1a1a !important;
   color: #ffffff !important;
-  box-shadow: 0 8px 18px -4px rgba(37, 99, 235, 0.35) !important;
-  transition: all 0.25s ease !important;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.15s ease !important;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .login-submit-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 22px -4px rgba(37, 99, 235, 0.45) !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
 }
 
 .login-submit-btn:active:not(:disabled) {
-  transform: translateY(0);
+  background: #202223 !important;
 }
 
 .login-submit-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Alert Banner (Light Mode) */
-.login-alert-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
-  border-radius: 12px;
-  padding: 11px 14px;
-  font-size: 13.5px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  animation: loginFadeIn 0.3s ease;
-}
-
-@keyframes loginFadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 .login-footer-text {
-  color: #94a3b8;
+  color: #8c9196;
   font-size: 12px;
   text-align: center;
   margin-top: 24px;
