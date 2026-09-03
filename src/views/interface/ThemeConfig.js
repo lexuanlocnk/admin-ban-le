@@ -2521,26 +2521,34 @@ const ThemeConfig = () => {
         </div>
 
         <div className="d-flex align-items-center gap-2 flex-wrap">
-          <div className="dropdown">
-            <button
-              className="btn btn-outline-primary btn-sm dropdown-toggle fw-semibold d-flex align-items-center gap-1.5"
-              type="button"
-              id="addBannerDropdown"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              onClick={() => handleAddBannerGroup(4)}
-            >
-              + Thêm nhóm banner mới
-            </button>
-          </div>
-
-          <CButton
-            color="primary"
-            className="text-white px-3.5 py-1.5 fw-semibold rounded shadow-sm d-flex align-items-center gap-1.5"
+          <button
+            type="button"
+            className="btn btn-outline-primary fw-semibold d-inline-flex align-items-center justify-content-center gap-1.5 shadow-2xs bg-white"
             style={{
-              backgroundColor: colors.primary || '#2356c4',
-              borderColor: colors.primary || '#2356c4',
+              height: '36px',
+              padding: '0 16px',
               fontSize: '13.5px',
+              borderRadius: '6px',
+              borderColor: colors.primary || '#2356c4',
+              color: colors.primary || '#2356c4',
+              whiteSpace: 'nowrap',
+            }}
+            onClick={() => handleAddBannerGroup(4)}
+          >
+            <span style={{ fontSize: '15px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+            <span>Thêm nhóm banner mới</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn fw-semibold text-white d-inline-flex align-items-center justify-content-center gap-1.5 shadow-sm border-0"
+            style={{
+              height: '36px',
+              padding: '0 18px',
+              fontSize: '13.5px',
+              borderRadius: '6px',
+              backgroundColor: colors.primary || '#2356c4',
+              whiteSpace: 'nowrap',
               opacity: isSaving ? 0.75 : 1,
             }}
             disabled={isSaving}
@@ -2558,7 +2566,7 @@ const ThemeConfig = () => {
             ) : (
               <span>Lưu thay đổi</span>
             )}
-          </CButton>
+          </button>
         </div>
       </div>
 
