@@ -14,6 +14,8 @@ body, .wrapper {
 // 2. Sidebar Navigation (Giao diện đen huyền bí, tương phản cao khớp ảnh mẫu)
 .sidebar,
 .shopify-sidebar {
+  --cui-sidebar-width: 275px !important;
+  width: 275px !important;
   background-color: #212631 !important;
   border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: none !important;
@@ -48,12 +50,13 @@ body, .wrapper {
 
     .nav-label-text {
       flex: 1 1 auto;
-      font-size: 13.5px !important;
+      font-size: 13px !important;
       font-weight: 600 !important;
       color: #f1f5f9 !important;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-right: 6px;
     }
 
     .nav-link {
