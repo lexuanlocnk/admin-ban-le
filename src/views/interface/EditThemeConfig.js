@@ -2123,9 +2123,9 @@ function EditThemeConfig() {
                     },
                     {
                       type: 'dual',
-                      label: 'Nút nổi (Hỗ trợ CSKH & Cuộn lên đầu trang)',
+                      label: 'Nút nổi (Cuộn lên đầu trang & Sản phẩm đã xem)',
                       key: 'float_btn',
-                      desc: 'Màu nền & biểu tượng nút nổi Hỗ trợ (Headset) và Cuộn lên đầu trang (^)',
+                      desc: 'Màu nền & biểu tượng nút nổi Cuộn lên đầu trang (^) và Sản phẩm đã xem (👁️)',
                       bgKey: 'float_btn_bg',
                       textKey: 'float_btn_text',
                       defaultBg: '#ffb716',
