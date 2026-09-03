@@ -2357,12 +2357,17 @@ const ThemeConfig = () => {
 
                       {isApplied && (
                         <div
-                          className="position-absolute bg-success text-white rounded-pill px-2.5 py-1 d-flex align-items-center gap-1 shadow fw-bold"
+                          className="position-absolute rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 shadow-sm fw-semibold"
                           style={{
                             top: '10px',
                             right: '10px',
                             fontSize: '11px',
                             zIndex: 2,
+                            backgroundColor: 'rgba(16, 185, 129, 0.92)',
+                            backdropFilter: 'blur(8px)',
+                            color: '#ffffff',
+                            border: '1px solid rgba(255, 255, 255, 0.25)',
+                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)',
                           }}
                         >
                           <CIcon icon={cilCheckCircle} size="sm" />
@@ -2397,16 +2402,28 @@ const ThemeConfig = () => {
 
                       <div className="d-flex align-items-center justify-content-between pt-2 border-top border-light">
                         {isApplied ? (
-                          <span
-                            className="text-success fw-bold d-flex align-items-center gap-2"
-                            style={{ fontSize: '13.5px' }}
+                          <div
+                            className="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill shadow-xs"
+                            style={{
+                              backgroundColor: '#ecfdf5',
+                              color: '#059669',
+                              border: '1px solid #a7f3d0',
+                              fontSize: '12.5px',
+                              fontWeight: '600',
+                            }}
                           >
                             <span
-                              className="bg-success rounded-circle flex-shrink-0"
-                              style={{ width: '8px', height: '8px', display: 'inline-block' }}
+                              className="rounded-circle flex-shrink-0"
+                              style={{
+                                width: '7px',
+                                height: '7px',
+                                backgroundColor: '#10b981',
+                                boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.25)',
+                                display: 'inline-block',
+                              }}
                             ></span>
                             <span>Đang áp dụng</span>
-                          </span>
+                          </div>
                         ) : (
                           <CButton
                             color="light"
