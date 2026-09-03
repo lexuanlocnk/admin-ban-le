@@ -3,11 +3,12 @@
 ========================================================= */
 
 // 1. Root & Typography
-body, .wrapper {
+body,
+.wrapper {
   background-color: #f6f6f7 !important;
   color: #0f172a !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI',
-    Roboto, 'Helvetica Neue', sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto,
+    'Helvetica Neue', sans-serif !important;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -203,7 +204,7 @@ body, .wrapper {
   align-items: center !important;
   justify-content: center !important;
   background-color: #ef4444 !important; /* Đỏ thông báo rực rỡ, sắc nét */
-  color: #ffffff !important;             /* Chữ trắng đậm tương phản 100% */
+  color: #ffffff !important; /* Chữ trắng đậm tương phản 100% */
   font-size: 11px !important;
   font-weight: 700 !important;
   padding: 2px 7px !important;
@@ -396,5 +397,23 @@ header.header {
         text-decoration: underline !important;
       }
     }
+  }
+}
+
+// 11. Color Inputs (Tràn hết ô, màu sắc trực quan)
+input[type='color'] {
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0 !important;
+    border-radius: 4px !important;
+  }
+
+  &::-webkit-color-swatch {
+    border: none !important;
+    border-radius: 4px !important;
   }
 }

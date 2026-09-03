@@ -2272,29 +2272,41 @@ function EditThemeConfig() {
                                 NỀN
                               </span>
                               <div className="d-flex align-items-center gap-1">
-                                <input
-                                  type="color"
-                                  value={currentBg}
-                                  className="form-control form-control-color border-0 p-0 rounded cursor-pointer shadow-2xs"
-                                  style={{ width: '28px', height: '28px', flexShrink: 0 }}
-                                  onChange={(e) => {
-                                    setActiveColorPreviewTab(item.key)
-                                    const val = e.target.value
-                                    const newCols = {
-                                      ...(editingTheme?.colors || {}),
-                                      [item.bgKey]: val,
-                                      ...(item.bgKey === 'header_menu_bg'
-                                        ? { secondary: val }
-                                        : {}),
-                                    }
-                                    setEditingTheme((prev) => ({ ...prev, colors: newCols }))
+                                <div
+                                  className="position-relative rounded border shadow-2xs cursor-pointer overflow-hidden"
+                                  style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    backgroundColor: currentBg,
+                                    borderColor: '#cbd5e1',
+                                    flexShrink: 0,
                                   }}
-                                />
+                                  title="Bấm để chọn màu nền"
+                                >
+                                  <input
+                                    type="color"
+                                    value={currentBg}
+                                    className="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
+                                    style={{ cursor: 'pointer' }}
+                                    onChange={(e) => {
+                                      setActiveColorPreviewTab(item.key)
+                                      const val = e.target.value
+                                      const newCols = {
+                                        ...(editingTheme?.colors || {}),
+                                        [item.bgKey]: val,
+                                        ...(item.bgKey === 'header_menu_bg'
+                                          ? { secondary: val }
+                                          : {}),
+                                      }
+                                      setEditingTheme((prev) => ({ ...prev, colors: newCols }))
+                                    }}
+                                  />
+                                </div>
                                 <CFormInput
                                   size="sm"
                                   value={currentBg}
                                   className="font-monospace text-uppercase shadow-2xs p-1"
-                                  style={{ width: '68px', fontSize: '11px', textAlign: 'center' }}
+                                  style={{ width: '76px', fontSize: '11px', textAlign: 'center' }}
                                   onChange={(e) => {
                                     setActiveColorPreviewTab(item.key)
                                     const val = e.target.value
@@ -2320,26 +2332,38 @@ function EditThemeConfig() {
                                 CHỮ
                               </span>
                               <div className="d-flex align-items-center gap-1">
-                                <input
-                                  type="color"
-                                  value={currentText}
-                                  className="form-control form-control-color border-0 p-0 rounded cursor-pointer shadow-2xs"
-                                  style={{ width: '28px', height: '28px', flexShrink: 0 }}
-                                  onChange={(e) => {
-                                    setActiveColorPreviewTab(item.key)
-                                    const val = e.target.value
-                                    const newCols = {
-                                      ...(editingTheme?.colors || {}),
-                                      [item.textKey]: val,
-                                    }
-                                    setEditingTheme((prev) => ({ ...prev, colors: newCols }))
+                                <div
+                                  className="position-relative rounded border shadow-2xs cursor-pointer overflow-hidden"
+                                  style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    backgroundColor: currentText,
+                                    borderColor: '#cbd5e1',
+                                    flexShrink: 0,
                                   }}
-                                />
+                                  title="Bấm để chọn màu chữ"
+                                >
+                                  <input
+                                    type="color"
+                                    value={currentText}
+                                    className="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
+                                    style={{ cursor: 'pointer' }}
+                                    onChange={(e) => {
+                                      setActiveColorPreviewTab(item.key)
+                                      const val = e.target.value
+                                      const newCols = {
+                                        ...(editingTheme?.colors || {}),
+                                        [item.textKey]: val,
+                                      }
+                                      setEditingTheme((prev) => ({ ...prev, colors: newCols }))
+                                    }}
+                                  />
+                                </div>
                                 <CFormInput
                                   size="sm"
                                   value={currentText}
                                   className="font-monospace text-uppercase shadow-2xs p-1"
-                                  style={{ width: '68px', fontSize: '11px', textAlign: 'center' }}
+                                  style={{ width: '76px', fontSize: '11px', textAlign: 'center' }}
                                   onChange={(e) => {
                                     setActiveColorPreviewTab(item.key)
                                     const val = e.target.value
@@ -2444,27 +2468,39 @@ function EditThemeConfig() {
                           className="d-flex align-items-center gap-2"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <input
-                            type="color"
-                            value={currentColor}
-                            className="form-control form-control-color border-0 p-0 rounded cursor-pointer shadow-2xs"
-                            style={{ width: '32px', height: '32px', flexShrink: 0 }}
-                            onChange={(e) => {
-                              setActiveColorPreviewTab(item.key)
-                              const val = e.target.value
-                              const newCols = {
-                                ...(editingTheme?.colors || {}),
-                                [item.key]: val,
-                                ...(item.key === 'category_menu' ? { hotline: val } : {}),
-                              }
-                              setEditingTheme((prev) => ({ ...prev, colors: newCols }))
+                          <div
+                            className="position-relative rounded border shadow-2xs cursor-pointer overflow-hidden"
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              backgroundColor: currentColor,
+                              borderColor: '#cbd5e1',
+                              flexShrink: 0,
                             }}
-                          />
+                            title="Bấm để chọn màu"
+                          >
+                            <input
+                              type="color"
+                              value={currentColor}
+                              className="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
+                              style={{ cursor: 'pointer' }}
+                              onChange={(e) => {
+                                setActiveColorPreviewTab(item.key)
+                                const val = e.target.value
+                                const newCols = {
+                                  ...(editingTheme?.colors || {}),
+                                  [item.key]: val,
+                                  ...(item.key === 'category_menu' ? { hotline: val } : {}),
+                                }
+                                setEditingTheme((prev) => ({ ...prev, colors: newCols }))
+                              }}
+                            />
+                          </div>
                           <CFormInput
                             size="sm"
                             value={currentColor}
-                            className="font-monospace text-uppercase shadow-2xs"
-                            style={{ width: '80px', fontSize: '11.5px', textAlign: 'center' }}
+                            className="font-monospace text-uppercase shadow-2xs p-1"
+                            style={{ width: '76px', fontSize: '11px', textAlign: 'center' }}
                             onChange={(e) => {
                               setActiveColorPreviewTab(item.key)
                               const val = e.target.value
