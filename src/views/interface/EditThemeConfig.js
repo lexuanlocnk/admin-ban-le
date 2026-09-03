@@ -279,8 +279,10 @@ const DEFAULT_THEME_COLORS = {
   cart_btn_text: '#2a83e9',
   contact_btn_bg: '#E5E7EB',
   contact_btn_text: '#6b7280',
-  detail_cart_bg: '#ffb716',
-  detail_cart_text: '#111827',
+  detail_buy_bg: '#2356c4',
+  detail_buy_text: '#ffffff',
+  detail_cart_bg: '#ffffff',
+  detail_cart_text: '#2356c4',
   hover_title_bg: '#2356c4',
   hover_title_text: '#ffffff',
   hover_spec_bg: '#ffd51c',
@@ -316,6 +318,7 @@ function EditThemeConfig() {
     if (key === 'cart_btn') targetKey = 'cart_btn'
     if (key === 'contact_btn') targetKey = 'contact_btn'
     if (key === 'header_menu') targetKey = 'header_menu'
+    if (key === 'detail_buy') targetKey = 'detail_buy'
     if (key === 'detail_cart') targetKey = 'detail_cart'
     if (key === 'hover_title' || key === 'hover_spec' || key === 'hover_card')
       targetKey = 'hover_title'
@@ -2018,13 +2021,37 @@ function EditThemeConfig() {
                     },
                     {
                       type: 'dual',
-                      label: 'Nút Thêm vào giỏ (Trang chi tiết SP)',
+                      label: 'Nút Mua ngay (Trang chi tiết SP & Thanh dính)',
+                      key: 'detail_buy',
+                      desc: 'Màu nền & màu chữ nút MUA NGAY trên trang chi tiết sản phẩm và thanh dính',
+                      bgKey: 'detail_buy_bg',
+                      textKey: 'detail_buy_text',
+                      defaultBg: '#2356c4',
+                      defaultText: '#ffffff',
+                      icon: (
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+                        </svg>
+                      ),
+                    },
+                    {
+                      type: 'dual',
+                      label: 'Nút Thêm vào giỏ (Trang chi tiết SP & Thanh dính)',
                       key: 'detail_cart',
-                      desc: 'Màu nền & màu chữ nút Thêm vào giỏ lớn trang chi tiết SP',
+                      desc: 'Màu nền & màu chữ/viền nút THÊM VÀO GIỎ trên trang chi tiết sản phẩm và thanh dính',
                       bgKey: 'detail_cart_bg',
                       textKey: 'detail_cart_text',
-                      defaultBg: '#ffb716',
-                      defaultText: '#111827',
+                      defaultBg: '#ffffff',
+                      defaultText: '#2356c4',
                       icon: (
                         <svg
                           width="18"
@@ -2581,8 +2608,9 @@ function EditThemeConfig() {
                         { id: 'category_menu', label: 'Danh mục & Hotline' },
                         { id: 'cart_btn', label: 'Nút Card SP' },
                         { id: 'hover_card', label: 'Popup xem nhanh' },
-                        { id: 'detail_cart', label: 'Nút Chi tiết' },
-                        { id: 'primary', label: 'Nút Mua ngay' },
+                        { id: 'detail_buy', label: 'Nút Mua ngay (Chi tiết)' },
+                        { id: 'detail_cart', label: 'Nút Thêm giỏ (Chi tiết)' },
+                        { id: 'primary', label: 'Màu chính' },
                         { id: 'footer', label: 'Footer' },
                         { id: 'float_btn', label: 'Nút nổi' },
                         { id: 'active_border', label: 'Viền khi chọn' },
@@ -2973,38 +3001,86 @@ function EditThemeConfig() {
                             <span>📞 Liên hệ (Card)</span>
                           </button>
 
-                          {/* Nút Thêm vào giỏ Chi tiết */}
-                          <button
-                            type="button"
-                            className="btn fw-bold py-2 px-3 rounded-2 flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 shadow-2xs border-0"
-                            style={{
-                              backgroundColor: editingTheme?.colors?.detail_cart_bg || '#ffb716',
-                              color: editingTheme?.colors?.detail_cart_text || '#111827',
-                              fontSize: '12.5px',
-                              outline:
-                                activeColorPreviewTab === 'detail_cart'
-                                  ? '2px dashed #2563eb'
-                                  : undefined,
-                              outlineOffset: '2px',
-                              cursor: 'pointer',
-                            }}
-                            title="Nhấp để cấu hình Nút Thêm vào giỏ (Chi tiết SP)"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              selectAndScrollToColor('detail_cart')
-                            }}
-                          >
-                            <span>🛒 Thêm vào giỏ (Chi tiết)</span>
-                          </button>
+                          {/* Khung 2 nút Trang chi tiết SP: MUA NGAY & THÊM VÀO GIỎ */}
+                          <div className="w-100 d-flex gap-2">
+                            {/* Nút MUA NGAY Chi tiết */}
+                            <button
+                              type="button"
+                              className="btn fw-bold py-2 px-2.5 rounded-2 flex-grow-1 d-flex flex-column align-items-center justify-content-center shadow-2xs border-0"
+                              style={{
+                                backgroundColor:
+                                  editingTheme?.colors?.detail_buy_bg ||
+                                  editingTheme?.colors?.primary ||
+                                  '#2356c4',
+                                color:
+                                  editingTheme?.colors?.detail_buy_text ||
+                                  editingTheme?.colors?.primary_text ||
+                                  '#ffffff',
+                                fontSize: '12px',
+                                outline:
+                                  activeColorPreviewTab === 'detail_buy'
+                                    ? '2px dashed #2563eb'
+                                    : undefined,
+                                outlineOffset: '2px',
+                                cursor: 'pointer',
+                              }}
+                              title="Nhấp để cấu hình Nút Mua ngay (Chi tiết SP)"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                selectAndScrollToColor('detail_buy')
+                              }}
+                            >
+                              <span>⚡ MUA NGAY</span>
+                              <small style={{ fontSize: '9px', opacity: 0.9 }}>
+                                (Chi tiết SP)
+                              </small>
+                            </button>
 
-                          {/* Nút Mua ngay / Thanh toán */}
+                            {/* Nút THÊM VÀO GIỎ Chi tiết */}
+                            <button
+                              type="button"
+                              className="btn fw-bold py-2 px-2.5 rounded-2 flex-grow-1 d-flex flex-column align-items-center justify-content-center shadow-2xs"
+                              style={{
+                                backgroundColor:
+                                  editingTheme?.colors?.detail_cart_bg || '#ffffff',
+                                color:
+                                  editingTheme?.colors?.detail_cart_text ||
+                                  editingTheme?.colors?.primary ||
+                                  '#2356c4',
+                                border: `1.5px solid ${
+                                  editingTheme?.colors?.detail_cart_text ||
+                                  editingTheme?.colors?.primary ||
+                                  '#2356c4'
+                                }`,
+                                fontSize: '12px',
+                                outline:
+                                  activeColorPreviewTab === 'detail_cart'
+                                    ? '2px dashed #2563eb'
+                                    : undefined,
+                                outlineOffset: '2px',
+                                cursor: 'pointer',
+                              }}
+                              title="Nhấp để cấu hình Nút Thêm vào giỏ (Chi tiết SP)"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                selectAndScrollToColor('detail_cart')
+                              }}
+                            >
+                              <span>🛒 THÊM VÀO GIỎ</span>
+                              <small style={{ fontSize: '9px', opacity: 0.85 }}>
+                                (Chi tiết SP)
+                              </small>
+                            </button>
+                          </div>
+
+                          {/* Nút Thanh toán / Mua nhanh */}
                           <button
                             type="button"
                             className="btn fw-bold py-2 px-3 rounded-2 flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 shadow-2xs border-0"
                             style={{
                               backgroundColor: editingTheme?.colors?.primary || '#2356c4',
                               color: editingTheme?.colors?.primary_text || '#ffffff',
-                              fontSize: '12.5px',
+                              fontSize: '12px',
                               outline:
                                 activeColorPreviewTab === 'primary'
                                   ? '2px dashed #2563eb'
@@ -3012,13 +3088,13 @@ function EditThemeConfig() {
                               outlineOffset: '2px',
                               cursor: 'pointer',
                             }}
-                            title="Nhấp để cấu hình Màu chính (Mua ngay / Thanh toán)"
+                            title="Nhấp để cấu hình Màu chính (Đặt hàng / Thanh toán)"
                             onClick={(e) => {
                               e.stopPropagation()
                               selectAndScrollToColor('primary')
                             }}
                           >
-                            <span>⚡ Mua ngay / Thanh toán</span>
+                            <span>💳 Đặt hàng / Thanh toán</span>
                           </button>
 
                           {/* Nút Xem tất cả */}
