@@ -30,7 +30,7 @@ const AppSidebar = () => {
   return (
     <CSidebar
       className="border-end shopify-sidebar"
-      colorScheme="light"
+      colorScheme="dark"
       position="fixed"
       unfoldable={unfoldable}
       visible={sidebarShow}
@@ -40,7 +40,7 @@ const AppSidebar = () => {
     >
       <CSidebarHeader
         className="border-bottom"
-        style={{ justifyContent: 'center', padding: '14px 16px', background: '#ebebeb' }}
+        style={{ justifyContent: 'center', padding: '14px 16px', background: '#212631' }}
       >
         <CSidebarBrand to="/">
           <Link to={'/'}>
@@ -50,6 +50,7 @@ const AppSidebar = () => {
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
+          dark
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>

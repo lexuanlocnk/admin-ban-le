@@ -11,29 +11,29 @@ body, .wrapper {
   -webkit-font-smoothing: antialiased;
 }
 
-// 2. Sidebar Navigation (Độ tương phản cao, thoáng đãng, chuẩn Shopify)
+// 2. Sidebar Navigation (Giao diện đen huyền bí, tương phản cao khớp ảnh mẫu)
 .sidebar,
 .shopify-sidebar {
-  background-color: #f1f3f5 !important;
-  border-right: 1px solid #e2e8f0 !important;
+  background-color: #212631 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: none !important;
 
   .sidebar-header {
-    background-color: #f1f3f5 !important;
-    border-bottom: 1px solid #e2e8f0 !important;
+    background-color: #212631 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     padding: 16px 16px !important;
   }
 
   .sidebar-footer {
-    background-color: #f1f3f5 !important;
-    border-top: 1px solid #e2e8f0 !important;
+    background-color: #212631 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 
     .sidebar-toggler {
-      color: #475569 !important;
+      color: #94a3b8 !important;
       background-color: transparent !important;
       &:hover {
-        background-color: rgba(0, 0, 0, 0.06) !important;
-        color: #0f172a !important;
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
       }
     }
   }
@@ -50,7 +50,7 @@ body, .wrapper {
       flex: 1 1 auto;
       font-size: 13.5px !important;
       font-weight: 600 !important;
-      color: #0f172a !important;
+      color: #f1f5f9 !important;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -61,15 +61,15 @@ body, .wrapper {
       align-items: center !important;
       border-radius: 8px !important;
       padding: 9px 12px !important;
-      min-height: 40px !important;
-      color: #0f172a !important;
+      min-height: 42px !important;
+      color: #f1f5f9 !important;
       font-size: 13.5px !important;
       font-weight: 600 !important;
       transition: all 0.15s ease !important;
       text-decoration: none !important;
 
       .nav-icon {
-        color: #334155 !important;
+        color: #94a3b8 !important;
         margin-right: 12px !important;
         font-size: 17px !important;
         flex-shrink: 0 !important;
@@ -77,28 +77,32 @@ body, .wrapper {
       }
 
       &:hover {
-        background-color: #e2e8f0 !important;
-        color: #000000 !important;
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
 
         .nav-icon {
-          color: #000000 !important;
-        }
-      }
-
-      // Trạng thái ACTIVE (Nổi bật, nền trắng, viền nhẹ chuẩn Launchpad Shopify)
-      &.active {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        font-weight: 700 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
-        border: 1px solid #e2e8f0 !important;
-
-        .nav-icon {
-          color: #0f172a !important;
+          color: #ffffff !important;
         }
 
         .nav-label-text {
-          color: #0f172a !important;
+          color: #ffffff !important;
+        }
+      }
+
+      // Trạng thái ACTIVE (Nổi bật trên nền đen)
+      &.active {
+        background-color: rgba(255, 255, 255, 0.14) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+        .nav-icon {
+          color: #ffffff !important;
+        }
+
+        .nav-label-text {
+          color: #ffffff !important;
           font-weight: 700 !important;
         }
       }
@@ -109,15 +113,15 @@ body, .wrapper {
       display: flex !important;
       align-items: center !important;
       border-radius: 8px !important;
-      color: #0f172a !important;
+      color: #f1f5f9 !important;
       font-size: 13.5px !important;
       font-weight: 600 !important;
       padding: 9px 12px !important;
-      min-height: 40px !important;
+      min-height: 42px !important;
       cursor: pointer;
 
       .nav-icon {
-        color: #334155 !important;
+        color: #94a3b8 !important;
         margin-right: 12px !important;
         font-size: 17px !important;
         flex-shrink: 0 !important;
@@ -125,20 +129,24 @@ body, .wrapper {
 
       &::after {
         margin-left: 0 !important;
-        color: #64748b !important;
+        color: #94a3b8 !important;
         flex-shrink: 0 !important;
       }
 
       &:hover {
-        background-color: #e2e8f0 !important;
-        color: #000000 !important;
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
 
         .nav-icon {
-          color: #000000 !important;
+          color: #ffffff !important;
+        }
+
+        .nav-label-text {
+          color: #ffffff !important;
         }
 
         &::after {
-          color: #0f172a !important;
+          color: #ffffff !important;
         }
       }
     }
@@ -151,30 +159,31 @@ body, .wrapper {
       padding-left: 14px !important;
       margin-top: 3px !important;
       margin-bottom: 5px !important;
-      background-color: transparent !important;
+      background-color: rgba(0, 0, 0, 0.15) !important;
+      border-radius: 8px !important;
 
       .nav-link {
-        padding: 7px 12px !important;
-        min-height: 36px !important;
+        padding: 8px 12px !important;
+        min-height: 38px !important;
         font-size: 13px !important;
-        color: #334155 !important;
+        color: #cbd5e1 !important;
 
         &:hover {
-          background-color: #e2e8f0 !important;
-          color: #000000 !important;
+          background-color: rgba(255, 255, 255, 0.08) !important;
+          color: #ffffff !important;
         }
 
         &.active {
-          background-color: #ffffff !important;
-          color: #0f172a !important;
-          font-weight: 600 !important;
+          background-color: rgba(255, 255, 255, 0.18) !important;
+          color: #ffffff !important;
+          font-weight: 700 !important;
         }
       }
     }
 
     // Tiêu đề nhóm phân cách (TỔNG QUAN, KINH DOANH,...)
     .nav-title {
-      color: #475569 !important;
+      color: #8a93a2 !important;
       font-size: 11.5px !important;
       font-weight: 700 !important;
       text-transform: uppercase !important;
@@ -185,12 +194,12 @@ body, .wrapper {
   }
 }
 
-// 3. Huy hiệu số lượng MÀU ĐỎ NỔI BẬT (Thông báo 10, 15,...)
+// 3. Huy hiệu số lượng MÀU ĐỎ NỔI BẬT TRÊN NỀN ĐEN (Thông báo 10, 15,...)
 .shopify-nav-badge {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background-color: #dc2626 !important; /* Đỏ thông báo rực rỡ, sắc nét */
+  background-color: #ef4444 !important; /* Đỏ thông báo rực rỡ, sắc nét */
   color: #ffffff !important;             /* Chữ trắng đậm tương phản 100% */
   font-size: 11px !important;
   font-weight: 700 !important;
@@ -201,7 +210,7 @@ body, .wrapper {
   margin-right: 8px !important;
   min-width: 20px !important;
   text-align: center !important;
-  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.4) !important;
+  box-shadow: 0 1px 4px rgba(239, 68, 68, 0.5) !important;
   flex-shrink: 0 !important;
 }
 
