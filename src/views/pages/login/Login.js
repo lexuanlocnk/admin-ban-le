@@ -76,10 +76,10 @@ const Login = () => {
           (res?.data?.mess === 'username'
             ? 'Sai tên đăng nhập! Vui lòng kiểm tra lại.'
             : res?.data?.mess === 'pass'
-            ? 'Sai mật khẩu! Vui lòng kiểm tra lại.'
-            : res?.data?.mess === 'wrong passwordSecurity'
-            ? 'Sai khóa bảo mật! Vui lòng kiểm tra lại.'
-            : 'Tài khoản hoặc mật khẩu không chính xác!')
+              ? 'Sai mật khẩu! Vui lòng kiểm tra lại.'
+              : res?.data?.mess === 'wrong passwordSecurity'
+                ? 'Sai khóa bảo mật! Vui lòng kiểm tra lại.'
+                : 'Tài khoản hoặc mật khẩu không chính xác!')
 
         setErrorMessage(errorMsg)
         triggerShake()
