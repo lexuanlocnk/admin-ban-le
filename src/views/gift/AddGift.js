@@ -121,7 +121,7 @@ function AddGift() {
     <CContainer>
       <CRow className="mb-3">
         <CCol>
-          <h3>THÊM QÙA TẶNG</h3>
+          <h3>THÊM QUÀ TẶNG</h3>
         </CCol>
         <CCol md={{ span: 4, offset: 4 }}>
           <div className="d-flex justify-content-end">

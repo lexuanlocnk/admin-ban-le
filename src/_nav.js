@@ -155,7 +155,7 @@ const _nav = [
   {
     // Quản lý quà tặng kèm theo sản phẩm
     component: CNavGroup,
-    name: 'QUẢN LÝ QÙA TẶNG',
+    name: 'QUẢN LÝ QUÀ TẶNG',
     to: '/gift',
     icon: <CIcon icon={cilGift} customClassName="nav-icon" />,
     items: [{ component: CNavItem, name: 'Quản lý quà tặng', to: '/gift' }],

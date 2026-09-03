@@ -165,7 +165,7 @@ function EditGift() {
         <>
           <CRow className="mb-3">
             <CCol>
-              <h3>CẬP NHẬT QÙA TẶNG</h3>
+              <h3>CẬP NHẬT QUÀ TẶNG</h3>
             </CCol>
             <CCol md={{ span: 4, offset: 4 }}>
               <div className="d-flex justify-content-end">
