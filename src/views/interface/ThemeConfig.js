@@ -2899,15 +2899,21 @@ const ThemeConfig = () => {
                             </button>
                           ))}
 
-                          <div className="d-flex align-items-center bg-light border rounded overflow-hidden ms-1 shadow-2xs">
+                          <div
+                            className="d-flex align-items-center border rounded overflow-hidden ms-1 shadow-2xs"
+                            style={{ height: '26px', background: '#fff' }}
+                          >
                             <button
                               type="button"
-                              className="btn btn-xs btn-light px-1.5 py-0 fw-bold border-end text-secondary"
+                              className="btn btn-xs btn-light fw-bold border-end text-secondary"
                               style={{
-                                height: '22px',
-                                fontSize: '13px',
-                                lineHeight: 1,
+                                height: '26px',
+                                width: '26px',
+                                fontSize: '16px',
+                                lineHeight: '1',
+                                padding: '0',
                                 cursor: 'pointer',
+                                flexShrink: 0,
                               }}
                               onClick={(e) => {
                                 e.preventDefault()
@@ -2920,8 +2926,13 @@ const ThemeConfig = () => {
                             </button>
                             <input
                               type="text"
-                              className="form-control form-control-sm border-0 py-0 px-1 text-center fw-bold bg-white"
-                              style={{ width: '48px', height: '22px', fontSize: '11px' }}
+                              className="form-control border-0 py-0 px-1 text-center fw-bold bg-white"
+                              style={{
+                                width: '44px',
+                                height: '26px',
+                                fontSize: '12px',
+                                flexShrink: 0,
+                              }}
                               value={currentHeight}
                               onChange={(e) => {
                                 const val = parseInt(e.target.value.replace(/\D/g, ''), 10)
@@ -2931,12 +2942,15 @@ const ThemeConfig = () => {
                             />
                             <button
                               type="button"
-                              className="btn btn-xs btn-light px-1.5 py-0 fw-bold border-start text-secondary"
+                              className="btn btn-xs btn-light fw-bold border-start text-secondary"
                               style={{
-                                height: '22px',
-                                fontSize: '13px',
-                                lineHeight: 1,
+                                height: '26px',
+                                width: '26px',
+                                fontSize: '16px',
+                                lineHeight: '1',
+                                padding: '0',
                                 cursor: 'pointer',
+                                flexShrink: 0,
                               }}
                               onClick={(e) => {
                                 e.preventDefault()
@@ -2947,10 +2961,19 @@ const ThemeConfig = () => {
                             >
                               +
                             </button>
+                            <span
+                              className="text-muted border-start d-flex align-items-center justify-content-center"
+                              style={{
+                                fontSize: '10px',
+                                height: '26px',
+                                padding: '0 6px',
+                                background: '#f8f9fa',
+                                flexShrink: 0,
+                              }}
+                            >
+                              px
+                            </span>
                           </div>
-                          <span className="text-muted ms-0.5" style={{ fontSize: '10px' }}>
-                            px
-                          </span>
                         </div>
                       </>
                     )
