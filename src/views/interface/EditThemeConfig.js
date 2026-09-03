@@ -3031,9 +3031,7 @@ function EditThemeConfig() {
                               }}
                             >
                               <span>⚡ MUA NGAY</span>
-                              <small style={{ fontSize: '9px', opacity: 0.9 }}>
-                                (Chi tiết SP)
-                              </small>
+                              <small style={{ fontSize: '9px', opacity: 0.9 }}>(Chi tiết SP)</small>
                             </button>
 
                             {/* Nút THÊM VÀO GIỎ Chi tiết */}
@@ -3067,9 +3065,7 @@ function EditThemeConfig() {
                               }}
                             >
                               <span>🛒 THÊM VÀO GIỎ</span>
-                              <small style={{ fontSize: '9px', opacity: 0.85 }}>
-                                (Chi tiết SP)
-                              </small>
+                              <small style={{ fontSize: '9px', opacity: 0.85 }}>(Chi tiết SP)</small>
                             </button>
                           </div>
 
