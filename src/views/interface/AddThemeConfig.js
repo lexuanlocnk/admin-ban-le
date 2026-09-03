@@ -2022,8 +2022,7 @@ function AddThemeConfig() {
                               type="button"
                               className="btn fw-bold py-2 px-2.5 rounded-2 flex-grow-1 d-flex flex-column align-items-center justify-content-center shadow-2xs"
                               style={{
-                                backgroundColor:
-                                  newTheme?.colors?.detail_cart_bg || '#ffffff',
+                                backgroundColor: newTheme?.colors?.detail_cart_bg || '#ffffff',
                                 color:
                                   newTheme?.colors?.detail_cart_text ||
                                   newTheme?.colors?.primary ||
@@ -2048,7 +2047,9 @@ function AddThemeConfig() {
                               }}
                             >
                               <span>🛒 THÊM VÀO GIỎ</span>
-                              <small style={{ fontSize: '9px', opacity: 0.85 }}>(Chi tiết SP)</small>
+                              <small style={{ fontSize: '9px', opacity: 0.85 }}>
+                                (Chi tiết SP)
+                              </small>
                             </button>
                           </div>
 
