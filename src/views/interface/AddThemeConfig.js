@@ -235,6 +235,8 @@ const DEFAULT_THEME_COLORS = {
   primary_text: '#ffffff',
   header_menu_bg: '#ffb716',
   header_menu_text: '#ffffff',
+  header_main_bg: '#ffffff',
+  header_main_text: '#222222',
   cart_btn_bg: '#F1F8FE',
   cart_btn_text: '#2a83e9',
   contact_btn_bg: '#E5E7EB',
@@ -924,6 +926,31 @@ function AddThemeConfig() {
                     },
                     {
                       type: 'dual',
+                      label: 'Header chính (Nền Logo, Tìm kiếm & Giỏ hàng)',
+                      key: 'header_main',
+                      desc: 'Màu nền & màu chữ/icon khu vực Header chứa Logo, ô tìm kiếm và các nút tài khoản, giỏ hàng',
+                      bgKey: 'header_main_bg',
+                      textKey: 'header_main_text',
+                      defaultBg: '#ffffff',
+                      defaultText: '#222222',
+                      icon: (
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect width="20" height="14" x="2" y="5" rx="2" />
+                          <line x1="2" x2="22" y1="10" y2="10" />
+                        </svg>
+                      ),
+                    },
+                    {
+                      type: 'dual',
                       label: 'Nút Thêm vào giỏ (Card sản phẩm)',
                       key: 'cart_btn',
                       desc: 'Màu nền & màu chữ nút Thêm vào giỏ trên thẻ danh sách',
@@ -1533,6 +1560,7 @@ function AddThemeConfig() {
                       {[
                         { id: 'all', label: 'Tất cả' },
                         { id: 'header_menu', label: 'Header Topbar' },
+                        { id: 'header_main', label: 'Header chính' },
                         { id: 'category_menu', label: 'Danh mục & Hotline' },
                         { id: 'cart_btn', label: 'Nút Card SP' },
                         { id: 'hover_card', label: 'Popup xem nhanh' },
@@ -1578,6 +1606,7 @@ function AddThemeConfig() {
                     {/* KHỐI 1: THANH MENU TOPBAR & SUB-HEADER */}
                     {(activeColorPreviewTab === 'all' ||
                       activeColorPreviewTab === 'header_menu' ||
+                      activeColorPreviewTab === 'header_main' ||
                       activeColorPreviewTab === 'secondary' ||
                       activeColorPreviewTab === 'category_menu') && (
                       <div className="rounded-2 overflow-hidden border shadow-xs bg-white">
@@ -1606,6 +1635,56 @@ function AddThemeConfig() {
                           <span className="fw-medium opacity-90" style={{ fontSize: '12px' }}>
                             {'Tin khuyến mãi  |  Hệ thống showroom  |  Tra cứu đơn hàng  |  Hỗ trợ'}
                           </span>
+                        </div>
+
+                        {/* Thanh Header Chính: Logo, Tìm kiếm, Tài khoản, Giỏ hàng */}
+                        <div
+                          className="p-2.5 px-3 d-flex align-items-center justify-content-between gap-3 border-top position-relative"
+                          style={{
+                            backgroundColor: newTheme?.colors?.header_main_bg || '#ffffff',
+                            color: newTheme?.colors?.header_main_text || '#222222',
+                            outline:
+                              activeColorPreviewTab === 'header_main'
+                                ? '2px dashed #2563eb'
+                                : undefined,
+                            outlineOffset: '-2px',
+                            transition: 'all 0.2s',
+                            cursor: 'pointer',
+                          }}
+                          title="Nhấp để chuyển tới cấu hình Header chính"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            selectAndScrollToColor('header_main')
+                          }}
+                        >
+                          <div className="d-flex align-items-center gap-1.5 fw-bold text-nowrap">
+                            <span style={{ fontSize: '16px' }}>🏬</span>
+                            <span style={{ fontSize: '13.5px', letterSpacing: '-0.3px' }}>
+                              CHÍNH NHÂN
+                            </span>
+                          </div>
+
+                          <div
+                            className="flex-grow-1 d-flex align-items-center px-2 py-1 rounded-2 border bg-white shadow-2xs"
+                            style={{
+                              maxWidth: '220px',
+                              fontSize: '11px',
+                              color: '#94a3b8',
+                              borderColor: '#cbd5e1',
+                            }}
+                          >
+                            <span className="me-1">🔍</span>
+                            <span>Tìm kiếm sản phẩm...</span>
+                          </div>
+
+                          <div
+                            className="d-flex align-items-center gap-2.5"
+                            style={{ color: newTheme?.colors?.header_main_text || '#222222' }}
+                          >
+                            <span style={{ fontSize: '11px' }}>👤 Đăng nhập</span>
+                            <span style={{ fontSize: '11px' }}>🔔 Thông báo</span>
+                            <span style={{ fontSize: '11px' }}>🛒 Giỏ hàng (1)</span>
+                          </div>
                         </div>
 
                         {/* Thanh Sub-header: Danh mục sản phẩm & Hotline */}
