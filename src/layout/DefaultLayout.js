@@ -1,7 +1,6 @@
 import React from 'react'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
 
-
 import { OrderNotificationProvider } from '../context/OrderNotificationContext'
 import ScrollUpButton from '../components/scrollUp/ScrollUpButton'
 
