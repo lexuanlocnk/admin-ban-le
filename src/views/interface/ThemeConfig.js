@@ -2357,30 +2357,52 @@ const ThemeConfig = () => {
 
                       {isApplied && (
                         <div
-                          className="position-absolute rounded-pill px-2.5 py-1 d-flex align-items-center gap-1.5 shadow-sm fw-semibold"
+                          className="position-absolute d-inline-flex align-items-center gap-1.5 shadow"
                           style={{
                             top: '10px',
                             right: '10px',
-                            fontSize: '11px',
-                            zIndex: 2,
-                            backgroundColor: 'rgba(16, 185, 129, 0.92)',
-                            backdropFilter: 'blur(8px)',
+                            padding: '4px 11px',
+                            fontSize: '11.5px',
+                            fontWeight: '600',
                             color: '#ffffff',
-                            border: '1px solid rgba(255, 255, 255, 0.25)',
-                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)',
+                            background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                            border: '1px solid rgba(255, 255, 255, 0.35)',
+                            borderRadius: '20px',
+                            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.45)',
+                            letterSpacing: '0.02em',
+                            zIndex: 2,
                           }}
                         >
-                          <CIcon icon={cilCheckCircle} size="sm" />
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
                           <span>Đang áp dụng</span>
                         </div>
                       )}
                       {!isApplied && isEditing && (
                         <div
-                          className="position-absolute bg-primary text-white rounded-pill px-2.5 py-1 d-flex align-items-center gap-1 shadow fw-semibold"
+                          className="position-absolute d-inline-flex align-items-center gap-1.5 shadow"
                           style={{
                             top: '10px',
                             right: '10px',
-                            fontSize: '11px',
+                            padding: '4px 11px',
+                            fontSize: '11.5px',
+                            fontWeight: '600',
+                            color: '#ffffff',
+                            background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+                            border: '1px solid rgba(255, 255, 255, 0.35)',
+                            borderRadius: '20px',
+                            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.45)',
+                            letterSpacing: '0.02em',
                             zIndex: 2,
                           }}
                         >
