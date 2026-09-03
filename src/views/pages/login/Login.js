@@ -107,7 +107,6 @@ const Login = () => {
       <div className={`login-card ${isShaking ? 'shake' : ''}`}>
         <div className="login-logo-container">
           <img src={Logo} alt="Chính Nhân Logo" className="login-logo-img" />
-          <span className="login-badge">Admin Portal</span>
           <h1 className="login-title">Hệ Thống Quản Trị</h1>
           <p className="login-subtitle">Vui lòng đăng nhập để tiếp tục</p>
         </div>
@@ -170,9 +169,9 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Ô nhập Khóa bảo mật (nếu có) */}
+          {/* Ô nhập Khóa bảo mật */}
           <div className="login-input-group mb-4">
-            <label className="login-input-label">Khóa bảo mật (nếu có)</label>
+            <label className="login-input-label">Khóa bảo mật</label>
             <div className="login-input-wrapper">
               <FaShieldAlt className="login-input-icon" />
               <input
@@ -214,7 +213,7 @@ const Login = () => {
         </CForm>
 
         <p className="login-footer-text">
-          © {new Date().getFullYear()} Công ty Vi Tính Chính Nhân. All rights reserved.
+          © {new Date().getFullYear()} Công ty Công Nghệ Chính Nhân. All rights reserved.
         </p>
       </div>
     </div>
