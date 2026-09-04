@@ -1647,17 +1647,33 @@ const ThemeConfig = () => {
     )
   }
 
+  const resolveImageUrl = (url) => {
+    if (!url || typeof url !== 'string') return ''
+    const trimmed = url.trim()
+    if (
+      trimmed.startsWith('http://') ||
+      trimmed.startsWith('https://') ||
+      trimmed.startsWith('blob:') ||
+      trimmed.startsWith('data:')
+    ) {
+      return trimmed
+    }
+    const cleanPath = trimmed.replace(/^\/?uploads\/?/, '').replace(/^\//, '')
+    return `https://api.chinhnhan.com/uploads/${cleanPath}`
+  }
+
   const ThemeBackgroundWatermarkLayer = ({ background, themeCode }) => {
     const presetKey = background?.preset || themeCode || 'none'
     const opacityVal = background?.opacity !== undefined ? background.opacity : 0.15
 
     if (background?.customUrl) {
+      const bgUrl = resolveImageUrl(background.customUrl)
       return (
         <div
           aria-hidden="true"
           className="position-absolute top-0 start-0 w-100 h-100 select-none pe-none"
           style={{
-            backgroundImage: `url(${background.customUrl})`,
+            backgroundImage: `url("${bgUrl}")`,
             backgroundRepeat: background.mode === 'cover' ? 'no-repeat' : 'repeat',
             backgroundSize: background.mode === 'cover' ? 'cover' : 'auto',
             backgroundPosition: 'center top',
@@ -2105,7 +2121,7 @@ const ThemeConfig = () => {
             {bgConfig.customUrl && (
               <div className="mt-2 d-flex align-items-center gap-2">
                 <img
-                  src={bgConfig.customUrl}
+                  src={resolveImageUrl(bgConfig.customUrl)}
                   alt="Custom Background"
                   className="rounded border"
                   style={{ width: '60px', height: '40px', objectFit: 'cover' }}

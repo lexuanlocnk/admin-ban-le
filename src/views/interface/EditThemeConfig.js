@@ -133,18 +133,34 @@ const PRESET_BACKGROUNDS = [
   },
 ]
 
+const resolveImageUrl = (url) => {
+  if (!url || typeof url !== 'string') return ''
+  const trimmed = url.trim()
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('blob:') ||
+    trimmed.startsWith('data:')
+  ) {
+    return trimmed
+  }
+  const cleanPath = trimmed.replace(/^\/?uploads\/?/, '').replace(/^\//, '')
+  return `https://api.chinhnhan.com/uploads/${cleanPath}`
+}
+
 // Watermark Layer Component for Live Pattern Preview
 const ThemeBackgroundWatermarkLayer = ({ background, themeCode }) => {
   const presetKey = background?.preset || themeCode || 'none'
   const opacityVal = background?.opacity !== undefined ? background.opacity : 0.15
 
   if (background?.customUrl) {
+    const bgUrl = resolveImageUrl(background.customUrl)
     return (
       <div
         aria-hidden="true"
         className="position-absolute top-0 start-0 w-100 h-100 pointer-events-none select-none"
         style={{
-          backgroundImage: `url(${background.customUrl})`,
+          backgroundImage: `url("${bgUrl}")`,
           backgroundRepeat: background.mode === 'cover' ? 'no-repeat' : 'repeat',
           backgroundSize: background.mode === 'cover' ? 'cover' : 'auto',
           backgroundPosition: 'center top',
@@ -308,6 +324,7 @@ function EditThemeConfig() {
   const [editingTheme, setEditingTheme] = useState(null)
   const [allThemes, setAllThemes] = useState([])
   const [localOpacity, setLocalOpacity] = useState(0.15)
+  const [isUploadingBg, setIsUploadingBg] = useState(false)
   const [activeMainTab, setActiveMainTab] = useState('overview')
   const [activePreviewTab, setActivePreviewTab] = useState('home')
   const [activeOrnamentTab, setActiveOrnamentTab] = useState('header_logo')
@@ -381,11 +398,18 @@ function EditThemeConfig() {
             particles: item.theme_config?.background?.preset || item.code || 'none',
             ornaments: item.theme_config?.background?.preset || item.code || 'none',
           },
-          background: item.theme_config?.background || {
-            preset: item.theme_config?.decorations?.particles || 'none',
-            customUrl: '',
-            opacity: 0.15,
-            mode: 'pattern',
+          background: {
+            preset:
+              item.theme_config?.background?.preset ||
+              item.theme_config?.decorations?.particles ||
+              'none',
+            customUrl: item.theme_config?.background?.customUrl || '',
+            opacity:
+              item.theme_config?.background?.opacity !== undefined
+                ? item.theme_config.background.opacity
+                : 0.15,
+            mode: item.theme_config?.background?.mode || 'pattern',
+            ...(item.theme_config?.background || {}),
           },
           banners: item.theme_config?.banners || {},
           sections: item.theme_config?.sections || [],
@@ -509,7 +533,7 @@ function EditThemeConfig() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Immediately show local preview in Live Preview box
+    // Immediately show local preview in Live Preview box and thumbnail
     const localUrl = URL.createObjectURL(file)
     setEditingTheme((prev) => ({
       ...prev,
@@ -520,6 +544,7 @@ function EditThemeConfig() {
       },
     }))
 
+    setIsUploadingBg(true)
     try {
       const uploadedUrl = await uploadFileToServer(file)
       if (uploadedUrl) {
@@ -535,7 +560,21 @@ function EditThemeConfig() {
       }
     } catch (err) {
       toast.error('Lỗi upload ảnh nền: ' + err.message)
+    } finally {
+      setIsUploadingBg(false)
+      if (e.target) e.target.value = ''
     }
+  }
+
+  const handleRemoveCustomBg = () => {
+    setEditingTheme((prev) => ({
+      ...prev,
+      background: {
+        ...(prev?.background || {}),
+        customUrl: '',
+      },
+    }))
+    toast.info('Đã xóa ảnh nền tùy chỉnh')
   }
 
   const handleMainLogoUpload = async (e) => {
@@ -698,11 +737,22 @@ function EditThemeConfig() {
               editingTheme?.decorations?.footerOrnamentPosition || 'both-corners',
             footerOrnamentSize: editingTheme?.decorations?.footerOrnamentSize || '48px',
           },
-          background: editingTheme.background || {
-            preset: editingTheme.decorations?.particles || 'none',
-            customUrl: '',
-            opacity: localOpacity,
-            mode: 'pattern',
+          background: {
+            preset:
+              editingTheme?.background?.preset ||
+              editingTheme?.decorations?.particles ||
+              'none',
+            customUrl: editingTheme?.background?.customUrl || '',
+            opacity:
+              localOpacity !== undefined
+                ? localOpacity
+                : (editingTheme?.background?.opacity ?? 0.15),
+            mode: editingTheme?.background?.mode || 'pattern',
+            ...(editingTheme?.background || {}),
+            opacity:
+              localOpacity !== undefined
+                ? localOpacity
+                : (editingTheme?.background?.opacity ?? 0.15),
           },
           banners: editingTheme.banners || {},
           sections: editingTheme.sections || [],
@@ -1775,14 +1825,88 @@ function EditThemeConfig() {
                 </div>
 
                 {currentPreset === 'custom' && (
-                  <div className="mb-3.5">
-                    <label
-                      className="form-label fw-bold text-dark mb-1"
-                      style={{ fontSize: '14px' }}
-                    >
-                      Tải ảnh nền riêng
-                    </label>
-                    <CFormInput type="file" onChange={handleCustomBgUpload} />
+                  <div className="mb-3.5 p-3 rounded border bg-light">
+                    <div className="d-flex align-items-center justify-content-between mb-2">
+                      <label
+                        className="form-label fw-bold text-dark mb-0"
+                        style={{ fontSize: '14px' }}
+                      >
+                        Tải ảnh nền riêng
+                      </label>
+                      {editingTheme?.background?.customUrl && (
+                        <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                          ✓ Đã có ảnh nền
+                        </span>
+                      )}
+                    </div>
+
+                    {isUploadingBg && (
+                      <div className="alert alert-info py-2 px-3 mb-2.5 d-flex align-items-center gap-2" style={{ fontSize: '13px' }}>
+                        <CSpinner size="sm" color="primary" />
+                        <span>Đang xử lý tối ưu và tải ảnh nền lên hệ thống...</span>
+                      </div>
+                    )}
+
+                    {/* Preview card if customUrl is present */}
+                    {editingTheme?.background?.customUrl ? (
+                      <div className="p-2.5 bg-white rounded border mb-2.5 d-flex align-items-center gap-3 shadow-2xs">
+                        <div
+                          className="rounded border overflow-hidden d-flex align-items-center justify-content-center flex-shrink-0"
+                          style={{
+                            width: '80px',
+                            height: '55px',
+                            backgroundColor: '#f8fafc',
+                            backgroundImage: `url("${resolveImageUrl(editingTheme.background.customUrl)}")`,
+                            backgroundSize: 'contain',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                          }}
+                        />
+                        <div className="flex-grow-1 overflow-hidden">
+                          <div className="fw-semibold text-dark text-truncate" style={{ fontSize: '13px' }}>
+                            {editingTheme.background.customUrl.split('/').pop() || 'Ảnh nền tùy chỉnh'}
+                          </div>
+                          <div className="text-muted text-truncate font-monospace" style={{ fontSize: '11px' }}>
+                            {resolveImageUrl(editingTheme.background.customUrl)}
+                          </div>
+                        </div>
+                        <div className="d-flex align-items-center gap-1.5 flex-shrink-0">
+                          <label
+                            className="btn btn-sm btn-outline-primary mb-0 d-flex align-items-center gap-1 cursor-pointer"
+                            style={{ fontSize: '12px' }}
+                          >
+                            <span>Đổi ảnh</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="d-none"
+                              onChange={handleCustomBgUpload}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
+                            style={{ fontSize: '12px' }}
+                            onClick={handleRemoveCustomBg}
+                            title="Xóa ảnh nền này"
+                          >
+                            <span>Xóa</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <CFormInput
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCustomBgUpload}
+                          disabled={isUploadingBg}
+                        />
+                        <small className="text-muted d-block mt-1">
+                          Hỗ trợ ảnh PNG, JPG, WEBP, SVG. Nên chọn ảnh hoa văn trong suốt hoặc nền sáng để website đẹp mắt.
+                        </small>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1850,12 +1974,29 @@ function EditThemeConfig() {
               <CCol md={6}>
                 {/* LIVE WATERMARK PREVIEW */}
                 <div>
-                  <label
-                    className="form-label fw-bold text-dark mb-2 d-block"
-                    style={{ fontSize: '14px' }}
-                  >
-                    Xem trước trực tiếp hoa văn nền (Live Preview)
-                  </label>
+                  <div className="d-flex align-items-center justify-content-between mb-2">
+                    <label
+                      className="form-label fw-bold text-dark mb-0"
+                      style={{ fontSize: '14px' }}
+                    >
+                      Xem trước trực tiếp hoa văn nền (Live Preview)
+                    </label>
+                    {currentPreset === 'custom' ? (
+                      editingTheme?.background?.customUrl ? (
+                        <span className="badge bg-success-subtle text-success border border-success-subtle">
+                          Ảnh tùy chỉnh (Opacity: {Math.round((localOpacity || 0.15) * 100)}%)
+                        </span>
+                      ) : (
+                        <span className="badge bg-warning-subtle text-warning border border-warning-subtle">
+                          Chưa có ảnh nền
+                        </span>
+                      )
+                    ) : (
+                      <span className="badge bg-light text-dark border">
+                        Mẫu: {PRESET_BACKGROUNDS.find((p) => p.key === currentPreset)?.name || 'Mặc định'} ({Math.round((localOpacity || 0.15) * 100)}%)
+                      </span>
+                    )}
+                  </div>
                   <div
                     className="rounded border overflow-hidden position-relative shadow-xs"
                     style={{
@@ -1864,9 +2005,25 @@ function EditThemeConfig() {
                     }}
                   >
                     <ThemeBackgroundWatermarkLayer
-                      background={{ ...bgConfig, opacity: localOpacity }}
+                      background={{
+                        ...bgConfig,
+                        preset: currentPreset,
+                        customUrl: editingTheme?.background?.customUrl,
+                        opacity: localOpacity,
+                        mode: editingTheme?.background?.mode || 'pattern',
+                      }}
                       themeCode={editingTheme?.code}
                     />
+                    {currentPreset === 'custom' && !editingTheme?.background?.customUrl && (
+                      <div className="d-flex flex-column align-items-center justify-content-center h-100 text-muted p-3 text-center">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-2 text-secondary opacity-50">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <span style={{ fontSize: '13px' }}>Vui lòng tải ảnh nền riêng lên để xem trước</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CCol>
