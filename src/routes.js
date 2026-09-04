@@ -524,8 +524,22 @@ const routes = [
   { path: '/hire/post/add', exact: true, name: 'AddHirePost', element: AddHirePost },
   { path: '/hire/post/edit', exact: true, name: 'EditHirePost', element: EditHirePost },
   { path: '/hire/candidate-cv', exact: true, name: 'CandidateCV', element: CandidateCV },
+  { path: '/hire/candidate-CV', exact: true, name: 'CandidateCV', element: CandidateCV },
+  { path: '/hire/candidate', exact: true, name: 'CandidateCV', element: CandidateCV },
   {
     path: '/hire/candidate-cv/edit',
+    exact: true,
+    name: 'EditCandidateCV',
+    element: EditCandidateCV,
+  },
+  {
+    path: '/hire/candidate-CV/edit',
+    exact: true,
+    name: 'EditCandidateCV',
+    element: EditCandidateCV,
+  },
+  {
+    path: '/hire/candidate/edit',
     exact: true,
     name: 'EditCandidateCV',
     element: EditCandidateCV,

@@ -44,6 +44,9 @@ export const AppSidebarNav = ({ items }) => {
         {name == 'QUẢN LÝ TUYỂN DỤNG' && dataNotSeen?.countCandidates > 0 && (
           <span className="shopify-nav-badge">{dataNotSeen?.countCandidates}</span>
         )}
+        {name == 'Quản lý hồ sơ ứng tuyển' && dataNotSeen?.countCandidates > 0 && (
+          <span className="shopify-nav-badge">{dataNotSeen?.countCandidates}</span>
+        )}
         {name == 'QUẢN LÝ COMMENT' && dataNotSeen?.countComment > 0 && (
           <span className="shopify-nav-badge">{dataNotSeen?.countComment}</span>
         )}
