@@ -2196,7 +2196,10 @@ const ThemeConfig = () => {
                       type="radio"
                       name={`bgMode_${currentTheme.id || 'new'}`}
                       id={`bgMode_stretch_${currentTheme.id || 'new'}`}
-                      checked={bgConfig.mode === 'stretch' || (!bgConfig.mode && currentPreset === 'custom')}
+                      checked={
+                        bgConfig.mode === 'stretch' ||
+                        (!bgConfig.mode && currentPreset === 'custom')
+                      }
                       onChange={() => handleBgModeChange('stretch')}
                     />
                     <label

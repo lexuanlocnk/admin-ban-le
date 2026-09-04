@@ -769,20 +769,14 @@ function EditThemeConfig() {
           },
           background: {
             preset:
-              editingTheme?.background?.preset ||
-              editingTheme?.decorations?.particles ||
-              'none',
+              editingTheme?.background?.preset || editingTheme?.decorations?.particles || 'none',
             customUrl: editingTheme?.background?.customUrl || '',
             opacity:
-              localOpacity !== undefined
-                ? localOpacity
-                : (editingTheme?.background?.opacity ?? 0.15),
+              localOpacity !== undefined ? localOpacity : editingTheme?.background?.opacity ?? 0.15,
             mode: editingTheme?.background?.mode || 'pattern',
             ...(editingTheme?.background || {}),
             opacity:
-              localOpacity !== undefined
-                ? localOpacity
-                : (editingTheme?.background?.opacity ?? 0.15),
+              localOpacity !== undefined ? localOpacity : editingTheme?.background?.opacity ?? 0.15,
           },
           banners: editingTheme.banners || {},
           sections: editingTheme.sections || [],
@@ -1871,7 +1865,10 @@ function EditThemeConfig() {
                     </div>
 
                     {isUploadingBg && (
-                      <div className="alert alert-info py-2 px-3 mb-2.5 d-flex align-items-center gap-2" style={{ fontSize: '13px' }}>
+                      <div
+                        className="alert alert-info py-2 px-3 mb-2.5 d-flex align-items-center gap-2"
+                        style={{ fontSize: '13px' }}
+                      >
                         <CSpinner size="sm" color="primary" />
                         <span>Đang xử lý tối ưu và tải ảnh nền lên hệ thống...</span>
                       </div>
@@ -1893,10 +1890,17 @@ function EditThemeConfig() {
                           }}
                         />
                         <div className="flex-grow-1 overflow-hidden">
-                          <div className="fw-semibold text-dark text-truncate" style={{ fontSize: '13px' }}>
-                            {editingTheme.background.customUrl.split('/').pop() || 'Ảnh nền tùy chỉnh'}
+                          <div
+                            className="fw-semibold text-dark text-truncate"
+                            style={{ fontSize: '13px' }}
+                          >
+                            {editingTheme.background.customUrl.split('/').pop() ||
+                              'Ảnh nền tùy chỉnh'}
                           </div>
-                          <div className="text-muted text-truncate font-monospace" style={{ fontSize: '11px' }}>
+                          <div
+                            className="text-muted text-truncate font-monospace"
+                            style={{ fontSize: '11px' }}
+                          >
                             {resolveImageUrl(editingTheme.background.customUrl)}
                           </div>
                         </div>
@@ -1933,7 +1937,8 @@ function EditThemeConfig() {
                           disabled={isUploadingBg}
                         />
                         <small className="text-muted d-block mt-1">
-                          Hỗ trợ ảnh PNG, JPG, WEBP, SVG. Nên chọn ảnh hoa văn trong suốt hoặc nền sáng để website đẹp mắt.
+                          Hỗ trợ ảnh PNG, JPG, WEBP, SVG. Nên chọn ảnh hoa văn trong suốt hoặc nền
+                          sáng để website đẹp mắt.
                         </small>
                       </div>
                     )}
@@ -2041,7 +2046,10 @@ function EditThemeConfig() {
                 <div className="mb-3">
                   {currentPreset === 'custom' ? (
                     <>
-                      <label className="form-label fw-bold text-dark mb-1" style={{ fontSize: '14px' }}>
+                      <label
+                        className="form-label fw-bold text-dark mb-1"
+                        style={{ fontSize: '14px' }}
+                      >
                         Kiểu hiển thị ảnh nền (Display Style)
                       </label>
                       <CFormSelect
@@ -2056,22 +2064,36 @@ function EditThemeConfig() {
                           }))
                         }
                       >
-                        <option value="stretch">Vừa vặn toàn bộ khung hình (100% x 100% - Thấy đủ 4 góc đèn lồng &amp; thỏ)</option>
-                        <option value="cover">Phủ kín toàn màn hình (Cover - Giữ nguyên tỷ lệ ảnh)</option>
-                        <option value="fit_width">Vừa chiều rộng màn hình (Fit Width - 100% Auto)</option>
+                        <option value="stretch">
+                          Vừa vặn toàn bộ khung hình (100% x 100% - Thấy đủ 4 góc đèn lồng &amp;
+                          thỏ)
+                        </option>
+                        <option value="cover">
+                          Phủ kín toàn màn hình (Cover - Giữ nguyên tỷ lệ ảnh)
+                        </option>
+                        <option value="fit_width">
+                          Vừa chiều rộng màn hình (Fit Width - 100% Auto)
+                        </option>
                         <option value="tile">Lặp lại dạng ô gạch (Tile Pattern)</option>
                       </CFormSelect>
                       <small className="text-muted d-block mt-1">
-                        {(!editingTheme?.background?.mode || editingTheme?.background?.mode === 'stretch') && (
+                        {(!editingTheme?.background?.mode ||
+                          editingTheme?.background?.mode === 'stretch') && (
                           <span className="text-success fw-semibold">
-                            ✓ Khuyên dùng cho ảnh có hoa văn ở 4 góc: Cố định toàn màn hình, không bị cắt góc, thấy đầy đủ 100% thỏ và đèn lồng.
+                            ✓ Khuyên dùng cho ảnh có hoa văn ở 4 góc: Cố định toàn màn hình, không
+                            bị cắt góc, thấy đầy đủ 100% thỏ và đèn lồng.
                           </span>
                         )}
                         {editingTheme?.background?.mode === 'cover' && (
-                          <span>Ảnh phóng to phủ kín chiều ngang và dọc màn hình theo tỷ lệ chuẩn.</span>
+                          <span>
+                            Ảnh phóng to phủ kín chiều ngang và dọc màn hình theo tỷ lệ chuẩn.
+                          </span>
                         )}
                         {editingTheme?.background?.mode === 'fit_width' && (
-                          <span>Ảnh vừa khít 100% chiều ngang màn hình, chiều cao tự động theo tỷ lệ ảnh.</span>
+                          <span>
+                            Ảnh vừa khít 100% chiều ngang màn hình, chiều cao tự động theo tỷ lệ
+                            ảnh.
+                          </span>
                         )}
                         {editingTheme?.background?.mode === 'tile' && (
                           <span>Ảnh nền lặp lại nhiều lần dạng ô gạch.</span>
@@ -2080,7 +2102,10 @@ function EditThemeConfig() {
                     </>
                   ) : (
                     <>
-                      <label className="form-label fw-bold text-dark mb-1" style={{ fontSize: '14px' }}>
+                      <label
+                        className="form-label fw-bold text-dark mb-1"
+                        style={{ fontSize: '14px' }}
+                      >
                         Chế độ áp dụng hoa văn
                       </label>
                       <CFormSelect
@@ -2126,7 +2151,10 @@ function EditThemeConfig() {
                       )
                     ) : (
                       <span className="badge bg-light text-dark border">
-                        Mẫu: {PRESET_BACKGROUNDS.find((p) => p.key === currentPreset)?.name || 'Mặc định'} ({Math.round((localOpacity || 0.15) * 100)}%)
+                        Mẫu:{' '}
+                        {PRESET_BACKGROUNDS.find((p) => p.key === currentPreset)?.name ||
+                          'Mặc định'}{' '}
+                        ({Math.round((localOpacity || 0.15) * 100)}%)
                       </span>
                     )}
                   </div>
@@ -2149,12 +2177,22 @@ function EditThemeConfig() {
                     />
                     {currentPreset === 'custom' && !editingTheme?.background?.customUrl && (
                       <div className="d-flex flex-column align-items-center justify-content-center h-100 text-muted p-3 text-center">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-2 text-secondary opacity-50">
+                        <svg
+                          width="32"
+                          height="32"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          className="mb-2 text-secondary opacity-50"
+                        >
                           <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                           <circle cx="8.5" cy="8.5" r="1.5" />
                           <polyline points="21 15 16 10 5 21" />
                         </svg>
-                        <span style={{ fontSize: '13px' }}>Vui lòng tải ảnh nền riêng lên để xem trước</span>
+                        <span style={{ fontSize: '13px' }}>
+                          Vui lòng tải ảnh nền riêng lên để xem trước
+                        </span>
                       </div>
                     )}
                   </div>
