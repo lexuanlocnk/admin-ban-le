@@ -794,7 +794,12 @@ const ThemeConfig = () => {
     if (item.colors) {
       setColors(item.colors)
     }
-    // Banners are SHARED across all campaigns as requested: keep currently configured banners!
+    if (item.banners) {
+      setBanners(item.banners)
+    }
+    if (item.sections) {
+      setSections(item.sections)
+    }
   }
 
   const scrollLeft = () => {
@@ -818,24 +823,41 @@ const ThemeConfig = () => {
     setSelectedThemeId(id)
     const newColors = targetTheme.colors || colors
     setColors(newColors)
+    if (targetTheme.banners) setBanners(targetTheme.banners)
+    if (targetTheme.sections) setSections(targetTheme.sections)
 
     try {
-      await axiosClient.post('theme/save', {
-        id: id,
-        name: targetTheme.name,
-        code: targetTheme.code,
-        start_date: targetTheme.startDate || null,
-        end_date: targetTheme.endDate || null,
-        is_active: true,
-        theme_config: {
-          tag: targetTheme.tag,
-          description: targetTheme.description,
-          image: targetTheme.image,
-          colors: newColors,
-          banners: banners, // Dùng chung bộ banner hoàn chỉnh
-          sections: sections,
-        },
-      })
+      try {
+        await axiosClient.post(`theme/activate/${id}`)
+      } catch (activateErr) {
+        // Fallback to save if activate endpoint is not deployed yet
+        await axiosClient.post('theme/save', {
+          id: id,
+          name: targetTheme.name,
+          code: targetTheme.code,
+          start_date: targetTheme.startDate || null,
+          end_date: targetTheme.endDate || null,
+          is_active: true,
+          theme_config: {
+            tag: targetTheme.tag,
+            description: targetTheme.description,
+            image: targetTheme.image,
+            colors: newColors,
+            decorations: targetTheme.decorations || {
+              particles: targetTheme.background?.preset || targetTheme.code || 'none',
+              ornaments: targetTheme.background?.preset || targetTheme.code || 'none',
+            },
+            background: targetTheme.background || {
+              preset: targetTheme.decorations?.particles || 'none',
+              customUrl: '',
+              opacity: 0.15,
+              mode: 'pattern',
+            },
+            banners: targetTheme.banners || banners,
+            sections: targetTheme.sections || sections,
+          },
+        })
+      }
       toast.success(`Đã áp dụng chiến dịch "${targetTheme.name}" cho website!`)
       fetchCampaigns(true)
     } catch (e) {

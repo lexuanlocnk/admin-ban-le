@@ -508,6 +508,18 @@ function EditThemeConfig() {
   const handleCustomBgUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Immediately show local preview in Live Preview box
+    const localUrl = URL.createObjectURL(file)
+    setEditingTheme((prev) => ({
+      ...prev,
+      background: {
+        ...(prev?.background || {}),
+        preset: 'custom',
+        customUrl: localUrl,
+      },
+    }))
+
     try {
       const uploadedUrl = await uploadFileToServer(file)
       if (uploadedUrl) {
@@ -529,6 +541,17 @@ function EditThemeConfig() {
   const handleMainLogoUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Immediately show local preview
+    const localUrl = URL.createObjectURL(file)
+    setEditingTheme((prev) => ({
+      ...prev,
+      decorations: {
+        ...(prev?.decorations || {}),
+        logoUrl: localUrl,
+      },
+    }))
+
     try {
       const uploadedUrl = await uploadFileToServer(file)
       if (uploadedUrl) {
