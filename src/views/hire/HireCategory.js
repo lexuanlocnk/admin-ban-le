@@ -463,18 +463,13 @@ function HireCategory() {
                 <form onSubmit={handleSearchSubmit}>
                   <div className="row g-2 align-items-center">
                     <div className="col">
-                      <div className="input-group">
-                        <span className="input-group-text bg-light border-end-0 text-muted">
-                          🔍
-                        </span>
-                        <input
-                          type="text"
-                          className="form-control border-start-0 ps-0"
-                          placeholder="Tìm kiếm danh mục..."
-                          value={searchInput}
-                          onChange={(e) => setSearchInput(e.target.value)}
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Tìm kiếm danh mục..."
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                      />
                     </div>
                     <div className="col-auto d-flex gap-2">
                       <CButton

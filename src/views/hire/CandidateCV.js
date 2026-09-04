@@ -345,16 +345,13 @@ function CandidateCV() {
             <form onSubmit={handleSearchSubmit}>
               <div className="row g-2 align-items-center">
                 <div className="col-12 col-md-4">
-                  <div className="input-group">
-                    <span className="input-group-text bg-light border-end-0 text-muted">🔍</span>
-                    <input
-                      type="text"
-                      className="form-control border-start-0 ps-0"
-                      placeholder="Tìm tên ứng viên, email, SĐT..."
-                      value={searchInput}
-                      onChange={(e) => setSearchInput(e.target.value)}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Tìm tên ứng viên, email, SĐT..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                  />
                 </div>
 
                 <div className="col-12 col-md-3">
@@ -448,7 +445,7 @@ function CandidateCV() {
                     style={{ fontSize: '11.5px' }}
                   >
                     <CTableRow>
-                      <CTableHeaderCell style={{ width: '40px' }} className="text-center">
+                      <CTableHeaderCell style={{ width: '36px' }} className="text-center px-1">
                         <CFormCheck
                           aria-label="Select all"
                           checked={
@@ -466,23 +463,25 @@ function CandidateCV() {
                           }}
                         />
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '220px' }}>Ứng viên</CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '180px' }}>
+                      <CTableHeaderCell style={{ minWidth: '160px' }} className="px-2">
+                        Ứng viên
+                      </CTableHeaderCell>
+                      <CTableHeaderCell style={{ width: '150px' }} className="px-2">
                         Email & Liên hệ
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '200px' }}>
+                      <CTableHeaderCell style={{ minWidth: '150px' }} className="px-2">
                         Vị trí ứng tuyển
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '140px' }}>
-                        Ngày nộp hồ sơ
+                      <CTableHeaderCell style={{ width: '110px' }} className="px-2">
+                        Ngày nộp
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ width: '80px' }} className="text-center">
-                        <CIcon icon={cilEnvelopeClosed} size="lg" title="Trạng thái xem hồ sơ" />
+                      <CTableHeaderCell style={{ width: '60px' }} className="text-center px-1">
+                        <CIcon icon={cilEnvelopeClosed} size="sm" title="Trạng thái xem hồ sơ" />
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '110px' }} className="text-center">
+                      <CTableHeaderCell style={{ width: '80px' }} className="text-center px-1">
                         Tệp CV
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '100px' }} className="text-center">
+                      <CTableHeaderCell style={{ width: '75px' }} className="text-center px-1">
                         Tác vụ
                       </CTableHeaderCell>
                     </CTableRow>

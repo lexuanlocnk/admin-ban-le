@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ReactPaginate from 'react-paginate'
-import { axiosClient, imageBaseUrl } from '../../axiosConfig'
+import { axiosClient } from '../../axiosConfig'
 import CIcon from '@coreui/icons-react'
 import { cilColorBorder, cilTrash } from '@coreui/icons'
 import moment from 'moment'
@@ -209,7 +209,10 @@ function HirePost() {
   const getDeadlineBadge = (deadlineStr) => {
     if (!deadlineStr) {
       return (
-        <span className="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-2 py-1">
+        <span
+          className="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-1.5 py-0.5"
+          style={{ fontSize: '10.5px' }}
+        >
           Không giới hạn
         </span>
       )
@@ -222,40 +225,40 @@ function HirePost() {
     if (diffDays < 0) {
       return (
         <span
-          className="badge px-2 py-1"
+          className="badge px-1.5 py-0.5 text-nowrap"
           style={{
             backgroundColor: '#fee2e2',
             color: '#dc2626',
             border: '1px solid #fca5a5',
-            fontSize: '11px',
+            fontSize: '10.5px',
           }}
         >
-          Đã hết hạn ({Math.abs(diffDays)} ngày trước)
+          Hết hạn ({Math.abs(diffDays)}d)
         </span>
       )
     } else if (diffDays === 0) {
       return (
         <span
-          className="badge px-2 py-1"
+          className="badge px-1.5 py-0.5 text-nowrap"
           style={{
             backgroundColor: '#fef3c7',
             color: '#d97706',
             border: '1px solid #fcd34d',
-            fontSize: '11px',
+            fontSize: '10.5px',
           }}
         >
-          Hết hạn hôm nay
+          Hết hôm nay
         </span>
       )
     } else if (diffDays <= 3) {
       return (
         <span
-          className="badge px-2 py-1"
+          className="badge px-1.5 py-0.5 text-nowrap"
           style={{
             backgroundColor: '#fef9c3',
             color: '#ca8a04',
             border: '1px solid #fde047',
-            fontSize: '11px',
+            fontSize: '10.5px',
           }}
         >
           Còn {diffDays} ngày
@@ -264,24 +267,18 @@ function HirePost() {
     } else {
       return (
         <span
-          className="badge px-2 py-1"
+          className="badge px-1.5 py-0.5 text-nowrap"
           style={{
             backgroundColor: '#dcfce7',
             color: '#16a34a',
             border: '1px solid #86efac',
-            fontSize: '11px',
+            fontSize: '10.5px',
           }}
         >
-          Đang tuyển (Còn {diffDays} ngày)
+          Còn {diffDays} ngày
         </span>
       )
     }
-  }
-
-  const formatImage = (img) => {
-    if (!img) return null
-    if (img.startsWith('http')) return img
-    return `${imageBaseUrl}${img}`
   }
 
   const postsList = dataHirePost?.data || []
@@ -458,16 +455,13 @@ function HirePost() {
             <form onSubmit={handleSearchSubmit}>
               <div className="row g-2 align-items-center">
                 <div className="col-12 col-md-4">
-                  <div className="input-group">
-                    <span className="input-group-text bg-light border-end-0 text-muted">🔍</span>
-                    <input
-                      type="text"
-                      className="form-control border-start-0 ps-0"
-                      placeholder="Tìm kiếm vị trí tuyển dụng..."
-                      value={searchInput}
-                      onChange={(e) => setSearchInput(e.target.value)}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Tìm kiếm vị trí tuyển dụng..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                  />
                 </div>
 
                 <div className="col-12 col-md-3">
@@ -561,10 +555,10 @@ function HirePost() {
                 <CTable hover className="align-middle mb-0">
                   <CTableHead
                     className="bg-light text-secondary text-uppercase"
-                    style={{ fontSize: '11.5px' }}
+                    style={{ fontSize: '11px' }}
                   >
                     <CTableRow>
-                      <CTableHeaderCell style={{ width: '40px' }} className="text-center">
+                      <CTableHeaderCell style={{ width: '36px' }} className="text-center px-1">
                         <CFormCheck
                           aria-label="Select all"
                           checked={
@@ -582,25 +576,25 @@ function HirePost() {
                           }}
                         />
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '260px' }}>
+                      <CTableHeaderCell style={{ minWidth: '170px' }} className="px-2">
                         Vị trí tuyển dụng
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '150px' }}>
+                      <CTableHeaderCell style={{ width: '125px' }} className="px-2">
                         Danh mục / Ban
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '140px' }}>
-                        Mức lương & Số lượng
+                      <CTableHeaderCell style={{ width: '125px' }} className="px-2">
+                        Mức lương & Tuyển
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '170px' }}>
+                      <CTableHeaderCell style={{ width: '135px' }} className="px-2">
                         Hạn nộp & Trạng thái
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '100px' }} className="text-center">
-                        Hồ sơ (CV)
+                      <CTableHeaderCell style={{ width: '75px' }} className="text-center px-1">
+                        Hồ sơ
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '110px' }} className="text-center">
-                        Hiển thị web
+                      <CTableHeaderCell style={{ width: '85px' }} className="text-center px-1">
+                        Hiển thị
                       </CTableHeaderCell>
-                      <CTableHeaderCell style={{ minWidth: '100px' }} className="text-center">
+                      <CTableHeaderCell style={{ width: '75px' }} className="text-center px-1">
                         Tác vụ
                       </CTableHeaderCell>
                     </CTableRow>
@@ -608,7 +602,6 @@ function HirePost() {
                   <CTableBody>
                     {postsList.map((item) => {
                       const isSelected = selectedCheckbox.includes(item.id)
-                      const jobImg = formatImage(item.image)
 
                       return (
                         <CTableRow
@@ -616,7 +609,7 @@ function HirePost() {
                           className={isSelected ? 'table-primary bg-opacity-25' : ''}
                         >
                           {/* Checkbox */}
-                          <CTableDataCell className="text-center">
+                          <CTableDataCell className="text-center px-1">
                             <CFormCheck
                               value={item.id}
                               checked={isSelected}
@@ -633,92 +626,83 @@ function HirePost() {
                             />
                           </CTableDataCell>
 
-                          {/* Vị trí tuyển dụng & Sub-info */}
-                          <CTableDataCell>
-                            <div className="d-flex align-items-center gap-3">
-                              {jobImg ? (
-                                <img
-                                  src={jobImg}
-                                  alt={item.name}
-                                  className="rounded-2 border object-fit-contain flex-shrink-0 bg-white p-1 me-2"
-                                  style={{ width: '42px', height: '42px' }}
-                                />
-                              ) : (
-                                <div
-                                  className="rounded-2 bg-light border d-flex align-items-center justify-content-center flex-shrink-0 text-secondary fw-bold me-2"
-                                  style={{ width: '42px', height: '42px', fontSize: '13px' }}
-                                >
-                                  {item.name ? item.name.charAt(0).toUpperCase() : 'NK'}
-                                </div>
+                          {/* Vị trí tuyển dụng & Sub-info (No image) */}
+                          <CTableDataCell className="px-2">
+                            <div
+                              className="fw-bold text-dark cursor-pointer mb-1"
+                              style={{ fontSize: '13px', lineHeight: '1.3' }}
+                              title={item.name}
+                              onClick={() => handleEditClick(item.id)}
+                            >
+                              {item.name}
+                            </div>
+                            <div
+                              className="d-flex flex-wrap align-items-center gap-1 text-muted"
+                              style={{ fontSize: '10.5px' }}
+                            >
+                              {item.rank && (
+                                <span className="badge bg-light text-secondary border px-1.5 py-0.5">
+                                  {item.rank}
+                                </span>
                               )}
-                              <div className="overflow-hidden">
-                                <div
-                                  className="fw-bold text-dark cursor-pointer text-truncate mb-0.5"
-                                  style={{ fontSize: '13.5px' }}
-                                  title={item.name}
-                                  onClick={() => handleEditClick(item.id)}
-                                >
-                                  {item.name}
-                                </div>
-                                <div
-                                  className="d-flex flex-wrap align-items-center gap-1.5 text-muted"
-                                  style={{ fontSize: '11px' }}
-                                >
-                                  {item.rank && (
-                                    <span className="badge bg-light text-secondary border px-1.5 py-0.5">
-                                      {item.rank}
-                                    </span>
-                                  )}
-                                  {item.form && (
-                                    <span className="badge bg-light text-secondary border px-1.5 py-0.5">
-                                      {item.form}
-                                    </span>
-                                  )}
-                                  {item.degree && (
-                                    <span className="badge bg-light text-muted px-1.5 py-0.5">
-                                      {item.degree}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
+                              {item.form && (
+                                <span className="badge bg-light text-secondary border px-1.5 py-0.5">
+                                  {item.form}
+                                </span>
+                              )}
+                              {item.degree && (
+                                <span className="badge bg-light text-muted px-1.5 py-0.5">
+                                  {item.degree}
+                                </span>
+                              )}
                             </div>
                           </CTableDataCell>
 
                           {/* Danh mục */}
-                          <CTableDataCell>
+                          <CTableDataCell className="px-2">
                             <span
-                              className="badge px-2 py-1 rounded-pill"
+                              className="badge px-2 py-0.5 rounded-pill text-truncate d-inline-block"
                               style={{
                                 backgroundColor: '#eff6ff',
                                 color: '#1d4ed8',
                                 border: '1px solid #bfdbfe',
-                                fontSize: '11.5px',
+                                fontSize: '11px',
+                                maxWidth: '120px',
                               }}
+                              title={item.hire_category?.title || 'Chưa phân loại'}
                             >
                               {item.hire_category?.title || 'Chưa phân loại'}
                             </span>
                             {item.department && (
-                              <div className="text-muted mt-1" style={{ fontSize: '11px' }}>
+                              <div
+                                className="text-muted mt-0.5 text-truncate"
+                                style={{ fontSize: '11px', maxWidth: '120px' }}
+                                title={`Phòng: ${item.department}`}
+                              >
                                 Phòng: {item.department}
                               </div>
                             )}
                           </CTableDataCell>
 
                           {/* Mức lương & Số lượng */}
-                          <CTableDataCell>
-                            <div className="fw-bold text-success" style={{ fontSize: '12.5px' }}>
+                          <CTableDataCell className="px-2">
+                            <div
+                              className="fw-bold text-success text-nowrap"
+                              style={{ fontSize: '12px' }}
+                            >
                               {item.salary || 'Thỏa thuận'}
                             </div>
-                            <div className="text-muted mt-0.5" style={{ fontSize: '11px' }}>
+                            <div
+                              className="text-muted mt-0.5 text-nowrap"
+                              style={{ fontSize: '11px' }}
+                            >
                               Tuyển:{' '}
-                              <strong>
-                                {item.number ? `${item.number} người` : 'Không giới hạn'}
-                              </strong>
+                              <strong>{item.number ? `${item.number} người` : 'K.giới hạn'}</strong>
                             </div>
                             {item.address && (
                               <div
                                 className="text-muted text-truncate"
-                                style={{ fontSize: '10.5px', maxWidth: '160px' }}
+                                style={{ fontSize: '10.5px', maxWidth: '120px' }}
                                 title={item.address}
                               >
                                 {item.address}
@@ -727,10 +711,10 @@ function HirePost() {
                           </CTableDataCell>
 
                           {/* Hạn nộp & Badge trạng thái */}
-                          <CTableDataCell>
+                          <CTableDataCell className="px-2">
                             <div
-                              className="fw-semibold text-dark mb-1"
-                              style={{ fontSize: '12px' }}
+                              className="fw-semibold text-dark mb-0.5 text-nowrap"
+                              style={{ fontSize: '11.5px' }}
                             >
                               {item.deadline
                                 ? moment(item.deadline).format('DD/MM/YYYY')
@@ -740,28 +724,28 @@ function HirePost() {
                           </CTableDataCell>
 
                           {/* Hồ sơ ứng tuyển (CV) */}
-                          <CTableDataCell className="text-center">
+                          <CTableDataCell className="text-center px-1">
                             <Link
                               to={`/hire/candidate-cv?post_id=${item.id}`}
-                              className="btn btn-sm btn-light border position-relative py-1 px-2.5 shadow-2xs"
-                              style={{ fontSize: '11.5px' }}
+                              className="btn btn-sm btn-light border py-0.5 px-2 text-nowrap"
+                              style={{ fontSize: '11px' }}
                               title="Xem danh sách ứng viên nộp bài này"
                             >
                               <span className="fw-bold text-primary">
                                 {item.candidates_count !== undefined ? item.candidates_count : 0}
                               </span>{' '}
-                              hồ sơ
+                              CV
                             </Link>
                           </CTableDataCell>
 
                           {/* Hiển thị Website */}
-                          <CTableDataCell className="text-center">
+                          <CTableDataCell className="text-center px-1">
                             <button
                               type="button"
-                              className={`btn btn-sm text-white fw-bold px-2.5 py-1 shadow-2xs border-0 ${
+                              className={`btn btn-sm text-white fw-bold px-2 py-0.5 border-0 text-nowrap ${
                                 item.display === 1 ? 'bg-success' : 'bg-secondary'
                               }`}
-                              style={{ fontSize: '11px', minWidth: '65px', borderRadius: '5px' }}
+                              style={{ fontSize: '11px', minWidth: '60px', borderRadius: '4px' }}
                               onClick={() => handleToggleDisplay(item.id)}
                               title="Nhấn để bật/tắt hiển thị trên website"
                             >
@@ -770,24 +754,26 @@ function HirePost() {
                           </CTableDataCell>
 
                           {/* Tác vụ */}
-                          <CTableDataCell className="text-center">
-                            <div className="d-flex justify-content-center">
+                          <CTableDataCell className="text-center px-1">
+                            <div className="d-flex justify-content-center align-items-center gap-1">
                               <button
                                 onClick={() => handleEditClick(item.id)}
-                                className="button-action mr-2 bg-info"
+                                className="button-action bg-info m-0"
+                                style={{ padding: '4px 6px', borderRadius: '4px' }}
                                 title="Chỉnh sửa bài đăng"
                               >
-                                <CIcon icon={cilColorBorder} className="text-white" />
+                                <CIcon icon={cilColorBorder} className="text-white" size="sm" />
                               </button>
                               <button
                                 onClick={() => {
                                   setVisible(true)
                                   setDeletedId(item.id)
                                 }}
-                                className="button-action bg-danger"
+                                className="button-action bg-danger m-0"
+                                style={{ padding: '4px 6px', borderRadius: '4px' }}
                                 title="Xóa bài đăng"
                               >
-                                <CIcon icon={cilTrash} className="text-white" />
+                                <CIcon icon={cilTrash} className="text-white" size="sm" />
                               </button>
                             </div>
                           </CTableDataCell>
