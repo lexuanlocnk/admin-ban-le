@@ -52,15 +52,22 @@ const WidgetsDropdown = (props) => {
     <CRow className={props.className} xs={{ gutter: 4 }}>
       <CCol sm={6} xl={3} xxl={3}>
         <CWidgetStatsA
-          style={{ paddingBottom: 16, backgroundImage: '' }}
+          className="widget-stat-card widget-stat-primary"
+          style={{ paddingBottom: 16 }}
           color="primary"
           value={
             <div className="d-flex justify-content-between align-items-center">
-              <span style={{ fontSize: 32 }}>{props?.dashBoardData.order} </span>
-              <CIcon icon={cilMoney} size="3xl" />
+              <span style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-0.5px' }}>
+                {props?.dashBoardData?.order !== undefined && props?.dashBoardData?.order !== null
+                  ? Number(props.dashBoardData.order).toLocaleString('vi-VN')
+                  : 0}
+              </span>
+              <CIcon icon={cilMoney} size="3xl" style={{ opacity: 0.85 }} />
             </div>
           }
-          title="Tổng đơn hàng"
+          title={
+            <span style={{ fontSize: 13.5, fontWeight: 600, opacity: 0.95 }}>Tổng đơn hàng</span>
+          }
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -77,15 +84,23 @@ const WidgetsDropdown = (props) => {
       </CCol>
       <CCol sm={6} xl={3} xxl={3}>
         <CWidgetStatsA
+          className="widget-stat-card widget-stat-info"
           style={{ paddingBottom: 16 }}
           color="info"
           value={
             <div className="d-flex justify-content-between align-items-center">
-              <span style={{ fontSize: 32 }}>{props?.dashBoardData.product}</span>
-              <CIcon icon={cilCart} size="3xl" />
+              <span style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-0.5px' }}>
+                {props?.dashBoardData?.product !== undefined &&
+                props?.dashBoardData?.product !== null
+                  ? Number(props.dashBoardData.product).toLocaleString('vi-VN')
+                  : 0}
+              </span>
+              <CIcon icon={cilCart} size="3xl" style={{ opacity: 0.85 }} />
             </div>
           }
-          title="Tổng sản phẩm"
+          title={
+            <span style={{ fontSize: 13.5, fontWeight: 600, opacity: 0.95 }}>Tổng sản phẩm</span>
+          }
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -103,15 +118,22 @@ const WidgetsDropdown = (props) => {
 
       <CCol sm={6} xl={3} xxl={3}>
         <CWidgetStatsA
+          className="widget-stat-card widget-stat-danger"
           style={{ paddingBottom: 16 }}
           color="danger"
           value={
             <div className="d-flex justify-content-between align-items-center">
-              <span style={{ fontSize: 32 }}>{props?.dashBoardData.member}</span>
-              <CIcon icon={cilUser} size="3xl" />
+              <span style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-0.5px' }}>
+                {props?.dashBoardData?.member !== undefined && props?.dashBoardData?.member !== null
+                  ? Number(props.dashBoardData.member).toLocaleString('vi-VN')
+                  : 0}
+              </span>
+              <CIcon icon={cilUser} size="3xl" style={{ opacity: 0.85 }} />
             </div>
           }
-          title="Tổng thành viên"
+          title={
+            <span style={{ fontSize: 13.5, fontWeight: 600, opacity: 0.95 }}>Tổng thành viên</span>
+          }
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -119,7 +141,7 @@ const WidgetsDropdown = (props) => {
               </CDropdownToggle>
               <CDropdownMenu>
                 <CDropdownItem>
-                  <Link to={'/'}>Xem chi tiết</Link>
+                  <Link to={'/member'}>Xem chi tiết</Link>
                 </CDropdownItem>
               </CDropdownMenu>
             </CDropdown>
@@ -129,15 +151,23 @@ const WidgetsDropdown = (props) => {
 
       <CCol sm={6} xl={3} xxl={3}>
         <CWidgetStatsA
+          className="widget-stat-card widget-stat-warning"
           style={{ paddingBottom: 16 }}
           color="warning"
           value={
             <div className="d-flex justify-content-between align-items-center">
-              <span style={{ fontSize: 32 }}>{props?.dashBoardData.statistics}</span>
-              <CIcon icon={cilBarChart} size="3xl" />
+              <span style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-0.5px' }}>
+                {props?.dashBoardData?.statistics !== undefined &&
+                props?.dashBoardData?.statistics !== null
+                  ? Number(props.dashBoardData.statistics).toLocaleString('vi-VN')
+                  : 0}
+              </span>
+              <CIcon icon={cilBarChart} size="3xl" style={{ opacity: 0.85 }} />
             </div>
           }
-          title="Lượt truy cập"
+          title={
+            <span style={{ fontSize: 13.5, fontWeight: 600, opacity: 0.95 }}>Lượt truy cập</span>
+          }
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
@@ -145,7 +175,7 @@ const WidgetsDropdown = (props) => {
               </CDropdownToggle>
               <CDropdownMenu>
                 <CDropdownItem>
-                  <Link to={'/'}>Xem chi tiết</Link>
+                  <Link to={'/access-statistics'}>Xem chi tiết</Link>
                 </CDropdownItem>
               </CDropdownMenu>
             </CDropdown>
