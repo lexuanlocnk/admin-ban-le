@@ -155,15 +155,36 @@ const ThemeBackgroundWatermarkLayer = ({ background, themeCode }) => {
 
   if (background?.customUrl) {
     const bgUrl = resolveImageUrl(background.customUrl)
+    let bgSize = '100% 100%'
+    let bgRepeat = 'no-repeat'
+    let bgPosition = 'center top'
+
+    if (background.mode === 'cover' || background.mode === 'wallpaper') {
+      bgSize = 'cover'
+      bgRepeat = 'no-repeat'
+    } else if (background.mode === 'fit_width' || background.mode === 'contain') {
+      bgSize = '100% auto'
+      bgRepeat = 'no-repeat'
+    } else if (background.mode === 'tile') {
+      bgSize = 'auto'
+      bgRepeat = 'repeat'
+    } else if (background.mode === 'stretch' || background.mode === 'fit_full') {
+      bgSize = '100% 100%'
+      bgRepeat = 'no-repeat'
+    } else {
+      bgSize = '100% 100%'
+      bgRepeat = 'no-repeat'
+    }
+
     return (
       <div
         aria-hidden="true"
         className="position-absolute top-0 start-0 w-100 h-100 pointer-events-none select-none"
         style={{
           backgroundImage: `url("${bgUrl}")`,
-          backgroundRepeat: background.mode === 'cover' ? 'no-repeat' : 'repeat',
-          backgroundSize: background.mode === 'cover' ? 'cover' : 'auto',
-          backgroundPosition: 'center top',
+          backgroundRepeat: bgRepeat,
+          backgroundSize: bgSize,
+          backgroundPosition: bgPosition,
           opacity: opacityVal,
           zIndex: 0,
         }}
@@ -535,11 +556,18 @@ function EditThemeConfig() {
 
     // Immediately show local preview in Live Preview box and thumbnail
     const localUrl = URL.createObjectURL(file)
+    const prevMode = editingTheme?.background?.mode
+    const targetMode = prevMode && prevMode !== 'pattern' ? prevMode : 'stretch'
+    const targetOpacity = localOpacity <= 0.25 ? 0.85 : localOpacity
+
+    setLocalOpacity(targetOpacity)
     setEditingTheme((prev) => ({
       ...prev,
       background: {
         ...(prev?.background || {}),
         preset: 'custom',
+        mode: targetMode,
+        opacity: targetOpacity,
         customUrl: localUrl,
       },
     }))
@@ -553,6 +581,8 @@ function EditThemeConfig() {
           background: {
             ...(prev?.background || {}),
             preset: 'custom',
+            mode: targetMode,
+            opacity: targetOpacity,
             customUrl: uploadedUrl,
           },
         }))
@@ -1917,7 +1947,7 @@ function EditThemeConfig() {
                       className="form-label fw-bold text-dark mb-0"
                       style={{ fontSize: '14px' }}
                     >
-                      Độ đậm nhạt hoa văn (Opacity)
+                      Độ đậm nhạt hoa văn / hình nền (Opacity)
                     </label>
                     <span className="badge bg-primary px-2 py-1 font-monospace">
                       {Math.round((localOpacity || 0.15) * 100)}%
@@ -1927,7 +1957,7 @@ function EditThemeConfig() {
                     type="range"
                     className="form-range"
                     min="0.05"
-                    max="0.8"
+                    max="1"
                     step="0.05"
                     value={localOpacity || 0.15}
                     onChange={(e) => {
@@ -1942,32 +1972,135 @@ function EditThemeConfig() {
                       }))
                     }}
                   />
-                  <small className="text-muted d-block">
-                    Khuyên dùng 15% - 25% để không làm rối mắt người dùng khi đọc nội dung
+                  <div className="d-flex align-items-center gap-1.5 mt-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      className={`btn btn-xs py-0.5 px-2 rounded ${Math.round(localOpacity * 100) === 100 ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                      style={{ fontSize: '11px' }}
+                      onClick={() => {
+                        setLocalOpacity(1.0)
+                        setEditingTheme((prev) => ({
+                          ...prev,
+                          background: { ...(prev?.background || {}), opacity: 1.0 },
+                        }))
+                      }}
+                    >
+                      100% (Rõ nét)
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-xs py-0.5 px-2 rounded ${Math.round(localOpacity * 100) === 75 ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                      style={{ fontSize: '11px' }}
+                      onClick={() => {
+                        setLocalOpacity(0.75)
+                        setEditingTheme((prev) => ({
+                          ...prev,
+                          background: { ...(prev?.background || {}), opacity: 0.75 },
+                        }))
+                      }}
+                    >
+                      75% (Đậm vừa)
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-xs py-0.5 px-2 rounded ${Math.round(localOpacity * 100) === 50 ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                      style={{ fontSize: '11px' }}
+                      onClick={() => {
+                        setLocalOpacity(0.5)
+                        setEditingTheme((prev) => ({
+                          ...prev,
+                          background: { ...(prev?.background || {}), opacity: 0.5 },
+                        }))
+                      }}
+                    >
+                      50% (Cân bằng)
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-xs py-0.5 px-2 rounded ${Math.round(localOpacity * 100) === 20 ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
+                      style={{ fontSize: '11px' }}
+                      onClick={() => {
+                        setLocalOpacity(0.2)
+                        setEditingTheme((prev) => ({
+                          ...prev,
+                          background: { ...(prev?.background || {}), opacity: 0.2 },
+                        }))
+                      }}
+                    >
+                      20% (Mờ nhẹ)
+                    </button>
+                  </div>
+                  <small className="text-muted d-block mt-1">
+                    {currentPreset === 'custom'
+                      ? 'Với ảnh hình nền sự kiện (Trung Thu, Tết...), bạn nên chọn từ 70% - 100% để họa tiết hiện rõ nét và đầy đủ nhất.'
+                      : 'Khuyên dùng 15% - 25% cho hoa văn lặp để không làm rối mắt người dùng khi đọc nội dung.'}
                   </small>
                 </div>
 
-                {/* COVERAGE MODE SELECT */}
+                {/* COVERAGE / DISPLAY MODE SELECT */}
                 <div className="mb-3">
-                  <label className="form-label fw-bold text-dark mb-1" style={{ fontSize: '14px' }}>
-                    Chế độ áp dụng hoa văn
-                  </label>
-                  <CFormSelect
-                    value={editingTheme?.background?.mode || 'pattern'}
-                    onChange={(e) =>
-                      setEditingTheme((prev) => ({
-                        ...prev,
-                        background: {
-                          ...(prev?.background || {}),
-                          mode: e.target.value,
-                        },
-                      }))
-                    }
-                  >
-                    <option value="pattern">Áp dụng lặp lại toàn trang (Full Page)</option>
-                    <option value="banner_only">Chỉ áp dụng khu vực Banner chính</option>
-                    <option value="header_footer">Áp dụng khu vực Header &amp; Footer</option>
-                  </CFormSelect>
+                  {currentPreset === 'custom' ? (
+                    <>
+                      <label className="form-label fw-bold text-dark mb-1" style={{ fontSize: '14px' }}>
+                        Kiểu hiển thị ảnh nền (Display Style)
+                      </label>
+                      <CFormSelect
+                        value={editingTheme?.background?.mode || 'stretch'}
+                        onChange={(e) =>
+                          setEditingTheme((prev) => ({
+                            ...prev,
+                            background: {
+                              ...(prev?.background || {}),
+                              mode: e.target.value,
+                            },
+                          }))
+                        }
+                      >
+                        <option value="stretch">Vừa vặn toàn bộ khung hình (100% x 100% - Thấy đủ 4 góc đèn lồng &amp; thỏ)</option>
+                        <option value="cover">Phủ kín toàn màn hình (Cover - Giữ nguyên tỷ lệ ảnh)</option>
+                        <option value="fit_width">Vừa chiều rộng màn hình (Fit Width - 100% Auto)</option>
+                        <option value="tile">Lặp lại dạng ô gạch (Tile Pattern)</option>
+                      </CFormSelect>
+                      <small className="text-muted d-block mt-1">
+                        {(!editingTheme?.background?.mode || editingTheme?.background?.mode === 'stretch') && (
+                          <span className="text-success fw-semibold">
+                            ✓ Khuyên dùng cho ảnh có hoa văn ở 4 góc: Cố định toàn màn hình, không bị cắt góc, thấy đầy đủ 100% thỏ và đèn lồng.
+                          </span>
+                        )}
+                        {editingTheme?.background?.mode === 'cover' && (
+                          <span>Ảnh phóng to phủ kín chiều ngang và dọc màn hình theo tỷ lệ chuẩn.</span>
+                        )}
+                        {editingTheme?.background?.mode === 'fit_width' && (
+                          <span>Ảnh vừa khít 100% chiều ngang màn hình, chiều cao tự động theo tỷ lệ ảnh.</span>
+                        )}
+                        {editingTheme?.background?.mode === 'tile' && (
+                          <span>Ảnh nền lặp lại nhiều lần dạng ô gạch.</span>
+                        )}
+                      </small>
+                    </>
+                  ) : (
+                    <>
+                      <label className="form-label fw-bold text-dark mb-1" style={{ fontSize: '14px' }}>
+                        Chế độ áp dụng hoa văn
+                      </label>
+                      <CFormSelect
+                        value={editingTheme?.background?.mode || 'pattern'}
+                        onChange={(e) =>
+                          setEditingTheme((prev) => ({
+                            ...prev,
+                            background: {
+                              ...(prev?.background || {}),
+                              mode: e.target.value,
+                            },
+                          }))
+                        }
+                      >
+                        <option value="pattern">Áp dụng lặp lại toàn trang (Full Page)</option>
+                        <option value="banner_only">Chỉ áp dụng khu vực Banner chính</option>
+                        <option value="header_footer">Áp dụng khu vực Header &amp; Footer</option>
+                      </CFormSelect>
+                    </>
+                  )}
                 </div>
               </CCol>
 

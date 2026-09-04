@@ -1668,15 +1668,36 @@ const ThemeConfig = () => {
 
     if (background?.customUrl) {
       const bgUrl = resolveImageUrl(background.customUrl)
+      let bgSize = '100% 100%'
+      let bgRepeat = 'no-repeat'
+      let bgPosition = 'center top'
+
+      if (background.mode === 'cover' || background.mode === 'wallpaper') {
+        bgSize = 'cover'
+        bgRepeat = 'no-repeat'
+      } else if (background.mode === 'fit_width' || background.mode === 'contain') {
+        bgSize = '100% auto'
+        bgRepeat = 'no-repeat'
+      } else if (background.mode === 'tile') {
+        bgSize = 'auto'
+        bgRepeat = 'repeat'
+      } else if (background.mode === 'stretch' || background.mode === 'fit_full') {
+        bgSize = '100% 100%'
+        bgRepeat = 'no-repeat'
+      } else {
+        bgSize = '100% 100%'
+        bgRepeat = 'no-repeat'
+      }
+
       return (
         <div
           aria-hidden="true"
           className="position-absolute top-0 start-0 w-100 h-100 select-none pe-none"
           style={{
             backgroundImage: `url("${bgUrl}")`,
-            backgroundRepeat: background.mode === 'cover' ? 'no-repeat' : 'repeat',
-            backgroundSize: background.mode === 'cover' ? 'cover' : 'auto',
-            backgroundPosition: 'center top',
+            backgroundRepeat: bgRepeat,
+            backgroundSize: bgSize,
+            backgroundPosition: bgPosition,
             opacity: opacityVal,
             zIndex: 0,
             pointerEvents: 'none',
@@ -2147,8 +2168,8 @@ const ThemeConfig = () => {
                   type="range"
                   className="form-range"
                   min="0.05"
-                  max="0.6"
-                  step="0.01"
+                  max="1.0"
+                  step="0.05"
                   value={localOpacity}
                   onChange={(e) => handleBgOpacityChange(e.target.value)}
                   onMouseUp={handleSliderMouseUp}
@@ -2158,9 +2179,9 @@ const ThemeConfig = () => {
                   className="d-flex justify-content-between text-muted"
                   style={{ fontSize: '10px' }}
                 >
-                  <span>5% (Rất nhẹ)</span>
-                  <span>15% (Chuẩn đẹp)</span>
-                  <span>60% (Đậm nét)</span>
+                  <span>10% (Nhẹ)</span>
+                  <span>50% (Vừa)</span>
+                  <span>100% (Rõ nét)</span>
                 </div>
               </div>
 
@@ -2168,21 +2189,21 @@ const ThemeConfig = () => {
                 <label className="form-label fw-bold text-dark text-xs mb-1">
                   Kiểu hiển thị hoa văn:
                 </label>
-                <div className="d-flex gap-3 mt-1">
+                <div className="d-flex gap-2.5 mt-1 flex-wrap">
                   <div className="form-check">
                     <input
                       className="form-check-input"
                       type="radio"
                       name={`bgMode_${currentTheme.id || 'new'}`}
-                      id={`bgMode_pattern_${currentTheme.id || 'new'}`}
-                      checked={bgConfig.mode !== 'cover'}
-                      onChange={() => handleBgModeChange('pattern')}
+                      id={`bgMode_stretch_${currentTheme.id || 'new'}`}
+                      checked={bgConfig.mode === 'stretch' || (!bgConfig.mode && currentPreset === 'custom')}
+                      onChange={() => handleBgModeChange('stretch')}
                     />
                     <label
                       className="form-check-label text-dark text-xs cursor-pointer"
-                      htmlFor={`bgMode_pattern_${currentTheme.id || 'new'}`}
+                      htmlFor={`bgMode_stretch_${currentTheme.id || 'new'}`}
                     >
-                      Lặp hoa văn
+                      Vừa vặn 100% (Khuyên dùng)
                     </label>
                   </div>
                   <div className="form-check">
@@ -2198,7 +2219,23 @@ const ThemeConfig = () => {
                       className="form-check-label text-dark text-xs cursor-pointer"
                       htmlFor={`bgMode_cover_${currentTheme.id || 'new'}`}
                     >
-                      Tràn toàn trang
+                      Tràn màn hình
+                    </label>
+                  </div>
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="radio"
+                      name={`bgMode_${currentTheme.id || 'new'}`}
+                      id={`bgMode_pattern_${currentTheme.id || 'new'}`}
+                      checked={bgConfig.mode === 'pattern' || bgConfig.mode === 'tile'}
+                      onChange={() => handleBgModeChange('pattern')}
+                    />
+                    <label
+                      className="form-check-label text-dark text-xs cursor-pointer"
+                      htmlFor={`bgMode_pattern_${currentTheme.id || 'new'}`}
+                    >
+                      Lặp hoa văn
                     </label>
                   </div>
                 </div>
