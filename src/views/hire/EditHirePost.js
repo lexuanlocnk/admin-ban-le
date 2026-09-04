@@ -229,11 +229,6 @@ function EditHirePost() {
                   Quản lý bài đăng tuyển dụng
                 </CButton>
               </Link>
-              <Link to="/hire/candidate-cv">
-                <CButton color="light" size="sm" className="border fw-semibold shadow-xs">
-                  Hồ sơ ứng tuyển (CV)
-                </CButton>
-              </Link>
             </div>
           </div>
 
