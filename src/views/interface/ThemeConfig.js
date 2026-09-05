@@ -630,11 +630,16 @@ const ThemeConfig = () => {
   // Client-side image compressor (converts multi-megabyte raw photos into crisp ~150KB WebP in <30ms)
   const compressImageBeforeUpload = (file, maxWidth = 1600, quality = 0.85) => {
     return new Promise((resolve) => {
+      const isGif =
+        (file?.type && file.type === 'image/gif') ||
+        (file?.name && file.name.toLowerCase().endsWith('.gif'))
+
       if (
         !file ||
         !file.type ||
         !file.type.startsWith('image/') ||
         file.type === 'image/svg+xml' ||
+        isGif ||
         file.size < 200 * 1024
       ) {
         resolve(file)

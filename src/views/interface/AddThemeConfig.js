@@ -335,12 +335,17 @@ function AddThemeConfig() {
 
   const compressImageBeforeUpload = (file, maxWidth = 1600, quality = 0.85) => {
     return new Promise((resolve) => {
+      const isGif =
+        (file?.type && file.type === 'image/gif') ||
+        (file?.name && file.name.toLowerCase().endsWith('.gif'))
+
       if (
         !file ||
         !file.type ||
         !file.type.startsWith('image/') ||
         file.type === 'image/svg+xml' ||
         file.type === 'image/png' ||
+        isGif ||
         file.size < 200 * 1024
       ) {
         resolve(file)
