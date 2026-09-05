@@ -22,6 +22,7 @@ import {
   cilTrash,
   cilCheckCircle,
   cilCloudUpload,
+  cilChevronLeft,
   cilChevronRight,
   cilSearch,
   cilCart,
@@ -295,6 +296,14 @@ const DEFAULT_SECTIONS = [
     canChangeColumns: false,
   },
   {
+    id: 'top_selling_products',
+    type: 'top_selling_products',
+    name: 'Top sản phẩm bán chạy',
+    enabled: true,
+    canDelete: false,
+    canChangeColumns: false,
+  },
+  {
     id: 'banner_group_2',
     type: 'banner_group',
     name: 'Banner sự kiện khuyến mãi',
@@ -338,6 +347,7 @@ const getCleanSectionName = (sec) => {
     featured_categories: 'Danh mục nổi bật',
     banner_group_1: 'Banner khuyến mãi siêu hot',
     featured_products: 'Sản phẩm nổi bật',
+    top_selling_products: 'Top sản phẩm bán chạy',
     banner_group_2: 'Banner sự kiện khuyến mãi',
     category_products: 'Danh mục sản phẩm',
     products_recommend: 'Sản phẩm bạn có thể quan tâm',
@@ -346,6 +356,7 @@ const getCleanSectionName = (sec) => {
   if (nameMap[sec.id]) return nameMap[sec.id]
   if (sec.type === 'featured_categories') return 'Danh mục nổi bật'
   if (sec.type === 'featured_products') return 'Sản phẩm nổi bật'
+  if (sec.type === 'top_selling_products') return 'Top sản phẩm bán chạy'
   if (sec.name) {
     return sec.name
       .replace(/\s*\([^)]*\)/g, '')
@@ -359,7 +370,7 @@ const normalizeSections = (rawSections) => {
   if (!Array.isArray(rawSections) || rawSections.length === 0) {
     return DEFAULT_SECTIONS
   }
-  return rawSections.map((sec) => {
+  let sections = rawSections.map((sec) => {
     if (sec.type === 'banner_group') {
       const defaultCols = sec.id === 'banner_group_1' ? 4 : sec.id === 'banner_group_2' ? 3 : 4
       const cols =
@@ -382,6 +393,31 @@ const normalizeSections = (rawSections) => {
     }
     return sec
   })
+
+  // Đảm bảo section top_selling_products luôn tồn tại để người dùng có thể điều chỉnh
+  const hasTopSelling = sections.some(
+    (s) => s.id === 'top_selling_products' || s.type === 'top_selling_products',
+  )
+  if (!hasTopSelling) {
+    const featuredIndex = sections.findIndex(
+      (s) => s.id === 'featured_products' || s.type === 'featured_products',
+    )
+    const topSellingSec = {
+      id: 'top_selling_products',
+      type: 'top_selling_products',
+      name: 'Top sản phẩm bán chạy',
+      enabled: true,
+      canDelete: false,
+      canChangeColumns: false,
+    }
+    if (featuredIndex !== -1) {
+      sections.splice(featuredIndex + 1, 0, topSellingSec)
+    } else {
+      sections.push(topSellingSec)
+    }
+  }
+
+  return sections
 }
 
 const CATEGORIES_LIST = [
@@ -483,6 +519,55 @@ const FEATURED_PRODUCTS = [
     discount: '-3%',
     rating: '4.5',
     img: 'https://api.chinhnhan.com/uploads/product/2026-02/NBHP_240RG10_C3SG9AT/698173f8e39c5.png',
+  },
+]
+
+// Top Selling Products Mock (Matching actual Member site & user screenshot)
+const TOP_SELLING_PRODUCTS = [
+  {
+    id: 1,
+    name: 'ĐÈN LED ỐP TRẦN ĐỔI MÀU VUÔNG 24W LN12.ĐM 300x300/24W',
+    price: '300.000 đ',
+    originalPrice: '',
+    discount: '',
+    rating: '5.0',
+    img: 'https://api.chinhnhan.com/uploads/product/aqara/68835bed94c4d.png',
+  },
+  {
+    id: 2,
+    name: 'Màn hình Samsung LS24C310EAEXXV (23.8 inch - IPS - FHD - 75Hz - 5ms)',
+    price: '1.890.000 đ',
+    originalPrice: '2.390.000 đ',
+    discount: '-21%',
+    rating: '5.0',
+    img: 'https://api.chinhnhan.com/uploads/product/68148a2ab868a.png',
+  },
+  {
+    id: 3,
+    name: 'Màn hình ViewSonic VA2432-H (23.8 inch - IPS - FHD - 100Hz - 1ms)',
+    price: '1.890.000 đ',
+    originalPrice: '2.090.000 đ',
+    discount: '-10%',
+    rating: '5.0',
+    img: 'https://api.chinhnhan.com/uploads/product/68759d5a6d756.png',
+  },
+  {
+    id: 4,
+    name: 'MÁY IN EPSON ECOTANK L1250 (IN MÀU/ KHỔ A4/ WIFI)',
+    price: '3.090.000 đ',
+    originalPrice: '3.990.000 đ',
+    discount: '-23%',
+    rating: '5.0',
+    img: 'https://api.chinhnhan.com/uploads/product/2026-07/MIEP_L1310/6a6c02004b0a9.png',
+  },
+  {
+    id: 5,
+    name: 'Màn hình Gaming Cong Samsung Odyssey G5 G55C LS27CG552EEXXV (27 inch - VA - 2K - 165Hz - 1ms)',
+    price: '4.490.000 đ',
+    originalPrice: '5.790.000 đ',
+    discount: '-22%',
+    rating: '5.0',
+    img: 'https://api.chinhnhan.com/uploads/product/man-hinh/mn-hnh-samsung-lc34g55twwexxv-2.jpg',
   },
 ]
 
@@ -735,7 +820,7 @@ const ThemeConfig = () => {
             mode: 'pattern',
           },
           banners: normalizeBannersMap(item.theme_config?.banners),
-          sections: item.theme_config?.sections || DEFAULT_SECTIONS,
+          sections: normalizeSections(item.theme_config?.sections),
         }))
 
         setThemes(dbThemes)
@@ -3700,6 +3785,180 @@ const ThemeConfig = () => {
                               backgroundColor: '#ffffff',
                               color: '#2356c4',
                               border: '1px solid #2356c4',
+                              fontSize: '13px',
+                              fontWeight: '600',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            <CIcon icon={cilCart} size="sm" /> Thêm vào giỏ hàng
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )
+          }
+
+          // 4b. TOP SELLING PRODUCTS SECTION
+          if (section.type === 'top_selling_products' || section.id === 'top_selling_products') {
+            return (
+              <div
+                key={section.id}
+                className="bg-white border-bottom w-100 position-relative"
+                style={{ zIndex: 2 }}
+              >
+                {renderSectionControls()}
+                <div
+                  style={{
+                    width: '100%',
+                    maxWidth: '1440px',
+                    margin: '0 auto',
+                    padding: '16px 20px',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  {/* Top bar with Section Name and Navigation Buttons */}
+                  <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <div className="d-flex align-items-center gap-2">
+                      <span
+                        className="fw-bold text-uppercase"
+                        style={{
+                          fontSize: '18px',
+                          color: colors.primary || '#2356c4',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        {section.name || 'TOP SẢN PHẨM BÁN CHẠY'}
+                      </span>
+                    </div>
+                    <div className="d-flex align-items-center gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs"
+                        style={{ width: '32px', height: '32px', color: '#475569' }}
+                      >
+                        <CIcon icon={cilChevronLeft} size="sm" />
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs"
+                        style={{ width: '32px', height: '32px', color: '#475569' }}
+                      >
+                        <CIcon icon={cilChevronRight} size="sm" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 5-Column Product Grid Slider Mock */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
+                      gap: '14px',
+                    }}
+                  >
+                    {TOP_SELLING_PRODUCTS.map((prod) => (
+                      <div
+                        key={prod.id}
+                        className="card border rounded-2 p-2.5 bg-white d-flex flex-column justify-content-between transition-all shadow-sm"
+                        style={{
+                          borderColor: '#e2e8f0',
+                          minHeight: '320px',
+                        }}
+                      >
+                        <div>
+                          <div
+                            className="position-relative w-100 mb-2 bg-white rounded d-flex align-items-center justify-content-center p-2"
+                            style={{ height: '150px' }}
+                          >
+                            <img
+                              src={prod.img}
+                              alt={prod.name}
+                              className="w-100 h-100"
+                              style={{ objectFit: 'contain' }}
+                            />
+                          </div>
+
+                          <div
+                            className="text-dark mb-2"
+                            style={{
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              lineHeight: '1.35',
+                              minHeight: '36px',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                            title={prod.name}
+                          >
+                            {prod.name}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="d-flex align-items-center justify-content-between mb-1">
+                            <span
+                              className="fw-bold"
+                              style={{
+                                fontSize: '15px',
+                                color: '#dc2626',
+                              }}
+                            >
+                              {prod.price}
+                            </span>
+                            {prod.discount ? (
+                              <span
+                                className="badge px-1 py-0.5 fw-bold"
+                                style={{
+                                  fontSize: '11px',
+                                  backgroundColor: '#dc2626',
+                                  color: '#ffffff',
+                                  borderRadius: '3px',
+                                }}
+                              >
+                                {prod.discount}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          {prod.originalPrice ? (
+                            <div
+                              className="text-muted mb-1.5"
+                              style={{
+                                fontSize: '12px',
+                                textDecoration: 'line-through',
+                                color: '#9ca3af',
+                                minHeight: '16px',
+                              }}
+                            >
+                              {prod.originalPrice}
+                            </div>
+                          ) : (
+                            <div style={{ minHeight: '16px' }} className="mb-1.5" />
+                          )}
+
+                          {/* Rating and Favorite */}
+                          <div className="d-flex align-items-center justify-content-between mb-2">
+                            <span
+                              className="badge bg-warning bg-opacity-10 text-warning px-1.5 py-0.5"
+                              style={{ fontSize: '11px', fontWeight: '600' }}
+                            >
+                              ★ {prod.rating || '5.0'}
+                            </span>
+                            <span style={{ color: '#2356c4', fontSize: '15px' }}>♡</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="btn btn-sm w-100 d-flex align-items-center justify-content-center gap-1.5 py-1.5"
+                            style={{
+                              backgroundColor: '#ffffff',
+                              color: colors.primary || '#2356c4',
+                              border: `1px solid ${colors.primary || '#2356c4'}`,
                               fontSize: '13px',
                               fontWeight: '600',
                               borderRadius: '4px',
