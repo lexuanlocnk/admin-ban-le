@@ -3819,7 +3819,7 @@ const ThemeConfig = () => {
                     boxSizing: 'border-box',
                   }}
                 >
-                  {/* Top bar with Section Name and Navigation Buttons */}
+                  {/* Top bar with Section Name */}
                   <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                     <div className="d-flex align-items-center gap-2">
                       <span
@@ -3832,22 +3832,6 @@ const ThemeConfig = () => {
                       >
                         {section.name || 'TOP SẢN PHẨM BÁN CHẠY'}
                       </span>
-                    </div>
-                    <div className="d-flex align-items-center gap-2">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs"
-                        style={{ width: '32px', height: '32px', color: '#475569' }}
-                      >
-                        <CIcon icon={cilChevronLeft} size="sm" />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs"
-                        style={{ width: '32px', height: '32px', color: '#475569' }}
-                      >
-                        <CIcon icon={cilChevronRight} size="sm" />
-                      </button>
                     </div>
                   </div>
 
