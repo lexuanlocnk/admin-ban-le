@@ -62,15 +62,27 @@ function EditGift() {
         return value && startDate ? value > startDate : true
       }),
 
-    minPrice: Yup.number()
-      .required('Bắt buộc')
-      .positive('Giá phải lớn hơn 0')
-      .integer('Giá phải là số nguyên'),
-    maxPrice: Yup.number()
-      .required('Bắt buộc')
-      .positive('Giá phải lớn hơn 0')
-      .integer('Giá phải là số nguyên')
-      .moreThan(Yup.ref('minPrice'), 'Giá sau phải lớn hơn giá trước'),
+    minPrice: Yup.number().when('applyGiftType', {
+      is: (val) => String(val) === '0',
+      then: (schema) =>
+        schema.required('Bắt buộc').positive('Giá phải lớn hơn 0').integer('Giá phải là số nguyên'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
+    maxPrice: Yup.number().when('applyGiftType', {
+      is: (val) => String(val) === '0',
+      then: (schema) =>
+        schema
+          .required('Bắt buộc')
+          .positive('Giá phải lớn hơn 0')
+          .integer('Giá phải là số nguyên')
+          .moreThan(Yup.ref('minPrice'), 'Giá sau phải lớn hơn giá trước'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
+    ordersHaveProductCode: Yup.string().when('applyGiftType', {
+      is: (val) => String(val) === '1',
+      then: (schema) => schema.required('Mã SP chỉ định là bắt buộc.'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
   })
 
   const fetchCategoriesData = async () => {
@@ -100,10 +112,10 @@ function EditGift() {
           startDate: new Date(moment.unix(data.StartDate)),
           endDate: new Date(moment.unix(data.EndDate)),
           applyGiftType: data.type,
-          ordersHaveProductCode: data.ordersHaveProductCode,
+          ordersHaveProductCode: data.list_product || '',
           industry: data.cat_parent_id,
           visible: data.display,
-          applyToProductCategories: data.list_cat,
+          applyToProductCategories: data.list_cat || [],
         })
         setEditorData(data?.content)
       }
@@ -128,8 +140,8 @@ function EditGift() {
         content: editorData,
         type: values.applyGiftType,
         display: values.visible,
-        priceMin: values.minPrice,
-        priceMax: values.maxPrice,
+        priceMin: String(values.applyGiftType) === '0' ? values.minPrice : 0,
+        priceMax: String(values.applyGiftType) === '0' ? values.maxPrice : 0,
         StartDate: values.startDate,
         EndDate: values.endDate,
       })
@@ -240,49 +252,59 @@ function EditGift() {
                       </div>
                       <br />
 
-                      <div>
-                        <CFormLabel>Khoảng giá</CFormLabel>
-                        <CRow>
-                          <CCol md={6}>
-                            <Field name="minPrice">
-                              {({ field }) => (
-                                <CFormInput
-                                  {...field}
-                                  type="text"
-                                  id="minPrice-input"
-                                  value={formatNumber(field.value)}
-                                  text={'Mệnh giá VNĐ'}
-                                  onChange={(e) => {
-                                    const rawValue = unformatNumber(e.target.value)
-                                    setFieldValue(field.name, rawValue)
-                                  }}
-                                />
-                              )}
-                            </Field>
-                            <ErrorMessage name="minPrice" component="div" className="text-danger" />
-                          </CCol>
+                      {String(values.applyGiftType) === '0' && (
+                        <div>
+                          <CFormLabel>Khoảng giá</CFormLabel>
+                          <CRow>
+                            <CCol md={6}>
+                              <Field name="minPrice">
+                                {({ field }) => (
+                                  <CFormInput
+                                    {...field}
+                                    type="text"
+                                    id="minPrice-input"
+                                    value={formatNumber(field.value)}
+                                    text={'Mệnh giá VNĐ'}
+                                    onChange={(e) => {
+                                      const rawValue = unformatNumber(e.target.value)
+                                      setFieldValue(field.name, rawValue)
+                                    }}
+                                  />
+                                )}
+                              </Field>
+                              <ErrorMessage
+                                name="minPrice"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </CCol>
 
-                          <CCol md={6}>
-                            <Field name="maxPrice">
-                              {({ field }) => (
-                                <CFormInput
-                                  {...field}
-                                  type="text"
-                                  id="maxPrice-input"
-                                  value={formatNumber(field.value)}
-                                  text={'Mệnh giá VNĐ'}
-                                  onChange={(e) => {
-                                    const rawValue = unformatNumber(e.target.value)
-                                    setFieldValue(field.name, rawValue)
-                                  }}
-                                />
-                              )}
-                            </Field>
-                            <ErrorMessage name="maxPrice" component="div" className="text-danger" />
-                          </CCol>
-                        </CRow>
-                      </div>
-                      <br />
+                            <CCol md={6}>
+                              <Field name="maxPrice">
+                                {({ field }) => (
+                                  <CFormInput
+                                    {...field}
+                                    type="text"
+                                    id="maxPrice-input"
+                                    value={formatNumber(field.value)}
+                                    text={'Mệnh giá VNĐ'}
+                                    onChange={(e) => {
+                                      const rawValue = unformatNumber(e.target.value)
+                                      setFieldValue(field.name, rawValue)
+                                    }}
+                                  />
+                                )}
+                              </Field>
+                              <ErrorMessage
+                                name="maxPrice"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </CCol>
+                          </CRow>
+                          <br />
+                        </div>
+                      )}
 
                       <CCol md={12}>
                         <label htmlFor="desc-input">Nội dung quà tặng</label>
@@ -310,7 +332,7 @@ function EditGift() {
                       </CCol>
                       <br />
 
-                      {values.applyGiftType === 1 && (
+                      {String(values.applyGiftType) === '1' && (
                         <React.Fragment>
                           <CCol md={12}>
                             <label htmlFor="productCode-input">Đơn hàng có Mã SP</label>
@@ -331,7 +353,7 @@ function EditGift() {
                         </React.Fragment>
                       )}
 
-                      {values.applyGiftType === 0 && (
+                      {String(values.applyGiftType) === '0' && (
                         <React.Fragment>
                           <CCol md={12}>
                             <CCol md={12}>

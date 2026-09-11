@@ -16,7 +16,7 @@ import {
   CRow,
   CSpinner,
 } from '@coreui/react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import CKedtiorCustom from '../../components/customEditor/ckEditorCustom'
 import { formatNumber } from '../../helper/utils'
@@ -27,6 +27,7 @@ import { toast } from 'react-toastify'
 import { axiosClient } from '../../axiosConfig'
 
 function AddGift() {
+  const navigate = useNavigate()
   const [categories, setCategories] = useState([])
   const [editorData, setEditorData] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -56,15 +57,27 @@ function AddGift() {
         return value && startDate ? value > startDate : true
       }),
 
-    minPrice: Yup.number()
-      .required('Bắt buộc')
-      .positive('Giá phải lớn hơn 0')
-      .integer('Giá phải là số nguyên'),
-    maxPrice: Yup.number()
-      .required('Bắt buộc')
-      .positive('Giá phải lớn hơn 0')
-      .integer('Giá phải là số nguyên')
-      .moreThan(Yup.ref('minPrice'), 'Giá sau phải lớn hơn giá trước'),
+    minPrice: Yup.number().when('applyGiftType', {
+      is: (val) => String(val) === '0',
+      then: (schema) =>
+        schema.required('Bắt buộc').positive('Giá phải lớn hơn 0').integer('Giá phải là số nguyên'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
+    maxPrice: Yup.number().when('applyGiftType', {
+      is: (val) => String(val) === '0',
+      then: (schema) =>
+        schema
+          .required('Bắt buộc')
+          .positive('Giá phải lớn hơn 0')
+          .integer('Giá phải là số nguyên')
+          .moreThan(Yup.ref('minPrice'), 'Giá sau phải lớn hơn giá trước'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
+    ordersHaveProductCode: Yup.string().when('applyGiftType', {
+      is: (val) => String(val) === '1',
+      then: (schema) => schema.required('Mã SP chỉ định là bắt buộc.'),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
   })
 
   const fetchCategoriesData = async () => {
@@ -92,14 +105,15 @@ function AddGift() {
         content: editorData,
         type: values.applyGiftType,
         display: values.visible,
-        priceMin: values.minPrice,
-        priceMax: values.maxPrice,
+        priceMin: values.applyGiftType == '0' ? values.minPrice : 0,
+        priceMax: values.applyGiftType == '0' ? values.maxPrice : 0,
         StartDate: values.startDate,
         EndDate: values.endDate,
       })
 
       if (response.data.status === true) {
         toast.success('Thêm mới quà tặng thành công!')
+        navigate('/gift')
       } else if (response.data.status === false && response.data.mess == 'no permission') {
         toast.warn('Bạn không có quyền thực hiện tác vụ này!')
       } else {
