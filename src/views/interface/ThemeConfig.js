@@ -257,6 +257,7 @@ const DEFAULT_BANNERS = {
   floatingRight: [
     'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=300&q=80',
   ],
+  popupBanner: [],
 }
 
 const DEFAULT_SECTIONS = [
@@ -2793,6 +2794,37 @@ const ThemeConfig = () => {
           >
             ✨ Kéo lên/xuống, bật/tắt hoặc nhấp banner để tải ảnh
           </span>
+        </div>
+
+        {/* POPUP HOME BANNER CONFIG (not part of visible page layout, but used by member home modal) */}
+        <div className="w-100 bg-white border-bottom p-3">
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <div>
+              <div className="fw-bold text-dark" style={{ fontSize: '14.5px' }}>
+                Popup trang chủ
+              </div>
+              <div className="text-muted small">
+                Ảnh popup hiển thị khi khách vào trang chủ. Vào “Quản lý slide” để cấu hình link
+                chuyển hướng.
+              </div>
+            </div>
+            <span
+              className="badge rounded-pill px-3 py-1"
+              style={{
+                backgroundColor: `${colors.primary || '#2356c4'}15`,
+                color: colors.primary || '#2356c4',
+              }}
+            >
+              theme_config.banners.popupBanner
+            </span>
+          </div>
+          <RenderBannerSlot
+            slotKey="popupBanner"
+            title="Popup trang chủ"
+            sizeText="Kích thước gợi ý: 900 x 600 px"
+            minHeight="220px"
+            style={{ width: '100%', maxWidth: '720px', margin: '0 auto' }}
+          />
         </div>
 
         {/* 0. TOP HEADER BANNER (Vị trí 0 - Full-Width Edge-to-Edge Banner) */}

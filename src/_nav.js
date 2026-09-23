@@ -88,7 +88,10 @@ const _nav = [
     name: 'QUẢN LÝ GIAO DIỆN',
     to: '/admin/theme',
     icon: <CIcon icon={cilColorPalette} customClassName="nav-icon" />,
-    items: [{ component: CNavItem, name: 'Cấu hình giao diện', to: '/admin/theme' }],
+    items: [
+      { component: CNavItem, name: 'Cấu hình giao diện', to: '/admin/theme' },
+      { component: CNavItem, name: 'Sự kiện & Lời chúc', to: '/admin/event-greeting' },
+    ],
   },
 
   // ─────────────────────────────────────────────────────────────
