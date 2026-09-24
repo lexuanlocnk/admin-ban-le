@@ -134,7 +134,7 @@ const EventGreetingManager = () => {
       (w) =>
         (w.title && w.title.toLowerCase().includes(kw)) ||
         (w.content && w.content.toLowerCase().includes(kw)) ||
-        (w.author && w.author.toLowerCase().includes(kw))
+        (w.author && w.author.toLowerCase().includes(kw)),
     )
   }, [wishes, wishSearch])
 
@@ -164,8 +164,14 @@ const EventGreetingManager = () => {
             step1: { ...eventData.popup_config.step1, ...(cleanConfig?.step1 || {}) },
             step2: { ...eventData.popup_config.step2, ...(cleanConfig?.step2 || {}) },
             step3: { ...eventData.popup_config.step3, ...(cleanConfig?.step3 || {}) },
-            mini_badge: { ...eventData.popup_config.mini_badge, ...(cleanConfig?.mini_badge || {}) },
-            floating_widget: { ...eventData.popup_config.floating_widget, ...(cleanConfig?.floating_widget || {}) },
+            mini_badge: {
+              ...eventData.popup_config.mini_badge,
+              ...(cleanConfig?.mini_badge || {}),
+            },
+            floating_widget: {
+              ...eventData.popup_config.floating_widget,
+              ...(cleanConfig?.floating_widget || {}),
+            },
           },
         })
       }
@@ -224,7 +230,7 @@ const EventGreetingManager = () => {
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
           },
-        }
+        },
       )
 
       if (res?.data?.status && res?.data?.data?.url) {
@@ -323,7 +329,9 @@ const EventGreetingManager = () => {
     try {
       const res = await axiosClient.post('event-greeting/admin/save-wish', editingWish)
       if (res?.data?.status) {
-        toast.success(editingWish.id ? 'Cập nhật câu chúc thành công!' : 'Thêm câu chúc mới thành công!')
+        toast.success(
+          editingWish.id ? 'Cập nhật câu chúc thành công!' : 'Thêm câu chúc mới thành công!',
+        )
         setModalWishVisible(false)
         fetchWishes()
         fetchStats()
@@ -352,7 +360,12 @@ const EventGreetingManager = () => {
 
   // Nạp lại câu chúc mẫu
   const handleSeedDefaults = async () => {
-    if (!window.confirm('Hành động này sẽ nạp / bổ sung đầy đủ bộ 75 câu chúc Trung Thu & Công nghệ chuẩn cho Chính Nhân. Bạn có đồng ý không?')) return
+    if (
+      !window.confirm(
+        'Hành động này sẽ nạp / bổ sung đầy đủ bộ 75 câu chúc Trung Thu & Công nghệ chuẩn cho Chính Nhân. Bạn có đồng ý không?',
+      )
+    )
+      return
     try {
       const res = await axiosClient.post('event-greeting/admin/seed-defaults', { force: false })
       if (res?.data?.status) {
@@ -372,18 +385,24 @@ const EventGreetingManager = () => {
         <CCol sm={6} lg={3}>
           <CCard className="text-white bg-primary shadow-sm">
             <CCardBody className="p-3">
-              <div className="text-uppercase font-weight-bold text-white-50 small">Khách Truy Cập Hôm Nay</div>
+              <div className="text-uppercase font-weight-bold text-white-50 small">
+                Khách Truy Cập Hôm Nay
+              </div>
               <div className="fs-3 fw-bold my-1">
                 {(eventData.base_visitor_count || 120) + (stats.today?.visitor_count || 0)}
               </div>
-              <small className="text-white-50">Thực tế: +{stats.today?.visitor_count || 0} lượt</small>
+              <small className="text-white-50">
+                Thực tế: +{stats.today?.visitor_count || 0} lượt
+              </small>
             </CCardBody>
           </CCard>
         </CCol>
         <CCol sm={6} lg={3}>
           <CCard className="text-white bg-danger shadow-sm">
             <CCardBody className="p-3">
-              <div className="text-uppercase font-weight-bold text-white-50 small">Lượt Mở Hộp Quà</div>
+              <div className="text-uppercase font-weight-bold text-white-50 small">
+                Lượt Mở Hộp Quà
+              </div>
               <div className="fs-3 fw-bold my-1">{stats.today?.gift_opened_count || 0}</div>
               <small className="text-white-50">Tương tác khám phá lời chúc</small>
             </CCardBody>
@@ -392,7 +411,9 @@ const EventGreetingManager = () => {
         <CCol sm={6} lg={3}>
           <CCard className="text-white bg-warning shadow-sm">
             <CCardBody className="p-3">
-              <div className="text-uppercase font-weight-bold text-white-50 small">Kho Lời Chúc Hoạt Động</div>
+              <div className="text-uppercase font-weight-bold text-white-50 small">
+                Kho Lời Chúc Hoạt Động
+              </div>
               <div className="fs-3 fw-bold my-1">
                 {stats.active_wishes || 0} / {stats.total_wishes || 0}
               </div>
@@ -403,7 +424,9 @@ const EventGreetingManager = () => {
         <CCol sm={6} lg={3}>
           <CCard className="text-white bg-success shadow-sm">
             <CCardBody className="p-3">
-              <div className="text-uppercase font-weight-bold text-white-50 small">Trạng Thái Sự Kiện</div>
+              <div className="text-uppercase font-weight-bold text-white-50 small">
+                Trạng Thái Sự Kiện
+              </div>
               <div className="fs-3 fw-bold my-1">
                 {eventData.is_active ? 'ĐANG BẬT' : 'ĐANG TẮT'}
               </div>
@@ -448,7 +471,9 @@ const EventGreetingManager = () => {
                 <CRow className="g-4">
                   {/* Cột Trái: Thông tin cơ bản */}
                   <CCol lg={5}>
-                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">1. Cài Đặt Chung</h5>
+                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
+                      1. Cài Đặt Chung
+                    </h5>
 
                     <div className="mb-3 p-3 bg-light rounded border d-flex align-items-center justify-content-between">
                       <div className="flex-grow-1 me-3">
@@ -456,7 +481,9 @@ const EventGreetingManager = () => {
                           id="eventActiveSwitch"
                           size="xl"
                           label={
-                            <span className={`fw-bold ms-2 cursor-pointer ${eventData.is_active ? 'text-success' : 'text-danger'}`}>
+                            <span
+                              className={`fw-bold ms-2 cursor-pointer ${eventData.is_active ? 'text-success' : 'text-danger'}`}
+                            >
                               {eventData.is_active
                                 ? 'Kích hoạt hiển thị sự kiện trên Website'
                                 : 'Đang TẮT hiển thị sự kiện trên Website'}
@@ -468,7 +495,10 @@ const EventGreetingManager = () => {
                           }
                         />
                       </div>
-                      <CBadge color={eventData.is_active ? 'success' : 'secondary'} className="px-3 py-2 fs-7">
+                      <CBadge
+                        color={eventData.is_active ? 'success' : 'secondary'}
+                        className="px-3 py-2 fs-7"
+                      >
                         {eventData.is_active ? 'ON' : 'OFF'}
                       </CBadge>
                     </div>
@@ -488,7 +518,9 @@ const EventGreetingManager = () => {
                         <CFormInput
                           type="datetime-local"
                           value={eventData.start_date}
-                          onChange={(e) => setEventData({ ...eventData, start_date: e.target.value })}
+                          onChange={(e) =>
+                            setEventData({ ...eventData, start_date: e.target.value })
+                          }
                         />
                       </CCol>
                       <CCol md={6}>
@@ -503,12 +535,17 @@ const EventGreetingManager = () => {
 
                     <CRow className="mb-3">
                       <CCol md={6}>
-                        <CFormLabel className="fw-semibold">Số Thứ Tự Khách Khởi Điểm (Mỗi ngày)</CFormLabel>
+                        <CFormLabel className="fw-semibold">
+                          Số Thứ Tự Khách Khởi Điểm (Mỗi ngày)
+                        </CFormLabel>
                         <CFormInput
                           type="number"
                           value={eventData.base_visitor_count}
                           onChange={(e) =>
-                            setEventData({ ...eventData, base_visitor_count: parseInt(e.target.value) || 0 })
+                            setEventData({
+                              ...eventData,
+                              base_visitor_count: parseInt(e.target.value) || 0,
+                            })
                           }
                           placeholder="120"
                         />
@@ -517,7 +554,9 @@ const EventGreetingManager = () => {
                         <CFormLabel className="fw-semibold">Tần Suất Hiển Thị Popup</CFormLabel>
                         <CFormSelect
                           value={eventData.display_frequency}
-                          onChange={(e) => setEventData({ ...eventData, display_frequency: e.target.value })}
+                          onChange={(e) =>
+                            setEventData({ ...eventData, display_frequency: e.target.value })
+                          }
                         >
                           <option value="once_per_event">1 lần cho cả sự kiện</option>
                           <option value="once_per_day">1 lần mỗi ngày (Khuyên dùng)</option>
@@ -600,7 +639,9 @@ const EventGreetingManager = () => {
                     </div>
 
                     <div className="p-3 bg-light rounded border mt-3">
-                      <h6 className="fw-bold mb-2 text-secondary">Vị trí hiển thị phụ trên giao diện:</h6>
+                      <h6 className="fw-bold mb-2 text-secondary">
+                        Vị trí hiển thị phụ trên giao diện:
+                      </h6>
                       <div>
                         <CFormCheck
                           id="checkMiniBadge"
@@ -625,7 +666,9 @@ const EventGreetingManager = () => {
                           <div className="ps-3 border-start border-2 border-warning mt-2 mb-3">
                             {/* 1. Dòng chữ text cấu hình */}
                             <div className="mb-2">
-                              <CFormLabel className="small fw-bold">Dòng chữ hiển thị trên nút Header:</CFormLabel>
+                              <CFormLabel className="small fw-bold">
+                                Dòng chữ hiển thị trên nút Header:
+                              </CFormLabel>
                               <CFormInput
                                 size="sm"
                                 placeholder="VD: Bạn đã nhận lời chúc Trung Thu rồi!"
@@ -682,7 +725,11 @@ const EventGreetingManager = () => {
                                       'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png'
                                     }
                                     alt="Header Badge Icon"
-                                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                                    style={{
+                                      maxWidth: '100%',
+                                      maxHeight: '100%',
+                                      objectFit: 'contain',
+                                    }}
                                     onError={(e) => {
                                       e.target.src =
                                         'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png'
@@ -776,7 +823,9 @@ const EventGreetingManager = () => {
                         {eventData.popup_config?.floating_widget?.enabled !== false && (
                           <div className="ps-3 border-start border-2 border-warning mt-2">
                             <div className="mb-2">
-                              <CFormLabel className="small fw-bold">Tiêu đề / Tooltip khi rê chuột:</CFormLabel>
+                              <CFormLabel className="small fw-bold">
+                                Tiêu đề / Tooltip khi rê chuột:
+                              </CFormLabel>
                               <CFormInput
                                 size="sm"
                                 placeholder="VD: Lời chúc của bạn đã sẵn sàng!"
@@ -845,7 +894,9 @@ const EventGreetingManager = () => {
                                       type="file"
                                       accept="image/*"
                                       className="form-control form-control-sm"
-                                      onChange={(e) => handleUploadFile(e, 'floating_widget', 'image')}
+                                      onChange={(e) =>
+                                        handleUploadFile(e, 'floating_widget', 'image')
+                                      }
                                       disabled={uploadingField === 'floating_widget_image'}
                                     />
                                     {uploadingField === 'floating_widget_image' && (
@@ -891,12 +942,16 @@ const EventGreetingManager = () => {
                     {/* Bước 1 */}
                     <div className="p-3 mb-3 border rounded bg-white shadow-xs">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <strong className="text-danger">Bước 1: Chào Mừng & Đếm Khách (Ảnh 1)</strong>
+                        <strong className="text-danger">
+                          Bước 1: Chào Mừng & Đếm Khách (Ảnh 1)
+                        </strong>
                         <CBadge color="danger">Step 1</CBadge>
                       </div>
 
                       <div className="mb-3">
-                        <CFormLabel className="small fw-bold">Nút hành động mở quà (Text nút bấm):</CFormLabel>
+                        <CFormLabel className="small fw-bold">
+                          Nút hành động mở quà (Text nút bấm):
+                        </CFormLabel>
                         <CFormInput
                           value={eventData.popup_config?.step1?.button_text || ''}
                           placeholder="Mở quà ngay (hoặc Khám phá ngay, Xem quà...)"
@@ -905,7 +960,10 @@ const EventGreetingManager = () => {
                               ...eventData,
                               popup_config: {
                                 ...eventData.popup_config,
-                                step1: { ...eventData.popup_config?.step1, button_text: e.target.value },
+                                step1: {
+                                  ...eventData.popup_config?.step1,
+                                  button_text: e.target.value,
+                                },
                               },
                             })
                           }
@@ -978,7 +1036,10 @@ const EventGreetingManager = () => {
                                     ...eventData,
                                     popup_config: {
                                       ...eventData.popup_config,
-                                      step1: { ...eventData.popup_config?.step1, image: e.target.value },
+                                      step1: {
+                                        ...eventData.popup_config?.step1,
+                                        image: e.target.value,
+                                      },
                                     },
                                   })
                                 }
@@ -1014,7 +1075,9 @@ const EventGreetingManager = () => {
                     {/* Bước 2 */}
                     <div className="p-3 mb-3 border rounded bg-white shadow-xs">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <strong className="text-warning text-dark">Bước 2: Hộp Quà Bất Ngờ (Ảnh 2)</strong>
+                        <strong className="text-warning text-dark">
+                          Bước 2: Hộp Quà Bất Ngờ (Ảnh 2)
+                        </strong>
                         <CBadge color="warning">Step 2</CBadge>
                       </div>
 
@@ -1027,7 +1090,10 @@ const EventGreetingManager = () => {
                               ...eventData,
                               popup_config: {
                                 ...eventData.popup_config,
-                                step2: { ...eventData.popup_config?.step2, subtitle: e.target.value },
+                                step2: {
+                                  ...eventData.popup_config?.step2,
+                                  subtitle: e.target.value,
+                                },
                               },
                             })
                           }
@@ -1100,7 +1166,10 @@ const EventGreetingManager = () => {
                                     ...eventData,
                                     popup_config: {
                                       ...eventData.popup_config,
-                                      step2: { ...eventData.popup_config?.step2, image: e.target.value },
+                                      step2: {
+                                        ...eventData.popup_config?.step2,
+                                        image: e.target.value,
+                                      },
                                     },
                                   })
                                 }
@@ -1114,7 +1183,9 @@ const EventGreetingManager = () => {
                     {/* Bước 3: NHẬN LỜI CHÚC & ẢNH THIỆP CHÚC (ẢNH 4) */}
                     <div className="p-3 mb-3 border rounded bg-white shadow-xs border-success">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <strong className="text-success">Bước 3: Nhận Lời Chúc & Ảnh Thiệp (Ảnh 4)</strong>
+                        <strong className="text-success">
+                          Bước 3: Nhận Lời Chúc & Ảnh Thiệp (Ảnh 4)
+                        </strong>
                         <CBadge color="success">Step 3</CBadge>
                       </div>
 
@@ -1203,7 +1274,10 @@ const EventGreetingManager = () => {
                                     ...eventData,
                                     popup_config: {
                                       ...eventData.popup_config,
-                                      step3: { ...eventData.popup_config?.step3, card_bg_image: e.target.value },
+                                      step3: {
+                                        ...eventData.popup_config?.step3,
+                                        card_bg_image: e.target.value,
+                                      },
                                     },
                                   })
                                 }
@@ -1256,9 +1330,12 @@ const EventGreetingManager = () => {
             <CTabPane visible={activeTab === 2}>
               <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <div>
-                  <h5 className="fw-bold text-dark m-0">Kho Lời Chúc May Mắn ({wishes.length} câu)</h5>
+                  <h5 className="fw-bold text-dark m-0">
+                    Kho Lời Chúc May Mắn ({wishes.length} câu)
+                  </h5>
                   <small className="text-muted">
-                    Khi người dùng bấm &quot;Mở quà ngay&quot;, hệ thống sẽ chọn ngẫu nhiên 1 lời chúc đang kích hoạt để trao tặng (tự động loại trừ các câu đã xem gần đây).
+                    Khi người dùng bấm &quot;Mở quà ngay&quot;, hệ thống sẽ chọn ngẫu nhiên 1 lời
+                    chúc đang kích hoạt để trao tặng (tự động loại trừ các câu đã xem gần đây).
                   </small>
                 </div>
                 <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -1319,17 +1396,27 @@ const EventGreetingManager = () => {
                     {filteredWishes.length === 0 ? (
                       <CTableRow>
                         <CTableDataCell colSpan={7} className="text-center py-4 text-muted">
-                          {wishSearch ? 'Không tìm thấy câu chúc nào phù hợp với từ khóa tìm kiếm.' : 'Chưa có câu chúc nào. Hãy nhấn "Nạp Bộ Câu Chúc Mẫu" hoặc "Thêm Câu Chúc Mới"!'}
+                          {wishSearch
+                            ? 'Không tìm thấy câu chúc nào phù hợp với từ khóa tìm kiếm.'
+                            : 'Chưa có câu chúc nào. Hãy nhấn "Nạp Bộ Câu Chúc Mẫu" hoặc "Thêm Câu Chúc Mới"!'}
                         </CTableDataCell>
                       </CTableRow>
                     ) : (
                       filteredWishes.map((w) => (
                         <CTableRow key={w.id}>
                           <CTableDataCell className="fw-semibold text-muted">{w.id}</CTableDataCell>
-                          <CTableDataCell className="fw-bold text-primary">{w.title || 'Lời chúc'}</CTableDataCell>
-                          <CTableDataCell style={{ whiteSpace: 'pre-line' }}>{w.content}</CTableDataCell>
-                          <CTableDataCell className="text-secondary small">{w.author || 'Chính Nhân'}</CTableDataCell>
-                          <CTableDataCell className="text-center fw-bold">{w.views_count || 0}</CTableDataCell>
+                          <CTableDataCell className="fw-bold text-primary">
+                            {w.title || 'Lời chúc'}
+                          </CTableDataCell>
+                          <CTableDataCell style={{ whiteSpace: 'pre-line' }}>
+                            {w.content}
+                          </CTableDataCell>
+                          <CTableDataCell className="text-secondary small">
+                            {w.author || 'Chính Nhân'}
+                          </CTableDataCell>
+                          <CTableDataCell className="text-center fw-bold">
+                            {w.views_count || 0}
+                          </CTableDataCell>
                           <CTableDataCell className="text-center">
                             {w.is_active ? (
                               <CBadge color="success">Kích hoạt</CBadge>

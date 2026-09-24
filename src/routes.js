@@ -269,7 +269,11 @@ const routes = [
   { path: '/theme-custom/status', name: 'StaticPages', element: StaticPages },
   { path: '/theme-custom/banner', name: 'BannerManager', element: BannerManager },
   { path: '/admin/event-greeting', name: 'Sự kiện & Lời chúc', element: EventGreetingManagerView },
-  { path: '/theme-custom/event-greeting', name: 'Sự kiện & Lời chúc', element: EventGreetingManagerView },
+  {
+    path: '/theme-custom/event-greeting',
+    name: 'Sự kiện & Lời chúc',
+    element: EventGreetingManagerView,
+  },
 
   // ── 2. QUẢN TRỊ HỆ THỐNG ──────────────────────────────────
   // 2a. Thông tin quản trị
