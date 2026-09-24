@@ -221,20 +221,14 @@ const EventGreetingManager = () => {
     formData.append('file', file)
 
     try {
-      const token = localStorage.getItem('adminNKCP')
-      // Gọi trực tiếp qua axios để trình duyệt tự động đính kèm multipart boundary
-      const res = await axios.post(
-        'https://api.chinhnhan.com/api/event-greeting/admin/upload-image',
-        formData,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : '',
-          },
+      const res = await axiosClient.post('event-greeting/admin/upload-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-      )
+      })
 
-      if (res?.data?.status && res?.data?.data?.url) {
-        const uploadedUrl = res.data.data.url
+      const uploadedUrl = res?.data?.data?.url || res?.data?.url
+      if (res?.data?.status && uploadedUrl) {
         setEventData((prev) => {
           if (fieldKey === 'root') {
             return {
@@ -287,11 +281,14 @@ const EventGreetingManager = () => {
             },
           }
         })
-        toast.info('Đã chuyển ảnh sang dữ liệu Base64, vui lòng bấm "Lưu Cấu Hình Sự Kiện"!')
+        toast.info('Đã chuyển ảnh sang Base64 tạm thời, bấm "Lưu Cấu Hình Sự Kiện" để hoàn tất!')
       }
       reader.readAsDataURL(file)
     } finally {
       setUploadingField(null)
+      if (e.target) {
+        e.target.value = ''
+      }
     }
   }
 
