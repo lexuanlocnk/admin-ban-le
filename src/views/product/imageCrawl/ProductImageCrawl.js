@@ -58,14 +58,33 @@ const scoreColor = (score) =>
         ? 'warning'
         : 'success'
 
+const categoryTreeOptions = (categories) => {
+  const ids = new Set(categories.map((category) => String(category.cat_id)))
+  const children = new Map()
+  categories.forEach((category) => {
+    const parent = ids.has(String(category.parentid)) ? String(category.parentid) : '0'
+    children.set(parent, [...(children.get(parent) || []), category])
+  })
+  const options = []
+  const visited = new Set()
+  const visit = (category, depth) => {
+    const id = String(category.cat_id)
+    if (visited.has(id)) return
+    visited.add(id)
+    options.push({ ...category, depth })
+    ;(children.get(id) || []).forEach((child) => visit(child, depth + 1))
+  }
+  ;(children.get('0') || []).forEach((category) => visit(category, 0))
+  categories.forEach((category) => visit(category, 0))
+  return options
+}
+
 export default function ProductImageCrawl() {
   const { productId } = useParams()
   const [filters, setFilters] = useState({
     search: '',
     cat_id: '',
-    status: '',
     warning: '',
-    display: 'Y',
     stock: '1',
   })
   const [search, setSearch] = useState('')
@@ -196,10 +215,6 @@ export default function ProductImageCrawl() {
       {!productId && list && (
         <CCard>
           <CCardBody>
-            <p className="text-body-secondary">
-              Sản phẩm thiếu ảnh chi tiết và lịch sử crawl. Ảnh chỉ lên trang sản phẩm sau khi được
-              duyệt.
-            </p>
             <CRow className="g-2 mb-3">
               <CCol md={4}>
                 <form
@@ -227,24 +242,9 @@ export default function ProductImageCrawl() {
                   onChange={(event) => changeFilter('cat_id', event.target.value)}
                 >
                   <option value="">Tất cả danh mục</option>
-                  {categories.map((cat) => (
+                  {categoryTreeOptions(categories).map((cat) => (
                     <option key={`${cat.cat_id}-${cat.cat_name}`} value={cat.cat_id}>
-                      {cat.cat_name}
-                    </option>
-                  ))}
-                </CFormSelect>
-              </CCol>
-              <CCol md={3}>
-                <CFormSelect
-                  aria-label="Trạng thái crawl"
-                  value={filters.status}
-                  onChange={(event) => changeFilter('status', event.target.value)}
-                >
-                  <option value="">Tất cả trạng thái</option>
-                  <option value="missing">Chưa crawl</option>
-                  {Object.entries(jobLabels).map(([key, label]) => (
-                    <option key={key} value={key}>
-                      {label}
+                      {`${'\u00a0\u00a0\u00a0\u00a0'.repeat(cat.depth)}${cat.depth ? '↳ ' : ''}${cat.cat_name}`}
                     </option>
                   ))}
                 </CFormSelect>
@@ -259,17 +259,6 @@ export default function ProductImageCrawl() {
                   <option value="low">OCR thấp</option>
                   <option value="check">Cần kiểm tra</option>
                   <option value="high">Cảnh báo cao</option>
-                </CFormSelect>
-              </CCol>
-              <CCol md={3}>
-                <CFormSelect
-                  aria-label="Hiển thị sản phẩm"
-                  value={filters.display}
-                  onChange={(event) => changeFilter('display', event.target.value)}
-                >
-                  <option value="">Tất cả hiển thị</option>
-                  <option value="Y">Hiển thị (Y)</option>
-                  <option value="N">Ẩn (N)</option>
                 </CFormSelect>
               </CCol>
               <CCol md={3}>
@@ -292,7 +281,6 @@ export default function ProductImageCrawl() {
                     'Tên / mã hàng hóa',
                     'Danh mục',
                     'Trạng thái',
-                    'OCR cao nhất',
                     'Ngày crawl',
                     'Thao tác',
                   ].map((label) => (
@@ -324,20 +312,6 @@ export default function ProductImageCrawl() {
                       <small>{row.pending_count} ảnh chờ duyệt</small>
                       {row.error && <div className="small text-danger">{row.error}</div>}
                     </CTableDataCell>
-                    <CTableDataCell>
-                      {Number(row.pending_count) > 0 ? (
-                        <CBadge color={scoreColor(row.ocr_score)}>
-                          {scoreLabel(row.ocr_score)}
-                        </CBadge>
-                      ) : (
-                        '—'
-                      )}
-                      {Number(row.ocr_unknown_count) > 0 && (
-                        <div className="small text-warning">
-                          {row.ocr_unknown_count} ảnh chưa đọc OCR
-                        </div>
-                      )}
-                    </CTableDataCell>
                     <CTableDataCell>{dateLabel(row.finished_at || row.started_at)}</CTableDataCell>
                     <CTableDataCell>
                       <Link to={`/product/image-crawl/${row.product_id}`}>Xem chi tiết</Link>
@@ -358,7 +332,7 @@ export default function ProductImageCrawl() {
                 ))}
                 {!list.data.length && (
                   <CTableRow>
-                    <CTableDataCell colSpan={7}>Không có sản phẩm phù hợp.</CTableDataCell>
+                    <CTableDataCell colSpan={6}>Không có sản phẩm phù hợp.</CTableDataCell>
                   </CTableRow>
                 )}
               </CTableBody>
@@ -413,6 +387,51 @@ export default function ProductImageCrawl() {
                     : 'Máy Đồng bộ đang xử lý. Dữ liệu cập nhật mỗi 10 giây.'}
                 </CAlert>
               )}
+              {detail.source_policy && (
+                <div className="mb-3">
+                  <h6>Nguồn ảnh theo cấp ưu tiên</h6>
+                  <CRow className="g-2">
+                    {detail.source_policy.tiers.map((tier) => (
+                      <CCol md={4} key={tier.priority}>
+                        <div className="border rounded p-3 h-100">
+                          <strong>
+                            Cấp {tier.priority}: {tier.name}
+                          </strong>
+                          <div className="small text-body-secondary mt-1">
+                            {tier.priority === 1
+                              ? 'Tìm trước, chọn trang hãng theo thương hiệu sản phẩm.'
+                              : `Chỉ tìm khi các cấp trước chưa đủ ảnh.`}
+                          </div>
+                          <div className="small mt-2" style={{ maxHeight: 150, overflowY: 'auto' }}>
+                            {(tier.kind === 'official'
+                              ? Object.entries(detail.source_policy.official_domains)
+                                  .filter(
+                                    ([brand]) =>
+                                      !detail.job?.normalized?.brand ||
+                                      brand === detail.job.normalized.brand,
+                                  )
+                                  .flatMap(([brand, domains]) =>
+                                    domains.map((domain) => ({ name: brand, domain })),
+                                  )
+                              : tier.sources
+                            ).map((source) => (
+                              <div key={source.domain}>
+                                <a
+                                  href={`https://${source.domain}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  {source.name} · {source.domain}
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CCol>
+                    ))}
+                  </CRow>
+                </div>
+              )}
               <CFormTextarea
                 id="crawl-source-urls"
                 label="URL trang sản phẩm nguồn (mỗi dòng một URL, tối đa 10)"
@@ -423,8 +442,8 @@ export default function ProductImageCrawl() {
                 onChange={(event) => setSources(event.target.value)}
               />
               <div className="small text-body-secondary mt-1 mb-3">
-                Để trống để tìm trên An Phát và HACOM. Bạn cũng có thể nhập URL trang sản phẩm từ
-                nguồn khác.
+                Để trống để tìm lần lượt theo 3 cấp ưu tiên. Nếu nhập URL, crawler chỉ dùng các
+                trang sản phẩm bạn chỉ định.
               </div>
               <div className="d-flex flex-wrap gap-2">
                 <CButton
