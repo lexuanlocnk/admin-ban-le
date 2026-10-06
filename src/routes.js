@@ -35,6 +35,7 @@ const AccessStatistics = React.lazy(() => import('./views/accessstatistics/Acces
 const AdminUpdateExcelPrice = React.lazy(() => import('./views/admin/AdminExcelUpdatePrice'))
 const ProductOutOfSync = React.lazy(() => import('./views/product/productOutOfSync.js'))
 const ProductDetail = React.lazy(() => import('./views/product/detail/ProductDetail'))
+const ProductImageCrawl = React.lazy(() => import('./views/product/imageCrawl/ProductImageCrawl'))
 const AddProductDetail = React.lazy(() => import('./views/product/detail/AddProductDetail'))
 const EditProductDetail = React.lazy(() => import('./views/product/detail/EditProductDetail'))
 const ProductConfig = React.lazy(() => import('./views/product/ProductConfig'))
@@ -307,6 +308,12 @@ const routes = [
   },
   { path: '/product/out-of-sync', name: 'ProductOutOfSync', element: ProductOutOfSync },
   { path: '/product', name: 'ProductDetail', element: ProductDetail },
+  { path: '/product/image-crawl', name: 'Duyệt ảnh crawl', element: ProductImageCrawl },
+  {
+    path: '/product/image-crawl/:productId',
+    name: 'Duyệt ảnh sản phẩm',
+    element: ProductImageCrawl,
+  },
   { path: '/product/add', exact: true, name: 'AddProductDetail', element: AddProductDetail },
   { path: '/product/edit', exact: true, name: 'EditProductDetail', element: EditProductDetail },
   { path: '/product/config', exact: true, name: 'ProductConfig', element: ProductConfig },
