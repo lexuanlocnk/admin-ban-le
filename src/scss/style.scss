@@ -305,6 +305,22 @@ label {
   }
 }
 
+.crawl-product-table {
+  .crawl-product-name {
+    width: 32%;
+    min-width: 220px;
+    overflow-wrap: anywhere;
+
+    .font-monospace {
+      min-width: 0;
+    }
+
+    button {
+      flex-shrink: 0;
+    }
+  }
+}
+
 .select-input {
   font-size: 14px;
 }

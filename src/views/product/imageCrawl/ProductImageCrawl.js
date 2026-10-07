@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import ReactPaginate from 'react-paginate'
+import CIcon from '@coreui/icons-react'
+import { cilCopy } from '@coreui/icons'
+import copyProductCode from '../../../helper/copyProductCode'
 import {
   CAlert,
   CBadge,
@@ -337,25 +340,54 @@ export default function ProductImageCrawl() {
               )}
             </table>
             {renderPagination('top')}
-            <CTable responsive hover align="middle">
+            <CTable responsive hover align="middle" className="crawl-product-table">
               <CTableHead>
                 <CTableRow>
                   {[
-                    'Ảnh',
                     'Tên / mã hàng hóa',
+                    'Ảnh',
                     'Danh mục',
                     'Trạng thái',
                     'Ngày đồng bộ',
                     'Ngày crawl',
                     'Thao tác',
                   ].map((label) => (
-                    <CTableHeaderCell key={label}>{label}</CTableHeaderCell>
+                    <CTableHeaderCell
+                      key={label}
+                      className={label === 'Tên / mã hàng hóa' ? 'crawl-product-name' : undefined}
+                    >
+                      {label}
+                    </CTableHeaderCell>
                   ))}
                 </CTableRow>
               </CTableHead>
               <CTableBody>
                 {list.data.map((row) => (
                   <CTableRow key={row.product_id}>
+                    <CTableDataCell className="crawl-product-name">
+                      <Link
+                        to={`/product/image-crawl/${row.product_id}`}
+                        className="blue-txt fw-semibold"
+                      >
+                        {row.title || `Sản phẩm #${row.product_id}`}
+                      </Link>
+                      <div className="d-flex align-items-center gap-1 mt-1">
+                        <span className="orange-txt font-monospace fw-semibold">
+                          {row.MaHH || row.macn ? `#${row.MaHH || row.macn}` : '—'}
+                        </span>
+                        {(row.MaHH || row.macn) && (
+                          <button
+                            type="button"
+                            className="border-0 bg-transparent text-secondary p-1 d-inline-flex align-items-center"
+                            aria-label={`Copy mã sản phẩm ${row.MaHH || row.macn}`}
+                            title="Copy mã sản phẩm"
+                            onClick={() => copyProductCode(row.MaHH || row.macn)}
+                          >
+                            <CIcon icon={cilCopy} size="custom" width={14} height={14} />
+                          </button>
+                        )}
+                      </div>
+                    </CTableDataCell>
                     <CTableDataCell>
                       {row.picture && (
                         <img
@@ -364,12 +396,6 @@ export default function ProductImageCrawl() {
                           style={{ width: 56, height: 56, objectFit: 'contain' }}
                         />
                       )}
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <Link to={`/product/image-crawl/${row.product_id}`}>
-                        {row.title || `Sản phẩm #${row.product_id}`}
-                      </Link>
-                      <div className="small text-body-secondary">{row.macn || row.MaHH}</div>
                     </CTableDataCell>
                     <CTableDataCell>{row.category || '—'}</CTableDataCell>
                     <CTableDataCell>
