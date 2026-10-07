@@ -137,6 +137,8 @@ function ProductDetail() {
   // filter states
   const [selectedDisplay, setSelectedDisplay] = useState('')
   const [selectedStock, setSelectedStock] = useState('')
+  const [selectedArticle, setSelectedArticle] = useState('')
+  const [selectedDetailImages, setSelectedDetailImages] = useState('')
 
   const fetchData = async () => {
     try {
@@ -176,7 +178,7 @@ function ProductDetail() {
     try {
       setIsLoading(true)
       const response = await axiosClient.get(
-        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}&display=${selectedDisplay}&stock=${selectedStock}`,
+        `admin/product?page=${pageNumber}&data=${dataSearch}&brand=${selectedBrand}&category=${selectedCategory}&status=${selectedStatus}&display=${selectedDisplay}&stock=${selectedStock}&article=${selectedArticle}&detail_images=${selectedDetailImages}`,
       )
       if (response.data.status === true) {
         setDataProductList(response.data.product)
@@ -202,6 +204,8 @@ function ProductDetail() {
     selectedStatus,
     selectedDisplay,
     selectedStock,
+    selectedArticle,
+    selectedDetailImages,
   ])
 
   const handleAddNewClick = () => {
@@ -734,6 +738,34 @@ function ProductDetail() {
                               { label: 'Tất cả kho', value: '' },
                               { label: 'Còn hàng', value: '1' },
                               { label: 'Hết hàng', value: '0' },
+                            ]}
+                          />
+                          <CFormSelect
+                            className="component-size w-auto"
+                            aria-label="Bài viết sản phẩm"
+                            value={selectedArticle}
+                            onChange={(event) => {
+                              setPageNumber(1)
+                              setSelectedArticle(event.target.value)
+                            }}
+                            options={[
+                              { label: 'Tất cả bài viết', value: '' },
+                              { label: 'Có bài viết (<200 từ)', value: 'under_200' },
+                              { label: 'Chưa có bài viết', value: 'missing' },
+                            ]}
+                          />
+                          <CFormSelect
+                            className="component-size w-auto"
+                            aria-label="Ảnh chi tiết sản phẩm"
+                            value={selectedDetailImages}
+                            onChange={(event) => {
+                              setPageNumber(1)
+                              setSelectedDetailImages(event.target.value)
+                            }}
+                            options={[
+                              { label: 'Tất cả ảnh chi tiết', value: '' },
+                              { label: 'Có ảnh chi tiết', value: '1' },
+                              { label: 'Chưa có ảnh chi tiết', value: '0' },
                             ]}
                           />
                         </div>
