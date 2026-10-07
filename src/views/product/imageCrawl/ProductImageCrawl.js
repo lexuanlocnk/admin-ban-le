@@ -231,9 +231,9 @@ export default function ProductImageCrawl() {
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3 gap-3">
-        <h4 className="mb-0">
+        <h2 className="mb-0 text-uppercase">
           {productId ? 'Duyệt ảnh crawl của sản phẩm' : 'Duyệt ảnh chi tiết crawl'}
-        </h4>
+        </h2>
       </div>
       {error && <CAlert color="danger">{error}</CAlert>}
       {loading && (
