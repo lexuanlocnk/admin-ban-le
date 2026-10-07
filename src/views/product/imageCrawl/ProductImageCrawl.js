@@ -231,14 +231,6 @@ export default function ProductImageCrawl() {
         <h4 className="mb-0">
           {productId ? 'Duyệt ảnh crawl của sản phẩm' : 'Duyệt ảnh chi tiết crawl'}
         </h4>
-        <CButton
-          color="secondary"
-          variant="outline"
-          disabled={busy || loading}
-          onClick={() => load()}
-        >
-          Làm mới
-        </CButton>
       </div>
       {error && <CAlert color="danger">{error}</CAlert>}
       {loading && (
