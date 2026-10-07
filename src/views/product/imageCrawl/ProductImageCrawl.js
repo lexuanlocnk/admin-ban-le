@@ -294,6 +294,7 @@ export default function ProductImageCrawl() {
                           value={filters.crawled}
                           onChange={(event) => changeFilter('crawled', event.target.value)}
                         >
+                          <option value="">Tất cả</option>
                           <option value="1">Đã crawl ảnh</option>
                           <option value="0">Chưa crawl ảnh</option>
                         </CFormSelect>
