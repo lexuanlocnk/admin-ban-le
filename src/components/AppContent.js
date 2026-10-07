@@ -9,11 +9,7 @@ const AppContent = () => {
   const { pathname } = useLocation()
   const isProductList = pathname.replace(/\/$/, '') === '/product'
   return (
-    <CContainer
-      className={isProductList ? 'px-3' : 'px-4'}
-      fluid={isProductList}
-      lg={!isProductList}
-    >
+    <CContainer className="px-4" fluid={isProductList} lg={!isProductList}>
       <Suspense fallback={<CSpinner color="primary" />}>
         <Routes>
           {routes.map((route, idx) => {
