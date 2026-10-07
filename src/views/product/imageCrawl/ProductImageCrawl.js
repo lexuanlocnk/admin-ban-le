@@ -501,6 +501,7 @@ export default function ProductImageCrawl() {
               )}
               <CFormTextarea
                 id="crawl-source-urls"
+                className="mb-3"
                 label="URL trang sản phẩm nguồn (mỗi dòng một URL, tối đa 10)"
                 placeholder="https://..."
                 rows={2}
@@ -508,10 +509,6 @@ export default function ProductImageCrawl() {
                 disabled={queued || busy}
                 onChange={(event) => setSources(event.target.value)}
               />
-              <div className="small text-body-secondary mt-1 mb-3">
-                Để trống để tìm lần lượt theo 3 cấp ưu tiên. Nếu nhập URL, crawler chỉ dùng các
-                trang sản phẩm bạn chỉ định.
-              </div>
               <div className="d-flex flex-wrap gap-2">
                 <CButton
                   color="primary"
