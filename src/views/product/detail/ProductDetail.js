@@ -491,7 +491,7 @@ function ProductDetail() {
                 {item.stock > 0 ? (item.stock === 1 ? 'Còn hàng' : 'Ngừng KD') : 'Hết hàng'}
               </span>
               <span
-                className={`d-block mt-1 ${item.Hienthi === 'Y' ? 'text-success' : 'text-danger'}`}
+                className={`d-block mt-1 fw-bold ${item.Hienthi === 'Y' ? 'text-success' : 'text-danger'}`}
               >
                 {item.Hienthi === 'Y' ? 'Hiển thị' : 'Ẩn'}
               </span>
