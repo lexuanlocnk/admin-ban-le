@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import ReactPaginate from 'react-paginate'
 import CIcon from '@coreui/icons-react'
-import { cilCopy } from '@coreui/icons'
+import { cilCopy, cilColorBorder, cilCloudDownload } from '@coreui/icons'
 import copyProductCode from '../../../helper/copyProductCode'
 import {
   CAlert,
@@ -101,6 +101,7 @@ export default function ProductImageCrawl() {
   const [popup, setPopup] = useState(null)
   const [sources, setSources] = useState('')
   const [busy, setBusy] = useState(false)
+  const [enqueuingId, setEnqueuingId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -175,6 +176,14 @@ export default function ProductImageCrawl() {
       toast.error(errorMessage(err))
     } finally {
       setBusy(false)
+    }
+  }
+  const handleManualCrawl = async (id) => {
+    setEnqueuingId(id)
+    try {
+      await enqueue(id)
+    } finally {
+      setEnqueuingId(null)
     }
   }
   const review = async (action, ids) => {
@@ -355,7 +364,13 @@ export default function ProductImageCrawl() {
                   ].map((label) => (
                     <CTableHeaderCell
                       key={label}
-                      className={label === 'Tên / mã hàng hóa' ? 'crawl-product-name' : undefined}
+                      className={
+                        label === 'Tên / mã hàng hóa'
+                          ? 'crawl-product-name'
+                          : label === 'Thao tác'
+                            ? 'text-nowrap'
+                            : undefined
+                      }
                     >
                       {label}
                     </CTableHeaderCell>
@@ -363,63 +378,110 @@ export default function ProductImageCrawl() {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {list.data.map((row) => (
-                  <CTableRow key={row.product_id}>
-                    <CTableDataCell className="crawl-product-name">
-                      <Link
-                        to={`/product/image-crawl/${row.product_id}`}
-                        className="blue-txt fw-semibold"
-                      >
-                        {row.title || `Sản phẩm #${row.product_id}`}
-                      </Link>
-                      <div className="d-flex align-items-center gap-1 mt-1">
-                        <span className="orange-txt font-monospace fw-semibold">
-                          {row.MaHH || row.macn ? `#${row.MaHH || row.macn}` : '—'}
-                        </span>
-                        {(row.MaHH || row.macn) && (
+                {list.data.map((row) => {
+                  const isCrawling =
+                    busy ||
+                    enqueuingId === row.product_id ||
+                    ['queued', 'running'].includes(row.crawl_status)
+                  return (
+                    <CTableRow key={row.product_id}>
+                      <CTableDataCell className="crawl-product-name">
+                        <Link
+                          to={`/product/image-crawl/${row.product_id}`}
+                          className="blue-txt fw-semibold"
+                        >
+                          {row.title || `Sản phẩm #${row.product_id}`}
+                        </Link>
+                        <div className="d-flex align-items-center gap-1 mt-1">
+                          <span className="orange-txt font-monospace fw-semibold">
+                            {row.MaHH || row.macn ? `#${row.MaHH || row.macn}` : '—'}
+                          </span>
+                          {(row.MaHH || row.macn) && (
+                            <button
+                              type="button"
+                              className="border-0 bg-transparent text-secondary p-1 d-inline-flex align-items-center"
+                              aria-label={`Copy mã sản phẩm ${row.MaHH || row.macn}`}
+                              title="Copy mã sản phẩm"
+                              onClick={() => copyProductCode(row.MaHH || row.macn)}
+                            >
+                              <CIcon icon={cilCopy} size="custom" width={14} height={14} />
+                            </button>
+                          )}
+                        </div>
+                      </CTableDataCell>
+                      <CTableDataCell>
+                        {row.picture && (
+                          <img
+                            src={imageUrl(row.picture)}
+                            alt=""
+                            style={{ width: 56, height: 56, objectFit: 'contain' }}
+                          />
+                        )}
+                      </CTableDataCell>
+                      <CTableDataCell>{row.category || '—'}</CTableDataCell>
+                      <CTableDataCell>
+                        <div>{jobLabels[row.crawl_status] || 'Chưa crawl'}</div>
+                        <small>{row.pending_count} ảnh chờ duyệt</small>
+                        {row.error && <div className="small text-danger">{row.error}</div>}
+                      </CTableDataCell>
+                      <CTableDataCell>{dateLabel(row.synced_at)}</CTableDataCell>
+                      <CTableDataCell>
+                        {dateLabel(row.finished_at || row.started_at)}
+                      </CTableDataCell>
+                      <CTableDataCell className="text-nowrap">
+                        <div className="d-flex align-items-center gap-1">
+                          <Link
+                            to={`/product/image-crawl/${row.product_id}`}
+                            className="button-action text-white rounded border-0 p-1 d-inline-flex align-items-center justify-content-center shadow-sm text-decoration-none"
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              backgroundColor: '#f59e0b',
+                            }}
+                            title="Duyệt và xem chi tiết ảnh crawl"
+                            aria-label={`Duyệt và xem chi tiết ảnh crawl ${row.title || row.product_id}`}
+                          >
+                            <CIcon icon={cilColorBorder} className="text-white" />
+                          </Link>
                           <button
                             type="button"
-                            className="border-0 bg-transparent text-secondary p-1 d-inline-flex align-items-center"
-                            aria-label={`Copy mã sản phẩm ${row.MaHH || row.macn}`}
-                            title="Copy mã sản phẩm"
-                            onClick={() => copyProductCode(row.MaHH || row.macn)}
+                            className="button-action text-white rounded border-0 p-1 d-inline-flex align-items-center justify-content-center shadow-sm"
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              backgroundColor: '#2563eb',
+                              opacity: isCrawling ? 0.6 : 1,
+                              cursor: isCrawling ? 'not-allowed' : 'pointer',
+                            }}
+                            title={
+                              ['queued', 'running'].includes(row.crawl_status)
+                                ? 'Đang chờ hoặc đang crawl'
+                                : isCrawling
+                                  ? 'Đang gửi yêu cầu...'
+                                  : 'Crawl ảnh thủ công'
+                            }
+                            aria-label={`Crawl ảnh thủ công ${row.title || row.product_id}`}
+                            disabled={isCrawling}
+                            onClick={() => handleManualCrawl(row.product_id)}
                           >
-                            <CIcon icon={cilCopy} size="custom" width={14} height={14} />
+                            {enqueuingId === row.product_id ? (
+                              <CSpinner size="sm" className="text-white" />
+                            ) : (
+                              <CIcon
+                                icon={cilCloudDownload}
+                                size="custom"
+                                width={18}
+                                height={18}
+                                className="text-white"
+                                style={{ '--ci-primary-color': '#fff', flexShrink: 0 }}
+                              />
+                            )}
                           </button>
-                        )}
-                      </div>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      {row.picture && (
-                        <img
-                          src={imageUrl(row.picture)}
-                          alt=""
-                          style={{ width: 56, height: 56, objectFit: 'contain' }}
-                        />
-                      )}
-                    </CTableDataCell>
-                    <CTableDataCell>{row.category || '—'}</CTableDataCell>
-                    <CTableDataCell>
-                      <div>{jobLabels[row.crawl_status] || 'Chưa crawl'}</div>
-                      <small>{row.pending_count} ảnh chờ duyệt</small>
-                      {row.error && <div className="small text-danger">{row.error}</div>}
-                    </CTableDataCell>
-                    <CTableDataCell>{dateLabel(row.synced_at)}</CTableDataCell>
-                    <CTableDataCell>{dateLabel(row.finished_at || row.started_at)}</CTableDataCell>
-                    <CTableDataCell>
-                      <CButton
-                        as={Link}
-                        to={`/product/image-crawl/${row.product_id}`}
-                        size="sm"
-                        color="primary"
-                        variant="outline"
-                        className="text-nowrap"
-                      >
-                        Xem chi tiết
-                      </CButton>
-                    </CTableDataCell>
-                  </CTableRow>
-                ))}
+                        </div>
+                      </CTableDataCell>
+                    </CTableRow>
+                  )
+                })}
                 {!list.data.length && (
                   <CTableRow>
                     <CTableDataCell colSpan={7}>Không có sản phẩm phù hợp.</CTableDataCell>
