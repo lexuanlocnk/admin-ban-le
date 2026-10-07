@@ -588,6 +588,43 @@ function ProductDetail() {
     }
   }
 
+  const renderPagination = (position) => (
+    <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+      <div className="text-muted fs-7">
+        Hiển thị <strong>{sortedItems.length}</strong> trên tổng số{' '}
+        <strong>{dataProductList?.total || 0}</strong> sản phẩm
+      </div>
+      <nav
+        aria-label={
+          position === 'top' ? 'Phân trang sản phẩm phía trên' : 'Phân trang sản phẩm phía dưới'
+        }
+      >
+        <ReactPaginate
+          pageCount={Math.ceil((dataProductList?.total || 0) / (dataProductList?.per_page || 10))}
+          pageRangeDisplayed={3}
+          marginPagesDisplayed={1}
+          pageClassName="page-item"
+          pageLinkClassName="page-link"
+          previousClassName="page-item"
+          previousLinkClassName="page-link"
+          nextClassName="page-item"
+          nextLinkClassName="page-link"
+          breakLabel="..."
+          breakClassName="page-item"
+          breakLinkClassName="page-link"
+          disableInitialCallback
+          onClick={() => (isLoading ? false : undefined)}
+          onPageChange={handlePageChange}
+          containerClassName={'pagination mb-0'}
+          activeClassName={'active'}
+          previousLabel={'<<'}
+          nextLabel={'>>'}
+          forcePage={pageNumber - 1}
+        />
+      </nav>
+    </div>
+  )
+
   return (
     <CContainer fluid className="px-0">
       {!isPermissionCheck ? (
@@ -816,6 +853,10 @@ function ProductDetail() {
             </CCol>
 
             <CCol md={12} className="mt-3">
+              {renderPagination('top')}
+            </CCol>
+
+            <CCol md={12} className="mt-3">
               {isLoading ? (
                 <Loading />
               ) : (
@@ -869,34 +910,7 @@ function ProductDetail() {
             </CCol>
 
             <CCol md={12} className="mt-4 mb-4">
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="text-muted fs-7">
-                  Hiển thị <strong>{sortedItems.length}</strong> trên tổng số{' '}
-                  <strong>{dataProductList?.total || 0}</strong> sản phẩm
-                </div>
-                <ReactPaginate
-                  pageCount={Math.ceil(
-                    (dataProductList?.total || 0) / (dataProductList?.per_page || 10),
-                  )}
-                  pageRangeDisplayed={3}
-                  marginPagesDisplayed={1}
-                  pageClassName="page-item"
-                  pageLinkClassName="page-link"
-                  previousClassName="page-item"
-                  previousLinkClassName="page-link"
-                  nextClassName="page-item"
-                  nextLinkClassName="page-link"
-                  breakLabel="..."
-                  breakClassName="page-item"
-                  breakLinkClassName="page-link"
-                  onPageChange={handlePageChange}
-                  containerClassName={'pagination mb-0'}
-                  activeClassName={'active'}
-                  previousLabel={'<<'}
-                  nextLabel={'>>'}
-                  forcePage={pageNumber - 1}
-                />
-              </div>
+              {renderPagination('bottom')}
             </CCol>
           </CRow>
         </>
