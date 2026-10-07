@@ -289,6 +289,20 @@ label {
   tbody tr:hover .product-actions-cell {
     background-color: #f8fafc;
   }
+
+  @media (min-width: 1500px) {
+    // Share the extra room across all columns instead of giving it only to the title.
+    @each $column, $width in (1: 3%, 2: 33%, 3: 7%, 4: 10%, 5: 10%, 6: 9%, 7: 10%, 8: 10%, 9: 8%) {
+      thead th:nth-child(#{$column}) {
+        width: $width !important;
+      }
+    }
+
+    thead th,
+    tbody td {
+      padding: 12px 10px !important;
+    }
+  }
 }
 
 .select-input {
