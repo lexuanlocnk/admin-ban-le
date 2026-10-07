@@ -90,6 +90,7 @@ export default function ProductImageCrawl() {
     cat_id: '',
     crawled: '0',
     stock: '1',
+    created_period: '',
   })
   const [search, setSearch] = useState('')
   const [filtersCollapsed, setFiltersCollapsed] = useState(false)
@@ -316,6 +317,19 @@ export default function ProductImageCrawl() {
                           <option value="">Tất cả tồn kho</option>
                           <option value="1">Còn hàng</option>
                           <option value="0">Hết hàng</option>
+                        </CFormSelect>
+                        <CFormSelect
+                          className="component-size crawl-filter-select"
+                          aria-label="Ngày tạo sản phẩm"
+                          value={filters.created_period}
+                          onChange={(event) => changeFilter('created_period', event.target.value)}
+                        >
+                          <option value="">Tất cả ngày tạo</option>
+                          <option value="today">Hôm nay</option>
+                          <option value="this_week">Tuần này</option>
+                          <option value="this_month">Tháng này</option>
+                          <option value="last_7_days">7 ngày qua</option>
+                          <option value="last_30_days">30 ngày qua</option>
                         </CFormSelect>
                       </div>
                     </td>
