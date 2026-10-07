@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import ReactPaginate from 'react-paginate'
 import CIcon from '@coreui/icons-react'
-import { cilCopy, cilColorBorder, cilCloudDownload } from '@coreui/icons'
+import { cilCopy, cilColorBorder } from '@coreui/icons'
 import copyProductCode from '../../../helper/copyProductCode'
 import {
   CAlert,
@@ -449,7 +449,7 @@ export default function ProductImageCrawl() {
                             style={{
                               width: '32px',
                               height: '32px',
-                              backgroundColor: '#2563eb',
+                              backgroundColor: '#4c9aff',
                               opacity: isCrawling ? 0.6 : 1,
                               cursor: isCrawling ? 'not-allowed' : 'pointer',
                             }}
@@ -467,14 +467,21 @@ export default function ProductImageCrawl() {
                             {enqueuingId === row.product_id ? (
                               <CSpinner size="sm" className="text-white" />
                             ) : (
-                              <CIcon
-                                icon={cilCloudDownload}
-                                size="custom"
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
                                 width={18}
                                 height={18}
-                                className="text-white"
-                                style={{ '--ci-primary-color': '#fff', flexShrink: 0 }}
-                              />
+                                fill="none"
+                                stroke="#ffffff"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                                style={{ display: 'block', flexShrink: 0, width: 18, height: 18 }}
+                              >
+                                <path d="M12 3v12m-5-5 5 5 5-5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" />
+                              </svg>
                             )}
                           </button>
                         </div>
