@@ -21,7 +21,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import CIcon from '@coreui/icons-react'
-import { cilTrash, cilColorBorder, cilColorPalette, cilHome } from '@coreui/icons'
+import { cilTrash, cilColorBorder, cilColorPalette, cilHome, cilCopy } from '@coreui/icons'
 import ReactPaginate from 'react-paginate'
 import moment from 'moment'
 
@@ -33,6 +33,31 @@ import Loading from '../../../components/loading/Loading'
 import useDebounce from '../../../helper/debounce'
 
 function ProductDetail() {
+  const copyProductCode = async (code) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(String(code))
+      } else {
+        const input = document.createElement('textarea')
+        const previousFocus = document.activeElement
+        input.value = String(code)
+        input.style.position = 'fixed'
+        input.style.opacity = '0'
+        document.body.appendChild(input)
+        try {
+          input.select()
+          if (!document.execCommand('copy')) throw new Error('Copy failed')
+        } finally {
+          input.remove()
+          previousFocus?.focus()
+        }
+      }
+      toast.success('Đã copy mã sản phẩm.')
+    } catch {
+      toast.error('Không copy được mã sản phẩm. Hãy thử lại.')
+    }
+  }
+
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -391,7 +416,20 @@ function ProductDetail() {
               >
                 {item?.TenHH ? item?.TenTrenWeb2SAP : ''}
               </p>
-              <p className="orange-txt font-monospace m-0">{`#${item?.MaHH ? item?.MaHH : item?.macn}`}</p>
+              <div className="d-flex align-items-center gap-1">
+                <span className="orange-txt font-monospace">{`#${item?.MaHH || item?.macn || ''}`}</span>
+                {(item?.MaHH || item?.macn) && (
+                  <button
+                    type="button"
+                    className="border-0 bg-transparent text-secondary p-1 d-inline-flex align-items-center"
+                    aria-label={`Copy mã sản phẩm ${item.MaHH || item.macn}`}
+                    title="Copy mã sản phẩm"
+                    onClick={() => copyProductCode(item.MaHH || item.macn)}
+                  >
+                    <CIcon icon={cilCopy} size="custom" width={14} height={14} />
+                  </button>
+                )}
+              </div>
               {item.type === 2 && (
                 <div
                   className="mt-1"
