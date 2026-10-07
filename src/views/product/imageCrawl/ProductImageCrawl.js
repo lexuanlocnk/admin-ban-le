@@ -469,11 +469,6 @@ export default function ProductImageCrawl() {
                           <strong>
                             Cấp {tier.priority}: {tier.name}
                           </strong>
-                          <div className="small text-body-secondary mt-1">
-                            {tier.priority === 1
-                              ? 'Tìm trước, chọn trang hãng theo thương hiệu sản phẩm.'
-                              : `Chỉ tìm khi các cấp trước chưa đủ ảnh.`}
-                          </div>
                           <div className="small mt-2" style={{ maxHeight: 150, overflowY: 'auto' }}>
                             {(tier.kind === 'official'
                               ? Object.entries(detail.source_policy.official_domains)
