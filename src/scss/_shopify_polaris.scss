@@ -3,12 +3,16 @@
 ========================================================= */
 
 // 1. Root & Typography
+:root {
+  --cui-font-sans-serif: 'Roboto', Arial, sans-serif;
+  --cui-body-font-family: 'Roboto', Arial, sans-serif;
+}
+
 body,
 .wrapper {
   background-color: #f6f6f7 !important;
   color: #0f172a !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto,
-    'Helvetica Neue', sans-serif !important;
+  font-family: 'Roboto', Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased;
 }
 
