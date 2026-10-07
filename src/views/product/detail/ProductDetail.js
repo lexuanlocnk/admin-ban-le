@@ -487,11 +487,7 @@ function ProductDetail() {
                 {item.stock > 0 ? (item.stock === 1 ? 'Còn hàng' : 'Ngừng KD') : 'Hết hàng'}
               </span>
               <span
-                className={`badge ${
-                  item.Hienthi === 'Y'
-                    ? 'bg-success-subtle text-success border border-success-subtle'
-                    : 'bg-danger-subtle text-danger border border-danger-subtle'
-                } px-2 py-1 mt-1`}
+                className={`d-block mt-1 ${item.Hienthi === 'Y' ? 'text-success' : 'text-danger'}`}
               >
                 {item.Hienthi === 'Y' ? 'Hiển thị' : 'Ẩn'}
               </span>
