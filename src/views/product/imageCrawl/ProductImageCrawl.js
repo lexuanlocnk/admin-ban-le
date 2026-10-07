@@ -345,6 +345,7 @@ export default function ProductImageCrawl() {
                     'Tên / mã hàng hóa',
                     'Danh mục',
                     'Trạng thái',
+                    'Ngày đồng bộ',
                     'Ngày crawl',
                     'Thao tác',
                   ].map((label) => (
@@ -376,6 +377,7 @@ export default function ProductImageCrawl() {
                       <small>{row.pending_count} ảnh chờ duyệt</small>
                       {row.error && <div className="small text-danger">{row.error}</div>}
                     </CTableDataCell>
+                    <CTableDataCell>{dateLabel(row.synced_at)}</CTableDataCell>
                     <CTableDataCell>{dateLabel(row.finished_at || row.started_at)}</CTableDataCell>
                     <CTableDataCell>
                       <CButton
@@ -393,7 +395,7 @@ export default function ProductImageCrawl() {
                 ))}
                 {!list.data.length && (
                   <CTableRow>
-                    <CTableDataCell colSpan={6}>Không có sản phẩm phù hợp.</CTableDataCell>
+                    <CTableDataCell colSpan={7}>Không có sản phẩm phù hợp.</CTableDataCell>
                   </CTableRow>
                 )}
               </CTableBody>
