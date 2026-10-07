@@ -750,8 +750,8 @@ function ProductDetail() {
                             }}
                             options={[
                               { label: 'Tất cả bài viết', value: '' },
-                              { label: 'Có bài viết (>200 từ)', value: 'above_200' },
-                              { label: 'Chưa có bài viết (<200 từ)', value: 'missing' },
+                              { label: 'Có bài viết', value: 'above_200' },
+                              { label: 'Chưa có bài viết', value: 'missing' },
                             ]}
                           />
                           <CFormSelect
