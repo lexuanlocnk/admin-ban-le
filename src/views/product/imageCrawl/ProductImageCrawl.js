@@ -32,6 +32,7 @@ import {
 } from '@coreui/react'
 import { toast } from 'react-toastify'
 import { axiosClient, imageBaseUrl } from '../../../axiosConfig'
+import './ProductImageCrawl.scss'
 
 const endpoint = 'admin/product-image-crawls'
 const jobLabels = {
