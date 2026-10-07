@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import ReactPaginate from 'react-paginate'
 import {
   CAlert,
   CBadge,
@@ -84,10 +85,11 @@ export default function ProductImageCrawl() {
   const [filters, setFilters] = useState({
     search: '',
     cat_id: '',
-    warning: '',
+    crawled: '0',
     stock: '1',
   })
   const [search, setSearch] = useState('')
+  const [filtersCollapsed, setFiltersCollapsed] = useState(false)
   const [page, setPage] = useState(1)
   const [list, setList] = useState(null)
   const [categories, setCategories] = useState([])
@@ -188,6 +190,38 @@ export default function ProductImageCrawl() {
     }
   }
 
+  const renderPagination = (position) => (
+    <div className="d-flex flex-wrap gap-2 align-items-center justify-content-between my-3">
+      <span>
+        {list.total} sản phẩm · Trang {list.current_page}/{list.last_page}
+      </span>
+      <nav aria-label={position === 'top' ? 'Phân trang trên' : 'Phân trang dưới'}>
+        <ReactPaginate
+          pageCount={list.last_page}
+          pageRangeDisplayed={3}
+          marginPagesDisplayed={1}
+          pageClassName="page-item"
+          pageLinkClassName="page-link"
+          previousClassName="page-item"
+          previousLinkClassName="page-link"
+          nextClassName="page-item"
+          nextLinkClassName="page-link"
+          breakLabel="..."
+          breakClassName="page-item"
+          breakLinkClassName="page-link"
+          containerClassName="pagination mb-0"
+          activeClassName="active"
+          previousLabel="<<"
+          nextLabel=">>"
+          forcePage={page - 1}
+          disableInitialCallback
+          onClick={() => (loading ? false : undefined)}
+          onPageChange={({ selected }) => setPage(selected + 1)}
+        />
+      </nav>
+    </div>
+  )
+
   const queued = ['queued', 'running'].includes(jobStatus)
   const pending = detail?.images.filter((image) => image.status === 'pending') || []
 
@@ -215,64 +249,102 @@ export default function ProductImageCrawl() {
       {!productId && list && (
         <CCard>
           <CCardBody>
-            <CRow className="g-2 mb-3">
-              <CCol md={4}>
-                <form
-                  onSubmit={(event) => {
-                    event.preventDefault()
-                    changeFilter('search', search)
-                  }}
-                  className="d-flex gap-2"
-                >
-                  <CFormInput
-                    placeholder="Tên hoặc mã hàng hóa"
-                    aria-label="Tìm sản phẩm"
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                  />
-                  <CButton color="primary" type="submit">
-                    Tìm
-                  </CButton>
-                </form>
-              </CCol>
-              <CCol md={3}>
-                <CFormSelect
-                  aria-label="Danh mục"
-                  value={filters.cat_id}
-                  onChange={(event) => changeFilter('cat_id', event.target.value)}
-                >
-                  <option value="">Tất cả danh mục</option>
-                  {categoryTreeOptions(categories).map((cat) => (
-                    <option key={`${cat.cat_id}-${cat.cat_name}`} value={cat.cat_id}>
-                      {`${'\u00a0\u00a0\u00a0\u00a0'.repeat(cat.depth)}${cat.depth ? '↳ ' : ''}${cat.cat_name}`}
-                    </option>
-                  ))}
-                </CFormSelect>
-              </CCol>
-              <CCol md={2}>
-                <CFormSelect
-                  aria-label="Cảnh báo OCR"
-                  value={filters.warning}
-                  onChange={(event) => changeFilter('warning', event.target.value)}
-                >
-                  <option value="">Tất cả cảnh báo</option>
-                  <option value="low">OCR thấp</option>
-                  <option value="check">Cần kiểm tra</option>
-                  <option value="high">Cảnh báo cao</option>
-                </CFormSelect>
-              </CCol>
-              <CCol md={3}>
-                <CFormSelect
-                  aria-label="Tồn kho"
-                  value={filters.stock}
-                  onChange={(event) => changeFilter('stock', event.target.value)}
-                >
-                  <option value="">Tất cả tồn kho</option>
-                  <option value="1">Còn hàng</option>
-                  <option value="0">Hết hàng</option>
-                </CFormSelect>
-              </CCol>
-            </CRow>
+            <table className="filter-table crawl-filter-table mb-3">
+              <thead>
+                <tr>
+                  <th colSpan={2}>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="fw-bold text-dark">Bộ lọc tìm kiếm</span>
+                      <button
+                        type="button"
+                        className="border-0 bg-transparent text-secondary px-2"
+                        aria-label={filtersCollapsed ? 'Mở bộ lọc' : 'Thu gọn bộ lọc'}
+                        aria-expanded={!filtersCollapsed}
+                        onClick={() => setFiltersCollapsed((current) => !current)}
+                      >
+                        {filtersCollapsed ? '▼' : '▲'}
+                      </button>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              {!filtersCollapsed && (
+                <tbody>
+                  <tr>
+                    <td className="crawl-filter-label fw-semibold text-secondary">Tổng cộng</td>
+                    <td>
+                      <span className="text-danger fs-6 fw-bold">{list.total}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="crawl-filter-label fw-semibold text-secondary">Lọc</td>
+                    <td>
+                      <div className="d-flex flex-wrap gap-2">
+                        <CFormSelect
+                          className="component-size crawl-filter-select"
+                          aria-label="Danh mục"
+                          value={filters.cat_id}
+                          onChange={(event) => changeFilter('cat_id', event.target.value)}
+                        >
+                          <option value="">Tất cả danh mục</option>
+                          {categoryTreeOptions(categories).map((cat) => (
+                            <option key={`${cat.cat_id}-${cat.cat_name}`} value={cat.cat_id}>
+                              {`${'\u00a0\u00a0\u00a0\u00a0'.repeat(cat.depth)}${cat.depth ? '↳ ' : ''}${cat.cat_name}`}
+                            </option>
+                          ))}
+                        </CFormSelect>
+                        <CFormSelect
+                          className="component-size crawl-filter-select"
+                          aria-label="Trạng thái crawl ảnh"
+                          value={filters.crawled}
+                          onChange={(event) => changeFilter('crawled', event.target.value)}
+                        >
+                          <option value="1">Đã crawl ảnh</option>
+                          <option value="0">Chưa crawl ảnh</option>
+                        </CFormSelect>
+                        <CFormSelect
+                          className="component-size crawl-filter-select"
+                          aria-label="Tồn kho"
+                          value={filters.stock}
+                          onChange={(event) => changeFilter('stock', event.target.value)}
+                        >
+                          <option value="">Tất cả tồn kho</option>
+                          <option value="1">Còn hàng</option>
+                          <option value="0">Hết hàng</option>
+                        </CFormSelect>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="crawl-filter-label fw-semibold text-secondary">Tìm kiếm</td>
+                    <td>
+                      <div className="mb-1 text-muted fs-7">
+                        <em>Tìm kiếm theo tên hoặc mã hàng hóa</em>
+                      </div>
+                      <form
+                        onSubmit={(event) => {
+                          event.preventDefault()
+                          changeFilter('search', search)
+                        }}
+                        className="d-flex flex-wrap align-items-center gap-2"
+                      >
+                        <CFormInput
+                          className="crawl-filter-search"
+                          placeholder="Nhập thông tin tìm kiếm..."
+                          aria-label="Tìm sản phẩm"
+                          value={search}
+                          onChange={(event) => setSearch(event.target.value)}
+                        />
+                        <CButton color="primary" size="sm" type="submit">
+                          Tìm
+                        </CButton>
+                      </form>
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+            </table>
+            {renderPagination('top')}
             <CTable responsive hover align="middle">
               <CTableHead>
                 <CTableRow>
@@ -314,19 +386,16 @@ export default function ProductImageCrawl() {
                     </CTableDataCell>
                     <CTableDataCell>{dateLabel(row.finished_at || row.started_at)}</CTableDataCell>
                     <CTableDataCell>
-                      <Link to={`/product/image-crawl/${row.product_id}`}>Xem chi tiết</Link>
-                      <div>
-                        <CButton
-                          size="sm"
-                          color="primary"
-                          variant="outline"
-                          className="mt-2"
-                          disabled={busy || ['queued', 'running'].includes(row.crawl_status)}
-                          onClick={() => enqueue(row.product_id)}
-                        >
-                          Yêu cầu crawl
-                        </CButton>
-                      </div>
+                      <CButton
+                        as={Link}
+                        to={`/product/image-crawl/${row.product_id}`}
+                        size="sm"
+                        color="primary"
+                        variant="outline"
+                        className="text-nowrap"
+                      >
+                        Xem chi tiết
+                      </CButton>
                     </CTableDataCell>
                   </CTableRow>
                 ))}
@@ -337,35 +406,17 @@ export default function ProductImageCrawl() {
                 )}
               </CTableBody>
             </CTable>
-            <div className="d-flex align-items-center justify-content-between">
-              <span>
-                {list.total} sản phẩm · Trang {list.current_page}/{list.last_page}
-              </span>
-              <div className="d-flex gap-2">
-                <CButton
-                  color="secondary"
-                  variant="outline"
-                  disabled={page <= 1 || loading}
-                  onClick={() => setPage(page - 1)}
-                >
-                  Trước
-                </CButton>
-                <CButton
-                  color="secondary"
-                  variant="outline"
-                  disabled={page >= list.last_page || loading}
-                  onClick={() => setPage(page + 1)}
-                >
-                  Sau
-                </CButton>
-              </div>
-            </div>
+            {renderPagination('bottom')}
           </CCardBody>
         </CCard>
       )}
       {productId && detail && (
         <>
-          <Link to="/product/image-crawl">← Danh sách sản phẩm</Link>
+          <div className="d-flex justify-content-end">
+            <CButton as={Link} to="/product/image-crawl" color="secondary" variant="outline">
+              ← Quay lại danh sách sản phẩm
+            </CButton>
+          </div>
           <CCard className="mt-3 mb-3">
             <CCardBody>
               <h5>{detail.product.title || `Sản phẩm #${productId}`}</h5>

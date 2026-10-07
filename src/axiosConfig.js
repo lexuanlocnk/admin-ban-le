@@ -1,8 +1,13 @@
 import axios from 'axios'
 
+const apiOrigin = new URL(process.env.REACT_APP_API_HOST || 'https://api.chinhnhan.com')
+if (process.env.REACT_APP_API_PORT) {
+  apiOrigin.port = process.env.REACT_APP_API_PORT
+}
+const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || `${apiOrigin.origin}/api/`
+
 const axiosClient = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'https://api.chinhnhan.com/api/',
-  // baseURL: 'http://192.168.245.190:8010/api/',
+  baseURL: apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
     Authorization: localStorage.getItem('adminCN')
@@ -25,7 +30,7 @@ axiosClient.interceptors.request.use(
 )
 
 // Configuration for images
-const imageBaseUrl = 'https://api.chinhnhan.com/uploads/'
+const imageBaseUrl = `${new URL(apiBaseUrl).origin}/uploads/`
 const mainUrl = 'https://chinhnhan.vn/'
 
 export { axiosClient, imageBaseUrl, mainUrl }

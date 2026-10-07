@@ -28,6 +28,33 @@ body,
   min-height: 100vh;
 }
 
+@media (min-width: 992px) {
+  .wrapper.admin-layout {
+    padding-left: var(--admin-sidebar-offset, 0px) !important;
+  }
+
+  .shopify-sidebar.sidebar-narrow-unfoldable:not(.hide):hover ~ .wrapper.admin-layout {
+    padding-left: 275px !important;
+  }
+
+  .shopify-sidebar:not(.hide):not(.sidebar-narrow):not(.sidebar-narrow-unfoldable):not(.sidebar-overlaid) ~ .wrapper,
+  .shopify-sidebar.sidebar-narrow-unfoldable:not(.hide):hover ~ .wrapper {
+    --cui-sidebar-occupy-start: 275px;
+  }
+}
+
+.wrapper.admin-layout {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.wrapper,
+.wrapper > .body,
+.product-table-card,
+.product-table-scroll {
+  min-width: 0;
+}
+
 .container-lg {
   padding-right: 1rem !important;
   padding-left: 1rem !important;
@@ -163,6 +190,34 @@ label {
   }
 }
 
+.crawl-filter-table {
+  .crawl-filter-label {
+    width: 180px;
+  }
+
+  .crawl-filter-select {
+    width: auto;
+    max-width: 100%;
+    min-width: 150px;
+  }
+
+  .crawl-filter-search {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  @media (max-width: 575px) {
+    .crawl-filter-label {
+      width: 100px;
+    }
+
+    th,
+    td {
+      padding: 8px;
+    }
+  }
+}
+
 .product-table-card {
   border: 1px solid #cbd5e1 !important;
   border-radius: 8px !important;
@@ -170,8 +225,13 @@ label {
   overflow: hidden;
 }
 
+.product-table-scroll {
+  overflow-x: auto;
+}
+
 .custom-product-table {
   border: none !important;
+  min-width: 1250px;
 
   thead th {
     background-color: #f8fafc !important;
@@ -195,6 +255,27 @@ label {
 
   tbody tr:hover {
     background-color: #f8fafc !important;
+  }
+
+  .product-actions-cell {
+    min-width: 110px;
+    text-align: center;
+    background-color: #fff;
+  }
+
+  .product-date-cell {
+    min-width: 155px;
+    white-space: nowrap;
+  }
+
+  .product-title-cell {
+    min-width: 260px;
+    max-width: 380px;
+    overflow-wrap: anywhere;
+  }
+
+  tbody tr:hover .product-actions-cell {
+    background-color: #f8fafc;
   }
 }
 

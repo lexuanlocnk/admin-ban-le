@@ -24,6 +24,11 @@ function walkRules(rules, visitor) {
 }
 
 module.exports = function override(config) {
+  // Avoid slow filesystem cache restoration on Windows during local development.
+  if (config.mode === 'development') {
+    config.cache = { type: 'memory' }
+  }
+
   config.ignoreWarnings = [
     ...(config.ignoreWarnings || []),
     (warning) => {

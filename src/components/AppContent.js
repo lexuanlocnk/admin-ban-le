@@ -1,13 +1,19 @@
 import React, { Suspense } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { CContainer, CSpinner } from '@coreui/react'
 
 // routes config
 import routes from '../routes'
 
 const AppContent = () => {
+  const { pathname } = useLocation()
+  const isProductList = pathname.replace(/\/$/, '') === '/product'
   return (
-    <CContainer className="px-4" lg>
+    <CContainer
+      className={isProductList ? 'px-3' : 'px-4'}
+      fluid={isProductList}
+      lg={!isProductList}
+    >
       <Suspense fallback={<CSpinner color="primary" />}>
         <Routes>
           {routes.map((route, idx) => {

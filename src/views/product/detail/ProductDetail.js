@@ -576,7 +576,7 @@ function ProductDetail() {
   }
 
   return (
-    <CContainer>
+    <CContainer fluid className="px-0">
       {!isPermissionCheck ? (
         <h5>
           <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
@@ -587,7 +587,7 @@ function ProductDetail() {
       ) : (
         <>
           <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
-          <CRow className="mb-3">
+          <CRow className="mb-3 gx-0">
             <CCol md={6}>
               <h2>QUẢN LÝ SẢN PHẨM</h2>
             </CCol>
@@ -611,7 +611,7 @@ function ProductDetail() {
             </CCol>
           </CRow>
 
-          <CRow>
+          <CRow className="gx-0">
             <CCol md={12}>
               <table className="filter-table">
                 <thead>
@@ -779,31 +779,50 @@ function ProductDetail() {
                 <Loading />
               ) : (
                 <div className="card product-table-card">
-                  <CTable hover align="middle" className="mb-0 custom-product-table">
-                    <thead>
-                      <tr>
-                        {columns.map((column) => (
-                          <CTableHeaderCell
-                            key={column.key}
-                            onClick={() => handleSort(column.key)}
-                            className="prevent-select"
-                            style={column._props?.style}
-                          >
-                            {column.label}
-                          </CTableHeaderCell>
-                        ))}
-                      </tr>
-                    </thead>
-                    <CTableBody>
-                      {sortedItems.map((item, index) => (
-                        <CTableRow key={index}>
+                  <div
+                    className="product-table-scroll"
+                    tabIndex={0}
+                    aria-label="Danh sách sản phẩm"
+                  >
+                    <CTable hover align="middle" className="mb-0 custom-product-table">
+                      <thead>
+                        <tr>
                           {columns.map((column) => (
-                            <CTableDataCell key={column.key}>{item[column.key]}</CTableDataCell>
+                            <CTableHeaderCell
+                              key={column.key}
+                              onClick={() => handleSort(column.key)}
+                              className={`prevent-select${column.key === 'actions' ? ' product-actions-cell' : ''}`}
+                              style={column._props?.style}
+                            >
+                              {column.label}
+                            </CTableHeaderCell>
                           ))}
-                        </CTableRow>
-                      ))}
-                    </CTableBody>
-                  </CTable>
+                        </tr>
+                      </thead>
+                      <CTableBody>
+                        {sortedItems.map((item, index) => (
+                          <CTableRow key={index}>
+                            {columns.map((column) => (
+                              <CTableDataCell
+                                key={column.key}
+                                className={
+                                  column.key === 'actions'
+                                    ? 'product-actions-cell'
+                                    : ['create_at', 'update_at'].includes(column.key)
+                                      ? 'product-date-cell'
+                                      : column.key === 'title'
+                                        ? 'product-title-cell'
+                                        : undefined
+                                }
+                              >
+                                {item[column.key]}
+                              </CTableDataCell>
+                            ))}
+                          </CTableRow>
+                        ))}
+                      </CTableBody>
+                    </CTable>
+                  </div>
                 </div>
               )}
             </CCol>
