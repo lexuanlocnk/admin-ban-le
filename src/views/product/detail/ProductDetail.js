@@ -463,14 +463,13 @@ function ProductDetail() {
                 src={`${imageBaseUrl}${item.picture}`}
                 alt={`image_${item?.macn}`}
                 loading="lazy"
-                className="rounded border"
+                className="rounded"
               />
             </div>
           ),
           price: (
             <div style={{ lineHeight: 1.4 }}>
               <div className="orange-txt" style={{ fontWeight: 600 }}>
-                <span>Bán:</span>{' '}
                 {item.price ? `${Number(item.price).toLocaleString('vi-VN')}đ` : '—'}
               </div>
               {item.type === 2 && item.price_purchase !== null && (
