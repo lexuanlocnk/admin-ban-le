@@ -272,7 +272,7 @@ export default function EventOverlayEditor({ step, config, onChange, wish }) {
         ref={preview}
         className="position-relative overflow-hidden rounded border bg-white"
         style={{
-          aspectRatio: step === 'step3' ? '1024 / 618' : '4 / 3',
+          aspectRatio: '4 / 3',
           touchAction: 'none',
           containerType: 'inline-size',
         }}
