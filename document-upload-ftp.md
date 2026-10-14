@@ -1,0 +1,7 @@
+# FE Admin Chính Nhân — prompt upload
+
+Đọc tài liệu nghiệp vụ và nhật ký chính tại ../BE_ChinhNhan/document-upload-ftp.md, hoặc [bản GitHub](https://github.com/BFStReEt/BE_ChinhNhan/blob/main/document-upload-ftp.md).
+
+> Build production FE_Admin_ChinhNhan sau khi kiểm tra git status và phạm vi được phép. Không đưa cấu hình localhost/API preview vào bundle; không gom thay đổi ngoài phạm vi, .env hoặc dữ liệu thử vào Git. Đọc FTP từ .env riêng source này, không in credentials. Audit PWD và thư mục có index.html/static; lần release 14/10/2026 gốc là / và domain hoạt động là https://admin.chinhnhan.com. Upload nội dung build trực tiếp vào gốc, không thư mục build lồng nhau. Giữ nguyên CKFinder ở local lẫn remote, file hosting và static asset cũ. Có thể dùng staging appBuild/appPublic riêng bỏ CKFinder khi quét output cũ chậm. Backup file thay, upload asset trước, manifest/index.html cuối, đọc lại SHA-256 và kiểm tra HTML root, main JS/CSS cùng chunk tính năng qua HTTP. Giữ UI chỉnh HEX nền nút hộp quà cạnh giỏ hàng, layout số nguyên/draft input và ba tab popup. API và FE user là repo riêng: chỉ triển khai nếu được yêu cầu, không coi deploy Admin là đã cập nhật storefront. Ghi commit, trạng thái working tree dùng để build, backup, file đổi và kết quả kiểm tra vào tài liệu chính. Khi xong tắt đúng các localhost đã mở nếu người dùng yêu cầu.
+
+Local preview localhost:3101/#/greetings-preview dùng API SQLite riêng port 8015. Cuối phiên 14/10/2026 cả hai server đã tắt. File .env.development.local chỉ phục vụ development, không commit/upload.
