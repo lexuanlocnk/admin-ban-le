@@ -16,6 +16,13 @@ const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
+const GreetingPreview = React.lazy(() => import('./views/interface/EventGreetingManager'))
+// This isolated preview is available only in development with a local greeting API.
+const greetingPreviewEnabled =
+  process.env.NODE_ENV === 'development' &&
+  /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(
+    process.env.REACT_APP_EVENT_GREETING_API_URL || '',
+  )
 
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
@@ -60,6 +67,9 @@ const App = () => {
           }
         >
           <Routes>
+            {greetingPreviewEnabled && (
+              <Route path="/greetings-preview" element={<GreetingPreview />} />
+            )}
             <Route exact path="/login" name="Login Page" element={<Login />} />
             <Route exact path="/404" name="Page 404" element={<Page404 />} />
             <Route exact path="/500" name="Page 500" element={<Page500 />} />

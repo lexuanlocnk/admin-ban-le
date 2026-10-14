@@ -1,3 +1,4 @@
+// Event greetings and popup configuration for Chính Nhân.
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import {
   CBadge,
@@ -45,9 +46,26 @@ import {
   cilImagePlus,
   cilCheckCircle,
 } from '@coreui/icons'
-import axios from 'axios'
 import { toast } from 'react-toastify'
-import { axiosClient } from '../../axiosConfig'
+import axios from 'axios'
+import { axiosClient as mainAxiosClient } from '../../axiosConfig'
+import EventOverlayEditor, { imageFallback, normalizeOverlayConfig } from './EventOverlayEditor'
+import HeaderGiftBackgroundControl from './HeaderGiftBackgroundControl'
+import './EventGreetingManager.css'
+
+const axiosClient = process.env.REACT_APP_EVENT_GREETING_API_URL
+  ? axios.create({
+      ...mainAxiosClient.defaults,
+      baseURL: process.env.REACT_APP_EVENT_GREETING_API_URL,
+    })
+  : mainAxiosClient
+if (axiosClient !== mainAxiosClient) {
+  axiosClient.interceptors.request.use((config) => {
+    const token = localStorage.getItem('adminCN')
+    if (token) config.headers.Authorization = `Bearer ${token}`
+    return config
+  })
+}
 
 const sanitizeBlobs = (obj) => {
   if (!obj || typeof obj !== 'object') return obj
@@ -64,24 +82,25 @@ const sanitizeBlobs = (obj) => {
 
 const EventGreetingManager = () => {
   const [activeTab, setActiveTab] = useState(1)
+  const [editorStep, setEditorStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [uploadingField, setUploadingField] = useState(null)
 
   const [eventData, setEventData] = useState({
     id: null,
-    title: 'Sự kiện Tết Trung Thu - Nhận Lời Chúc May Mắn',
-    code: 'mid_autumn_2026',
+    title: 'Nhận Lời Chúc May Mắn',
+    code: 'everyday_wishes',
     is_active: true,
     start_date: '',
     end_date: '',
     base_visitor_count: 120,
     display_frequency: 'once_per_day',
     popup_config: {
-      theme: 'mid_autumn',
+      theme: 'default',
       step1: {
         badge: 'Chúc mừng!',
         title: 'Bạn là khách truy cập thứ {number} hôm nay',
-        message: 'Chính Nhân gửi đến bạn một lời chúc Trung Thu vui vẻ, an lành và nhiều may mắn!',
+        message: 'Chính Nhân gửi đến bạn lời chúc vui vẻ, bình an và nhiều may mắn mỗi ngày!',
         image: '',
         btn_open: 'Mở quà ngay',
         btn_later: 'Để sau',
@@ -101,7 +120,7 @@ const EventGreetingManager = () => {
         btn_close: 'Đóng',
       },
       mini_badge: {
-        text: 'Bạn đã nhận lời chúc Trung Thu rồi!',
+        text: 'Bạn đã nhận lời chúc may mắn rồi!',
         image: 'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png',
         enabled: true,
       },
@@ -222,11 +241,8 @@ const EventGreetingManager = () => {
 
     try {
       const res = await axiosClient.post('event-greeting/admin/upload-image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
-
       const uploadedUrl = res?.data?.data?.url || res?.data?.url
       if (res?.data?.status && uploadedUrl) {
         setEventData((prev) => {
@@ -281,14 +297,11 @@ const EventGreetingManager = () => {
             },
           }
         })
-        toast.info('Đã chuyển ảnh sang Base64 tạm thời, bấm "Lưu Cấu Hình Sự Kiện" để hoàn tất!')
+        toast.info('Đã chuyển ảnh sang dữ liệu Base64, vui lòng bấm "Lưu Cấu Hình Sự Kiện"!')
       }
       reader.readAsDataURL(file)
     } finally {
       setUploadingField(null)
-      if (e.target) {
-        e.target.value = ''
-      }
     }
   }
 
@@ -297,7 +310,7 @@ const EventGreetingManager = () => {
     e.preventDefault()
     try {
       setLoading(true)
-      const cleanConfig = sanitizeBlobs(eventData.popup_config || {})
+      const cleanConfig = normalizeOverlayConfig(sanitizeBlobs(eventData.popup_config || {}))
       const payload = {
         ...eventData,
         popup_config: cleanConfig,
@@ -359,12 +372,12 @@ const EventGreetingManager = () => {
   const handleSeedDefaults = async () => {
     if (
       !window.confirm(
-        'Hành động này sẽ nạp / bổ sung đầy đủ bộ 75 câu chúc Trung Thu & Công nghệ chuẩn cho Chính Nhân. Bạn có đồng ý không?',
+        'Hành động này sẽ xóa toàn bộ câu chúc hiện tại và thay bằng 75 lời chúc dùng quanh năm, không gắn với dịp lễ nào. Lượt mở của các câu chúc cũ cũng sẽ được xóa. Bạn có đồng ý không?',
       )
     )
       return
     try {
-      const res = await axiosClient.post('event-greeting/admin/seed-defaults', { force: false })
+      const res = await axiosClient.post('event-greeting/admin/seed-defaults', { force: true })
       if (res?.data?.status) {
         toast.success(res.data.message || 'Đã nạp bộ 75 câu chúc mẫu thành công!')
         fetchWishes()
@@ -376,65 +389,35 @@ const EventGreetingManager = () => {
   }
 
   return (
-    <div>
-      {/* Header Widget Thống kê nhanh */}
-      <CRow className="mb-4">
-        <CCol sm={6} lg={3}>
-          <CCard className="text-white bg-primary shadow-sm">
-            <CCardBody className="p-3">
-              <div className="text-uppercase font-weight-bold text-white-50 small">
-                Khách Truy Cập Hôm Nay
-              </div>
-              <div className="fs-3 fw-bold my-1">
-                {(eventData.base_visitor_count || 120) + (stats.today?.visitor_count || 0)}
-              </div>
-              <small className="text-white-50">
-                Thực tế: +{stats.today?.visitor_count || 0} lượt
-              </small>
-            </CCardBody>
-          </CCard>
-        </CCol>
-        <CCol sm={6} lg={3}>
-          <CCard className="text-white bg-danger shadow-sm">
-            <CCardBody className="p-3">
-              <div className="text-uppercase font-weight-bold text-white-50 small">
-                Lượt Mở Hộp Quà
-              </div>
-              <div className="fs-3 fw-bold my-1">{stats.today?.gift_opened_count || 0}</div>
-              <small className="text-white-50">Tương tác khám phá lời chúc</small>
-            </CCardBody>
-          </CCard>
-        </CCol>
-        <CCol sm={6} lg={3}>
-          <CCard className="text-white bg-warning shadow-sm">
-            <CCardBody className="p-3">
-              <div className="text-uppercase font-weight-bold text-white-50 small">
-                Kho Lời Chúc Hoạt Động
-              </div>
-              <div className="fs-3 fw-bold my-1">
-                {stats.active_wishes || 0} / {stats.total_wishes || 0}
-              </div>
-              <small className="text-white-50">Câu chúc may mắn đang active</small>
-            </CCardBody>
-          </CCard>
-        </CCol>
-        <CCol sm={6} lg={3}>
-          <CCard className="text-white bg-success shadow-sm">
-            <CCardBody className="p-3">
-              <div className="text-uppercase font-weight-bold text-white-50 small">
-                Trạng Thái Sự Kiện
-              </div>
-              <div className="fs-3 fw-bold my-1">
-                {eventData.is_active ? 'ĐANG BẬT' : 'ĐANG TẮT'}
-              </div>
-              <small className="text-white-50">{eventData.code}</small>
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
+    <div className="event-greeting-manager">
+      <header className="event-page-heading">
+        <h1>Lời chúc & popup</h1>
+      </header>
+      <div className="event-stats">
+        <div>
+          <span>Khách truy cập hôm nay</span>
+          <strong>
+            {(eventData.base_visitor_count || 120) + (stats.today?.visitor_count || 0)}
+          </strong>
+          <small>Thực tế: +{stats.today?.visitor_count || 0} lượt</small>
+        </div>
+        <div>
+          <span>Lượt mở hộp quà</span>
+          <strong>{stats.today?.gift_opened_count || 0}</strong>
+          <small>Tương tác khám phá lời chúc</small>
+        </div>
+        <div>
+          <span>Lời chúc đang dùng</span>
+          <strong>
+            {stats.active_wishes || 0}
+            <em> / {stats.total_wishes || 0}</em>
+          </strong>
+          <small>Trong kho lời chúc</small>
+        </div>
+      </div>
 
       {/* Tabs Điều hướng */}
-      <CCard className="shadow-sm border-0">
+      <CCard className="event-config-card border-0">
         <CCardHeader className="bg-white border-bottom p-0">
           <CNav variant="tabs">
             <CNavItem>
@@ -467,10 +450,8 @@ const EventGreetingManager = () => {
               <CForm onSubmit={handleSaveEvent}>
                 <CRow className="g-4">
                   {/* Cột Trái: Thông tin cơ bản */}
-                  <CCol lg={5}>
-                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-                      1. Cài Đặt Chung
-                    </h5>
+                  <CCol lg={4} className="event-settings">
+                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">Cài đặt chung</h5>
 
                     <div className="mb-3 p-3 bg-light rounded border d-flex align-items-center justify-content-between">
                       <div className="flex-grow-1 me-3">
@@ -482,8 +463,8 @@ const EventGreetingManager = () => {
                               className={`fw-bold ms-2 cursor-pointer ${eventData.is_active ? 'text-success' : 'text-danger'}`}
                             >
                               {eventData.is_active
-                                ? 'Kích hoạt hiển thị sự kiện trên Website'
-                                : 'Đang TẮT hiển thị sự kiện trên Website'}
+                                ? 'Hiển thị lời chúc trên website'
+                                : 'Ẩn lời chúc trên website'}
                             </span>
                           }
                           checked={Boolean(eventData.is_active)}
@@ -505,7 +486,7 @@ const EventGreetingManager = () => {
                       <CFormInput
                         value={eventData.title}
                         onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
-                        placeholder="VD: Sự kiện Tết Trung Thu - Nhận Lời Chúc May Mắn"
+                        placeholder="VD: Nhận Lời Chúc May Mắn"
                       />
                     </div>
 
@@ -563,751 +544,846 @@ const EventGreetingManager = () => {
                       </CCol>
                     </CRow>
 
-                    {/* Cấu Hình Logo Popup & Phụ Kiện Trang Trí */}
-                    <div className="p-3 bg-light rounded border mt-3 shadow-xs">
-                      <h6 className="fw-bold mb-3 text-primary d-flex align-items-center justify-content-between">
-                        <span>🎨 Cấu Hình Logo Popup Sự Kiện</span>
-                        {eventData.popup_config?.logo && (
-                          <button
-                            type="button"
-                            className="btn btn-link text-danger p-0 text-decoration-none small"
-                            onClick={() =>
-                              setEventData((prev) => ({
-                                ...prev,
-                                popup_config: {
-                                  ...prev.popup_config,
-                                  logo: '',
-                                },
-                              }))
-                            }
-                          >
-                            Xóa (Dùng logo mặc định)
-                          </button>
-                        )}
-                      </h6>
+                    <details className="event-display-settings">
+                      <summary>Logo, nút header và icon nổi</summary>
+                      {/* Cấu Hình Logo Popup & Phụ Kiện Trang Trí */}
+                      <div className="p-3 bg-light rounded border mt-3 shadow-xs">
+                        <h6 className="fw-bold mb-3 text-primary d-flex align-items-center justify-content-between">
+                          <span>🎨 Cấu Hình Logo Popup Sự Kiện</span>
+                          {eventData.popup_config?.logo && (
+                            <button
+                              type="button"
+                              className="btn btn-link text-danger p-0 text-decoration-none small"
+                              onClick={() =>
+                                setEventData((prev) => ({
+                                  ...prev,
+                                  popup_config: {
+                                    ...prev.popup_config,
+                                    logo: '',
+                                  },
+                                }))
+                              }
+                            >
+                              Xóa (Dùng logo mặc định)
+                            </button>
+                          )}
+                        </h6>
 
-                      {/* 1. Ảnh Logo */}
-                      {/* 1. Ảnh Logo */}
-                      <div className="mb-1">
-                        <CFormLabel className="small fw-bold">Ảnh Logo Popup:</CFormLabel>
-                        <div className="d-flex gap-3 align-items-center">
-                          <div
-                            className="border rounded p-1 bg-white d-flex align-items-center justify-content-center shadow-xs position-relative"
-                            style={{ width: '90px', height: '60px' }}
-                          >
-                            <img
-                              src={eventData.popup_config?.logo || '/images/logo.png'}
-                              alt="Logo Popup"
-                              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                              onError={(e) => {
-                                e.target.src = 'https://api.chinhnhan.com/uploads/logo/logo.png'
-                              }}
-                            />
-                          </div>
-
-                          <div className="flex-grow-1">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="form-control form-control-sm mb-1"
-                              onChange={(e) => handleUploadFile(e, 'logo', 'root')}
-                            />
-                            <div className="input-group input-group-sm">
-                              <span className="input-group-text">URL</span>
-                              <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Hoặc dán URL logo..."
-                                value={eventData.popup_config?.logo || ''}
-                                onChange={(e) =>
-                                  setEventData({
-                                    ...eventData,
-                                    popup_config: {
-                                      ...eventData.popup_config,
-                                      logo: e.target.value,
-                                    },
-                                  })
-                                }
+                        {/* 1. Ảnh Logo */}
+                        {/* 1. Ảnh Logo */}
+                        <div className="mb-1">
+                          <CFormLabel className="small fw-bold">Ảnh Logo Popup:</CFormLabel>
+                          <div className="d-flex gap-3 align-items-center">
+                            <div
+                              className="border rounded p-1 bg-white d-flex align-items-center justify-content-center shadow-xs position-relative"
+                              style={{ width: '90px', height: '60px' }}
+                            >
+                              <img
+                                src={eventData.popup_config?.logo || '/images/logo.png'}
+                                alt="Logo Popup"
+                                style={{
+                                  maxWidth: '100%',
+                                  maxHeight: '100%',
+                                  objectFit: 'contain',
+                                }}
+                                onError={(e) => {
+                                  imageFallback(e, '/images/logo.png')
+                                }}
                               />
+                            </div>
+
+                            <div className="flex-grow-1">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="form-control form-control-sm mb-1"
+                                onChange={(e) => handleUploadFile(e, 'logo', 'root')}
+                              />
+                              <div className="input-group input-group-sm">
+                                <span className="input-group-text">URL</span>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Hoặc dán URL logo..."
+                                  value={eventData.popup_config?.logo || ''}
+                                  onChange={(e) =>
+                                    setEventData({
+                                      ...eventData,
+                                      popup_config: {
+                                        ...eventData.popup_config,
+                                        logo: e.target.value,
+                                      },
+                                    })
+                                  }
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="p-3 bg-light rounded border mt-3">
-                      <h6 className="fw-bold mb-2 text-secondary">
-                        Vị trí hiển thị phụ trên giao diện:
-                      </h6>
-                      <div>
-                        <CFormCheck
-                          id="checkMiniBadge"
-                          className="fw-semibold mb-2"
-                          label="Hiển thị nút 'Bạn đã nhận lời chúc Trung Thu rồi!' trên Header (cạnh Giỏ hàng)"
-                          checked={eventData.popup_config?.mini_badge?.enabled !== false}
-                          onChange={(e) =>
-                            setEventData({
-                              ...eventData,
-                              popup_config: {
-                                ...eventData.popup_config,
-                                mini_badge: {
-                                  ...eventData.popup_config?.mini_badge,
-                                  enabled: e.target.checked,
+                      <div className="p-3 bg-light rounded border mt-3">
+                        <h6 className="fw-bold mb-2 text-secondary">
+                          Vị trí hiển thị phụ trên giao diện:
+                        </h6>
+                        <div>
+                          <CFormCheck
+                            id="checkMiniBadge"
+                            className="fw-semibold mb-2"
+                            label="Hiển thị nút 'Bạn đã nhận lời chúc may mắn rồi!' trên Header (cạnh Giỏ hàng)"
+                            checked={eventData.popup_config?.mini_badge?.enabled !== false}
+                            onChange={(e) =>
+                              setEventData({
+                                ...eventData,
+                                popup_config: {
+                                  ...eventData.popup_config,
+                                  mini_badge: {
+                                    ...eventData.popup_config?.mini_badge,
+                                    enabled: e.target.checked,
+                                  },
                                 },
-                              },
-                            })
-                          }
-                        />
+                              })
+                            }
+                          />
 
-                        {eventData.popup_config?.mini_badge?.enabled !== false && (
-                          <div className="ps-3 border-start border-2 border-warning mt-2 mb-3">
-                            {/* 1. Dòng chữ text cấu hình */}
-                            <div className="mb-2">
-                              <CFormLabel className="small fw-bold">
-                                Dòng chữ hiển thị trên nút Header:
-                              </CFormLabel>
-                              <CFormInput
-                                size="sm"
-                                placeholder="VD: Bạn đã nhận lời chúc Trung Thu rồi!"
-                                value={eventData.popup_config?.mini_badge?.text || ''}
-                                onChange={(e) =>
-                                  setEventData({
-                                    ...eventData,
-                                    popup_config: {
-                                      ...eventData.popup_config,
-                                      mini_badge: {
-                                        ...eventData.popup_config?.mini_badge,
-                                        text: e.target.value,
+                          {eventData.popup_config?.mini_badge?.enabled !== false && (
+                            <div className="ps-3 border-start border-2 border-warning mt-2 mb-3">
+                              {/* 1. Dòng chữ text cấu hình */}
+                              <div className="mb-2">
+                                <CFormLabel className="small fw-bold">
+                                  Dòng chữ hiển thị trên nút Header:
+                                </CFormLabel>
+                                <CFormInput
+                                  size="sm"
+                                  placeholder="VD: Bạn đã nhận lời chúc may mắn rồi!"
+                                  value={eventData.popup_config?.mini_badge?.text || ''}
+                                  onChange={(e) =>
+                                    setEventData({
+                                      ...eventData,
+                                      popup_config: {
+                                        ...eventData.popup_config,
+                                        mini_badge: {
+                                          ...eventData.popup_config?.mini_badge,
+                                          text: e.target.value,
+                                        },
                                       },
-                                    },
-                                  })
+                                    })
+                                  }
+                                />
+                              </div>
+
+                              <HeaderGiftBackgroundControl
+                                config={eventData.popup_config?.mini_badge || {}}
+                                onChange={(mini_badge) =>
+                                  setEventData((prev) => ({
+                                    ...prev,
+                                    popup_config: { ...prev.popup_config, mini_badge },
+                                  }))
                                 }
                               />
-                            </div>
 
-                            {/* 2. Hình ảnh hộp quà / icon tự gắn */}
-                            <div className="mb-2">
-                              <CFormLabel className="small fw-bold d-flex justify-content-between align-items-center">
-                                <span>Hình ảnh Icon / Hộp quà trên góc nút:</span>
-                                {eventData.popup_config?.mini_badge?.image && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-link text-danger p-0 text-decoration-none small"
-                                    onClick={() =>
-                                      setEventData((prev) => ({
-                                        ...prev,
-                                        popup_config: {
-                                          ...prev.popup_config,
-                                          mini_badge: {
-                                            ...prev.popup_config?.mini_badge,
-                                            image: '',
-                                          },
-                                        },
-                                      }))
-                                    }
-                                  >
-                                    Xóa ảnh (dùng hộp quà mặc định)
-                                  </button>
-                                )}
-                              </CFormLabel>
-
-                              <div className="d-flex gap-3 align-items-center">
-                                <div
-                                  className="border rounded p-1 bg-white d-flex align-items-center justify-content-center shadow-xs"
-                                  style={{ width: '60px', height: '60px' }}
-                                >
-                                  <img
-                                    src={
-                                      eventData.popup_config?.mini_badge?.image ||
-                                      'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png'
-                                    }
-                                    alt="Header Badge Icon"
-                                    style={{
-                                      maxWidth: '100%',
-                                      maxHeight: '100%',
-                                      objectFit: 'contain',
-                                    }}
-                                    onError={(e) => {
-                                      e.target.src =
-                                        'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png'
-                                    }}
-                                  />
-                                </div>
-
-                                <div className="flex-grow-1">
-                                  <div className="d-flex align-items-center gap-2 mb-1">
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      className="form-control form-control-sm"
-                                      onChange={(e) => handleUploadFile(e, 'mini_badge', 'image')}
-                                      disabled={uploadingField === 'mini_badge_image'}
-                                    />
-                                    {uploadingField === 'mini_badge_image' && (
-                                      <CSpinner size="sm" color="primary" />
-                                    )}
-                                  </div>
-                                  <div className="input-group input-group-sm mb-1">
-                                    <span className="input-group-text">URL</span>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      placeholder="Hoặc dán URL ảnh hộp quà..."
-                                      value={eventData.popup_config?.mini_badge?.image || ''}
-                                      onChange={(e) =>
-                                        setEventData({
-                                          ...eventData,
+                              {/* 2. Hình ảnh hộp quà / icon tự gắn */}
+                              <div className="mb-2">
+                                <CFormLabel className="small fw-bold d-flex justify-content-between align-items-center">
+                                  <span>Hình ảnh Icon / Hộp quà trên góc nút:</span>
+                                  {eventData.popup_config?.mini_badge?.image && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-link text-danger p-0 text-decoration-none small"
+                                      onClick={() =>
+                                        setEventData((prev) => ({
+                                          ...prev,
                                           popup_config: {
-                                            ...eventData.popup_config,
+                                            ...prev.popup_config,
                                             mini_badge: {
-                                              ...eventData.popup_config?.mini_badge,
-                                              image: e.target.value,
+                                              ...prev.popup_config?.mini_badge,
+                                              image: '',
                                             },
                                           },
-                                        })
+                                        }))
                                       }
+                                    >
+                                      Xóa ảnh (dùng hộp quà mặc định)
+                                    </button>
+                                  )}
+                                </CFormLabel>
+
+                                <div className="d-flex gap-3 align-items-center">
+                                  <div
+                                    className="border rounded p-1 bg-white d-flex align-items-center justify-content-center shadow-xs"
+                                    style={{ width: '60px', height: '60px' }}
+                                  >
+                                    <img
+                                      src={
+                                        eventData.popup_config?.mini_badge?.image ||
+                                        'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png'
+                                      }
+                                      alt="Header Badge Icon"
+                                      style={{
+                                        maxWidth: '100%',
+                                        maxHeight: '100%',
+                                        objectFit: 'contain',
+                                      }}
+                                      onError={(e) => {
+                                        imageFallback(e, '/images/event-header-badge-gift.png')
+                                      }}
                                     />
                                   </div>
-                                  <button
-                                    type="button"
-                                    className="btn btn-sm btn-outline-warning py-0 px-2 small fw-semibold"
-                                    onClick={() => {
-                                      setEventData((prev) => ({
-                                        ...prev,
-                                        popup_config: {
-                                          ...prev.popup_config,
-                                          mini_badge: {
-                                            ...prev.popup_config?.mini_badge,
-                                            image:
-                                              'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png',
-                                          },
-                                        },
-                                      }))
-                                      toast.success('Đã chọn hình Hộp Quà Tết Trung Thu!')
-                                    }}
-                                  >
-                                    🎁 Dùng ảnh Hộp quà 3D mặc định
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
 
-                      {/* Cấu hình Icon Nổi (Floating Widget) phía trên nút Lên đầu trang */}
-                      <hr className="my-3" />
-                      <div>
-                        <CFormCheck
-                          id="checkFloatingWidget"
-                          className="mb-2 fw-semibold"
-                          label="Hiển thị Icon nổi góc dưới phải (phía trên nút Cuộn lên đầu trang) khi đóng popup"
-                          checked={eventData.popup_config?.floating_widget?.enabled !== false}
-                          onChange={(e) =>
-                            setEventData({
-                              ...eventData,
-                              popup_config: {
-                                ...eventData.popup_config,
-                                floating_widget: {
-                                  ...eventData.popup_config?.floating_widget,
-                                  enabled: e.target.checked,
-                                },
-                              },
-                            })
-                          }
-                        />
-
-                        {eventData.popup_config?.floating_widget?.enabled !== false && (
-                          <div className="ps-3 border-start border-2 border-warning mt-2">
-                            <div className="mb-2">
-                              <CFormLabel className="small fw-bold">
-                                Tiêu đề / Tooltip khi rê chuột:
-                              </CFormLabel>
-                              <CFormInput
-                                size="sm"
-                                placeholder="VD: Lời chúc của bạn đã sẵn sàng!"
-                                value={eventData.popup_config?.floating_widget?.title || ''}
-                                onChange={(e) =>
-                                  setEventData({
-                                    ...eventData,
-                                    popup_config: {
-                                      ...eventData.popup_config,
-                                      floating_widget: {
-                                        ...eventData.popup_config?.floating_widget,
-                                        title: e.target.value,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </div>
-
-                            <div className="mb-2">
-                              <CFormLabel className="small fw-bold d-flex justify-content-between">
-                                <span>Hình ảnh Icon nổi (Thỏ/Hộp quà):</span>
-                                {eventData.popup_config?.floating_widget?.image && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-link text-danger p-0 text-decoration-none small"
-                                    onClick={() =>
-                                      setEventData((prev) => ({
-                                        ...prev,
-                                        popup_config: {
-                                          ...prev.popup_config,
-                                          floating_widget: {
-                                            ...prev.popup_config?.floating_widget,
-                                            image: '',
-                                          },
-                                        },
-                                      }))
-                                    }
-                                  >
-                                    Xóa ảnh (dùng mặc định)
-                                  </button>
-                                )}
-                              </CFormLabel>
-
-                              <div className="d-flex gap-2 align-items-center">
-                                <div
-                                  className="border rounded-circle p-1 bg-white d-flex align-items-center justify-content-center shadow-xs position-relative overflow-hidden"
-                                  style={{ width: '50px', height: '50px', flexShrink: 0 }}
-                                >
-                                  <img
-                                    src={
-                                      eventData.popup_config?.floating_widget?.image ||
-                                      '/images/event-floating-icon-default.png'
-                                    }
-                                    alt="Floating Icon"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    onError={(e) => {
-                                      e.target.src = '/images/event-floating-icon-default.png'
-                                    }}
-                                  />
-                                </div>
-
-                                <div className="flex-grow-1">
-                                  <div className="d-flex align-items-center gap-2 mb-1">
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      className="form-control form-control-sm"
-                                      onChange={(e) =>
-                                        handleUploadFile(e, 'floating_widget', 'image')
-                                      }
-                                      disabled={uploadingField === 'floating_widget_image'}
-                                    />
-                                    {uploadingField === 'floating_widget_image' && (
-                                      <CSpinner size="sm" color="primary" />
-                                    )}
-                                  </div>
-                                  <div className="input-group input-group-sm">
-                                    <span className="input-group-text">URL</span>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      placeholder="Hoặc dán URL icon..."
-                                      value={eventData.popup_config?.floating_widget?.image || ''}
-                                      onChange={(e) =>
-                                        setEventData({
-                                          ...eventData,
+                                  <div className="flex-grow-1">
+                                    <div className="d-flex align-items-center gap-2 mb-1">
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="form-control form-control-sm"
+                                        onChange={(e) => handleUploadFile(e, 'mini_badge', 'image')}
+                                        disabled={uploadingField === 'mini_badge_image'}
+                                      />
+                                      {uploadingField === 'mini_badge_image' && (
+                                        <CSpinner size="sm" color="primary" />
+                                      )}
+                                    </div>
+                                    <div className="input-group input-group-sm mb-1">
+                                      <span className="input-group-text">URL</span>
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Hoặc dán URL ảnh hộp quà..."
+                                        value={eventData.popup_config?.mini_badge?.image || ''}
+                                        onChange={(e) =>
+                                          setEventData({
+                                            ...eventData,
+                                            popup_config: {
+                                              ...eventData.popup_config,
+                                              mini_badge: {
+                                                ...eventData.popup_config?.mini_badge,
+                                                image: e.target.value,
+                                              },
+                                            },
+                                          })
+                                        }
+                                      />
+                                    </div>
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm btn-outline-warning py-0 px-2 small fw-semibold"
+                                      onClick={() => {
+                                        setEventData((prev) => ({
+                                          ...prev,
                                           popup_config: {
-                                            ...eventData.popup_config,
-                                            floating_widget: {
-                                              ...eventData.popup_config?.floating_widget,
-                                              image: e.target.value,
+                                            ...prev.popup_config,
+                                            mini_badge: {
+                                              ...prev.popup_config?.mini_badge,
+                                              image:
+                                                'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png',
                                             },
                                           },
-                                        })
-                                      }
-                                    />
+                                        }))
+                                        toast.success('Đã chọn hình Hộp Quà!')
+                                      }}
+                                    >
+                                      🎁 Dùng ảnh Hộp quà 3D mặc định
+                                    </button>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
+
+                        {/* Cấu hình Icon Nổi (Floating Widget) phía trên nút Lên đầu trang */}
+                        <hr className="my-3" />
+                        <div>
+                          <CFormCheck
+                            id="checkFloatingWidget"
+                            className="mb-2 fw-semibold"
+                            label="Hiển thị Icon nổi góc dưới phải (phía trên nút Cuộn lên đầu trang) khi đóng popup"
+                            checked={eventData.popup_config?.floating_widget?.enabled !== false}
+                            onChange={(e) =>
+                              setEventData({
+                                ...eventData,
+                                popup_config: {
+                                  ...eventData.popup_config,
+                                  floating_widget: {
+                                    ...eventData.popup_config?.floating_widget,
+                                    enabled: e.target.checked,
+                                  },
+                                },
+                              })
+                            }
+                          />
+
+                          {eventData.popup_config?.floating_widget?.enabled !== false && (
+                            <div className="ps-3 border-start border-2 border-warning mt-2">
+                              <div className="mb-2">
+                                <CFormLabel className="small fw-bold">
+                                  Tiêu đề / Tooltip khi rê chuột:
+                                </CFormLabel>
+                                <CFormInput
+                                  size="sm"
+                                  placeholder="VD: Lời chúc của bạn đã sẵn sàng!"
+                                  value={eventData.popup_config?.floating_widget?.title || ''}
+                                  onChange={(e) =>
+                                    setEventData({
+                                      ...eventData,
+                                      popup_config: {
+                                        ...eventData.popup_config,
+                                        floating_widget: {
+                                          ...eventData.popup_config?.floating_widget,
+                                          title: e.target.value,
+                                        },
+                                      },
+                                    })
+                                  }
+                                />
+                              </div>
+
+                              <div className="mb-2">
+                                <CFormLabel className="small fw-bold d-flex justify-content-between">
+                                  <span>Hình ảnh Icon nổi (Thỏ/Hộp quà):</span>
+                                  {eventData.popup_config?.floating_widget?.image && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-link text-danger p-0 text-decoration-none small"
+                                      onClick={() =>
+                                        setEventData((prev) => ({
+                                          ...prev,
+                                          popup_config: {
+                                            ...prev.popup_config,
+                                            floating_widget: {
+                                              ...prev.popup_config?.floating_widget,
+                                              image: '',
+                                            },
+                                          },
+                                        }))
+                                      }
+                                    >
+                                      Xóa ảnh (dùng mặc định)
+                                    </button>
+                                  )}
+                                </CFormLabel>
+
+                                <div className="d-flex gap-2 align-items-center">
+                                  <div
+                                    className="border rounded-circle p-1 bg-white d-flex align-items-center justify-content-center shadow-xs position-relative overflow-hidden"
+                                    style={{ width: '50px', height: '50px', flexShrink: 0 }}
+                                  >
+                                    <img
+                                      src={
+                                        eventData.popup_config?.floating_widget?.image ||
+                                        '/images/event-floating-icon-default.png'
+                                      }
+                                      alt="Floating Icon"
+                                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                      onError={(e) => {
+                                        imageFallback(e, '/images/event-floating-icon-default.png')
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className="flex-grow-1">
+                                    <div className="d-flex align-items-center gap-2 mb-1">
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="form-control form-control-sm"
+                                        onChange={(e) =>
+                                          handleUploadFile(e, 'floating_widget', 'image')
+                                        }
+                                        disabled={uploadingField === 'floating_widget_image'}
+                                      />
+                                      {uploadingField === 'floating_widget_image' && (
+                                        <CSpinner size="sm" color="primary" />
+                                      )}
+                                    </div>
+                                    <div className="input-group input-group-sm">
+                                      <span className="input-group-text">URL</span>
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Hoặc dán URL icon..."
+                                        value={eventData.popup_config?.floating_widget?.image || ''}
+                                        onChange={(e) =>
+                                          setEventData({
+                                            ...eventData,
+                                            popup_config: {
+                                              ...eventData.popup_config,
+                                              floating_widget: {
+                                                ...eventData.popup_config?.floating_widget,
+                                                image: e.target.value,
+                                              },
+                                            },
+                                          })
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </details>
                   </CCol>
 
                   {/* Cột Phải: Tùy chỉnh Nội dung và HÌNH ẢNH các Bước */}
-                  <CCol lg={7}>
-                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">
-                      2. Nội Dung & Hình Ảnh Các Bước Popup
-                    </h5>
+                  <CCol lg={8} className="event-popup-workspace">
+                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-2">Nội dung popup</h5>
 
-                    {/* Bước 1 */}
-                    <div className="p-3 mb-3 border rounded bg-white shadow-xs">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <strong className="text-danger">
-                          Bước 1: Chào Mừng & Đếm Khách (Ảnh 1)
-                        </strong>
-                        <CBadge color="danger">Step 1</CBadge>
-                      </div>
+                    <div className="event-step-nav" role="tablist" aria-label="Các bước popup">
+                      {[
+                        [1, 'Chào mừng'],
+                        [2, 'Mở quà'],
+                        [3, 'Lời chúc'],
+                      ].map(([step, label]) => (
+                        <button
+                          key={step}
+                          id={`popup-step-tab-${step}`}
+                          type="button"
+                          role="tab"
+                          aria-selected={editorStep === step}
+                          aria-controls={`popup-step-panel-${step}`}
+                          className={editorStep === step ? 'is-active' : ''}
+                          onClick={() => setEditorStep(step)}
+                        >
+                          <span>{step}</span>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    <section
+                      id="popup-step-panel-1"
+                      role="tabpanel"
+                      aria-labelledby="popup-step-tab-1"
+                      hidden={editorStep !== 1}
+                    >
+                      {/* Bước 1 */}
+                      <div className="event-step-assets">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <strong className="text-danger">Ảnh chào mừng & số khách</strong>
+                          <CBadge color="danger">Step 1</CBadge>
+                        </div>
 
-                      <div className="mb-3">
-                        <CFormLabel className="small fw-bold">
-                          Nút hành động mở quà (Text nút bấm):
-                        </CFormLabel>
-                        <CFormInput
-                          value={eventData.popup_config?.step1?.button_text || ''}
-                          placeholder="Mở quà ngay (hoặc Khám phá ngay, Xem quà...)"
-                          onChange={(e) =>
-                            setEventData({
-                              ...eventData,
-                              popup_config: {
-                                ...eventData.popup_config,
-                                step1: {
-                                  ...eventData.popup_config?.step1,
-                                  button_text: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-
-                      {/* Upload ảnh minh họa Bước 1 */}
-                      <div>
-                        <CFormLabel className="small fw-bold d-flex justify-content-between">
-                          <span>Hình ảnh minh họa Bước 1 (Thỏ ngọc & Quà):</span>
-                          {eventData.popup_config?.step1?.image && (
-                            <button
-                              type="button"
-                              className="text-danger btn btn-link p-0 text-decoration-none small"
-                              onClick={() =>
-                                setEventData((prev) => ({
-                                  ...prev,
-                                  popup_config: {
-                                    ...prev.popup_config,
-                                    step1: { ...prev.popup_config?.step1, image: '' },
+                        <div className="mb-3">
+                          <CFormLabel className="small fw-bold">
+                            Nút hành động mở quà (Text nút bấm):
+                          </CFormLabel>
+                          <CFormInput
+                            value={eventData.popup_config?.step1?.button_text || ''}
+                            placeholder="Mở quà ngay (hoặc Khám phá ngay, Xem quà...)"
+                            onChange={(e) =>
+                              setEventData({
+                                ...eventData,
+                                popup_config: {
+                                  ...eventData.popup_config,
+                                  step1: {
+                                    ...eventData.popup_config?.step1,
+                                    button_text: e.target.value,
                                   },
-                                }))
-                              }
-                            >
-                              Xóa ảnh (dùng mặc định)
-                            </button>
-                          )}
-                        </CFormLabel>
+                                },
+                              })
+                            }
+                          />
+                        </div>
 
-                        <div className="d-flex gap-3 align-items-center">
-                          {eventData.popup_config?.step1?.image ? (
-                            <div className="position-relative border rounded p-1 bg-light">
-                              <img
-                                src={eventData.popup_config.step1.image}
-                                alt="Step 1 Preview"
-                                style={{ width: '80px', height: '80px', objectFit: 'contain' }}
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              className="border rounded d-flex align-items-center justify-content-center text-muted bg-light"
-                              style={{ width: '80px', height: '80px', fontSize: '2rem' }}
-                            >
-                              🐰
-                            </div>
-                          )}
-
-                          <div className="flex-grow-1">
-                            <div className="d-flex align-items-center gap-2 mb-1">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="form-control form-control-sm"
-                                onChange={(e) => handleUploadFile(e, 'step1', 'image')}
-                                disabled={uploadingField === 'step1_image'}
-                              />
-                              {uploadingField === 'step1_image' && (
-                                <CSpinner size="sm" color="primary" />
-                              )}
-                            </div>
-                            <div className="input-group input-group-sm mb-1">
-                              <span className="input-group-text">URL</span>
-                              <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Hoặc dán URL ảnh tại đây..."
-                                value={eventData.popup_config?.step1?.image || ''}
-                                onChange={(e) =>
-                                  setEventData({
-                                    ...eventData,
-                                    popup_config: {
-                                      ...eventData.popup_config,
-                                      step1: {
-                                        ...eventData.popup_config?.step1,
-                                        image: e.target.value,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </div>
-                            <div>
+                        {/* Upload ảnh minh họa Bước 1 */}
+                        <div>
+                          <CFormLabel className="small fw-bold d-flex justify-content-between">
+                            <span>Hình ảnh minh họa Bước 1 (Thỏ ngọc & Quà):</span>
+                            {eventData.popup_config?.step1?.image && (
                               <button
                                 type="button"
-                                className="btn btn-outline-danger btn-sm py-0 px-2 small"
-                                style={{ fontSize: '11px' }}
+                                className="text-danger btn btn-link p-0 text-decoration-none small"
                                 onClick={() =>
-                                  setEventData({
-                                    ...eventData,
-                                    popup_config: {
-                                      ...eventData.popup_config,
-                                      step1: {
-                                        ...eventData.popup_config?.step1,
-                                        image:
-                                          'https://api.chinhnhan.com/uploads/events/event_1790061385_pGhFFd5d.jpg',
-                                      },
-                                    },
-                                  })
-                                }
-                              >
-                                🎯 Dùng ngay banner Trung Thu vừa tải lên
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bước 2 */}
-                    <div className="p-3 mb-3 border rounded bg-white shadow-xs">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <strong className="text-warning text-dark">
-                          Bước 2: Hộp Quà Bất Ngờ (Ảnh 2)
-                        </strong>
-                        <CBadge color="warning">Step 2</CBadge>
-                      </div>
-
-                      <div className="mb-3">
-                        <CFormLabel className="small fw-bold">Tiêu đề phụ:</CFormLabel>
-                        <CFormInput
-                          value={eventData.popup_config?.step2?.subtitle || ''}
-                          onChange={(e) =>
-                            setEventData({
-                              ...eventData,
-                              popup_config: {
-                                ...eventData.popup_config,
-                                step2: {
-                                  ...eventData.popup_config?.step2,
-                                  subtitle: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-
-                      {/* Upload ảnh Bước 2 */}
-                      <div>
-                        <CFormLabel className="small fw-bold d-flex justify-content-between">
-                          <span>Hình ảnh Hộp quà mở tỏa sáng (Bước 2):</span>
-                          {eventData.popup_config?.step2?.image && (
-                            <button
-                              type="button"
-                              className="text-danger btn btn-link p-0 text-decoration-none small"
-                              onClick={() =>
-                                setEventData((prev) => ({
-                                  ...prev,
-                                  popup_config: {
-                                    ...prev.popup_config,
-                                    step2: { ...prev.popup_config?.step2, image: '' },
-                                  },
-                                }))
-                              }
-                            >
-                              Xóa ảnh (dùng mặc định)
-                            </button>
-                          )}
-                        </CFormLabel>
-
-                        <div className="d-flex gap-3 align-items-center">
-                          {eventData.popup_config?.step2?.image ? (
-                            <div className="position-relative border rounded p-1 bg-light">
-                              <img
-                                src={eventData.popup_config.step2.image}
-                                alt="Step 2 Preview"
-                                style={{ width: '80px', height: '80px', objectFit: 'contain' }}
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              className="border rounded d-flex align-items-center justify-content-center text-muted bg-light"
-                              style={{ width: '80px', height: '80px', fontSize: '2rem' }}
-                            >
-                              🎁
-                            </div>
-                          )}
-
-                          <div className="flex-grow-1">
-                            <div className="d-flex align-items-center gap-2 mb-1">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="form-control form-control-sm"
-                                onChange={(e) => handleUploadFile(e, 'step2', 'image')}
-                                disabled={uploadingField === 'step2_image'}
-                              />
-                              {uploadingField === 'step2_image' && (
-                                <CSpinner size="sm" color="primary" />
-                              )}
-                            </div>
-                            <div className="input-group input-group-sm">
-                              <span className="input-group-text">URL</span>
-                              <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Hoặc dán URL ảnh tại đây..."
-                                value={eventData.popup_config?.step2?.image || ''}
-                                onChange={(e) =>
-                                  setEventData({
-                                    ...eventData,
-                                    popup_config: {
-                                      ...eventData.popup_config,
-                                      step2: {
-                                        ...eventData.popup_config?.step2,
-                                        image: e.target.value,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bước 3: NHẬN LỜI CHÚC & ẢNH THIỆP CHÚC (ẢNH 4) */}
-                    <div className="p-3 mb-3 border rounded bg-white shadow-xs border-success">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <strong className="text-success">
-                          Bước 3: Nhận Lời Chúc & Ảnh Thiệp (Ảnh 4)
-                        </strong>
-                        <CBadge color="success">Step 3</CBadge>
-                      </div>
-
-                      <div className="mb-3">
-                        <CFormLabel className="small fw-bold">Tiêu đề popup kết quả:</CFormLabel>
-                        <CFormInput
-                          value={eventData.popup_config?.step3?.title || ''}
-                          onChange={(e) =>
-                            setEventData({
-                              ...eventData,
-                              popup_config: {
-                                ...eventData.popup_config,
-                                step3: { ...eventData.popup_config?.step3, title: e.target.value },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-
-                      {/* 2. Ảnh nền thiệp chúc (Khung nền để fill chữ câu chúc vào) */}
-                      <div className="p-3 rounded bg-light border border-success">
-                        <CFormLabel className="small fw-bold text-success d-flex justify-content-between align-items-center">
-                          <span>🌟 Ảnh Nền Thiệp Chúc Mừng (Nơi fill câu chúc vào):</span>
-                          {eventData.popup_config?.step3?.card_bg_image && (
-                            <button
-                              type="button"
-                              className="text-danger btn btn-link p-0 text-decoration-none small"
-                              onClick={() =>
-                                setEventData((prev) => ({
-                                  ...prev,
-                                  popup_config: {
-                                    ...prev.popup_config,
-                                    step3: { ...prev.popup_config?.step3, card_bg_image: '' },
-                                  },
-                                }))
-                              }
-                            >
-                              Xóa ảnh nền thiệp (dùng nền giấy ngà mặc định)
-                            </button>
-                          )}
-                        </CFormLabel>
-
-                        <div className="d-flex gap-3 align-items-center mb-2">
-                          {eventData.popup_config?.step3?.card_bg_image ? (
-                            <div
-                              className="position-relative border rounded overflow-hidden shadow-xs"
-                              style={{
-                                width: '120px',
-                                height: '80px',
-                                backgroundImage: `url(${eventData.popup_config.step3.card_bg_image})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                              }}
-                            />
-                          ) : (
-                            <div
-                              className="border rounded d-flex align-items-center justify-content-center text-muted bg-white text-center p-2"
-                              style={{ width: '120px', height: '80px', fontSize: '0.75rem' }}
-                            >
-                              Nền giấy ngà chuẩn
-                            </div>
-                          )}
-
-                          <div className="flex-grow-1">
-                            <div className="d-flex align-items-center gap-2 mb-1">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="form-control form-control-sm"
-                                onChange={(e) => handleUploadFile(e, 'step3', 'card_bg_image')}
-                                disabled={uploadingField === 'step3_card_bg_image'}
-                              />
-                              {uploadingField === 'step3_card_bg_image' && (
-                                <CSpinner size="sm" color="success" />
-                              )}
-                            </div>
-                            <div className="input-group input-group-sm mb-1">
-                              <span className="input-group-text">URL</span>
-                              <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Dán link ảnh nền thiệp tại đây..."
-                                value={eventData.popup_config?.step3?.card_bg_image || ''}
-                                onChange={(e) =>
-                                  setEventData({
-                                    ...eventData,
-                                    popup_config: {
-                                      ...eventData.popup_config,
-                                      step3: {
-                                        ...eventData.popup_config?.step3,
-                                        card_bg_image: e.target.value,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </div>
-                            <div className="mt-1 d-flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-outline-success py-1 px-2.5 small fw-bold"
-                                onClick={() => {
                                   setEventData((prev) => ({
                                     ...prev,
                                     popup_config: {
                                       ...prev.popup_config,
-                                      step3: {
-                                        ...prev.popup_config?.step3,
-                                        card_bg_image:
-                                          'https://api.chinhnhan.com/uploads/events/event_1790068535_kVWk0wTF.jpg',
-                                      },
+                                      step1: { ...prev.popup_config?.step1, image: '' },
                                     },
                                   }))
-                                  toast.success('Đã áp dụng ảnh banner Thiệp chúc mừng Trung Thu!')
-                                }}
+                                }
                               >
-                                🎯 Dùng ngay banner Thiệp Chúc Mừng vừa tải lên
+                                Xóa ảnh (dùng mặc định)
                               </button>
+                            )}
+                          </CFormLabel>
+
+                          <div className="d-flex gap-3 align-items-center">
+                            {eventData.popup_config?.step1?.image ? (
+                              <div className="position-relative border rounded p-1 bg-light">
+                                <img
+                                  src={eventData.popup_config.step1.image}
+                                  alt="Step 1 Preview"
+                                  style={{ width: '80px', height: '80px', objectFit: 'contain' }}
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="border rounded d-flex align-items-center justify-content-center text-muted bg-light"
+                                style={{ width: '80px', height: '80px', fontSize: '2rem' }}
+                              >
+                                🐰
+                              </div>
+                            )}
+
+                            <div className="flex-grow-1">
+                              <div className="d-flex align-items-center gap-2 mb-1">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="form-control form-control-sm"
+                                  onChange={(e) => handleUploadFile(e, 'step1', 'image')}
+                                  disabled={uploadingField === 'step1_image'}
+                                />
+                                {uploadingField === 'step1_image' && (
+                                  <CSpinner size="sm" color="primary" />
+                                )}
+                              </div>
+                              <div className="input-group input-group-sm mb-1">
+                                <span className="input-group-text">URL</span>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Hoặc dán URL ảnh tại đây..."
+                                  value={eventData.popup_config?.step1?.image || ''}
+                                  onChange={(e) =>
+                                    setEventData({
+                                      ...eventData,
+                                      popup_config: {
+                                        ...eventData.popup_config,
+                                        step1: {
+                                          ...eventData.popup_config?.step1,
+                                          image: e.target.value,
+                                        },
+                                      },
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-danger btn-sm py-0 px-2 small"
+                                  style={{ fontSize: '11px' }}
+                                  onClick={() =>
+                                    setEventData({
+                                      ...eventData,
+                                      popup_config: {
+                                        ...eventData.popup_config,
+                                        step1: {
+                                          ...eventData.popup_config?.step1,
+                                          image:
+                                            'https://api.chinhnhan.com/uploads/events/event_1790061385_pGhFFd5d.jpg',
+                                        },
+                                      },
+                                    })
+                                  }
+                                >
+                                  🎯 Dùng ngay banner sự kiện vừa tải lên
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="text-end mt-4">
+                      <EventOverlayEditor
+                        step="step1"
+                        config={eventData.popup_config?.step1 || {}}
+                        wish={wishes[0]}
+                        onChange={(layout) =>
+                          setEventData((prev) => ({
+                            ...prev,
+                            popup_config: {
+                              ...prev.popup_config,
+                              step1: { ...prev.popup_config?.step1, layout },
+                            },
+                          }))
+                        }
+                      />
+                    </section>
+                    <section
+                      id="popup-step-panel-2"
+                      role="tabpanel"
+                      aria-labelledby="popup-step-tab-2"
+                      hidden={editorStep !== 2}
+                    >
+                      {/* Bước 2 */}
+                      <div className="event-step-assets">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <strong className="text-warning text-dark">Ảnh mở hộp quà</strong>
+                          <CBadge color="warning">Step 2</CBadge>
+                        </div>
+
+                        <div className="mb-3">
+                          <CFormLabel className="small fw-bold">Tiêu đề phụ:</CFormLabel>
+                          <CFormInput
+                            value={eventData.popup_config?.step2?.subtitle || ''}
+                            onChange={(e) =>
+                              setEventData({
+                                ...eventData,
+                                popup_config: {
+                                  ...eventData.popup_config,
+                                  step2: {
+                                    ...eventData.popup_config?.step2,
+                                    subtitle: e.target.value,
+                                  },
+                                },
+                              })
+                            }
+                          />
+                        </div>
+
+                        {/* Upload ảnh Bước 2 */}
+                        <div>
+                          <CFormLabel className="small fw-bold d-flex justify-content-between">
+                            <span>Hình ảnh Hộp quà mở tỏa sáng (Bước 2):</span>
+                            {eventData.popup_config?.step2?.image && (
+                              <button
+                                type="button"
+                                className="text-danger btn btn-link p-0 text-decoration-none small"
+                                onClick={() =>
+                                  setEventData((prev) => ({
+                                    ...prev,
+                                    popup_config: {
+                                      ...prev.popup_config,
+                                      step2: { ...prev.popup_config?.step2, image: '' },
+                                    },
+                                  }))
+                                }
+                              >
+                                Xóa ảnh (dùng mặc định)
+                              </button>
+                            )}
+                          </CFormLabel>
+
+                          <div className="d-flex gap-3 align-items-center">
+                            {eventData.popup_config?.step2?.image ? (
+                              <div className="position-relative border rounded p-1 bg-light">
+                                <img
+                                  src={eventData.popup_config.step2.image}
+                                  alt="Step 2 Preview"
+                                  style={{ width: '80px', height: '80px', objectFit: 'contain' }}
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="border rounded d-flex align-items-center justify-content-center text-muted bg-light"
+                                style={{ width: '80px', height: '80px', fontSize: '2rem' }}
+                              >
+                                🎁
+                              </div>
+                            )}
+
+                            <div className="flex-grow-1">
+                              <div className="d-flex align-items-center gap-2 mb-1">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="form-control form-control-sm"
+                                  onChange={(e) => handleUploadFile(e, 'step2', 'image')}
+                                  disabled={uploadingField === 'step2_image'}
+                                />
+                                {uploadingField === 'step2_image' && (
+                                  <CSpinner size="sm" color="primary" />
+                                )}
+                              </div>
+                              <div className="input-group input-group-sm">
+                                <span className="input-group-text">URL</span>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Hoặc dán URL ảnh tại đây..."
+                                  value={eventData.popup_config?.step2?.image || ''}
+                                  onChange={(e) =>
+                                    setEventData({
+                                      ...eventData,
+                                      popup_config: {
+                                        ...eventData.popup_config,
+                                        step2: {
+                                          ...eventData.popup_config?.step2,
+                                          image: e.target.value,
+                                        },
+                                      },
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <EventOverlayEditor
+                        step="step2"
+                        config={eventData.popup_config?.step2 || {}}
+                        wish={wishes[0]}
+                        onChange={(layout) =>
+                          setEventData((prev) => ({
+                            ...prev,
+                            popup_config: {
+                              ...prev.popup_config,
+                              step2: { ...prev.popup_config?.step2, layout },
+                            },
+                          }))
+                        }
+                      />
+                    </section>
+                    <section
+                      id="popup-step-panel-3"
+                      role="tabpanel"
+                      aria-labelledby="popup-step-tab-3"
+                      hidden={editorStep !== 3}
+                    >
+                      {/* Bước 3: NHẬN LỜI CHÚC & ẢNH THIỆP CHÚC (ẢNH 4) */}
+                      <div className="event-step-assets">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <strong className="text-success">Ảnh thiệp & lời chúc</strong>
+                          <CBadge color="success">Step 3</CBadge>
+                        </div>
+
+                        <div className="mb-3">
+                          <CFormLabel className="small fw-bold">Tiêu đề popup kết quả:</CFormLabel>
+                          <CFormInput
+                            value={eventData.popup_config?.step3?.title || ''}
+                            onChange={(e) =>
+                              setEventData({
+                                ...eventData,
+                                popup_config: {
+                                  ...eventData.popup_config,
+                                  step3: {
+                                    ...eventData.popup_config?.step3,
+                                    title: e.target.value,
+                                  },
+                                },
+                              })
+                            }
+                          />
+                        </div>
+
+                        {/* 2. Ảnh nền thiệp chúc (Khung nền để fill chữ câu chúc vào) */}
+                        <div className="p-3 rounded bg-light border border-success">
+                          <CFormLabel className="small fw-bold text-success d-flex justify-content-between align-items-center">
+                            <span>🌟 Ảnh Nền Thiệp Chúc Mừng (Nơi fill câu chúc vào):</span>
+                            {eventData.popup_config?.step3?.card_bg_image && (
+                              <button
+                                type="button"
+                                className="text-danger btn btn-link p-0 text-decoration-none small"
+                                onClick={() =>
+                                  setEventData((prev) => ({
+                                    ...prev,
+                                    popup_config: {
+                                      ...prev.popup_config,
+                                      step3: { ...prev.popup_config?.step3, card_bg_image: '' },
+                                    },
+                                  }))
+                                }
+                              >
+                                Xóa ảnh nền thiệp (dùng nền giấy ngà mặc định)
+                              </button>
+                            )}
+                          </CFormLabel>
+
+                          <div className="d-flex gap-3 align-items-center mb-2">
+                            {eventData.popup_config?.step3?.card_bg_image ? (
+                              <div
+                                className="position-relative border rounded overflow-hidden shadow-xs"
+                                style={{
+                                  width: '120px',
+                                  height: '80px',
+                                  backgroundImage: `url(${eventData.popup_config.step3.card_bg_image})`,
+                                  backgroundSize: 'cover',
+                                  backgroundPosition: 'center',
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className="border rounded d-flex align-items-center justify-content-center text-muted bg-white text-center p-2"
+                                style={{ width: '120px', height: '80px', fontSize: '0.75rem' }}
+                              >
+                                Nền giấy ngà chuẩn
+                              </div>
+                            )}
+
+                            <div className="flex-grow-1">
+                              <div className="d-flex align-items-center gap-2 mb-1">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="form-control form-control-sm"
+                                  onChange={(e) => handleUploadFile(e, 'step3', 'card_bg_image')}
+                                  disabled={uploadingField === 'step3_card_bg_image'}
+                                />
+                                {uploadingField === 'step3_card_bg_image' && (
+                                  <CSpinner size="sm" color="success" />
+                                )}
+                              </div>
+                              <div className="input-group input-group-sm mb-1">
+                                <span className="input-group-text">URL</span>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Dán link ảnh nền thiệp tại đây..."
+                                  value={eventData.popup_config?.step3?.card_bg_image || ''}
+                                  onChange={(e) =>
+                                    setEventData({
+                                      ...eventData,
+                                      popup_config: {
+                                        ...eventData.popup_config,
+                                        step3: {
+                                          ...eventData.popup_config?.step3,
+                                          card_bg_image: e.target.value,
+                                        },
+                                      },
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div className="mt-1 d-flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-success py-1 px-2.5 small fw-bold"
+                                  onClick={() => {
+                                    setEventData((prev) => ({
+                                      ...prev,
+                                      popup_config: {
+                                        ...prev.popup_config,
+                                        step3: {
+                                          ...prev.popup_config?.step3,
+                                          card_bg_image:
+                                            'https://api.chinhnhan.com/uploads/events/event_1790068535_kVWk0wTF.jpg',
+                                        },
+                                      },
+                                    }))
+                                    toast.success('Đã áp dụng ảnh banner Thiệp chúc mừng!')
+                                  }}
+                                >
+                                  🎯 Dùng ngay banner Thiệp Chúc Mừng vừa tải lên
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <EventOverlayEditor
+                        step="step3"
+                        config={eventData.popup_config?.step3 || {}}
+                        wish={wishes[0]}
+                        onChange={(layout) =>
+                          setEventData((prev) => ({
+                            ...prev,
+                            popup_config: {
+                              ...prev.popup_config,
+                              step3: { ...prev.popup_config?.step3, layout },
+                            },
+                          }))
+                        }
+                      />
+                    </section>
+                    <div className="event-save-bar">
                       <CButton
                         type="submit"
                         color="primary"
@@ -1349,7 +1425,7 @@ const EventGreetingManager = () => {
                     className="border text-dark fw-semibold btn-sm"
                     onClick={handleSeedDefaults}
                   >
-                    <CIcon icon={cilReload} className="me-1" /> Nạp Bộ Câu Chúc Mẫu
+                    <CIcon icon={cilReload} className="me-1" /> Thay Toàn Bộ Lời Chúc Mẫu
                   </CButton>
                   <CButton
                     color="danger"
@@ -1395,7 +1471,7 @@ const EventGreetingManager = () => {
                         <CTableDataCell colSpan={7} className="text-center py-4 text-muted">
                           {wishSearch
                             ? 'Không tìm thấy câu chúc nào phù hợp với từ khóa tìm kiếm.'
-                            : 'Chưa có câu chúc nào. Hãy nhấn "Nạp Bộ Câu Chúc Mẫu" hoặc "Thêm Câu Chúc Mới"!'}
+                            : 'Chưa có câu chúc nào. Hãy nhấn "Thay Toàn Bộ Lời Chúc Mẫu" hoặc "Thêm Câu Chúc Mới"!'}
                         </CTableDataCell>
                       </CTableRow>
                     ) : (
@@ -1464,7 +1540,7 @@ const EventGreetingManager = () => {
             <CFormInput
               value={editingWish.title}
               onChange={(e) => setEditingWish({ ...editingWish, title: e.target.value })}
-              placeholder="VD: Mùa Trăng Sum Vầy, Vạn Sự Như Ý..."
+              placeholder="VD: Bình An Mỗi Ngày, Công Việc Thuận Lợi..."
             />
           </div>
           <div className="mb-3">
