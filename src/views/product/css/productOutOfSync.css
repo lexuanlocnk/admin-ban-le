@@ -46,19 +46,3 @@
   color: #2563eb;
   background: #eff6ff;
 }
-
-.out-of-sync-date-range {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
-
-.out-of-sync-date-range label {
-  margin: 0;
-  white-space: nowrap;
-}
-
-.out-of-sync-date-range .form-control {
-  width: 165px;
-}

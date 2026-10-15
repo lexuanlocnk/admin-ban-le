@@ -29,6 +29,10 @@ import { toast } from 'react-toastify'
 import copyProductCode from '../../helper/copyProductCode'
 import './css/productOutOfSync.css'
 
+const formatScheduleInput = (value) => (value ? String(value).replace(' ', 'T').slice(0, 19) : '')
+const invalidSchedule = (form) =>
+  Boolean(form.start_date && form.end_date && new Date(form.start_date) > new Date(form.end_date))
+
 function ProductOutOfSync() {
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -42,6 +46,8 @@ function ProductOutOfSync() {
     price: '',
     type: 'skip',
     display: 1,
+    start_date: '',
+    end_date: '',
   })
 
   // Lấy giá trị `page` từ URL hoặc mặc định là 1
@@ -59,10 +65,7 @@ function ProductOutOfSync() {
 
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedDisplay, setSelectedDisplay] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
   const [appliedSearch, setAppliedSearch] = useState('')
-  const invalidDateRange = Boolean(startDate && endDate && startDate > endDate)
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -88,6 +91,8 @@ function ProductOutOfSync() {
         setEditRecord(res.data.data)
         setEditForm({
           ...res.data.data,
+          start_date: formatScheduleInput(res.data.data.start_date),
+          end_date: formatScheduleInput(res.data.data.end_date),
           display: Number(res.data.data?.display ?? 1),
         })
         setEditModalVisible(true)
@@ -119,8 +124,6 @@ function ProductOutOfSync() {
           page: pageNumber,
           type: selectedCategory,
           display: selectedDisplay,
-          start_date: startDate || undefined,
-          end_date: endDate || undefined,
         },
       })
 
@@ -137,8 +140,8 @@ function ProductOutOfSync() {
   }
 
   useEffect(() => {
-    if (!invalidDateRange) fetchDataProductSkip()
-  }, [pageNumber, selectedCategory, selectedDisplay, startDate, endDate, appliedSearch])
+    fetchDataProductSkip()
+  }, [pageNumber, selectedCategory, selectedDisplay, appliedSearch])
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -444,6 +447,8 @@ function ProductOutOfSync() {
       price: '',
       type: 'skip',
       display: 1,
+      start_date: '',
+      end_date: '',
     })
     setAddModalVisible(true)
   }
@@ -456,13 +461,21 @@ function ProductOutOfSync() {
       price: '',
       type: 'skip',
       display: 1,
+      start_date: '',
+      end_date: '',
     })
   }
 
   const handleAddSave = async () => {
+    if (invalidSchedule(addForm)) {
+      toast.error('Ngày kết thúc không đồng bộ phải bằng hoặc sau ngày bắt đầu.')
+      return
+    }
     try {
       const res = await axiosClient.post('admin/price-skip', {
         ...addForm,
+        start_date: addForm.start_date || null,
+        end_date: addForm.end_date || null,
         display: Number(addForm.display),
       })
       if (res.data.status === true) {
@@ -479,9 +492,15 @@ function ProductOutOfSync() {
 
   // Call api put to update product skip
   const handleEditSave = async () => {
+    if (invalidSchedule(editForm)) {
+      toast.error('Ngày kết thúc không đồng bộ phải bằng hoặc sau ngày bắt đầu.')
+      return
+    }
     try {
       const res = await axiosClient.put(`admin/price-skip/${editRecord.id}`, {
         ...editForm,
+        start_date: editForm.start_date || null,
+        end_date: editForm.end_date || null,
         display: Number(editForm.display),
       })
       if (res.data.status === true) {
@@ -494,7 +513,7 @@ function ProductOutOfSync() {
         toast.error('Cập nhật thất bại!')
       }
     } catch (error) {
-      toast.error('Có lỗi khi cập nhật!')
+      toast.error(error?.response?.data?.message || 'Có lỗi khi cập nhật!')
     }
   }
 
@@ -715,54 +734,6 @@ function ProductOutOfSync() {
                       </td>
                     </tr>
                     <tr>
-                      <td className="fw-semibold text-secondary">Ngày tạo bản ghi</td>
-                      <td>
-                        <div className="out-of-sync-date-range">
-                          <label htmlFor="skip-start-date">Từ ngày</label>
-                          <CFormInput
-                            id="skip-start-date"
-                            type="date"
-                            size="sm"
-                            value={startDate}
-                            max={endDate || undefined}
-                            onChange={(e) => {
-                              setStartDate(e.target.value)
-                              setPageNumber(1)
-                            }}
-                          />
-                          <label htmlFor="skip-end-date">Đến ngày</label>
-                          <CFormInput
-                            id="skip-end-date"
-                            type="date"
-                            size="sm"
-                            value={endDate}
-                            min={startDate || undefined}
-                            onChange={(e) => {
-                              setEndDate(e.target.value)
-                              setPageNumber(1)
-                            }}
-                          />
-                          {(startDate || endDate) && (
-                            <CButton
-                              size="sm"
-                              color="secondary"
-                              variant="outline"
-                              onClick={() => {
-                                setStartDate('')
-                                setEndDate('')
-                                setPageNumber(1)
-                              }}
-                            >
-                              Xóa ngày
-                            </CButton>
-                          )}
-                        </div>
-                        {invalidDateRange && (
-                          <p className="text-danger mb-0">Đến ngày phải bằng hoặc sau từ ngày.</p>
-                        )}
-                      </td>
-                    </tr>
-                    <tr>
                       <td className="fw-semibold text-secondary">Tìm kiếm</td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
@@ -931,6 +902,43 @@ function ProductOutOfSync() {
                   ]}
                 />
               </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="addForm-start-date"
+                  className="form-label fw-semibold text-secondary fs-7 mb-1"
+                >
+                  Ngày bắt đầu không đồng bộ
+                </label>
+                <CFormInput
+                  id="addForm-start-date"
+                  name="start_date"
+                  type="datetime-local"
+                  step="1"
+                  value={addForm.start_date || ''}
+                  max={addForm.end_date || undefined}
+                  onChange={handleAddFormChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="addForm-end-date"
+                  className="form-label fw-semibold text-secondary fs-7 mb-1"
+                >
+                  Ngày kết thúc không đồng bộ
+                </label>
+                <CFormInput
+                  id="addForm-end-date"
+                  name="end_date"
+                  type="datetime-local"
+                  step="1"
+                  value={addForm.end_date || ''}
+                  min={addForm.start_date || undefined}
+                  onChange={handleAddFormChange}
+                />
+              </div>
+              <p className="text-muted small mb-0">
+                Có thể để trống nếu không giới hạn thời gian. Múi giờ Việt Nam.
+              </p>
             </CModalBody>
             <CModalFooter className="bg-light border-top px-4 py-3">
               <CButton color="secondary" size="sm" className="px-3" onClick={handleAddModalClose}>
@@ -1019,6 +1027,43 @@ function ProductOutOfSync() {
                       ]}
                     />
                   </div>
+                  <div className="mb-3">
+                    <label
+                      htmlFor="editForm-start-date"
+                      className="form-label fw-semibold text-secondary fs-7 mb-1"
+                    >
+                      Ngày bắt đầu không đồng bộ
+                    </label>
+                    <CFormInput
+                      id="editForm-start-date"
+                      name="start_date"
+                      type="datetime-local"
+                      step="1"
+                      value={editForm.start_date || ''}
+                      max={editForm.end_date || undefined}
+                      onChange={handleEditFormChange}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label
+                      htmlFor="editForm-end-date"
+                      className="form-label fw-semibold text-secondary fs-7 mb-1"
+                    >
+                      Ngày kết thúc không đồng bộ
+                    </label>
+                    <CFormInput
+                      id="editForm-end-date"
+                      name="end_date"
+                      type="datetime-local"
+                      step="1"
+                      value={editForm.end_date || ''}
+                      min={editForm.start_date || undefined}
+                      onChange={handleEditFormChange}
+                    />
+                  </div>
+                  <p className="text-muted small mb-0">
+                    Có thể để trống nếu không giới hạn thời gian. Múi giờ Việt Nam.
+                  </p>
                 </>
               )}
             </CModalBody>
