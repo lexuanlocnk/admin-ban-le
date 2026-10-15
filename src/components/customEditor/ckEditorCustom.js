@@ -25,12 +25,12 @@ function CKedtiorCustom({ data, onChangeData, config = {} }) {
   const baseConfig = {
     versionCheck: false,
     extraPlugins: ['justify', 'colorbutton', 'font'],
-    filebrowserBrowseUrl: 'https://admin.chinhnhan.com/ckfinder/ckfinder.html',
-    filebrowserImageBrowseUrl: 'https://admin.chinhnhan.com/ckfinder/ckfinder.html?type=Images',
+    filebrowserBrowseUrl: 'https://admin.chinhnhan.vn/ckfinder/ckfinder.html',
+    filebrowserImageBrowseUrl: 'https://admin.chinhnhan.vn/ckfinder/ckfinder.html?type=Images',
     filebrowserUploadUrl:
-      'https://admin.chinhnhan.com/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files',
+      'https://admin.chinhnhan.vn/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files',
     filebrowserImageUploadUrl:
-      'https://admin.chinhnhan.com/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images',
+      'https://admin.chinhnhan.vn/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images',
   }
 
   return (

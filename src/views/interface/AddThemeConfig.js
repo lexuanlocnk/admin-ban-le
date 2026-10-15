@@ -2858,7 +2858,7 @@ function AddThemeConfig() {
                                   <img
                                     src={
                                       newTheme?.decorations?.logoUrl ||
-                                      'https://api.chinhnhan.com/uploads/logo/logo.png'
+                                      'https://api.chinhnhan.vn/uploads/logo/logo.png'
                                     }
                                     alt="Logo Preview"
                                     style={{ maxHeight: '42px', objectFit: 'contain' }}

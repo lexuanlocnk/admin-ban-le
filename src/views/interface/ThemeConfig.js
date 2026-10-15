@@ -483,7 +483,7 @@ const FEATURED_PRODUCTS = [
     originalPrice: '81.000.000 đ',
     discount: '-3%',
     rating: '5.0',
-    img: 'https://api.chinhnhan.com/uploads/product/2026-04/NBDE_MC16250_U732G512/69d8a79001b09.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/2026-04/NBDE_MC16250_U732G512/69d8a79001b09.png',
   },
   {
     id: 2,
@@ -492,7 +492,7 @@ const FEATURED_PRODUCTS = [
     originalPrice: '34.940.000 đ',
     discount: '-3%',
     rating: '4.0',
-    img: 'https://api.chinhnhan.com/uploads/product/66b0851527279.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/66b0851527279.png',
   },
   {
     id: 3,
@@ -501,7 +501,7 @@ const FEATURED_PRODUCTS = [
     originalPrice: '48.930.000 đ',
     discount: '-3%',
     rating: '4.5',
-    img: 'https://api.chinhnhan.com/uploads/product/2026-02/NBLE_T14_004EVA/698e7e1b70a19.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/2026-02/NBLE_T14_004EVA/698e7e1b70a19.png',
   },
   {
     id: 4,
@@ -510,7 +510,7 @@ const FEATURED_PRODUCTS = [
     originalPrice: '32.730.000 đ',
     discount: '-3%',
     rating: '4.0',
-    img: 'https://api.chinhnhan.com/uploads/product/67c7ca1c74e71.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/67c7ca1c74e71.png',
   },
   {
     id: 5,
@@ -519,7 +519,7 @@ const FEATURED_PRODUCTS = [
     originalPrice: '21.710.000 đ',
     discount: '-3%',
     rating: '4.5',
-    img: 'https://api.chinhnhan.com/uploads/product/2026-02/NBHP_240RG10_C3SG9AT/698173f8e39c5.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/2026-02/NBHP_240RG10_C3SG9AT/698173f8e39c5.png',
   },
 ]
 
@@ -532,7 +532,7 @@ const TOP_SELLING_PRODUCTS = [
     originalPrice: '',
     discount: '',
     rating: '5.0',
-    img: 'https://api.chinhnhan.com/uploads/product/aqara/68835bed94c4d.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/aqara/68835bed94c4d.png',
   },
   {
     id: 2,
@@ -541,7 +541,7 @@ const TOP_SELLING_PRODUCTS = [
     originalPrice: '2.390.000 đ',
     discount: '-21%',
     rating: '5.0',
-    img: 'https://api.chinhnhan.com/uploads/product/68148a2ab868a.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/68148a2ab868a.png',
   },
   {
     id: 3,
@@ -550,7 +550,7 @@ const TOP_SELLING_PRODUCTS = [
     originalPrice: '2.090.000 đ',
     discount: '-10%',
     rating: '5.0',
-    img: 'https://api.chinhnhan.com/uploads/product/68759d5a6d756.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/68759d5a6d756.png',
   },
   {
     id: 4,
@@ -559,7 +559,7 @@ const TOP_SELLING_PRODUCTS = [
     originalPrice: '3.990.000 đ',
     discount: '-23%',
     rating: '5.0',
-    img: 'https://api.chinhnhan.com/uploads/product/2026-07/MIEP_L1310/6a6c02004b0a9.png',
+    img: 'https://api.chinhnhan.vn/uploads/product/2026-07/MIEP_L1310/6a6c02004b0a9.png',
   },
   {
     id: 5,
@@ -568,7 +568,7 @@ const TOP_SELLING_PRODUCTS = [
     originalPrice: '5.790.000 đ',
     discount: '-22%',
     rating: '5.0',
-    img: 'https://api.chinhnhan.com/uploads/product/man-hinh/mn-hnh-samsung-lc34g55twwexxv-2.jpg',
+    img: 'https://api.chinhnhan.vn/uploads/product/man-hinh/mn-hnh-samsung-lc34g55twwexxv-2.jpg',
   },
 ]
 
@@ -1750,7 +1750,7 @@ const ThemeConfig = () => {
       return trimmed
     }
     const cleanPath = trimmed.replace(/^\/?uploads\/?/, '').replace(/^\//, '')
-    return `https://api.chinhnhan.com/uploads/${cleanPath}`
+    return `https://api.chinhnhan.vn/uploads/${cleanPath}`
   }
 
   const ThemeBackgroundWatermarkLayer = ({ background, themeCode }) => {

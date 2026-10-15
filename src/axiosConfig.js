@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const apiOrigin = new URL(process.env.REACT_APP_API_HOST || 'https://api.chinhnhan.com')
+const apiOrigin = new URL(process.env.REACT_APP_API_HOST || 'https://api.chinhnhan.vn')
 if (process.env.REACT_APP_API_PORT) {
   apiOrigin.port = process.env.REACT_APP_API_PORT
 }

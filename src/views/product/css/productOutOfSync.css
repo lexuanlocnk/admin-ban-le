@@ -1,0 +1,64 @@
+.out-of-sync-table-scroll {
+  overflow-x: auto;
+}
+
+.out-of-sync-table {
+  min-width: 1200px;
+  table-layout: auto;
+}
+
+.out-of-sync-table td {
+  padding: 12px 14px;
+}
+
+.out-of-sync-code {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 220px;
+}
+
+.out-of-sync-code-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  font-family: var(--cui-font-monospace, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.out-of-sync-copy {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  border-radius: 4px;
+}
+
+.out-of-sync-copy:hover,
+.out-of-sync-copy:focus-visible {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.out-of-sync-date-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.out-of-sync-date-range label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.out-of-sync-date-range .form-control {
+  width: 165px;
+}

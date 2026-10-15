@@ -145,7 +145,7 @@ const resolveImageUrl = (url) => {
     return trimmed
   }
   const cleanPath = trimmed.replace(/^\/?uploads\/?/, '').replace(/^\//, '')
-  return `https://api.chinhnhan.com/uploads/${cleanPath}`
+  return `https://api.chinhnhan.vn/uploads/${cleanPath}`
 }
 
 // Watermark Layer Component for Live Pattern Preview

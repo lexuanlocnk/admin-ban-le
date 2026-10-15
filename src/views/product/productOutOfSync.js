@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { cilColorBorder, cilTrash } from '@coreui/icons'
+import { cilColorBorder, cilTrash, cilCopy } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
   CButton,
@@ -26,6 +26,8 @@ import moment from 'moment/moment'
 import ReactPaginate from 'react-paginate'
 import DeletedModal from '../../components/deletedModal/DeletedModal'
 import { toast } from 'react-toastify'
+import copyProductCode from '../../helper/copyProductCode'
+import './css/productOutOfSync.css'
 
 function ProductOutOfSync() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -57,6 +59,10 @@ function ProductOutOfSync() {
 
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedDisplay, setSelectedDisplay] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [appliedSearch, setAppliedSearch] = useState('')
+  const invalidDateRange = Boolean(startDate && endDate && startDate > endDate)
 
   // show deleted Modal
   const [visible, setVisible] = useState(false)
@@ -101,14 +107,22 @@ function ProductOutOfSync() {
 
   // search Data
   const handleSearch = (keyword) => {
-    fetchDataProductSkip(keyword)
+    setPageNumber(1)
+    setAppliedSearch(keyword)
   }
 
-  const fetchDataProductSkip = async (dataSearch = '') => {
+  const fetchDataProductSkip = async (keyword = appliedSearch) => {
     try {
-      const response = await axiosClient.get(
-        `admin/price-skip?search=${dataSearch}&page=${pageNumber}&type=${selectedCategory}&display=${selectedDisplay}`,
-      )
+      const response = await axiosClient.get('admin/price-skip', {
+        params: {
+          search: keyword,
+          page: pageNumber,
+          type: selectedCategory,
+          display: selectedDisplay,
+          start_date: startDate || undefined,
+          end_date: endDate || undefined,
+        },
+      })
 
       if (response.data.status === true) {
         setDataProductSkip(response.data)
@@ -123,8 +137,8 @@ function ProductOutOfSync() {
   }
 
   useEffect(() => {
-    fetchDataProductSkip()
-  }, [pageNumber, selectedCategory, selectedDisplay])
+    if (!invalidDateRange) fetchDataProductSkip()
+  }, [pageNumber, selectedCategory, selectedDisplay, startDate, endDate, appliedSearch])
 
   // pagination data
   const handlePageChange = ({ selected }) => {
@@ -201,25 +215,23 @@ function ProductOutOfSync() {
             </div>
           ),
           macn: (
-            <div>
-              <span
-                className="badge bg-light text-primary border font-monospace px-2 py-1"
-                style={{ fontSize: '0.825rem' }}
-              >
+            <div className="out-of-sync-code">
+              <span className="out-of-sync-code-text text-primary" title={item?.MaHH}>
                 {item?.MaHH}
               </span>
-            </div>
-          ),
-          type: (
-            <div>
-              <span
-                className="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 fw-medium"
-                style={{ fontSize: '0.825rem' }}
+              <button
+                type="button"
+                className="out-of-sync-copy"
+                title="Copy mã sản phẩm"
+                aria-label={`Copy mã sản phẩm ${item?.MaHH || ''}`}
+                disabled={!item?.MaHH}
+                onClick={() => copyProductCode(item.MaHH)}
               >
-                {getTypeLabel(item?.type)}
-              </span>
+                <CIcon icon={cilCopy} size="sm" />
+              </button>
             </div>
           ),
+          type: <span className="text-info fw-medium">{getTypeLabel(item?.type)}</span>,
 
           price: (
             <div className="text-end fw-bold text-dark fs-6" style={{ letterSpacing: '0.2px' }}>
@@ -227,18 +239,11 @@ function ProductOutOfSync() {
             </div>
           ),
           display: (
-            <div className="text-center">
-              <span
-                className={`badge ${
-                  Number(item?.display) === 1
-                    ? 'bg-success-subtle text-success border border-success-subtle'
-                    : 'bg-secondary-subtle text-secondary border border-secondary-subtle'
-                } px-2 py-1 fw-medium`}
-                style={{ fontSize: '0.825rem' }}
-              >
-                {getDisplayLabel(item?.display)}
-              </span>
-            </div>
+            <span
+              className={`fw-medium ${Number(item?.display) === 1 ? 'text-success' : 'text-secondary'}`}
+            >
+              {getDisplayLabel(item?.display)}
+            </span>
           ),
 
           info: (
@@ -309,7 +314,7 @@ function ProductOutOfSync() {
       label: 'Mã sản phẩm',
       _props: {
         scope: 'col',
-        style: { whiteSpace: 'nowrap', minWidth: '170px', verticalAlign: 'middle' },
+        style: { whiteSpace: 'nowrap', width: '240px', minWidth: '240px', verticalAlign: 'middle' },
       },
     },
     {
@@ -710,6 +715,54 @@ function ProductOutOfSync() {
                       </td>
                     </tr>
                     <tr>
+                      <td className="fw-semibold text-secondary">Ngày tạo bản ghi</td>
+                      <td>
+                        <div className="out-of-sync-date-range">
+                          <label htmlFor="skip-start-date">Từ ngày</label>
+                          <CFormInput
+                            id="skip-start-date"
+                            type="date"
+                            size="sm"
+                            value={startDate}
+                            max={endDate || undefined}
+                            onChange={(e) => {
+                              setStartDate(e.target.value)
+                              setPageNumber(1)
+                            }}
+                          />
+                          <label htmlFor="skip-end-date">Đến ngày</label>
+                          <CFormInput
+                            id="skip-end-date"
+                            type="date"
+                            size="sm"
+                            value={endDate}
+                            min={startDate || undefined}
+                            onChange={(e) => {
+                              setEndDate(e.target.value)
+                              setPageNumber(1)
+                            }}
+                          />
+                          {(startDate || endDate) && (
+                            <CButton
+                              size="sm"
+                              color="secondary"
+                              variant="outline"
+                              onClick={() => {
+                                setStartDate('')
+                                setEndDate('')
+                                setPageNumber(1)
+                              }}
+                            >
+                              Xóa ngày
+                            </CButton>
+                          )}
+                        </div>
+                        {invalidDateRange && (
+                          <p className="text-danger mb-0">Đến ngày phải bằng hoặc sau từ ngày.</p>
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
                       <td className="fw-semibold text-secondary">Tìm kiếm</td>
                       <td>
                         <div className="d-flex align-items-center gap-2">
@@ -770,11 +823,11 @@ function ProductOutOfSync() {
 
           <CRow className="mb-4">
             <CCol md={12}>
-              <div className="card product-table-card">
+              <div className="card product-table-card out-of-sync-table-scroll">
                 <CTable
                   hover
                   align="middle"
-                  className="mb-0 custom-product-table"
+                  className="mb-0 custom-product-table out-of-sync-table"
                   columns={columns}
                   items={items}
                 />

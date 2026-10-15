@@ -121,7 +121,7 @@ const EventGreetingManager = () => {
       },
       mini_badge: {
         text: 'Bạn đã nhận lời chúc may mắn rồi!',
-        image: 'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png',
+        image: 'https://api.chinhnhan.vn/uploads/events/event_1790130032_xPSRBkDy.png',
         enabled: true,
       },
       floating_widget: {
@@ -716,7 +716,7 @@ const EventGreetingManager = () => {
                                     <img
                                       src={
                                         eventData.popup_config?.mini_badge?.image ||
-                                        'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png'
+                                        'https://api.chinhnhan.vn/uploads/events/event_1790130032_xPSRBkDy.png'
                                       }
                                       alt="Header Badge Icon"
                                       style={{
@@ -775,7 +775,7 @@ const EventGreetingManager = () => {
                                             mini_badge: {
                                               ...prev.popup_config?.mini_badge,
                                               image:
-                                                'https://api.chinhnhan.com/uploads/events/event_1790130032_xPSRBkDy.png',
+                                                'https://api.chinhnhan.vn/uploads/events/event_1790130032_xPSRBkDy.png',
                                             },
                                           },
                                         }))
@@ -1075,7 +1075,7 @@ const EventGreetingManager = () => {
                                         step1: {
                                           ...eventData.popup_config?.step1,
                                           image:
-                                            'https://api.chinhnhan.com/uploads/events/event_1790061385_pGhFFd5d.jpg',
+                                            'https://api.chinhnhan.vn/uploads/events/event_1790061385_pGhFFd5d.jpg',
                                         },
                                       },
                                     })
@@ -1353,7 +1353,7 @@ const EventGreetingManager = () => {
                                         step3: {
                                           ...prev.popup_config?.step3,
                                           card_bg_image:
-                                            'https://api.chinhnhan.com/uploads/events/event_1790068535_kVWk0wTF.jpg',
+                                            'https://api.chinhnhan.vn/uploads/events/event_1790068535_kVWk0wTF.jpg',
                                         },
                                       },
                                     }))
