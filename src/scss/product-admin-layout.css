@@ -1,20 +1,32 @@
-/* Keep product filters centered without changing their values or handlers. */
+/* Align product filter controls without changing their values or handlers. */
 .product-filter-table .product-filter-label-column {
   width: 28% !important;
 }
 
 .product-filter-table .product-filter-grid {
   max-width: 1080px;
-  margin-inline: auto;
+  margin-inline: 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .product-filter-table .custom-datepicker-wrapper {
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .product-filter-table .product-filter-search {
-  margin-inline: auto;
+  margin-inline: 0;
+}
+
+/* Keep the edit action in its own row instead of floating over categories. */
+.sticky-button.sticky-button {
+  position: static !important;
+  right: auto;
+  z-index: auto !important;
+}
+
+.sticky-button > .btn {
+  width: 100%;
+  min-height: 40px;
 }
 
 /* Leave more room for the review table and keep both actions reachable. */
