@@ -19,10 +19,32 @@ body,
 // 2. Sidebar Navigation (Giao diện đen huyền bí, tương phản cao khớp ảnh mẫu)
 .sidebar,
 .shopify-sidebar {
-  --cui-sidebar-width: 275px !important;
+  --cui-sidebar-width: 290px;
+  width: var(--cui-sidebar-width, 290px) !important;
+  max-width: 90vw;
   background-color: #212631 !important;
   border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: none !important;
+
+  &.is-resizing {
+    transition: none !important;
+  }
+
+  .sidebar-resizer {
+    position: absolute;
+    top: 0;
+    right: -3px;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 1050;
+    transition: background-color 0.15s ease;
+
+    &:hover,
+    &:active {
+      background-color: rgba(99, 102, 241, 0.7);
+    }
+  }
 
   .sidebar-header {
     background-color: #212631 !important;

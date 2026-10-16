@@ -29,7 +29,7 @@ $config[ 'authentication' ] = function () {
 
 // https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_licenseKey
 
-$config[ 'licenseName' ] = 'admin.chinhnhan.com';
+$config[ 'licenseName' ] = 'admin.chinhnhan.vn';
 $config[ 'licenseKey' ]  = 'J2222RNJHWRHDJCEK6DFA81HHKMBK';
 
 // https://ckeditor.com/docs/ckfinder/ckfinder3-php/configuration.html#configuration_options_privateDir
@@ -60,7 +60,7 @@ $config[ 'images' ] = array(
 $config[ 'backends' ][] = array(
     'name'         => 'default',
     'adapter'      => 'local',
-    'baseUrl'      => 'https://admin.chinhnhan.com/ckfinder/userfiles/',
+    'baseUrl'      => 'https://admin.chinhnhan.vn/ckfinder/userfiles/',
     'root'         => __DIR__ . '/userfiles/',
     'chmodFiles'   => 0777,
     'chmodFolders' => 0755,

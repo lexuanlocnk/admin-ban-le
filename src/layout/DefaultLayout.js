@@ -7,8 +7,8 @@ import ScrollUpButton from '../components/scrollUp/ScrollUpButton'
 
 const DefaultLayout = () => {
   const sidebarShow = useSelector((state) => state.sidebarShow)
-  const sidebarUnfoldable = useSelector((state) => state.sidebarUnfoldable)
-  const sidebarOffset = sidebarShow ? (sidebarUnfoldable ? '64px' : '275px') : '0px'
+  const sidebarWidth = useSelector((state) => state.sidebarWidth) || 290
+  const sidebarOffset = sidebarShow ? `${sidebarWidth}px` : '0px'
   return (
     <div
       style={{

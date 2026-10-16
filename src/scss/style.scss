@@ -31,15 +31,16 @@ body,
 @media (min-width: 992px) {
   .wrapper.admin-layout {
     padding-left: var(--admin-sidebar-offset, 0px) !important;
+    transition: padding-left 0.15s ease;
   }
 
-  .shopify-sidebar.sidebar-narrow-unfoldable:not(.hide):hover ~ .wrapper.admin-layout {
-    padding-left: 275px !important;
+  .shopify-sidebar.is-resizing ~ .wrapper.admin-layout {
+    transition: none !important;
   }
 
   .shopify-sidebar:not(.hide):not(.sidebar-narrow):not(.sidebar-narrow-unfoldable):not(.sidebar-overlaid) ~ .wrapper,
   .shopify-sidebar.sidebar-narrow-unfoldable:not(.hide):hover ~ .wrapper {
-    --cui-sidebar-occupy-start: 275px;
+    --cui-sidebar-occupy-start: var(--admin-sidebar-offset, 290px);
   }
 }
 
@@ -125,7 +126,7 @@ label {
 
   th,
   td {
-    padding: 10px 16px;
+    padding: 6px 12px;
     border: none;
     border-bottom: 1px solid #cbd5e1;
     text-align: left;
@@ -134,6 +135,8 @@ label {
 
   td:first-child {
     border-right: 1px solid #cbd5e1;
+    white-space: nowrap;
+    font-size: 13.5px;
   }
 
   tr:last-child td {
@@ -142,10 +145,11 @@ label {
 
   thead th {
     background-color: #f8fafc;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: #334155;
     border-bottom: 2px solid #94a3b8;
+    padding: 8px 12px;
   }
 
   .total-count {
@@ -153,14 +157,22 @@ label {
     font-weight: 700;
   }
 
+  .form-select,
+  .component-size {
+    font-size: 13px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    min-height: 32px !important;
+  }
+
   .search-input {
-    min-width: 360px;
-    max-width: 500px;
-    width: 380px;
-    padding: 6px 12px;
+    min-width: 280px;
+    max-width: 460px;
+    width: 340px;
+    padding: 5px 10px;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13.5px;
     outline: none;
     transition: all 0.2s ease;
   }
@@ -343,11 +355,12 @@ label {
 }
 
 .custom-datepicker {
-  width: 150px;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 140px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  box-shadow: none;
 }
 
 .custom-datepicker:focus {
