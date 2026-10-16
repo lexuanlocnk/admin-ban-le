@@ -226,10 +226,8 @@
   font-size: 11px;
   padding: 7px 8px;
 }
-.event-save-bar {
-  position: sticky;
-  bottom: 12px;
-  z-index: 5;
+.event-greeting-manager .event-save-bar {
+  position: static;
   display: flex;
   justify-content: flex-end;
   padding: 16px 0 0;

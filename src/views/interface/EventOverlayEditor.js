@@ -49,6 +49,8 @@ const LABELS = {
   wish: 'Tiêu đề, lời chúc và chữ ký',
 }
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
+const overlayFont = (size, scale = 100) =>
+  `clamp(${(size * 4 * scale) / 100}px, ${(size * scale) / 100}cqw, ${(size * 9 * scale) / 100}px)`
 const number = (value, fallback, min, max) =>
   Number.isFinite(Number(value)) && value !== '' && value !== null
     ? clamp(Math.round(Number(value)), min, max)
@@ -142,7 +144,21 @@ export default function EventOverlayEditor({ step, config, onChange, wish }) {
   const update = (changes, key = selected) =>
     onChange({ ...config.layout, [key]: { ...getOverlay(step, key, config.layout), ...changes } })
   const previewContent = (key) => {
-    if (key === 'counter') return <strong style={{ fontSize: '3.5em' }}>128</strong>
+    const overlay = getOverlay(step, key, config.layout)
+    if (key === 'counter')
+      return (
+        <strong
+          style={{
+            fontSize: 'inherit',
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+            fontWeight: 900,
+            letterSpacing: '0.05em',
+            lineHeight: 1,
+          }}
+        >
+          128
+        </strong>
+      )
     if (key === 'actions')
       return (
         <div className="d-flex flex-wrap justify-content-center align-items-center gap-2">
@@ -176,16 +192,22 @@ export default function EventOverlayEditor({ step, config, onChange, wish }) {
       )
     if (key === 'subtitle')
       return (
-        <strong>{config.subtitle || 'Hãy chạm để khám phá lời chúc dành riêng cho bạn'}</strong>
+        <strong style={{ fontSize: 'inherit' }}>
+          {config.subtitle || 'Hãy chạm để khám phá lời chúc dành riêng cho bạn'}
+        </strong>
       )
     return (
       <div>
-        <strong style={{ color: '#B91C1C' }}>{wish?.title || 'Lời Chúc Từ Chính Nhân'}</strong>
-        <p className="my-1">
+        <strong style={{ fontSize: overlayFont(2.1, overlay.scale), color: overlay.color }}>
+          {wish?.title || 'Lời Chúc Từ Chính Nhân'}
+        </strong>
+        <p className="my-1" style={{ fontSize: overlayFont(1.7, overlay.scale) }}>
           {wish?.content ||
             'Chúc bạn luôn khỏe mạnh, bình an, nhiều niềm vui và thật nhiều điều may mắn!'}
         </p>
-        <small>— {wish?.author || 'Chính Nhân'} —</small>
+        <small style={{ fontSize: overlayFont(1.4, overlay.scale) }}>
+          — {wish?.author || 'Chính Nhân'} —
+        </small>
       </div>
     )
   }
@@ -371,10 +393,10 @@ export default function EventOverlayEditor({ step, config, onChange, wish }) {
                     : { left: 'flex-start', center: 'center', right: 'flex-end' }[overlay.align],
                 textAlign: overlay.align,
                 color: overlay.color,
-                fontSize:
-                  key === 'actions'
-                    ? `clamp(${(7.8 * overlay.scale) / 100}px, ${(1.95 * overlay.scale) / 100}cqw, ${(17.55 * overlay.scale) / 100}px)`
-                    : `clamp(7px, ${(1.7 * overlay.scale) / 100}cqw, 28px)`,
+                fontSize: overlayFont(
+                  key === 'counter' ? 6 : key === 'actions' ? 1.8 : key === 'subtitle' ? 2 : 1.7,
+                  overlay.scale,
+                ),
                 lineHeight: 1.4,
                 padding: '2px',
                 cursor: 'move',
