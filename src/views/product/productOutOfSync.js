@@ -33,6 +33,12 @@ const formatScheduleInput = (value) => (value ? String(value).replace(' ', 'T').
 const invalidSchedule = (form) =>
   Boolean(form.start_date && form.end_date && new Date(form.start_date) > new Date(form.end_date))
 
+const formatScheduleDate = (value) => {
+  if (!value) return '—'
+  const date = moment(value)
+  return date.isValid() ? date.format('DD/MM/YYYY HH:mm') : '—'
+}
+
 function ProductOutOfSync() {
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -249,6 +255,9 @@ function ProductOutOfSync() {
             </span>
           ),
 
+          start_date: formatScheduleDate(item?.start_date),
+          end_date: formatScheduleDate(item?.end_date),
+
           info: (
             <div>
               <div>{moment.unix(item?.created_at).format('DD-MM-YYYY')}</div>
@@ -310,14 +319,14 @@ function ProductOutOfSync() {
     {
       key: 'title',
       label: 'Tên sản phẩm',
-      _props: { scope: 'col', style: { minWidth: '260px', verticalAlign: 'middle' } },
+      _props: { scope: 'col', style: { minWidth: '220px', verticalAlign: 'middle' } },
     },
     {
       key: 'macn',
       label: 'Mã sản phẩm',
       _props: {
         scope: 'col',
-        style: { whiteSpace: 'nowrap', width: '240px', minWidth: '240px', verticalAlign: 'middle' },
+        style: { whiteSpace: 'nowrap', width: '210px', minWidth: '210px', verticalAlign: 'middle' },
       },
     },
     {
@@ -348,13 +357,29 @@ function ProductOutOfSync() {
         scope: 'col',
         style: {
           whiteSpace: 'nowrap',
-          minWidth: '100px',
+          minWidth: '80px',
           textAlign: 'center',
           verticalAlign: 'middle',
         },
       },
     },
 
+    {
+      key: 'start_date',
+      label: 'Ngày bắt đầu',
+      _props: {
+        scope: 'col',
+        style: { minWidth: '144px', whiteSpace: 'nowrap', verticalAlign: 'middle' },
+      },
+    },
+    {
+      key: 'end_date',
+      label: 'Ngày kết thúc',
+      _props: {
+        scope: 'col',
+        style: { minWidth: '144px', whiteSpace: 'nowrap', verticalAlign: 'middle' },
+      },
+    },
     {
       key: 'actions',
       label: 'Tác vụ',
@@ -524,7 +549,7 @@ function ProductOutOfSync() {
   }
 
   return (
-    <CContainer>
+    <CContainer fluid className="out-of-sync-page px-0">
       {!isPermissionCheck ? (
         <h5>
           <div>Bạn không đủ quyền để thao tác trên danh mục quản trị này.</div>
