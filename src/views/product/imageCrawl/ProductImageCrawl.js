@@ -88,7 +88,7 @@ export default function ProductImageCrawl() {
   const [filters, setFilters] = useState({
     search: '',
     cat_id: '',
-    crawled: '0',
+    crawled: '',
     stock: '1',
     created_period: '',
   })
@@ -111,7 +111,14 @@ export default function ProductImageCrawl() {
       if (!quiet) setLoading(true)
       try {
         const response = await axiosClient.get(productId ? `${endpoint}/${productId}` : endpoint, {
-          params: productId ? undefined : { ...filters, page, per_page: 20 },
+          params: productId
+            ? undefined
+            : {
+                ...filters,
+                stock: filters.crawled === 'approved' ? '' : filters.stock,
+                page,
+                per_page: 20,
+              },
           signal,
         })
         if (signal?.aborted) return
@@ -241,9 +248,9 @@ export default function ProductImageCrawl() {
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-3 gap-3">
-        <h2 className="mb-0 text-uppercase">
+        <h4 className="mb-0 fw-bold fs-4 text-uppercase">
           {productId ? 'Duyệt ảnh crawl của sản phẩm' : 'Duyệt ảnh chi tiết crawl'}
-        </h2>
+        </h4>
       </div>
       {error && <CAlert color="danger">{error}</CAlert>}
       {loading && (
@@ -306,12 +313,15 @@ export default function ProductImageCrawl() {
                         >
                           <option value="">Tất cả</option>
                           <option value="1">Đã crawl ảnh</option>
+                          <option value="approved">Đã duyệt ảnh</option>
+                          <option value="queued">Đang chờ crawl ảnh</option>
                           <option value="0">Chưa crawl ảnh</option>
                         </CFormSelect>
                         <CFormSelect
                           className="component-size crawl-filter-select"
                           aria-label="Tồn kho"
-                          value={filters.stock}
+                          value={filters.crawled === 'approved' ? '' : filters.stock}
+                          disabled={filters.crawled === 'approved'}
                           onChange={(event) => changeFilter('stock', event.target.value)}
                         >
                           <option value="">Tất cả tồn kho</option>
@@ -337,9 +347,6 @@ export default function ProductImageCrawl() {
                   <tr>
                     <td className="crawl-filter-label fw-semibold text-secondary">Tìm kiếm</td>
                     <td>
-                      <div className="mb-1 text-muted fs-7">
-                        <em>Tìm kiếm theo tên hoặc mã hàng hóa</em>
-                      </div>
                       <form
                         onSubmit={(event) => {
                           event.preventDefault()
@@ -349,7 +356,7 @@ export default function ProductImageCrawl() {
                       >
                         <CFormInput
                           className="crawl-filter-search"
-                          placeholder="Nhập thông tin tìm kiếm..."
+                          placeholder="Tìm kiếm theo tên hoặc mã hàng hóa..."
                           aria-label="Tìm sản phẩm"
                           value={search}
                           onChange={(event) => setSearch(event.target.value)}
@@ -364,13 +371,20 @@ export default function ProductImageCrawl() {
               )}
             </table>
             {renderPagination('top')}
-            <CTable responsive hover align="middle" className="crawl-product-table">
+            <CTable
+              responsive
+              hover
+              align="middle"
+              className="crawl-product-table"
+              style={{ minWidth: 1080 }}
+            >
               <CTableHead>
                 <CTableRow>
                   {[
                     'Tên / mã hàng hóa',
                     'Ảnh',
                     'Danh mục',
+                    'Số ảnh',
                     'Trạng thái',
                     'Ngày đồng bộ',
                     'Ngày crawl',
@@ -378,6 +392,15 @@ export default function ProductImageCrawl() {
                   ].map((label) => (
                     <CTableHeaderCell
                       key={label}
+                      style={
+                        label === 'Số ảnh'
+                          ? { minWidth: 124 }
+                          : label === 'Trạng thái'
+                            ? { minWidth: 200, width: 220 }
+                            : label.startsWith('Ngày ')
+                              ? { minWidth: 100 }
+                              : undefined
+                      }
                       className={
                         label === 'Tên / mã hàng hóa'
                           ? 'crawl-product-name'
@@ -433,9 +456,16 @@ export default function ProductImageCrawl() {
                         )}
                       </CTableDataCell>
                       <CTableDataCell>{row.category || '—'}</CTableDataCell>
-                      <CTableDataCell>
+                      <CTableDataCell style={{ minWidth: 124 }}>
+                        <div className="text-success fw-semibold text-nowrap">
+                          {row.approved_count ?? 0} ảnh đã duyệt
+                        </div>
+                        <small className="text-secondary text-nowrap">
+                          {row.pending_count ?? 0} ảnh chờ duyệt
+                        </small>
+                      </CTableDataCell>
+                      <CTableDataCell style={{ minWidth: 200, width: 220 }}>
                         <div>{jobLabels[row.crawl_status] || 'Chưa crawl'}</div>
-                        <small>{row.pending_count} ảnh chờ duyệt</small>
                         {row.error && <div className="small text-danger">{row.error}</div>}
                       </CTableDataCell>
                       <CTableDataCell>{dateLabel(row.synced_at)}</CTableDataCell>
@@ -505,7 +535,7 @@ export default function ProductImageCrawl() {
                 })}
                 {!list.data.length && (
                   <CTableRow>
-                    <CTableDataCell colSpan={7}>Không có sản phẩm phù hợp.</CTableDataCell>
+                    <CTableDataCell colSpan={8}>Không có sản phẩm phù hợp.</CTableDataCell>
                   </CTableRow>
                 )}
               </CTableBody>

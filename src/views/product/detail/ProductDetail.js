@@ -639,7 +639,7 @@ function ProductDetail() {
           <DeletedModal visible={visible} setVisible={setVisible} onDelete={handleDelete} />
           <CRow className="mb-3 gx-0">
             <CCol md={6}>
-              <h2>QUẢN LÝ SẢN PHẨM</h2>
+              <h4 className="mb-0 fw-bold fs-4">QUẢN LÝ SẢN PHẨM</h4>
             </CCol>
             <CCol md={6}>
               <div className="d-flex justify-content-end">
@@ -663,7 +663,11 @@ function ProductDetail() {
 
           <CRow className="gx-0">
             <CCol md={12}>
-              <table className="filter-table">
+              <table className="filter-table product-filter-table">
+                <colgroup>
+                  <col className="product-filter-label-column" />
+                  <col />
+                </colgroup>
                 <thead>
                   <tr>
                     <th colSpan="2">
@@ -682,9 +686,7 @@ function ProductDetail() {
                 {!isCollapse && (
                   <tbody>
                     <tr>
-                      <td style={{ width: '220px' }} className="fw-semibold text-secondary">
-                        Tổng cộng
-                      </td>
+                      <td className="fw-semibold text-secondary">Tổng cộng</td>
                       <td>
                         <span className="text-danger fs-6 fw-bold">
                           {dataProductList?.total || 0}
@@ -694,10 +696,10 @@ function ProductDetail() {
                     <tr>
                       <td className="fw-semibold text-secondary">Lọc</td>
                       <td>
-                        <div className="d-flex flex-wrap gap-2">
+                        <div className="product-filter-grid">
                           <CFormSelect
-                            className="component-size w-auto"
-                            style={{ width: '185px' }}
+                            size="sm"
+                            className="component-size"
                             aria-label="Chọn yêu cầu lọc"
                             value={selectedCategory}
                             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -712,8 +714,8 @@ function ProductDetail() {
                             ]}
                           />
                           <CFormSelect
-                            className="component-size w-auto"
-                            style={{ width: '185px' }}
+                            size="sm"
+                            className="component-size"
                             aria-label="Chọn thương hiệu"
                             value={selectedBrand}
                             onChange={(e) => setSelectedBrand(e.target.value)}
@@ -729,8 +731,8 @@ function ProductDetail() {
                           />
 
                           <CFormSelect
-                            className="component-size w-auto"
-                            style={{ width: '185px' }}
+                            size="sm"
+                            className="component-size"
                             aria-label="Chọn hiển thị"
                             value={selectedDisplay}
                             onChange={(e) => setSelectedDisplay(e.target.value)}
@@ -741,8 +743,8 @@ function ProductDetail() {
                             ]}
                           />
                           <CFormSelect
-                            className="component-size w-auto"
-                            style={{ width: '185px' }}
+                            size="sm"
+                            className="component-size"
                             aria-label="Chọn tình trạng kho"
                             value={selectedStock}
                             onChange={(e) => setSelectedStock(e.target.value)}
@@ -753,7 +755,8 @@ function ProductDetail() {
                             ]}
                           />
                           <CFormSelect
-                            className="component-size w-auto"
+                            size="sm"
+                            className="component-size"
                             aria-label="Bài viết sản phẩm"
                             value={selectedArticle}
                             onChange={(event) => {
@@ -767,7 +770,8 @@ function ProductDetail() {
                             ]}
                           />
                           <CFormSelect
-                            className="component-size w-auto"
+                            size="sm"
+                            className="component-size"
                             aria-label="Ảnh chi tiết sản phẩm"
                             value={selectedDetailImages}
                             onChange={(event) => {
@@ -810,14 +814,11 @@ function ProductDetail() {
                     <tr>
                       <td className="fw-semibold text-secondary">Tìm kiếm</td>
                       <td>
-                        <div className="mb-1 text-muted fs-7">
-                          <em>Tìm kiếm theo Tiêu đề, Mã kho, Mã số, Giá bán</em>
-                        </div>
-                        <div className="d-flex align-items-center gap-2">
+                        <div className="product-filter-search">
                           <input
                             type="text"
                             className="search-input"
-                            placeholder="Nhập thông tin tìm kiếm..."
+                            placeholder="Tìm kiếm theo tiêu đề, mã kho, mã số, giá bán..."
                             value={dataSearch}
                             onChange={(e) => setDataSearch(e.target.value)}
                             onKeyDown={(e) => {

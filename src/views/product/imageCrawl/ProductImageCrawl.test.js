@@ -49,6 +49,51 @@ beforeEach(() => {
   axiosClient.get.mockResolvedValue(fixture())
 })
 
+test('list separates approved and pending counts and keeps approved history across stock changes', async () => {
+  axiosClient.get.mockResolvedValue({
+    data: {
+      data: {
+        data: [
+          {
+            product_id: 42,
+            title: 'Approved product',
+            approved_count: 5,
+            pending_count: 2,
+            crawl_status: 'completed',
+          },
+        ],
+        total: 1,
+        last_page: 1,
+      },
+      categories: [],
+    },
+  })
+  render(
+    <MemoryRouter initialEntries={['/product/image-crawl']}>
+      <Routes>
+        <Route path="/product/image-crawl" element={<ProductImageCrawl />} />
+      </Routes>
+    </MemoryRouter>,
+  )
+  await screen.findByText('Approved product')
+  expect(screen.getByText('5 ảnh đã duyệt')).toBeInTheDocument()
+  expect(screen.getByText('2 ảnh chờ duyệt')).toBeInTheDocument()
+  fireEvent.change(screen.getByLabelText('Trạng thái crawl ảnh'), { target: { value: 'approved' } })
+  await waitFor(() => expect(screen.getByLabelText('Tồn kho')).toBeDisabled())
+  expect(screen.getByLabelText('Tồn kho')).toHaveValue('')
+  await waitFor(() =>
+    expect(axiosClient.get).toHaveBeenLastCalledWith(
+      'admin/product-image-crawls',
+      expect.objectContaining({
+        params: expect.objectContaining({ crawled: 'approved', stock: '' }),
+      }),
+    ),
+  )
+  fireEvent.change(screen.getByLabelText('Trạng thái crawl ảnh'), { target: { value: '' } })
+  await waitFor(() => expect(screen.getByLabelText('Tồn kho')).toBeEnabled())
+  expect(screen.getByLabelText('Tồn kho')).toHaveValue('1')
+})
+
 test('unknown OCR is shown as requiring review and images are not preselected', async () => {
   mount()
   await screen.findByText('DELL TOWER ECT1250')

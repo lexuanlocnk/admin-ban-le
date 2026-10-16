@@ -1,0 +1,112 @@
+/* Keep product filters centered without changing their values or handlers. */
+.product-filter-table .product-filter-label-column {
+  width: 28% !important;
+}
+
+.product-filter-table .product-filter-grid {
+  max-width: 1080px;
+  margin-inline: auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.product-filter-table .custom-datepicker-wrapper {
+  justify-content: center;
+}
+
+.product-filter-table .product-filter-search {
+  margin-inline: auto;
+}
+
+/* Leave more room for the review table and keep both actions reachable. */
+.card:has(> .card-body > .crawl-filter-table) {
+  margin-inline: -12px;
+}
+
+.crawl-product-table {
+  width: 100%;
+  min-width: 1080px !important;
+  table-layout: fixed;
+}
+
+.crawl-product-table > :not(caption) > * > * {
+  padding: 12px 10px;
+  overflow-wrap: anywhere;
+}
+
+.crawl-product-table .crawl-product-name {
+  width: 27% !important;
+  min-width: 0 !important;
+}
+
+.crawl-product-table th:nth-child(2) {
+  width: 6%;
+}
+.crawl-product-table th:nth-child(3) {
+  width: 8%;
+}
+.crawl-product-table th:nth-child(4) {
+  width: 12%;
+}
+.crawl-product-table th:nth-child(5) {
+  width: 20% !important;
+}
+.crawl-product-table th:nth-child(6),
+.crawl-product-table th:nth-child(7) {
+  width: 9%;
+}
+
+.crawl-product-table > :not(caption) > * > :nth-child(4),
+.crawl-product-table > :not(caption) > * > :nth-child(5),
+.crawl-product-table > :not(caption) > * > :nth-child(6),
+.crawl-product-table > :not(caption) > * > :nth-child(7) {
+  min-width: 0 !important;
+}
+
+.crawl-product-table td:nth-child(5) {
+  width: auto !important;
+}
+
+.crawl-product-table td:nth-child(2) img {
+  max-width: 100%;
+}
+
+.crawl-product-table > :not(caption) > * > :last-child:not([colspan]) {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  width: 92px;
+  min-width: 92px;
+  background: #fff;
+  box-shadow: -1px 0 #e2e8f0;
+}
+
+.crawl-product-table .font-monospace {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1800px) {
+  .product-filter-table .product-filter-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .product-filter-table .product-filter-label-column {
+    width: 110px !important;
+  }
+  .product-filter-table .product-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .product-filter-table .custom-datepicker-wrapper {
+    justify-content: flex-start;
+  }
+  .card:has(> .card-body > .crawl-filter-table) {
+    margin-inline: 0;
+  }
+}
+
+@media (max-width: 479px) {
+  .product-filter-table .product-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
